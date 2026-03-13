@@ -1,0 +1,29 @@
+.env
+*.pyc
+__pycache__/
+.DS_Store
+Thumbs.db
+*.zip
+node_modules/
+
+# User workspace data (never publish)
+.brand-gen/
+brand-materials/
+logo-redesigns/
+
+examples/**/*.png
+examples/**/*.jpg
+examples/**/*.jpeg
+examples/**/*.webp
+examples/**/*.gif
+examples/**/*.mp4
+examples/**/*.mov
+examples/**/*.webm
+examples/**/*.txt
+
+
+# Internal planning / scratch docs (keep local)
+plans/
+docs/plans/
+docs/brainstorms/
+docs/scratchpad/

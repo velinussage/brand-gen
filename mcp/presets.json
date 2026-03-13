@@ -1,0 +1,96 @@
+{
+  "image": {
+    "portrait": {
+      "prefix": "Professional portrait photograph,",
+      "suffix": "studio lighting, shallow depth of field, 85mm lens, f/1.8, neutral background",
+      "negative": "blurry, distorted, low quality, watermark, deformed face"
+    },
+    "product": {
+      "prefix": "Product photography,",
+      "suffix": "clean white background, soft studio lighting, commercial quality, high detail",
+      "negative": "cluttered background, shadows, text overlay, low resolution"
+    },
+    "landscape": {
+      "prefix": "Landscape photograph,",
+      "suffix": "golden hour lighting, wide angle lens, high dynamic range, vivid colors, 4K",
+      "negative": "watermark, text, people, urban elements, oversaturated"
+    },
+    "illustration": {
+      "prefix": "Digital illustration,",
+      "suffix": "clean lines, vibrant colors, professional quality, detailed",
+      "negative": "photorealistic, blurry, rough sketch, noisy"
+    },
+    "logo": {
+      "prefix": "Minimalist vector logo design,",
+      "suffix": "clean geometry, flat colors, professional, scalable, centered composition",
+      "negative": "photorealistic, complex textures, gradients, 3D, busy background"
+    },
+    "ui-mockup": {
+      "prefix": "Modern UI design mockup,",
+      "suffix": "clean layout, consistent spacing, professional typography, subtle shadows",
+      "negative": "cluttered, misaligned, low resolution, pixelated"
+    },
+    "browser-product": {
+      "prefix": "Browser-based product interface visual,",
+      "suffix": "one hero product moment, Ramotion boldness in focal scale, MetaLab editorial framing in whitespace and hierarchy, minimalistic, clean UI, restrained browser frame, quiet brand field chosen for the concept, airy spacing, one supporting inset maximum",
+      "negative": "invented UI, fake app shell, fake browser chrome, fake wallet button, fake chat rail, fake bounty panel, rewritten copy, fake labels, cluttered dashboard composite, neon gradients, distorted text"
+    },
+    "feed-card": {
+      "prefix": "Product marketing image for social feed,",
+      "suffix": "one dominant product crop, poster-first mobile readability, Ramotion boldness in the main focal move, MetaLab editorial restraint in the surrounding space, safe margins, minimal or no text overlays, launch-ready composition",
+      "negative": "invented UI, fake labels, fake cards, fake case study headline, rewritten copy, cluttered composition, generic SaaS shell, distorted text"
+    },
+    "editorial-product": {
+      "prefix": "Editorial product marketing image,",
+      "suffix": "MetaLab editorial framing, calm hierarchy, clean negative space, trustworthy product-marketing polish, graphic brand field chosen for the concept, subtle depth, one hero window, one supporting inset maximum",
+      "negative": "invented headline copy, fake case study layout, cluttered dashboard composite, fake nav, fake labels, rewritten product copy, overdecorated presentation"
+    },
+    "artistic": {
+      "prefix": "Fine art painting,",
+      "suffix": "masterful brushwork, rich colors, dramatic lighting, gallery quality",
+      "negative": "digital artifacts, pixelated, amateur, low resolution"
+    },
+    "campaign-poster": {
+      "prefix": "Campaign-ready product poster visual,",
+      "suffix": "one hero product crop, strong brand field, simpler silhouette, bold contrast, phone-readable focal hierarchy, minimal or no text overlays, memorable but restrained composition",
+      "negative": "invented UI, generic floating-card layout, tiny unreadable details, fake nav, fake copy, cluttered multi-panel composite, distorted text"
+    },
+    "motion-styleframe": {
+      "prefix": "Motion-ready brand styleframe,",
+      "suffix": "one hero product moment, cinematic spatial tension, expressive brand field, directional depth, clear final focal hold, strong campaign composition, zero or one supporting crop",
+      "negative": "invented UI, generic screenshot board, fake browser chrome, cluttered composition, rewritten product copy, random lighting effects, distorted text"
+    }
+  },
+  "video": {
+    "cinematic": {
+      "prefix": "Cinematic shot,",
+      "suffix": "smooth camera movement, film grain, anamorphic lens, 24fps, dramatic lighting",
+      "negative": "shaky camera, low quality, fast cuts, amateur"
+    },
+    "portrait_anim": {
+      "prefix": "Portrait video,",
+      "suffix": "subtle natural movement, soft lighting, shallow depth of field, steady camera",
+      "negative": "exaggerated motion, morphing, distortion, rapid movement"
+    },
+    "nature": {
+      "prefix": "Nature documentary shot,",
+      "suffix": "slow motion, macro detail, natural lighting, vivid colors",
+      "negative": "artificial, CGI look, fast motion, shaky"
+    },
+    "product_anim": {
+      "prefix": "Product showcase video,",
+      "suffix": "smooth 360 rotation, clean background, studio lighting, professional",
+      "negative": "shaky, blurry, cluttered, amateur"
+    },
+    "aerial": {
+      "prefix": "Aerial drone shot,",
+      "suffix": "smooth sweeping motion, bird's eye view, golden hour, cinematic color grade",
+      "negative": "shaky, low altitude, fisheye distortion"
+    },
+    "slowmo": {
+      "prefix": "Slow motion capture,",
+      "suffix": "120fps smoothness, crisp detail, dramatic timing, shallow depth of field",
+      "negative": "choppy, blurry motion, fast playback"
+    }
+  }
+}

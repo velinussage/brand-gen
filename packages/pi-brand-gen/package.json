@@ -1,0 +1,26 @@
+{
+  "name": "@brand-gen/pi-extension",
+  "version": "0.1.0",
+  "description": "Pi extension for brand-gen with heartbeat, widget, commands, and MCP bridge",
+  "type": "module",
+  "main": "src/index.ts",
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "node --check src/index.ts && node --check src/core.ts && node --check src/tool.ts && node --check src/memory.ts && node --check src/mcp-bridge.ts && if command -v tsc >/dev/null 2>&1; then tsc --noEmit; else echo 'warning: tsc not installed; syntax-only fallback used'; fi",
+    "test": "node --test ./test/*.test.ts"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.0",
+    "@mariozechner/pi-ai": "latest",
+    "@mariozechner/pi-tui": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "typescript": "^5.6.0"
+  },
+  "license": "MIT"
+}

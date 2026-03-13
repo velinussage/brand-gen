@@ -1,0 +1,345 @@
+{
+  "version": 2,
+  "roles": {
+    "composition": "Use this reference only for hierarchy, crop discipline, whitespace, and page or poster framing.",
+    "motif": "Use this reference only for system logic: repeat tiles, bands, badges, icon families, and how identity primitives evolve.",
+    "application": "Use this reference only for how the identity lands on posters, merch, stickers, signage, or campaign surfaces.",
+    "motion": "Use this reference only for reveal attitude, pacing, masking, rhythm, and final-hold confidence."
+  },
+  "packs": {
+    "browser_illustration": {
+      "priority": [
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Use one composition ref for crop/whitespace and one application ref for how a real product window is packaged. Do not let motif refs overpower the product proof.",
+      "composition": [
+        "ramotion",
+        "clay",
+        "metalab"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "metalab",
+        "clay",
+        "gretel-work"
+      ],
+      "motion": [
+        "buck-zapier-motion-library",
+        "buck-playgrounds-in-motion"
+      ]
+    },
+    "landing_hero": {
+      "priority": [
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Use homepage-grade references for headline/product balance and application confidence. The hero must still read as the source product, not the reference brand.",
+      "composition": [
+        "clay",
+        "ramotion",
+        "metalab"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "metalab",
+        "mother-design-home",
+        "gretel-work"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ]
+    },
+    "product_banner": {
+      "priority": [
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Choose one wide framing reference and one application reference. Keep the screenshot or UI proof dominant.",
+      "composition": [
+        "ramotion",
+        "clay",
+        "metalab"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "metalab",
+        "gretel-work",
+        "mother-design-home"
+      ],
+      "motion": [
+        "buck-zapier-motion-library",
+        "buck-playgrounds-in-motion"
+      ]
+    },
+    "feature_illustration": {
+      "priority": [
+        "composition",
+        "application",
+        "motif"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Translate agency references into how one feature story is framed, not how the product is redesigned.",
+      "composition": [
+        "ramotion",
+        "clay",
+        "metalab"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "gretel-work",
+        "metalab",
+        "mother-design-home"
+      ],
+      "motion": [
+        "buck-zapier-motion-library",
+        "buck-playgrounds-in-motion"
+      ]
+    },
+    "social": {
+      "priority": [
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Use one composition ref for thumbnail hierarchy and one application ref for ad/card confidence. Keep the brand message clearer than the decoration.",
+      "composition": [
+        "ramotion",
+        "gretel-work",
+        "clay"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "mother-design-home",
+        "gretel-work",
+        "pentagram-poster-house"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ]
+    },
+    "feature_animation": {
+      "priority": [
+        "motion",
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "motion",
+        "composition"
+      ],
+      "selection_note": "Choose one motion ref for pacing and one still/product ref for the final frame. Do not animate the brand into another product language.",
+      "composition": [
+        "ramotion",
+        "clay",
+        "metalab"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "metalab",
+        "mother-design-home",
+        "gretel-work"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ]
+    },
+    "campaign_poster": {
+      "priority": [
+        "composition",
+        "application",
+        "motif"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Translate poster references into one framing move and one application attitude only. Keep the brand logo/mark and product meaning in charge.",
+      "composition": [
+        "gretel-work",
+        "koto-work",
+        "ramotion"
+      ],
+      "motif": [
+        "koto-work",
+        "pentagram-the-wing",
+        "clay"
+      ],
+      "application": [
+        "pentagram-poster-house",
+        "gretel-work",
+        "mother-design-home"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ],
+      "prefer_unique_sources": false
+    },
+    "pattern_system": {
+      "priority": [
+        "motif",
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "motif",
+        "composition"
+      ],
+      "selection_note": "Prefer flat system references with reusable module logic. Translate them into brand mark mechanics instead of direct style transfer.",
+      "composition": [
+        "koto-work",
+        "ramotion",
+        "clay"
+      ],
+      "motif": [
+        "koto-work",
+        "pentagram-the-wing",
+        "gretel-work"
+      ],
+      "application": [
+        "gretel-work",
+        "mother-design-home",
+        "metalab"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ]
+    },
+    "sticker_family": {
+      "priority": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "required_roles": [
+        "motif",
+        "application"
+      ],
+      "selection_note": "Prefer family logic and application examples that can be translated into brand-mark descendants. High-risk sticker references should be translation-only.",
+      "composition": [
+        "gretel-work",
+        "mother-design-home",
+        "ramotion"
+      ],
+      "motif": [
+        "koto-work",
+        "pentagram-the-wing",
+        "buck-notion-faces"
+      ],
+      "application": [
+        "gretel-work",
+        "pentagram-poster-house",
+        "mother-design-home"
+      ],
+      "motion": [
+        "buck-zapier-motion-library",
+        "buck-playgrounds-in-motion"
+      ],
+      "prefer_unique_sources": false
+    },
+    "merch_poster": {
+      "priority": [
+        "application",
+        "composition",
+        "motif"
+      ],
+      "required_roles": [
+        "application",
+        "composition"
+      ],
+      "selection_note": "Prefer print/application confidence without letting another identity system replace the brand.",
+      "composition": [
+        "gretel-work",
+        "koto-work",
+        "mother-design-home"
+      ],
+      "motif": [
+        "koto-work",
+        "pentagram-the-wing",
+        "buck-notion-faces"
+      ],
+      "application": [
+        "pentagram-poster-house",
+        "gretel-work",
+        "mother-design-home"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ],
+      "prefer_unique_sources": false
+    },
+    "brand_bumper": {
+      "priority": [
+        "motion",
+        "composition",
+        "motif"
+      ],
+      "required_roles": [
+        "motion",
+        "composition"
+      ],
+      "selection_note": "Choose one motion reference for pacing and one still reference for final-frame authority. Keep the brand mark fixed and only translate motion attitude.",
+      "composition": [
+        "koto-work",
+        "gretel-work",
+        "ramotion"
+      ],
+      "motif": [
+        "koto-work",
+        "pentagram-the-wing",
+        "ramotion"
+      ],
+      "application": [
+        "gretel-work",
+        "mother-design-home",
+        "metalab"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ]
+    }
+  }
+}

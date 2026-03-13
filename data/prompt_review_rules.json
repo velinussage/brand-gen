@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "interface_non_interface_contamination",
+      "material_groups": ["interface"],
+      "when": {
+        "brand_prelude_contains": "For non-interface materials"
+      },
+      "issue": "Interface material is inheriting non-interface motif language.",
+      "recommendation": "Use interface_prompt_prelude only for interface/product-led materials."
+    },
+    {
+      "id": "interface_resolved_prompt_too_long",
+      "material_groups": ["interface"],
+      "when": {
+        "resolved_prompt_chars_gt": 1800
+      },
+      "issue": "Resolved prompt is too long for an interface material.",
+      "recommendation": "Keep interface prompts short: brand truth, one material rule, one reference translation block, one art-direction ask."
+    },
+    {
+      "id": "interface_missing_role_pack",
+      "material_groups": ["interface"],
+      "when": {
+        "role_pack_empty": true
+      },
+      "issue": "No composition/application role-pack refs were selected for a product-led material.",
+      "recommendation": "Require at least one composition ref and one application ref before generation."
+    },
+    {
+      "id": "hero_social_missing_copy",
+      "materials": ["landing_hero", "social"],
+      "when": {
+        "raw_prompt_missing_any_keywords": ["headline", "slogan", "copy"]
+      },
+      "recommendation": "Consider adding deterministic copy so the surface is not image-only."
+    },
+    {
+      "id": "interface_too_many_bans",
+      "material_groups": ["interface"],
+      "when": {
+        "raw_prompt_phrase_count_gte": {
+          "phrases": ["do not", "never"],
+          "count": 5
+        }
+      },
+      "recommendation": "Too many bans can flatten the composition. Keep only the critical bans."
+    }
+  ]
+}

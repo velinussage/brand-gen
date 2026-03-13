@@ -1,0 +1,21 @@
+{
+  "name": "@brand-gen/openclaw-plugin",
+  "version": "0.1.0",
+  "description": "OpenClaw MCP bridge plugin for brand-gen — autonomous brand material generation with persistent memory",
+  "main": "src/index.ts",
+  "type": "module",
+  "openclaw": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "node --check src/index.ts && node --check src/mcp-bridge.ts && node --check src/memory.ts && if command -v tsc >/dev/null 2>&1; then tsc --noEmit; else echo 'warning: tsc not installed; syntax-only fallback used'; fi",
+    "test": "node --test ./test/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "typescript": "^5.6.0"
+  },
+  "license": "MIT"
+}

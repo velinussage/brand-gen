@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "routes": [
+
+    {
+      "key": "reference_translate",
+      "label": "Reference Translator",
+      "specialists": ["brand_director", "identity_strategist", "visual_composer", "critic_agent"],
+      "required_assets": ["one composition ref", "one application ref", "real product proof"],
+      "required_questions": [
+        "What product truth must survive intact?",
+        "Which external references are only for framing, not identity?"
+      ],
+      "next_commands": [
+        "python3 mcp/brand_iterate.py suggest-role-pack --material-type <material>",
+        "python3 mcp/brand_iterate.py plan-draft --material-type <material> --mode hybrid ...",
+        "python3 mcp/brand_iterate.py critique-plan --plan <draft-or-plan>.json",
+        "python3 mcp/brand_iterate.py build-generation-scratchpad --plan <draft-or-plan>.json",
+        "python3 mcp/brand_iterate.py generate --scratchpad <scratchpad>.json"
+      ],
+      "notes": "Use for product-led browser, social, and feature visuals where references should be translated into framing and composition only."
+    },
+    {
+      "key": "generative_explore",
+      "label": "Generative Explorer",
+      "specialists": ["brand_director", "identity_strategist", "visual_composer", "critic_agent"],
+      "required_assets": ["brand truth", "translated motif/application refs"],
+      "required_questions": [
+        "What mechanic are we exploring, and what should stay locked?",
+        "How abstract is this allowed to be before it stops feeling like the brand?"
+      ],
+      "next_commands": [
+        "python3 mcp/brand_iterate.py ideate-material --material-type <material> --mode hybrid",
+        "python3 mcp/brand_iterate.py plan-draft --material-type <material> --mode hybrid ...",
+        "python3 mcp/brand_iterate.py critique-plan --plan <draft>.json",
+        "python3 mcp/brand_iterate.py build-generation-scratchpad --plan <draft>.json",
+        "python3 mcp/brand_iterate.py generate --scratchpad <scratchpad>.json"
+      ],
+      "notes": "Use for pattern systems, sticker families, and exploratory brand-first experiments after the brand memory is clear."
+    },
+    {
+      "key": "motion_specialist",
+      "label": "Motion Specialist",
+      "specialists": ["brand_director", "motion_director", "critic_agent"],
+      "required_assets": ["approved still or logo frame", "motion reference"],
+      "required_questions": [
+        "Is the still or final frame already good enough to animate?",
+        "Which motion attitude should be borrowed: reveal, wipe, parallax, or settle?"
+      ],
+      "next_commands": [
+        "python3 mcp/brand_iterate.py plan-draft --material-type feature-animation --mode reference ...",
+        "python3 mcp/brand_iterate.py critique-plan --plan <draft>.json --motion-reference <clip>",
+        "python3 mcp/brand_iterate.py build-generation-scratchpad --plan <draft>.json --motion-reference <clip>",
+        "python3 mcp/brand_iterate.py generate --scratchpad <scratchpad>.json"
+      ],
+      "notes": "Still-before-motion. Do not animate weak stills."
+    },
+    {
+      "key": "set_orchestrator",
+      "label": "Set Orchestrator",
+      "specialists": ["brand_director", "identity_strategist", "copy_strategist", "visual_composer", "critic_agent"],
+      "required_assets": ["set goal", "brand rule", "frozen brand DNA snapshot"],
+      "required_questions": [
+        "Which materials belong in the set, and what job does each one do?",
+        "Which materials should be deterministic vs generative?"
+      ],
+      "next_commands": [
+        "python3 mcp/brand_iterate.py plan-set --template product-core",
+        "python3 mcp/brand_iterate.py validate-set --set <set>.json",
+        "python3 mcp/brand_iterate.py generate-set --set <set>.json"
+      ],
+      "notes": "Use when building a family of coherent materials from one frozen brand memory snapshot."
+    }
+  ]
+}

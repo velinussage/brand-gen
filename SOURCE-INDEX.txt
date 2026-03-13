@@ -1,0 +1,65 @@
+brand-gen source index
+======================
+
+Primary standalone workflow files:
+- .env.example
+- .gitignore
+- README.md
+- RELEASE-CHECKLIST.md
+- scripts/validate_setup.py
+- scripts/collect_inspiration.py
+- scripts/init_brand_gen.py
+- scripts/batch_extract_inspiration.py
+- scripts/load_inspiration_doctrine.py
+- scripts/design_memory_lite.py
+- scripts/extract_brand_profile.py
+- scripts/build_brand_identity.py
+- scripts/describe_brand_profile.py
+- scripts/explore_brand_concepts.py
+- scripts/compose_landing_hero.py
+- scripts/build_brand_review_packet.py
+- scripts/product_screens.py
+- scripts/collect_brand_examples.py
+- scripts/open_folder.py
+- prompts/brand-prompt-scratchpad-template.md
+- prompts/brand-reverse-interview-intake.md
+- prompts/brand-description-extraction.md
+- prompts/brand-identity-memory.md
+- prompts/brand-description-prompt-template.md
+- prompts/brand-concept-exploration.md
+- prompts/brand-evolution-loop.md
+- prompts/brand-director-loop.md
+- prompts/brand-example-source-strategy.md
+- prompts/material-set-architecture.md
+- prompts/landing-hero-brief.md
+- prompts/brand-review-refine-loop.md
+- brand-materials/iteration-memory.md (generated per workspace)
+- prompts/product-screenshot-loop.md
+- prompts/product-presentation-reference-brief.md
+- prompts/material-type-differentiation.md
+- prompts/replicate/ui-design-guide.md
+- prompts/social-image-brief.md
+- prompts/feature-animation-brief.md
+- prompts/prompt-review-refine.md
+- prompts/social-dimensions-reference.md
+- skills/brand-gen/SKILL.md
+- skills/brand-gen-reference/SKILL.md
+- skills/brand-gen-reference/references/models.md
+- skills/brand-gen-reference/references/social-surfaces.md
+- skills/brand-gen-reference/references/file-layout.md
+- skills/brand-gen-logo/SKILL.md
+- mcp/brand_iterate.py
+- mcp/brand_iterate_mcp.py
+- mcp/brand_iterate_mcp.example.json
+- data/brand_example_sources.json
+- data/reference_role_packs.json
+- data/workflow_router_rules.json
+- bin/brand-iterate
+- bin/brand-mcp
+
+Retained compatibility snapshots:
+- mcp/generate.py
+- mcp/logo_iterate.py
+- mcp/logo_iterate_mcp.py
+- prompts/logo-prompt-scratchpad-template.md
+- prompts/start-brand-testing.md

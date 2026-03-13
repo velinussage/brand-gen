@@ -1,0 +1,81 @@
+{
+  "image": {
+    "portrait": {
+      "prefix": "Professional portrait photograph,",
+      "suffix": "studio lighting, shallow depth of field, 85mm lens, f/1.8, neutral background",
+      "negative": "blurry, distorted, low quality, watermark, deformed face"
+    },
+    "product": {
+      "prefix": "Product photography,",
+      "suffix": "clean white background, soft studio lighting, commercial quality, high detail",
+      "negative": "cluttered background, shadows, text overlay, low resolution"
+    },
+    "landscape": {
+      "prefix": "Landscape photograph,",
+      "suffix": "golden hour lighting, wide angle lens, high dynamic range, vivid colors, 4K",
+      "negative": "watermark, text, people, urban elements, oversaturated"
+    },
+    "illustration": {
+      "prefix": "Digital illustration,",
+      "suffix": "clean lines, vibrant colors, professional quality, detailed",
+      "negative": "photorealistic, blurry, rough sketch, noisy"
+    },
+    "logo": {
+      "prefix": "Minimalist vector logo design,",
+      "suffix": "clean geometry, flat colors, professional, scalable, centered composition",
+      "negative": "photorealistic, complex textures, gradients, 3D, busy background"
+    },
+    "ui-mockup": {
+      "prefix": "Modern UI design mockup,",
+      "suffix": "clean layout, consistent spacing, professional typography, subtle shadows",
+      "negative": "cluttered, misaligned, low resolution, pixelated"
+    },
+    "browser-product": {
+      "prefix": "Browser-based product interface visual,",
+      "suffix": "minimalistic, flat design, clean UI, refined browser frame, subtle light background, airy spacing, strong crop on the key component",
+      "negative": "invented UI, fake buttons, fake labels, rewritten copy, cluttered layout, neon gradients, distorted text"
+    },
+    "feed-card": {
+      "prefix": "Product marketing image for social feed,",
+      "suffix": "16:9 composition, clean UI, minimalistic, stronger focal crop, safe margins, subtle depth, minimal or no text overlays",
+      "negative": "invented UI, fake labels, fake cards, rewritten copy, cluttered composition, neon gradients, distorted text"
+    },
+    "artistic": {
+      "prefix": "Fine art painting,",
+      "suffix": "masterful brushwork, rich colors, dramatic lighting, gallery quality",
+      "negative": "digital artifacts, pixelated, amateur, low resolution"
+    }
+  },
+  "video": {
+    "cinematic": {
+      "prefix": "Cinematic shot,",
+      "suffix": "smooth camera movement, film grain, anamorphic lens, 24fps, dramatic lighting",
+      "negative": "shaky camera, low quality, fast cuts, amateur"
+    },
+    "portrait_anim": {
+      "prefix": "Portrait video,",
+      "suffix": "subtle natural movement, soft lighting, shallow depth of field, steady camera",
+      "negative": "exaggerated motion, morphing, distortion, rapid movement"
+    },
+    "nature": {
+      "prefix": "Nature documentary shot,",
+      "suffix": "slow motion, macro detail, natural lighting, vivid colors",
+      "negative": "artificial, CGI look, fast motion, shaky"
+    },
+    "product_anim": {
+      "prefix": "Product showcase video,",
+      "suffix": "smooth 360 rotation, clean background, studio lighting, professional",
+      "negative": "shaky, blurry, cluttered, amateur"
+    },
+    "aerial": {
+      "prefix": "Aerial drone shot,",
+      "suffix": "smooth sweeping motion, bird's eye view, golden hour, cinematic color grade",
+      "negative": "shaky, low altitude, fisheye distortion"
+    },
+    "slowmo": {
+      "prefix": "Slow motion capture,",
+      "suffix": "120fps smoothness, crisp detail, dramatic timing, shallow depth of field",
+      "negative": "choppy, blurry motion, fast playback"
+    }
+  }
+}

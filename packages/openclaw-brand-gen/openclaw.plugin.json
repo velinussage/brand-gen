@@ -1,0 +1,48 @@
+{
+  "id": "openclaw-brand-gen",
+  "uiHints": {
+    "brandGenDir": {
+      "label": "Brand Gen Root",
+      "placeholder": "~/.brand-gen",
+      "help": "Path to the .brand-gen root directory that stores brands, sessions, and config.json."
+    },
+    "brandIterateMcpPath": {
+      "label": "brand_iterate MCP Path",
+      "placeholder": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
+      "help": "Path to brand-gen's Python MCP server entry point."
+    },
+    "approvalMode": {
+      "label": "Approval Mode",
+      "help": "How much the plugin should wait for output review before autonomous follow-up cycles."
+    },
+    "logLevel": {
+      "label": "Log Level",
+      "help": "Plugin logging verbosity."
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "brandGenDir": {
+        "type": "string",
+        "description": "Path to the .brand-gen root directory (default: ~/.brand-gen)."
+      },
+      "brandIterateMcpPath": {
+        "type": "string",
+        "description": "Path to the brand_iterate_mcp.py Python entry point."
+      },
+      "approvalMode": {
+        "type": "string",
+        "enum": ["all", "output_only", "none"],
+        "description": "Controls how much human approval is required between autonomous generation cycles."
+      },
+      "logLevel": {
+        "type": "string",
+        "enum": ["debug", "info", "warn", "error"],
+        "description": "Plugin logging verbosity."
+      }
+    },
+    "required": ["brandIterateMcpPath"]
+  }
+}

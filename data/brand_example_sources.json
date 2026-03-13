@@ -1,0 +1,1008 @@
+{
+  "categories": [
+    {
+      "key": "saas-product-specialists",
+      "label": "SaaS & Product Design Specialists",
+      "description": "Strong matches for SaaS feature visuals, dashboards, browser product framing, and startup-style brand mockups."
+    },
+    {
+      "key": "premium-branding",
+      "label": "Iconic & Premium Branding Agencies",
+      "description": "Higher-end brand and digital case-study references with stronger storytelling and presentation systems."
+    },
+    {
+      "key": "strong-studios",
+      "label": "Additional Strong Studios",
+      "description": "Additional product and brand studios with screenshot-ready work, case studies, and polished product marketing visuals."
+    }
+  ],
+  "sources": [
+    {
+      "key": "blissful-studio",
+      "name": "Blissful Studio",
+      "category": "saas-product-specialists",
+      "url": "https://blissful-studio.com/project-gallery",
+      "notes": "AI and tech founder projects with full brand and product mockups.",
+      "tags": [
+        "ai",
+        "founder",
+        "brand",
+        "product-mockups",
+        "gallery"
+      ]
+    },
+    {
+      "key": "ramotion",
+      "name": "Ramotion",
+      "category": "saas-product-specialists",
+      "url": "https://www.ramotion.com/work",
+      "notes": "Iconic SaaS branding and ultra-clean product mockups.",
+      "tags": [
+        "saas",
+        "branding",
+        "mockups",
+        "clean",
+        "product"
+      ],
+      "borrow_mechanics": [
+        "single hero move",
+        "scale contrast",
+        "clean crop discipline",
+        "logo-to-product balance"
+      ],
+      "avoid_literal": [
+        "their gradients",
+        "their exact mockup layout",
+        "their typography"
+      ],
+      "best_for": [
+        "composition",
+        "product-led campaign framing"
+      ],
+      "direct_generation_risk": "low"
+    },
+    {
+      "key": "clay",
+      "name": "Clay",
+      "category": "saas-product-specialists",
+      "url": "https://clay.global/work",
+      "notes": "Premium enterprise SaaS UI and branded illustrations.",
+      "tags": [
+        "enterprise",
+        "saas",
+        "ui",
+        "illustration",
+        "premium"
+      ],
+      "borrow_mechanics": [
+        "quiet enterprise whitespace",
+        "calm premium framing",
+        "product-first composition"
+      ],
+      "avoid_literal": [
+        "their illustration style",
+        "their enterprise UI chrome",
+        "their typography"
+      ],
+      "best_for": [
+        "composition",
+        "product presentation"
+      ],
+      "direct_generation_risk": "low"
+    },
+    {
+      "key": "eleken",
+      "name": "Eleken",
+      "category": "saas-product-specialists",
+      "url": "https://www.eleken.co/cases",
+      "notes": "Large library of SaaS redesign case studies with dashboards.",
+      "tags": [
+        "saas",
+        "dashboards",
+        "case-studies",
+        "redesign",
+        "b2b"
+      ]
+    },
+    {
+      "key": "metalab",
+      "name": "MetaLab",
+      "category": "saas-product-specialists",
+      "url": "https://www.metalab.com/work",
+      "notes": "Well-known product work with premium SaaS mockups.",
+      "tags": [
+        "product",
+        "premium",
+        "mockups",
+        "saas",
+        "enterprise"
+      ],
+      "borrow_mechanics": [
+        "editorial product balance",
+        "authoritative framing",
+        "trust-heavy presentation"
+      ],
+      "avoid_literal": [
+        "their case-study headlines",
+        "their exact UI shell"
+      ],
+      "best_for": [
+        "application",
+        "product proof surfaces"
+      ],
+      "direct_generation_risk": "low"
+    },
+    {
+      "key": "the-branx",
+      "name": "The Branx",
+      "category": "saas-product-specialists",
+      "url": "https://thebranx.com",
+      "notes": "Tech startup branding with strong visual portfolios.",
+      "tags": [
+        "startup",
+        "branding",
+        "portfolio",
+        "tech",
+        "visuals"
+      ]
+    },
+    {
+      "key": "uitop",
+      "name": "Uitop",
+      "category": "saas-product-specialists",
+      "url": "https://uitop.design",
+      "notes": "SaaS UI/UX with clean branded illustrations.",
+      "tags": [
+        "saas",
+        "uiux",
+        "illustration",
+        "clean",
+        "branding"
+      ]
+    },
+    {
+      "key": "stanvision",
+      "name": "StanVision",
+      "category": "saas-product-specialists",
+      "url": "https://www.stan.vision",
+      "notes": "Conversion-focused SaaS feature visuals.",
+      "tags": [
+        "conversion",
+        "saas",
+        "feature-visuals",
+        "landing-page",
+        "growth"
+      ]
+    },
+    {
+      "key": "parallel",
+      "name": "Parallel",
+      "category": "saas-product-specialists",
+      "url": "https://www.parallelhq.com",
+      "notes": "Early-stage SaaS and AI product branding.",
+      "tags": [
+        "saas",
+        "ai",
+        "branding",
+        "early-stage",
+        "product"
+      ]
+    },
+    {
+      "key": "pony-studio",
+      "name": "Pony Studio",
+      "category": "saas-product-specialists",
+      "url": "https://www.ponystudio.com",
+      "notes": "Bold SaaS branding and interactive mockups.",
+      "tags": [
+        "saas",
+        "branding",
+        "interactive",
+        "mockups",
+        "bold"
+      ]
+    },
+    {
+      "key": "focus-lab",
+      "name": "Focus Lab",
+      "category": "saas-product-specialists",
+      "url": "https://www.focuslab.agency/work",
+      "notes": "B2B SaaS web and brand systems.",
+      "tags": [
+        "b2b",
+        "saas",
+        "web",
+        "brand-systems",
+        "work"
+      ]
+    },
+    {
+      "key": "brix-agency",
+      "name": "Brix Agency",
+      "category": "saas-product-specialists",
+      "url": "https://brixagency.com",
+      "notes": "Webflow and SaaS product mockups.",
+      "tags": [
+        "webflow",
+        "saas",
+        "mockups",
+        "website",
+        "product"
+      ]
+    },
+    {
+      "key": "cieden",
+      "name": "Cieden",
+      "category": "saas-product-specialists",
+      "url": "https://cieden.com",
+      "notes": "Research-driven B2B SaaS redesigns.",
+      "tags": [
+        "research",
+        "b2b",
+        "saas",
+        "redesign",
+        "ux"
+      ]
+    },
+    {
+      "key": "lazarev",
+      "name": "Lazarev.agency",
+      "category": "saas-product-specialists",
+      "url": "https://lazarev.agency",
+      "notes": "AI-native digital product illustrations.",
+      "tags": [
+        "ai",
+        "digital-product",
+        "illustration",
+        "agency",
+        "landing-page"
+      ]
+    },
+    {
+      "key": "big-human",
+      "name": "Big Human",
+      "category": "saas-product-specialists",
+      "url": "https://www.bighuman.com",
+      "notes": "Full end-to-end SaaS digital experiences.",
+      "tags": [
+        "saas",
+        "digital-experience",
+        "product",
+        "agency",
+        "ux"
+      ]
+    },
+    {
+      "key": "pentagram",
+      "name": "Pentagram",
+      "category": "premium-branding",
+      "url": "https://pentagram.com/work",
+      "notes": "Legendary branded mockups across tech and beyond.",
+      "tags": [
+        "branding",
+        "legendary",
+        "mockups",
+        "identity",
+        "portfolio"
+      ]
+    },
+    {
+      "key": "wolff-olins",
+      "name": "Wolff Olins",
+      "category": "premium-branding",
+      "url": "https://wolffolins.com/work",
+      "notes": "Bold enterprise branding visuals.",
+      "tags": [
+        "enterprise",
+        "branding",
+        "bold",
+        "identity",
+        "work"
+      ]
+    },
+    {
+      "key": "ideo",
+      "name": "IDEO",
+      "category": "premium-branding",
+      "url": "https://www.ideo.com/work",
+      "notes": "Human-centered product illustrations and innovation case studies.",
+      "tags": [
+        "human-centered",
+        "product",
+        "illustration",
+        "innovation",
+        "case-study"
+      ]
+    },
+    {
+      "key": "frog-design",
+      "name": "Frog Design",
+      "category": "premium-branding",
+      "url": "https://frogdesign.com/work",
+      "notes": "Complex digital platform and SaaS mockups.",
+      "tags": [
+        "platform",
+        "saas",
+        "mockups",
+        "enterprise",
+        "digital"
+      ]
+    },
+    {
+      "key": "designstudio",
+      "name": "DesignStudio",
+      "category": "premium-branding",
+      "url": "https://design.studio",
+      "notes": "Immersive brand and digital case studies.",
+      "tags": [
+        "brand",
+        "digital",
+        "immersive",
+        "case-study",
+        "storytelling"
+      ]
+    },
+    {
+      "key": "koto",
+      "name": "Koto",
+      "category": "premium-branding",
+      "url": "https://koto.studio",
+      "notes": "Clean and modern tech branding.",
+      "tags": [
+        "branding",
+        "clean",
+        "modern",
+        "tech",
+        "identity"
+      ]
+    },
+    {
+      "key": "porto-rocha",
+      "name": "PORTO ROCHA",
+      "category": "premium-branding",
+      "url": "https://portorocha.com",
+      "notes": "High-contrast branded illustrations and visual systems.",
+      "tags": [
+        "high-contrast",
+        "branding",
+        "illustration",
+        "visual-system",
+        "portfolio"
+      ]
+    },
+    {
+      "key": "ragged-edge",
+      "name": "Ragged Edge",
+      "category": "premium-branding",
+      "url": "https://raggededge.com",
+      "notes": "Disruptive startup visuals and bold identity work.",
+      "tags": [
+        "startup",
+        "branding",
+        "bold",
+        "identity",
+        "visuals"
+      ]
+    },
+    {
+      "key": "mouthwash-studio",
+      "name": "Mouthwash Studio",
+      "category": "premium-branding",
+      "url": "https://mouthwash.studio",
+      "notes": "Fresh branding mockups and campaigns.",
+      "tags": [
+        "branding",
+        "mockups",
+        "campaign",
+        "fresh",
+        "portfolio"
+      ]
+    },
+    {
+      "key": "motto",
+      "name": "Motto",
+      "category": "premium-branding",
+      "url": "https://wearemotto.com",
+      "notes": "Story-driven brand illustrations and identity systems.",
+      "tags": [
+        "storytelling",
+        "branding",
+        "illustration",
+        "identity",
+        "system"
+      ]
+    },
+    {
+      "key": "superside",
+      "name": "Superside",
+      "category": "strong-studios",
+      "url": "https://www.superside.com",
+      "notes": "Large-scale creative and marketing design reference source.",
+      "tags": [
+        "creative",
+        "marketing",
+        "design",
+        "reference",
+        "campaign"
+      ]
+    },
+    {
+      "key": "ustwo",
+      "name": "Ustwo",
+      "category": "strong-studios",
+      "url": "https://ustwo.com",
+      "notes": "Well-known digital product and experience studio.",
+      "tags": [
+        "digital-product",
+        "experience",
+        "studio",
+        "portfolio",
+        "design"
+      ]
+    },
+    {
+      "key": "blink-ux",
+      "name": "Blink UX",
+      "category": "strong-studios",
+      "url": "https://blinkux.com",
+      "notes": "UX-heavy digital product work.",
+      "tags": [
+        "ux",
+        "research",
+        "digital-product",
+        "portfolio",
+        "work"
+      ]
+    },
+    {
+      "key": "lumi-studio",
+      "name": "Lumi Studio",
+      "category": "strong-studios",
+      "url": "https://lumi.studio",
+      "notes": "Brand and digital design with polished visual systems.",
+      "tags": [
+        "brand",
+        "digital",
+        "visual-system",
+        "studio",
+        "portfolio"
+      ]
+    },
+    {
+      "key": "goji-labs",
+      "name": "Goji Labs",
+      "category": "strong-studios",
+      "url": "https://gojilabs.com",
+      "notes": "Product design and app-focused case studies.",
+      "tags": [
+        "product",
+        "app",
+        "case-study",
+        "startup",
+        "ux"
+      ]
+    },
+    {
+      "key": "momentum-design-lab",
+      "name": "Momentum Design Lab",
+      "category": "strong-studios",
+      "url": "https://momentum.design",
+      "notes": "Product design studio with enterprise and SaaS references.",
+      "tags": [
+        "product-design",
+        "enterprise",
+        "saas",
+        "studio",
+        "ux"
+      ]
+    },
+    {
+      "key": "halo-lab",
+      "name": "Halo Lab",
+      "category": "strong-studios",
+      "url": "https://halolab.dev",
+      "notes": "Web and product design portfolio with polished mockups.",
+      "tags": [
+        "web",
+        "product",
+        "mockups",
+        "portfolio",
+        "design"
+      ]
+    },
+    {
+      "key": "creative-navy",
+      "name": "Creative Navy",
+      "category": "strong-studios",
+      "url": "https://creativenavy.com",
+      "notes": "B2B and complex-product UX references.",
+      "tags": [
+        "b2b",
+        "ux",
+        "complex-product",
+        "case-study",
+        "design"
+      ]
+    },
+    {
+      "key": "duck-design",
+      "name": "Duck Design",
+      "category": "strong-studios",
+      "url": "https://duck.design",
+      "notes": "Subscription design studio with varied product visuals.",
+      "tags": [
+        "subscription",
+        "product",
+        "visuals",
+        "design",
+        "marketing"
+      ]
+    },
+    {
+      "key": "qub-studio",
+      "name": "Qub Studio",
+      "category": "strong-studios",
+      "url": "https://qubstudio.com",
+      "notes": "Brand and digital product cases with strong presentation quality.",
+      "tags": [
+        "brand",
+        "digital-product",
+        "case-study",
+        "presentation",
+        "studio"
+      ]
+    },
+    {
+      "key": "arounda",
+      "name": "Arounda",
+      "category": "strong-studios",
+      "url": "https://arounda.agency",
+      "notes": "Modern SaaS and startup UI references.",
+      "tags": [
+        "saas",
+        "startup",
+        "ui",
+        "agency",
+        "product"
+      ]
+    },
+    {
+      "key": "uxda",
+      "name": "UXDA",
+      "category": "strong-studios",
+      "url": "https://uxda.design",
+      "notes": "Fintech and premium digital product references.",
+      "tags": [
+        "fintech",
+        "premium",
+        "digital-product",
+        "ux",
+        "design"
+      ]
+    },
+    {
+      "key": "manypixels",
+      "name": "ManyPixels",
+      "category": "strong-studios",
+      "url": "https://manypixels.co",
+      "notes": "Broad design service portfolio with marketing and product visuals.",
+      "tags": [
+        "design-service",
+        "marketing",
+        "product",
+        "visuals",
+        "portfolio"
+      ]
+    },
+    {
+      "key": "butchershop",
+      "name": "Butchershop",
+      "category": "strong-studios",
+      "url": "https://butchershop.co",
+      "notes": "Brand and campaign design references.",
+      "tags": [
+        "brand",
+        "campaign",
+        "design",
+        "visuals",
+        "portfolio"
+      ]
+    },
+    {
+      "key": "red-antler",
+      "name": "Red Antler",
+      "category": "strong-studios",
+      "url": "https://redantler.com",
+      "notes": "Startup branding and digital product presentation references.",
+      "tags": [
+        "startup",
+        "branding",
+        "digital-product",
+        "presentation",
+        "agency"
+      ]
+    },
+    {
+      "key": "gretel-work",
+      "name": "Gretel \u2014 Work",
+      "category": "premium-branding",
+      "url": "https://gretelny.com/work/",
+      "notes": "Editorial brand systems and high-discipline identity work; useful for type-first pacing, restraint, and curated presentation.",
+      "tags": [
+        "branding",
+        "editorial",
+        "typography",
+        "identity",
+        "presentation",
+        "restraint"
+      ],
+      "borrow_mechanics": [
+        "editorial pacing",
+        "type-field restraint",
+        "campaign whitespace",
+        "system reduction"
+      ],
+      "avoid_literal": [
+        "their typography",
+        "their brand language",
+        "their exact poster compositions"
+      ],
+      "best_for": [
+        "composition",
+        "application",
+        "campaign framing"
+      ],
+      "direct_generation_risk": "medium"
+    },
+    {
+      "key": "buck-rebrand",
+      "name": "BUCK \u2014 Rebrand",
+      "category": "premium-branding",
+      "url": "https://buck.co/work/buck-rebrand",
+      "notes": "Systematic identity case study with strong wordmark, glyph, communication, and motion thinking; useful for flexible brand systems.",
+      "tags": [
+        "branding",
+        "identity-system",
+        "motion",
+        "wordmark",
+        "glyphs",
+        "systematic"
+      ]
+    },
+    {
+      "key": "mother-design-scribd",
+      "name": "Mother Design \u2014 Scribd",
+      "category": "strong-studios",
+      "url": "https://www.motherdesign.com/work/scribd",
+      "notes": "Product-plus-brand case study showing how story, product framing, and verbal identity can elevate a practical technology product.",
+      "tags": [
+        "product",
+        "brand-identity",
+        "technology",
+        "storytelling",
+        "verbal-identity",
+        "motion"
+      ]
+    },
+    {
+      "key": "porto-rocha-upwork",
+      "name": "PORTO ROCHA \u2014 Upwork",
+      "category": "premium-branding",
+      "url": "https://www.portorocha.com/upwork/",
+      "notes": "People-first identity system for the pioneer of remote work; useful for bold graphic systems paired with product-adjacent credibility.",
+      "tags": [
+        "branding",
+        "remote-work",
+        "graphic-system",
+        "identity",
+        "product-adjacent",
+        "bold"
+      ]
+    },
+    {
+      "key": "pentagram-the-wing",
+      "name": "Pentagram \u2014 The Wing",
+      "category": "premium-branding",
+      "url": "https://www.pentagram.com/work/the-wing",
+      "notes": "Integrated brand system spanning environmental graphics, collateral, and web; useful for coherent multi-surface identity thinking.",
+      "tags": [
+        "branding",
+        "identity",
+        "environmental",
+        "collateral",
+        "web",
+        "system"
+      ],
+      "borrow_mechanics": [
+        "multi-surface system thinking",
+        "environmental consistency",
+        "identity extension logic"
+      ],
+      "avoid_literal": [
+        "their letterforms",
+        "their editorial voice",
+        "their exact collateral"
+      ],
+      "best_for": [
+        "motif",
+        "application"
+      ],
+      "direct_generation_risk": "medium"
+    },
+    {
+      "key": "wolff-olins-uber",
+      "name": "Wolff Olins \u2014 Uber",
+      "category": "premium-branding",
+      "url": "https://wolffolins.com/work/uber",
+      "notes": "Large-scale platform brand system and narrative reframing; useful for product ecosystems, design language, and trust-signalling clarity.",
+      "tags": [
+        "platform",
+        "brand-system",
+        "narrative",
+        "design-language",
+        "trust",
+        "ecosystem"
+      ]
+    },
+    {
+      "key": "koto-work",
+      "name": "Koto \u2014 Work",
+      "category": "premium-branding",
+      "url": "https://koto.com/work",
+      "notes": "Ambitious brand, strategy, digital, and campaign case studies; useful for clean modern tech branding and clear campaign surfaces.",
+      "tags": [
+        "branding",
+        "strategy",
+        "digital",
+        "campaign",
+        "tech",
+        "clean"
+      ],
+      "borrow_mechanics": [
+        "system clarity",
+        "identity application logic",
+        "carrier variation",
+        "clean modern tech framing"
+      ],
+      "avoid_literal": [
+        "their logos",
+        "their typography",
+        "their campaign copy"
+      ],
+      "best_for": [
+        "motif",
+        "composition",
+        "system logic"
+      ],
+      "direct_generation_risk": "medium"
+    },
+    {
+      "key": "mother-design-home",
+      "name": "Mother Design \u2014 Homepage",
+      "category": "strong-studios",
+      "url": "https://www.motherdesign.com/",
+      "notes": "Strong story-led portfolio and campaign framing; useful for bolder verbal posture and more opinionated brand worlds.",
+      "tags": [
+        "storytelling",
+        "campaign",
+        "brand-world",
+        "portfolio",
+        "opinionated",
+        "product"
+      ],
+      "borrow_mechanics": [
+        "campaign attitude",
+        "brand world framing",
+        "supporting application context"
+      ],
+      "avoid_literal": [
+        "their copy tone",
+        "their full-page layouts"
+      ],
+      "best_for": [
+        "application",
+        "campaign context"
+      ],
+      "direct_generation_risk": "medium"
+    },
+    {
+      "key": "buck-playgrounds-in-motion",
+      "name": "BUCK \u2014 Playgrounds In Motion",
+      "category": "strong-studios",
+      "url": "https://buck.co/work/playgrounds-in-motion",
+      "notes": "High-quality motion identity reference for restrained but confident reveal behavior.",
+      "tags": [
+        "motion",
+        "logo-animation",
+        "brand-bumper",
+        "reveal",
+        "identity"
+      ],
+      "role_strengths": [
+        "motion"
+      ],
+      "borrow_mechanics": [
+        "reveal pacing",
+        "masking attitude",
+        "confident final hold"
+      ],
+      "avoid_literal": [
+        "their content motifs",
+        "their motion graphics language"
+      ],
+      "best_for": [
+        "motion"
+      ],
+      "direct_generation_risk": "low"
+    },
+    {
+      "key": "buck-zapier-motion-library",
+      "name": "BUCK \u2014 Zapier Motion Library",
+      "category": "strong-studios",
+      "url": "https://buck.co/work/zapier-motion-library",
+      "notes": "Modular motion system reference with pacing and repeatable branded movement patterns.",
+      "tags": [
+        "motion",
+        "system",
+        "library",
+        "animation",
+        "brand"
+      ],
+      "role_strengths": [
+        "motion",
+        "application"
+      ],
+      "borrow_mechanics": [
+        "modular motion beats",
+        "repeatable transitions",
+        "systemic animation rhythm"
+      ],
+      "avoid_literal": [
+        "their UI content",
+        "their motion color timing"
+      ],
+      "best_for": [
+        "motion",
+        "application"
+      ],
+      "direct_generation_risk": "medium"
+    },
+    {
+      "key": "pentagram-jigsaw",
+      "name": "Pentagram \u2014 Jigsaw",
+      "category": "premium-branding",
+      "url": "https://www.pentagram.com/work/jigsaw",
+      "notes": "Editorial system with sharp edge play, restrained motion cues, and strong campaign structure.",
+      "tags": [
+        "editorial",
+        "composition",
+        "motion",
+        "campaign",
+        "identity"
+      ],
+      "role_strengths": [
+        "composition",
+        "motion"
+      ],
+      "borrow_mechanics": [
+        "edge tension",
+        "restraint",
+        "editorial hierarchy"
+      ],
+      "avoid_literal": [
+        "their letterforms",
+        "their identity geometry",
+        "their collateral styling"
+      ],
+      "best_for": [
+        "composition reasoning"
+      ],
+      "direct_generation_risk": "high",
+      "translation_only": true
+    },
+    {
+      "key": "koto-pairpoint",
+      "name": "Koto \u2014 Pairpoint",
+      "category": "premium-branding",
+      "url": "https://koto.studio/work/pairpoint/",
+      "notes": "Clear identity system with strong compositional structure and branded applications.",
+      "tags": [
+        "brand-system",
+        "composition",
+        "application",
+        "identity",
+        "premium"
+      ],
+      "role_strengths": [
+        "composition",
+        "application"
+      ]
+    },
+    {
+      "key": "koto-deezer",
+      "name": "Koto \u2014 Deezer",
+      "category": "premium-branding",
+      "url": "https://koto.studio/work/deezer/",
+      "notes": "Graphic identity with repeatable motif logic, containers, and energetic brand system behavior.",
+      "tags": [
+        "motif",
+        "identity-system",
+        "graphics",
+        "music",
+        "brand-system"
+      ],
+      "role_strengths": [
+        "motif",
+        "composition"
+      ]
+    },
+    {
+      "key": "pentagram-poster-house",
+      "name": "Pentagram \u2014 Poster House",
+      "category": "premium-branding",
+      "url": "https://www.pentagram.com/work/poster-house",
+      "notes": "Poster-led identity system with bold framing, modular composition, and print-ready application logic.",
+      "tags": [
+        "poster",
+        "composition",
+        "application",
+        "identity",
+        "print"
+      ],
+      "role_strengths": [
+        "composition",
+        "application"
+      ],
+      "borrow_mechanics": [
+        "poster application logic",
+        "print hierarchy",
+        "modular framing"
+      ],
+      "avoid_literal": [
+        "their typography",
+        "their logo system",
+        "their exact poster layouts"
+      ],
+      "best_for": [
+        "application",
+        "poster reasoning"
+      ],
+      "direct_generation_risk": "medium",
+      "translation_only": true
+    },
+    {
+      "key": "buck-notion-faces",
+      "name": "BUCK \u2014 Notion Faces",
+      "category": "strong-studios",
+      "url": "https://buck.co/work/notion-faces",
+      "notes": "Family system of expressive identity units; useful for sticker, icon, and badge family logic.",
+      "tags": [
+        "sticker-family",
+        "icon-family",
+        "badge-family",
+        "motif",
+        "system"
+      ],
+      "role_strengths": [
+        "motif",
+        "application"
+      ],
+      "borrow_mechanics": [
+        "family variation logic",
+        "sticker-sheet pacing"
+      ],
+      "avoid_literal": [
+        "faces",
+        "character logic",
+        "their specific icon subjects",
+        "their playful copy"
+      ],
+      "best_for": [
+        "motif reasoning",
+        "family logic"
+      ],
+      "direct_generation_risk": "high",
+      "translation_only": true
+    }
+  ]
+}
