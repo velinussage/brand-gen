@@ -73,6 +73,12 @@ python3 mcp/brand_iterate_mcp.py
 ./bin/brand-mcp
 ```
 
+## Example output
+
+Generated example from a real `pipeline` run (`v14` storyboard):
+
+![brand-gen generated storyboard](docs/assets/example-v14-storyboard.jpg)
+
 ## Documentation
 
 - [Getting Started](docs/getting-started.md)
