@@ -275,9 +275,37 @@ def build_input(model_config, args, mode):
         neg_field = field_map.get("negative_prompt", "negative_prompt")
         input_data[neg_field] = neg
 
-    # Input image(s)
-    images = normalize_image_args(args.image)
-    if images:
+    # Base image (--base-image): the image to edit/overlay on
+    base_image = getattr(args, "base_image", None)
+    extra_images = normalize_image_args(args.image)
+
+    if base_image and mode == "image":
+        img_field = field_map.get("image")
+        if not img_field:
+            print(f"ERROR: Model '{args.model}' does not support image input.", file=sys.stderr)
+            sys.exit(1)
+        base_uri = load_media(base_image, "image")
+        extra_uris = [load_media(img, "image") for img in extra_images]
+        all_uris = [base_uri] + extra_uris
+        max_refs = model_config.get("max_reference_images")
+        if max_refs and len(all_uris) > max_refs:
+            print(f"ERROR: Model '{args.model}' supports at most {max_refs} image(s) total (base + refs).", file=sys.stderr)
+            sys.exit(1)
+        # Multi-image field (input_images, image_input, reference_images)
+        if img_field in {"input_images", "image_input", "reference_images"}:
+            input_data[img_field] = all_uris
+            tag_field = field_map.get("image_tags")
+            if tag_field:
+                tags = ["base"] + normalize_reference_tags(getattr(args, "reference_tag", None), len(extra_uris))
+                input_data[tag_field] = tags
+        else:
+            # Single-image field (input_image, image_prompt, etc.)
+            input_data[img_field] = base_uri
+            if extra_uris:
+                print(f"WARNING: Model '{args.model}' accepts one image; extra --image refs ignored.", file=sys.stderr)
+    elif extra_images:
+        # Original --image behavior (no --base-image)
+        images = extra_images
         if mode == "image":
             img_field = field_map.get("image")
         else:
@@ -300,7 +328,7 @@ def build_input(model_config, args, mode):
             )
             sys.exit(1)
         data_uris = [load_media(image, "image") for image in images]
-        if img_field in {"image_input", "reference_images"}:
+        if img_field in {"image_input", "input_images", "reference_images"}:
             input_data[img_field] = data_uris
             tag_field = field_map.get("image_tags")
             if tag_field:
@@ -408,6 +436,8 @@ def main():
             "  %(prog)s image -m flux-schnell -p 'Logo' --preset logo\n"
             "  %(prog)s image -m nano-banana-2 -p 'Refine this logo' -i logo.png -i moodboard.png\n"
             "  %(prog)s image -m runway-gen4-image -p 'Use @brand for subject truth and @composition for layout' -i logo.png --reference-tag brand -i poster.png --reference-tag composition\n"
+            "  %(prog)s image -b photo.jpg -p 'Add a copper gradient bar across the bottom with title Intro to Sage in white'\n"
+            "  %(prog)s image -b photo.jpg -i mark.png -p 'Place image 2 as a small icon top-left, add title bar bottom'\n"
             "  %(prog)s video -m kling-v2.6-motion-control -p 'Use the video only for reveal pacing' -i logo.png --motion-reference reveal.mp4\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -420,6 +450,9 @@ def main():
                         help="Generation prompt")
     parser.add_argument("--negative-prompt", "-n",
                         help="Negative prompt")
+    parser.add_argument("--base-image", "-b",
+                        help="Base image to edit/overlay on. The model will modify this image per the prompt. "
+                             "Auto-selects flux-2-pro (multi-ref) or flux-kontext (single edit) if no --model given.")
     parser.add_argument("--image", "-i", action="append",
                         help="Input image path. Repeat for multiple references when the model supports it.")
     parser.add_argument("--reference-tag", action="append",
@@ -461,6 +494,15 @@ def main():
         list_models(args.mode)
         return
 
+    # Auto-select model when --base-image is used without --model
+    if args.base_image and not args.model and args.mode == "image":
+        extra_refs = normalize_image_args(args.image)
+        if extra_refs:
+            args.model = "flux-2-pro"  # multi-reference editing
+        else:
+            args.model = "flux-2-pro"  # default to flux-2-pro for all base-image work
+        print(f"Auto-selected model '{args.model}' for base-image editing", file=sys.stderr)
+
     if not args.model:
         parser.error("--model is required (use --list-models to see options)")
     if not args.prompt:
@@ -484,12 +526,14 @@ def main():
     if len(input_data["prompt"]) > 100:
         prompt_preview += "..."
     print(f"Prompt: {prompt_preview}")
+    if getattr(args, "base_image", None):
+        print(f"Base image: {args.base_image}")
     images = normalize_image_args(args.image)
     if images:
         if len(images) == 1:
-            print(f"Input: {images[0]}")
+            print(f"Reference: {images[0]}")
         else:
-            print(f"Inputs ({len(images)}): {', '.join(images)}")
+            print(f"References ({len(images)}): {', '.join(images)}")
     if getattr(args, "reference_tag", None):
         print(f"Reference tags: {', '.join(normalize_reference_tags(args.reference_tag, len(images)))}")
     if getattr(args, "motion_reference", None):

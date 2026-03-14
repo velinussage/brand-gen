@@ -223,6 +223,14 @@ Each entry shows **CLI + MCP**, the **return shape**, and the main **gotcha**.
 - **Returns**: route, draft, critique, scratchpad, generation result, `workflow_id`, `stopped_at`.
 - **Gotcha**: `stopped_at == "critique"` means blocked before generation; inspect blocking checks instead of retrying blindly.
 
+### pipeline with base image (edit/overlay)
+- **When**: user provides an existing image and wants branded overlays, text, icons, or edits on top of it.
+- **CLI**: `python3 mcp/brand_iterate.py pipeline --material-type podcast-cover --base-image /path/to/photo.jpg --prompt-seed "Add title bar with Intro to Sage and pillar mark icon" --format json`
+- **MCP**: `brand_pipeline(material_type="podcast-cover", base_image="/path/to/photo.jpg", prompt_seed="Add title bar with Intro to Sage and pillar mark icon")`
+- **What happens**: auto-selects `flux-2-pro` (multi-reference editing model). The base image is passed as the primary input; any brand reference assets (mark, icon) are passed as additional references. The prompt instructs the model what to add/overlay.
+- **Extra references**: pass stored brand assets via `--image` alongside `--base-image` — e.g. the pillar mark PNG as a reference so the model knows exactly what icon to place.
+- **Gotcha**: prompt should use instruction language ("Add X to Y", "Place Z in bottom-left") not descriptive language ("A poster with X and Y"). The model edits the existing image rather than generating from scratch.
+
 ### route-request
 - **When**: user wants reasoning visible before planning.
 - **CLI**: `python3 mcp/brand_iterate.py route-request --material-type <material> --goal "<goal>" --request "<brief>" --format json`

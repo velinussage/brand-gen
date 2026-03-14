@@ -3455,9 +3455,13 @@ def resolve_default_model(
     reference_paths: list[Path],
     material_prompt_key: str = "",
     has_motion_reference: bool = False,
+    has_base_image: bool = False,
 ) -> str:
     if generation_mode == "video" and has_motion_reference:
         return "kling-v2.6-motion-control"
+    # When editing/overlaying on a base image, use Flux 2 Pro (multi-ref editing)
+    if generation_mode == "image" and has_base_image:
+        return "flux-2-pro"
     if generation_mode == "image" and reference_paths and workflow_mode in {"reference", "hybrid"}:
         return "nano-banana-2"
     if material_type in {"pattern-system", "motif-system", "sticker-family", "badge-family", "icon-family"}:
@@ -5324,6 +5328,7 @@ def assemble_generation_scratchpad(
     for warning in (reference_analysis.get("warnings") or []):
         warnings.append(f"Reference analysis: {warning}")
 
+    base_image = getattr(args, "base_image", None) or ""
     model = args.model or resolve_default_model(
         material_type,
         generation_mode,
@@ -5331,6 +5336,7 @@ def assemble_generation_scratchpad(
         all_context_refs,
         prompt_context["material_prompt_key"],
         has_motion_reference=bool(motion_reference),
+        has_base_image=bool(base_image),
     )
     model_config = MODELS.get(generation_mode, {}).get(model)
     if not model_config:
@@ -5416,6 +5422,7 @@ def assemble_generation_scratchpad(
             "negative_prompt": getattr(args, "negative_prompt", None),
             "style": getattr(args, "style", None),
             "make_gif": bool(getattr(args, "make_gif", False)),
+            "base_image": getattr(args, "base_image", None) or "",
             "motion_reference": str(motion_reference) if motion_reference else "",
             "motion_mode": getattr(args, "motion_mode", None),
             "character_orientation": getattr(args, "character_orientation", None),
@@ -6163,6 +6170,10 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         cmd += ["--character-orientation", str(execution["character_orientation"])]
     if execution.get("keep_original_sound"):
         cmd += ["--keep-original-sound"]
+    # Base image support: when a base_image is specified, the model edits/overlays on it
+    base_image = execution.get("base_image") or payload.get("base_image") or ""
+    if base_image:
+        cmd += ["--base-image", str(base_image)]
     for ref in (payload.get("reference_context") or {}).get("passed_reference_paths", []):
         cmd += ["-i", str(ref)]
     for tag in execution.get("reference_tags", []) or []:

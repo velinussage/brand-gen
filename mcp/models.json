@@ -89,6 +89,37 @@
         "aspect_ratio": "aspect_ratio"
       }
     },
+    "flux-2-pro": {
+      "replicate_id": "black-forest-labs/flux-2-pro",
+      "cost": "0.08/image",
+      "best_for": "Multi-reference editing, overlays, text on images, brand compositing (up to 8 images)",
+      "output_format": "png",
+      "max_reference_images": 8,
+      "supports_base_image": true,
+      "defaults": {
+        "safety_tolerance": 2
+      },
+      "field_map": {
+        "image": "input_images",
+        "aspect_ratio": "aspect_ratio"
+      }
+    },
+    "flux-kontext": {
+      "replicate_id": "black-forest-labs/flux-kontext-pro",
+      "cost": "0.04/image",
+      "best_for": "Single-image editing, text replacement, overlay additions, instruction-based edits",
+      "output_format": "png",
+      "max_reference_images": 1,
+      "supports_base_image": true,
+      "defaults": {
+        "safety_tolerance": 2,
+        "aspect_ratio": "match_input_image"
+      },
+      "field_map": {
+        "image": "input_image",
+        "aspect_ratio": "aspect_ratio"
+      }
+    },
     "runway-gen4-image": {
       "replicate_id": "runwayml/gen4-image",
       "cost": "varies",
