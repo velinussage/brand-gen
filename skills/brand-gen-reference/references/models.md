@@ -30,6 +30,7 @@ Use this only when choosing a model or execution path.
 ## Selection heuristics
 
 - **Need product truth preserved?** Bias toward the default pipeline image path or `nano-banana-2` style reference-preserving runs.
+- **Need a reference-driven still?** The repo now biases toward `nano-banana-2` instead of auto-selecting `runway-gen4-image`; treat Runway as an explicit override only if you have a proven reason.
 - **Need cleaner redraw / less screenshot feel?** Bias toward `recraft-v4`-style paths or a deterministic compose path.
 - **Need exact headline/copy lockup?** Stop thinking in model terms and switch to deterministic composition.
 - **Need a coordinated family of assets?** Use `plan-set` / `generate-set`, not a different model.

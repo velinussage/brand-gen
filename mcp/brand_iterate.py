@@ -3336,12 +3336,10 @@ def resolve_default_model(
 ) -> str:
     if generation_mode == "video" and has_motion_reference:
         return "kling-v2.6-motion-control"
-    if generation_mode == "image" and material_prompt_key in NON_INTERFACE_MATERIAL_KEYS and len(reference_paths) >= 2:
-        return "runway-gen4-image"
-    if material_type in {"pattern-system", "motif-system", "sticker-family", "badge-family", "icon-family"}:
-        return MATERIAL_CONFIG[material_type]["default_model"]
     if generation_mode == "image" and reference_paths and workflow_mode in {"reference", "hybrid"}:
         return "nano-banana-2"
+    if material_type in {"pattern-system", "motif-system", "sticker-family", "badge-family", "icon-family"}:
+        return MATERIAL_CONFIG[material_type]["default_model"]
     return MATERIAL_CONFIG[material_type]["default_model"]
 
 
