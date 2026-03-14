@@ -73,9 +73,11 @@ Tell your agent what you want. The skill file handles onboarding, but here's the
 
 1. **Set up a brand** — "Initialize a brand called Acme from my project at ./my-app"
 2. **Generate something** — "Make a social card for our Series A announcement"
-3. **Iterate** — "Score that a 3, the typography feels too heavy"
-4. **Compare** — "Show me the comparison board for v1 through v5"
-5. **Diagnose** — "Why did v5 look worse than v4? Run diagnose v4 v5"
+3. **Review with a score suggestion** — "Review v3 and suggest a score before I confirm it"
+4. **Iterate and score** — "Score that a 3, the typography feels too heavy"
+5. **Compare** — "Show me the comparison board for v1 through v5"
+6. **Diagnose** — "Why did v5 look worse than v4? Run diagnose v4 v5"
+7. **Specialize** — "Make a podcast cover" or "Make a podcast banner for Intro to Sage"
 
 Your agent translates these into brand-gen tool calls automatically.
 
@@ -91,7 +93,11 @@ Generated from a real `pipeline` run (v14 storyboard):
 - **Brand memory**: session-scoped iteration notes promote into persistent brand identity
 - **Messaging system**: taglines, elevator pitches, voice guidelines accumulate over time
 - **Manifest + versioning**: score, compare, diagnose, and evolve across versions
-- **Multi-model**: Flux Pro, Runway Gen4, Kling, Recraft, Nano Banana via Replicate + Google APIs
+- **Score suggestions in review**: `review-brand` can propose a provisional score and feedback command that the user confirms before saving
+- **Podcast surfaces**: built-in `podcast-cover` (3000×3000) and `podcast-banner` (16:9) material types
+- **MCP diagnostics**: `brand_diagnose` exposes prompt/ref/critic debugging to agents without dropping to CLI
+- **VLM critique loop**: optional post-generation visual critique/refinement when a VLM provider is configured
+- **Multi-model**: Recraft, Nano Banana, Kling, and other configured backends via Replicate + model registry
 - **Reference analysis**: role-pack system assigns semantic roles to reference images
 - **Prompt budgeting**: automatic prelude capping prevents prompt bloat across material types
 

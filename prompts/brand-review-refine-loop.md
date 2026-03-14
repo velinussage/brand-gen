@@ -149,6 +149,14 @@ Then have the agent produce:
 ### Clean
 ...
 
+### Suggested score (provisional)
+[1-5 plus a one-line why.]
+
+### Suggested feedback command
+python3 mcp/brand_iterate.py feedback v11 --score <1-5> --notes "<short reason>" [--status favorite|rejected]
+
 ### Next refinement
 [One change to make next, and why.]
 ```
+
+The score suggestion is there to make user confirmation easier. The agent should propose it, then let the user confirm or correct it before treating it as canonical memory.

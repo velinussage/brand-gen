@@ -273,6 +273,13 @@ Each entry shows **CLI + MCP**, the **return shape**, and the main **gotcha**.
 - **Iteration memory**: `python3 mcp/brand_iterate.py show-iteration-memory --format json` / `brand_show_iteration_memory()`
 - **Gotcha**: `show-session-summary` is the fastest “what changed?” command; use the others only when you need raw detail.
 
+### review-brand
+- **When**: after generating something serious and before asking the user for a final score.
+- **CLI**: `python3 mcp/brand_iterate.py review-brand --version v17`
+- **MCP**: `brand_review(version="v17")`
+- **Returns**: a review packet that includes critique lenses, severity buckets, and a **provisional suggested score + feedback command** the agent can show to the user for confirmation.
+- **Gotcha**: treat the suggested score as a proposal, not saved truth. Persist it only after the user confirms or clearly implies the preference.
+
 ### diagnose
 - **When**: a generation produced nonsense and you need to understand why.
 - **CLI**: `python3 mcp/brand_iterate.py diagnose v14 v15 --format json`

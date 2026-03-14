@@ -66,6 +66,13 @@ Persist approved tagline, elevator, voice, and copy-bank items.
 python3 mcp/brand_iterate.py update-messaging --tagline "..." --add-headline "..." --format json
 ```
 
+### `review-brand`
+Build a review packet with critique prompts plus a provisional score suggestion the agent can ask the user to confirm.
+
+```bash
+python3 mcp/brand_iterate.py review-brand --version v17
+```
+
 ### `plan-set` / `validate-set` / `generate-set`
 Use for coordinated multi-material campaigns.
 
