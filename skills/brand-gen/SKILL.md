@@ -218,6 +218,12 @@ Each entry shows **CLI + MCP**, the **return shape**, and the main **gotcha**.
 - **Iteration memory**: `python3 mcp/brand_iterate.py show-iteration-memory --format json` / `brand_show_iteration_memory()`
 - **Gotcha**: `show-session-summary` is the fastest “what changed?” command; use the others only when you need raw detail.
 
+### diagnose
+- **When**: a generation produced nonsense and you need to understand why.
+- **CLI**: `python3 mcp/brand_iterate.py diagnose v14 v15 --format json`
+- **Returns**: side-by-side comparison of prompt length, prelude length, raw prompt length, ref count, model, aspect ratio, prompt review status, critic issues, workflow_id, and scratchpad path.
+- **Gotcha**: if `prompt_chars` is far above `raw_prompt_chars`, the prelude is bloated. Non-interface materials get the full mark anatomy + composition pattern guardrails, which can easily exceed model limits.
+
 ### brand management
 - **List brands**: `python3 mcp/brand_iterate.py list-brands --format json` / `brand_list(format="json")`
 - **Switch brand**: `python3 mcp/brand_iterate.py use <brand-key>` / `brand_use(brand="<key>")`

@@ -1,83 +1,109 @@
 # brand-gen
 
-> Agent-driven brand material experimentation toolkit
+> Give your AI agent a brand designer. Generate, critique, and iterate brand materials through conversation.
 
-Generate, critique, and iterate brand materials — social cards, browser illustrations, banners,
-posters, motion assets, and brand systems — using stored brand memory plus agent-friendly CLI and
-MCP surfaces.
+brand-gen is a toolkit that **your AI coding agent** uses to generate and refine brand materials — social cards, browser illustrations, banners, posters, motion assets, and full brand systems. You talk to your agent; your agent talks to brand-gen.
+
+## How it works
+
+You describe what you want. Your agent calls brand-gen's MCP tools (or CLI) to plan, generate, critique, and iterate. Brand memory accumulates across sessions so the agent learns your brand over time.
+
+```
+You → "Make a social card for our launch announcement"
+       ↓
+Agent → brand-gen pipeline → plan → critique → generate → v1.png
+       ↓
+You → "The colors feel too muted, push the contrast"
+       ↓
+Agent → brand-gen iterate → updated plan → v2.png
+```
+
+## Supported agents
+
+brand-gen works with any agent that supports MCP tools or can run CLI commands:
+
+| Agent | Integration |
+|-------|-------------|
+| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | MCP server or CLI via skill file |
+| [pi](https://github.com/mariozechner/pi) | Skill file + MCP server (see `skills/brand-gen/`) |
+| [Codex](https://github.com/openai/codex) | CLI commands in agent instructions |
+| [OpenClaw](https://github.com/ArcadeLabsInc/openclaw) | MCP plugin (see `packages/openclaw-plugin/`) |
+| Any MCP-compatible host | Run `python3 mcp/brand_iterate_mcp.py` as an MCP server |
 
 ## Install
 
-### Prerequisites
-- Python 3.11+
-- A Replicate API token for generative runs
-- Optional: an MCP host if you want tool-mode use instead of CLI-only use
-
-### Setup
 ```bash
 git clone <your-fork-or-repo-url>
 cd brand-gen
-cp .env.example .env
+cp .env.example .env          # Add your REPLICATE_API_TOKEN
 python3 scripts/validate_setup.py
+```
+
+**Requirements:** Python 3.11+, a [Replicate API token](https://replicate.com/account/api-tokens)
+
+### Connect to your agent
+
+**Claude Code / pi** — Add the skill file to your agent's skill directory:
+```bash
+# The skill file teaches your agent how to use brand-gen
+cp -r skills/brand-gen/ ~/.claude/skills/brand-gen/
+# Or for pi: cp -r skills/brand-gen/ .pi/skills/brand-gen/
+```
+
+**MCP server** — Register in your agent's MCP config:
+```json
+{
+  "mcpServers": {
+    "brand-gen": {
+      "command": "python3",
+      "args": ["<path-to-brand-gen>/mcp/brand_iterate_mcp.py"]
+    }
+  }
+}
+```
+
+**Codex** — Add to your agent instructions:
+```
+For brand material generation, use the brand-gen CLI at <path-to-brand-gen>/mcp/brand_iterate.py
 ```
 
 ## Quick start
 
-Choose the right onboarding path first:
+Tell your agent what you want. The skill file handles onboarding, but here's the typical flow:
 
-- **Existing saved brand** → `list-brands`, then `use <brand-key>` or `start-testing --brand <brand-key>`
-- **Repo/docs bundle but no saved brand yet** → `init --brand-name`, then `extract-brand`, then `use`
-- **No brand yet** → `start-testing --working-name`, gather product truth from conversation, then rebuild the session identity
+1. **Set up a brand** — "Initialize a brand called Acme from my project at ./my-app"
+2. **Generate something** — "Make a social card for our Series A announcement"
+3. **Iterate** — "Score that a 3, the typography feels too heavy"
+4. **Compare** — "Show me the comparison board for v1 through v5"
+5. **Diagnose** — "Why did v5 look worse than v4? Run diagnose v4 v5"
 
-```bash
-# Existing brand
-python3 mcp/brand_iterate.py list-brands --format json
-python3 mcp/brand_iterate.py use <brand-key>
-
-# Or new brand from a project
-python3 mcp/brand_iterate.py init --brand-name acme
-python3 mcp/brand_iterate.py extract-brand --project-root /path/to/project --brand-name acme
-python3 mcp/brand_iterate.py use acme
-
-# Then generate a first social asset
-python3 mcp/brand_iterate.py pipeline --material-type x-feed --mode hybrid --format json
-python3 mcp/brand_iterate.py show-session-summary --format json
-```
-
-## Important skills
-
-- `skills/brand-gen/SKILL.md` — main workflow skill; use this first for most sessions
-- `skills/brand-gen-reference/SKILL.md` — on-demand reference pack for models, surfaces, and file layout
-- `skills/brand-gen-logo/SKILL.md` — separate workflow for logo / wordmark / lockup exploration
-
-## Core features
-
-- one-call generative pipeline: route → plan → critique → scratchpad → generate
-- session-scoped iteration memory with promotion into saved brand memory
-- manifest/versioning with feedback, compare, and evolve flows
-- reference-role packs and reference analysis for stronger planning
-- MCP server for agent use plus plain CLI for direct scripting
-- optional Pi/OpenClaw integration packages under `packages/`
-
-## Main surfaces
-
-### CLI
-```bash
-python3 mcp/brand_iterate.py <command> ...
-./bin/brand-iterate <command> ...
-```
-
-### MCP server
-```bash
-python3 mcp/brand_iterate_mcp.py
-./bin/brand-mcp
-```
+Your agent translates these into brand-gen tool calls automatically.
 
 ## Example output
 
-Generated example from a real `pipeline` run (`v14` storyboard):
+Generated from a real `pipeline` run (v14 storyboard):
 
 ![brand-gen generated storyboard](docs/assets/example-v14-storyboard.jpg)
+
+## Core capabilities
+
+- **One-call pipeline**: route → plan → critique → scratchpad → generate
+- **Brand memory**: session-scoped iteration notes promote into persistent brand identity
+- **Messaging system**: taglines, elevator pitches, voice guidelines accumulate over time
+- **Manifest + versioning**: score, compare, diagnose, and evolve across versions
+- **Multi-model**: Flux Pro, Runway Gen4, Kling, Recraft, Nano Banana via Replicate + Google APIs
+- **Reference analysis**: role-pack system assigns semantic roles to reference images
+- **Prompt budgeting**: automatic prelude capping prevents prompt bloat across material types
+
+## Skills
+
+The skill files teach your agent how to use brand-gen effectively:
+
+| Skill | Purpose |
+|-------|---------|
+| `skills/brand-gen/SKILL.md` | Main workflow — onboarding, generation, iteration |
+| `skills/brand-gen-reference/SKILL.md` | On-demand reference for models, surfaces, file layout |
+| `skills/brand-gen-logo/SKILL.md` | Logo / wordmark / lockup exploration |
 
 ## Documentation
 
@@ -89,10 +115,6 @@ Generated example from a real `pipeline` run (`v14` storyboard):
 - [MCP Reference](docs/mcp-reference.md)
 - [Skills](docs/skills.md)
 - [Limitations](docs/limitations.md)
-- [How to add a material type](docs/how-to/add-material-type.md)
-- [How to add a model backend](docs/how-to/add-model-backend.md)
-- [How to plug in a different LLM](docs/how-to/plug-different-llm.md)
-- [How to write an agent skill](docs/how-to/write-agent-skill.md)
 
 ## Contributing
 

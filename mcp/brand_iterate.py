@@ -2407,9 +2407,18 @@ def build_effective_prompt(profile: dict, identity: dict, body: str, *, brand_ge
             if material_key in INTERFACE_MATERIAL_KEYS and len(messaging_snippet) > 250:
                 messaging_snippet = messaging_snippet[:250].rstrip() + "…"
 
+    # Apply per-part caps for non-interface materials to prevent prelude bloat
+    if material_key not in INTERFACE_MATERIAL_KEYS:
+        brand_prelude = cap_text_at_sentence(brand_prelude, NON_INTERFACE_PRELUDE_CAP)
+        doctrine = cap_text_at_sentence(doctrine, NON_INTERFACE_DOCTRINE_CAP)
+        reference_analysis_snippet = cap_text_at_sentence(reference_analysis_snippet, NON_INTERFACE_REF_ANALYSIS_CAP)
+
     combined_prelude = "\n\n".join(
         part for part in [brand_prelude.strip(), messaging_snippet.strip(), iteration_memory_snippet.strip(), material_snippet.strip(), role_pack_snippet.strip(), reference_analysis_snippet.strip(), doctrine.strip()] if part and part.strip()
     )
+    # Hard cap on total prelude for non-interface materials
+    if material_key not in INTERFACE_MATERIAL_KEYS and len(combined_prelude) > NON_INTERFACE_TOTAL_PRELUDE_CAP:
+        combined_prelude = cap_text_at_sentence(combined_prelude, NON_INTERFACE_TOTAL_PRELUDE_CAP)
     resolved = prefix_prompt(combined_prelude, body, token_block=token_block)
     return {
         "brand_prelude": brand_prelude,
@@ -2547,6 +2556,44 @@ def evaluate_prompt_review_rules(material_key: str, raw_prompt: str, context: di
     return issues, recommendations
 
 
+# ── Prelude budget caps ──────────────────────────────────────────────
+# Interface materials have tight per-part caps (already in place).
+# Non-interface materials (posters, stickers, merch) had no caps,
+# causing preludes to balloon (v15: 7205 chars). These constants set
+# reasonable ceilings for the non-interface path.
+NON_INTERFACE_PRELUDE_CAP = 1500      # base brand guardrail prelude
+NON_INTERFACE_DOCTRINE_CAP = 600      # inspiration doctrine
+NON_INTERFACE_REF_ANALYSIS_CAP = 500  # reference analysis snippet
+NON_INTERFACE_TOTAL_PRELUDE_CAP = 3000  # combined prelude (all parts before body)
+
+
+def cap_text_at_sentence(text: str, max_chars: int) -> str:
+    """Truncate *text* at the nearest sentence boundary ≤ *max_chars*.
+
+    Falls back to hard truncation + "…" if no sentence boundary is found.
+    """
+    text = (text or "").strip()
+    if len(text) <= max_chars:
+        return text
+    sentences = split_prompt_sentences(text)
+    if not sentences:
+        return text[:max_chars].rstrip() + "…"
+    result: list[str] = []
+    total = 0
+    for s in sentences:
+        addition = len(s) + (2 if result else 0)  # account for ". " join
+        if total + addition > max_chars:
+            break
+        result.append(s)
+        total += addition
+    if not result:
+        return text[:max_chars].rstrip() + "…"
+    joined = " ".join(result)
+    if not joined.endswith((".", "!", "?")):
+        joined += "."
+    return joined
+
+
 def compress_prompt_body(body: str, material_key: str, *, max_sentences: int | None = None, max_chars: int | None = None) -> str:
     if max_sentences is None:
         max_sentences = 4 if material_key in INTERFACE_MATERIAL_KEYS else 6
@@ -2616,6 +2663,10 @@ def review_prompt_architecture(
     base_prelude = get_base_brand_guardrail_prelude(profile, identity, material_type)
     resolved_prompt = context.get("resolved_prompt") or ""
 
+    # Cap base prelude for non-interface materials (was uncapped → 2000+ chars)
+    if material_key not in INTERFACE_MATERIAL_KEYS:
+        base_prelude = cap_text_at_sentence(base_prelude, NON_INTERFACE_PRELUDE_CAP)
+
     compact_parts = [base_prelude.strip()]
     material_snippet = (context.get("material_prompt_snippet") or "").strip()
     if material_snippet:
@@ -2624,22 +2675,26 @@ def review_prompt_architecture(
     if compact_roles:
         compact_parts.append(compact_roles)
     reference_analysis_snippet = (context.get("reference_analysis_snippet") or "").strip()
-    ref_analysis_cap = 250 if material_key in INTERFACE_MATERIAL_KEYS else 500
-    if reference_analysis_snippet and len(reference_analysis_snippet) < ref_analysis_cap:
+    ref_analysis_cap = 250 if material_key in INTERFACE_MATERIAL_KEYS else NON_INTERFACE_REF_ANALYSIS_CAP
+    if reference_analysis_snippet and len(reference_analysis_snippet) <= ref_analysis_cap:
         compact_parts.append(reference_analysis_snippet)
-    elif reference_analysis_snippet and material_key in INTERFACE_MATERIAL_KEYS:
-        compact_parts.append(reference_analysis_snippet[:ref_analysis_cap].rstrip() + "…")
+    elif reference_analysis_snippet:
+        compact_parts.append(cap_text_at_sentence(reference_analysis_snippet, ref_analysis_cap))
     doctrine = (context.get("inspiration_doctrine") or "").strip()
-    doctrine_cap = 350 if material_key in INTERFACE_MATERIAL_KEYS else 600
-    if doctrine and len(doctrine) < doctrine_cap:
+    doctrine_cap = 350 if material_key in INTERFACE_MATERIAL_KEYS else NON_INTERFACE_DOCTRINE_CAP
+    if doctrine and len(doctrine) <= doctrine_cap:
         compact_parts.append(doctrine)
-    elif doctrine and material_key in INTERFACE_MATERIAL_KEYS:
-        compact_parts.append(doctrine[:doctrine_cap].rstrip() + "…")
+    elif doctrine:
+        compact_parts.append(cap_text_at_sentence(doctrine, doctrine_cap))
     compact_memory = (context.get("iteration_memory_snippet") or "").strip()
     if compact_memory and len(compact_memory) < 500:
         compact_parts.append(compact_memory)
     compact_body = compress_prompt_body(raw_prompt, material_key)
-    refined_prompt = prefix_prompt("\n\n".join(part for part in compact_parts if part), compact_body, token_block=token_block or "")
+    compact_prelude = "\n\n".join(part for part in compact_parts if part)
+    # Hard cap on total prelude for non-interface materials
+    if material_key not in INTERFACE_MATERIAL_KEYS and len(compact_prelude) > NON_INTERFACE_TOTAL_PRELUDE_CAP:
+        compact_prelude = cap_text_at_sentence(compact_prelude, NON_INTERFACE_TOTAL_PRELUDE_CAP)
+    refined_prompt = prefix_prompt(compact_prelude, compact_body, token_block=token_block or "")
 
     return {
         "material_key": material_key,
@@ -3884,6 +3939,37 @@ def cmd_compare(args):
         status = version.get("status") or ""
         prompt = (version.get("prompt") or "—").replace("<", "&lt;").replace(">", "&gt;")
         notes = (version.get("notes") or "").replace("<", "&lt;").replace(">", "&gt;")
+        # Diagnostic fields
+        prompt_len = version.get("prompt_char_count") or len(version.get("prompt") or "")
+        workflow_id = version.get("workflow_id") or ""
+        scratchpad_path = version.get("generation_scratchpad") or ""
+        critic = version.get("critic_summary") or {}
+        critic_issues = critic.get("issues") or []
+        prompt_review = version.get("prompt_review") or {}
+        pr_ok = prompt_review.get("ok", True)
+        pr_warnings = prompt_review.get("warnings") or []
+        ref_count = version.get("reference_count") or 0
+        aspect = version.get("aspect_ratio") or ""
+        # Build diagnostic HTML
+        diag_parts = []
+        diag_parts.append(f"prompt: {prompt_len} chars")
+        diag_parts.append(f"refs: {ref_count}")
+        if aspect:
+            diag_parts.append(f"aspect: {aspect}")
+        if workflow_id:
+            diag_parts.append(f"wf: {workflow_id[:12]}")
+        if not pr_ok:
+            diag_parts.append(f"⚠ prompt review failed")
+        if pr_warnings:
+            diag_parts.append(f"⚠ {len(pr_warnings)} prompt warnings")
+        if critic_issues:
+            diag_parts.append(f"⚠ {len(critic_issues)} critic issues")
+        diag_html = f'<div class="diag">{" · ".join(diag_parts)}</div>'
+        # Critic issues detail
+        critic_html = ""
+        if critic_issues:
+            escaped_issues = [str(i).replace("<", "&lt;").replace(">", "&gt;") for i in critic_issues[:3]]
+            critic_html = '<div class="critic-issues">' + "<br>".join(f"• {i}" for i in escaped_issues) + '</div>'
         cards_html.append(f'''
     <div class="card {status}">
       <div class="media expandable" role="button" tabindex="0" aria-label="Expand {vid}" data-version="{vid}">
@@ -3893,6 +3979,8 @@ def cmd_compare(args):
       <div class="meta">
         <div class="version">{vid} <span class="score">{stars}</span></div>
         <div class="info">{version.get('material_type','')} · {version.get('generation_mode','')} · {version.get('model','')}</div>
+        {diag_html}
+        {critic_html}
         <div class="prompt">{prompt}</div>
         {"<div class='notes'>" + notes + "</div>" if notes else ""}
       </div>
@@ -3920,7 +4008,9 @@ def cmd_compare(args):
   .version {{ font-size: 1.1rem; font-weight: 700; }}
   .score {{ color: #f5a623; font-size: 0.95rem; }}
   .info {{ font-size: 0.8rem; color: #888; margin-top: 0.25rem; }}
-  .prompt {{ font-size: 0.82rem; color: #aaa; margin-top: 0.5rem; line-height: 1.4; }}
+  .diag {{ font-size: 0.75rem; color: #7a7a7a; margin-top: 0.3rem; font-family: ui-monospace, 'SF Mono', monospace; }}
+  .critic-issues {{ font-size: 0.75rem; color: #e8a040; margin-top: 0.3rem; line-height: 1.3; }}
+  .prompt {{ font-size: 0.82rem; color: #aaa; margin-top: 0.5rem; line-height: 1.4; max-height: 6em; overflow-y: auto; }}
   .notes {{ font-size: 0.82rem; color: #8f8; margin-top: 0.5rem; font-style: italic; }}
   .card.favorite {{ border: 2px solid #f5a623; }}
   .card.rejected {{ opacity: 0.45; }}
@@ -4014,6 +4104,73 @@ def cmd_compare(args):
     print(f"Comparison board: {out} ({len(cards_html)} versions)")
     if sys.platform == "darwin":
         subprocess.run(["open", str(out)], check=False)
+
+
+def cmd_diagnose(args):
+    """Compare diagnostic metadata for two or more versions side-by-side."""
+    manifest = load_manifest()
+    vids = args.versions
+    if not vids or len(vids) < 1:
+        raise SystemExit("Specify at least one version to diagnose, e.g.: diagnose v14 v15")
+    rows: list[dict] = []
+    for vid in vids:
+        v = manifest["versions"].get(vid)
+        if not v:
+            print(f"WARNING: {vid} not in manifest", file=sys.stderr)
+            continue
+        prompt_len = v.get("prompt_char_count") or len(v.get("prompt") or "")
+        critic = v.get("critic_summary") or {}
+        pr = v.get("prompt_review") or {}
+        rows.append({
+            "version": vid,
+            "material_type": v.get("material_type") or "",
+            "model": v.get("model") or "",
+            "mode": v.get("mode") or "",
+            "aspect_ratio": v.get("aspect_ratio") or "",
+            "prompt_chars": prompt_len,
+            "prompt_budget_ok": prompt_len <= 1800 if role_pack_material_key(v.get("material_type")) in INTERFACE_MATERIAL_KEYS else "n/a",
+            "ref_count": v.get("reference_count") or 0,
+            "refs": v.get("reference_images") or [],
+            "workflow_id": v.get("workflow_id") or "",
+            "scratchpad": v.get("generation_scratchpad") or "",
+            "prompt_review_ok": pr.get("ok", True),
+            "prompt_review_warnings": pr.get("warnings") or [],
+            "critic_issues": critic.get("issues") or [],
+            "score": v.get("score"),
+            "notes": v.get("notes") or "",
+            "status": v.get("status") or "",
+            "raw_prompt_chars": len(v.get("raw_prompt") or ""),
+            "prelude_chars": len(v.get("prompt_prelude") or ""),
+        })
+    if args.format == "json":
+        print(json.dumps(rows, indent=2))
+        return
+    for row in rows:
+        print(f"=== {row['version']} ===")
+        print(f"  material: {row['material_type']}  model: {row['model']}  mode: {row['mode']}  aspect: {row['aspect_ratio']}")
+        print(f"  prompt: {row['prompt_chars']} chars (raw: {row['raw_prompt_chars']}, prelude: {row['prelude_chars']})")
+        if row['prompt_budget_ok'] != "n/a":
+            print(f"  budget ok: {'✓' if row['prompt_budget_ok'] else '✗ OVER BUDGET'}")
+        print(f"  refs: {row['ref_count']}  {row['refs']}")
+        if row['workflow_id']:
+            print(f"  workflow: {row['workflow_id']}")
+        if row['scratchpad']:
+            print(f"  scratchpad: {row['scratchpad']}")
+        if not row['prompt_review_ok']:
+            print(f"  ⚠ prompt review FAILED")
+        if row['prompt_review_warnings']:
+            for w in row['prompt_review_warnings']:
+                print(f"    ⚠ {w}")
+        if row['critic_issues']:
+            for issue in row['critic_issues']:
+                print(f"    ⚠ critic: {issue}")
+        if row['score'] is not None:
+            print(f"  score: {row['score']}/5")
+        if row['notes']:
+            print(f"  notes: {row['notes'][:200]}")
+        if row['status']:
+            print(f"  status: {row['status']}")
+        print()
 
 
 def cmd_evolve(args):
@@ -5948,6 +6105,8 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         "status": None,
         "prompt_review": dict(payload.get("prompt_review") or {}, scratchpad=(payload.get("prompt_review") or {}).get("scratchpad") or ""),
         "generation_scratchpad": payload.get("_scratchpad_path") or "",
+        "workflow_id": workflow_id or "",
+        "prompt_char_count": len(effective_prompt),
     }
     manifest["versions"][vid]["critic_summary"] = build_structural_auto_critic(payload)
     save_manifest(manifest)
@@ -7529,6 +7688,10 @@ def main():
     cmp.add_argument("--top", type=int, help="Compare top N")
     cmp.add_argument("--output", "-o", help="Output HTML path")
 
+    diag = sub.add_parser("diagnose", aliases=["diag"], help="Compare diagnostic metadata for versions side-by-side")
+    diag.add_argument("versions", nargs="+", help="Versions to diagnose (e.g. v14 v15)")
+    diag.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+
     sub.add_parser("evolve", aliases=["ev", "e"], help="Analyze prompt patterns")
 
     ins = sub.add_parser("inspire", aliases=["insp", "i"], help="Browse or list inspiration")
@@ -7602,6 +7765,8 @@ def main():
         "compare": cmd_compare,
         "cmp": cmd_compare,
         "c": cmd_compare,
+        "diagnose": cmd_diagnose,
+        "diag": cmd_diagnose,
         "evolve": cmd_evolve,
         "ev": cmd_evolve,
         "e": cmd_evolve,
