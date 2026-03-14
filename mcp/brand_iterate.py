@@ -141,6 +141,11 @@ MATERIAL_CONFIG = {
     "sticker-family": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1:1"},
     "badge-family": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1:1"},
     "icon-family": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1:1"},
+    "content-card": {"generation_mode": "image", "default_model": "flux-2-pro", "default_aspect_ratio": "4:5"},
+    "content-card-square": {"generation_mode": "image", "default_model": "flux-2-pro", "default_aspect_ratio": "1:1"},
+    "carousel-slide": {"generation_mode": "image", "default_model": "flux-2-pro", "default_aspect_ratio": "4:5"},
+    "editorial-card": {"generation_mode": "image", "default_model": "flux-2-pro", "default_aspect_ratio": "4:5"},
+    "info-card": {"generation_mode": "image", "default_model": "flux-2-pro", "default_aspect_ratio": "4:5"},
     "storyboard": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "16:9"},
     "browser-illustration": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "16:9"},
     "feature-illustration": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "16:9"},
@@ -236,6 +241,46 @@ SOCIAL_SPECS = {
         "aspect_ratio": "1.91:1",
         "notes": "Common cross-platform OG default inferred from major social preview ecosystems.",
         "source": "brand-gen inference from major social preview ecosystems",
+    },
+    "content-card": {
+        "label": "Branded content card (portrait)",
+        "width": 1080,
+        "height": 1350,
+        "aspect_ratio": "4:5",
+        "notes": "Text-heavy branded card for Instagram/LinkedIn carousels. Headline + body text + optional photo inset + brand mark. Keep text at 24pt+ for mobile readability, 250px safe zone from top/bottom edges.",
+        "source": "Instagram/LinkedIn carousel best practices 2025",
+    },
+    "content-card-square": {
+        "label": "Branded content card (square)",
+        "width": 1080,
+        "height": 1080,
+        "aspect_ratio": "1:1",
+        "notes": "Square content card for multi-platform carousels and social feeds. Same text-heavy structure as portrait variant.",
+        "source": "Multi-platform social feed spec",
+    },
+    "carousel-slide": {
+        "label": "Carousel slide (portrait)",
+        "width": 1080,
+        "height": 1350,
+        "aspect_ratio": "4:5",
+        "notes": "Sequential carousel slide — designed as part of a swipeable series. Numbered if part of a how-to or list. Slide 1 = hook, final slide = CTA.",
+        "source": "Instagram/LinkedIn carousel best practices 2025",
+    },
+    "editorial-card": {
+        "label": "Editorial / blog article card",
+        "width": 1080,
+        "height": 1350,
+        "aspect_ratio": "4:5",
+        "notes": "Long-form branded editorial card with large serif/display headline, body paragraph, CTA link, and brand mark. Inspired by Tia Health blog cards.",
+        "source": "Editorial branded content design patterns",
+    },
+    "info-card": {
+        "label": "Informational card with bullet list",
+        "width": 1080,
+        "height": 1350,
+        "aspect_ratio": "4:5",
+        "notes": "Branded card with headline, subhead, body text, and bullet list. Optional rounded photo inset in corner. Educational/explainer format.",
+        "source": "Branded infographic card patterns",
     },
     "podcast-cover": {
         "label": "Podcast cover art",
@@ -345,6 +390,11 @@ MATERIAL_PROMPT_SNIPPET_ALIASES = {
     "podcast-cover": "podcast_cover",
     "podcast-banner": "podcast_banner",
     "social": "social",
+    "content-card": "content_card",
+    "content-card-square": "content_card",
+    "carousel-slide": "content_card",
+    "editorial-card": "editorial_card",
+    "info-card": "content_card",
     "campaign-poster": "campaign_poster",
     "poster": "campaign_poster",
     "event-poster": "merch_poster",
@@ -366,6 +416,8 @@ MATERIAL_PROMPT_SNIPPET_ALIASES = {
 
 NON_INTERFACE_MATERIAL_KEYS = {
     "campaign_poster",
+    "content_card",
+    "editorial_card",
     "pattern_system",
     "sticker_family",
     "merch_poster",
@@ -2242,6 +2294,40 @@ def fallback_material_prompt_snippet(material_key: str, workflow_mode: str | Non
             "hybrid": "In hybrid mode, pair one calm branded field with one decisive title-led composition move. Visible copy must be deterministic, not model-invented.",
         },
     }
+    # Content card and editorial card snippets
+    if material_key == "content_card":
+        base = (
+            "For content cards, design a text-heavy branded card with strong typographic hierarchy. "
+            "Place the headline large at the top using the display font, a colored subhead below, then body text in the body font at 24pt minimum for mobile readability. "
+            "Keep all critical text at least 250px from top and bottom edges. "
+            "Optional: one rounded photo inset in a lower corner. Brand mark in the bottom-left. "
+            "The card should feel like a polished Instagram or LinkedIn carousel slide — editorial quality, not a template."
+        )
+        variants = {
+            "reference": "In reference mode, preserve the brand palette and font roles while matching the editorial density and hierarchy of the reference.",
+            "inspiration": "In inspiration mode, borrow the compositional confidence and text-image balance of the inspiration but keep the brand palette and typography voice.",
+            "hybrid": "In hybrid mode, combine the brand's type system with the editorial pacing of the reference. Headline must use the display font, body must use the body font.",
+        }
+        if variant in variants:
+            return f"{base}\n\n{variants[variant]}"
+        return base
+
+    if material_key == "editorial_card":
+        base = (
+            "For editorial cards, design a text-forward branded card with a large serif or display headline that dominates the upper half. "
+            "Below the headline, include one paragraph of body text explaining the topic, then a 'Read more →' CTA link. "
+            "Brand mark anchored at bottom-left. Use the brand's background color as a solid field — no busy patterns or gradients. "
+            "The card should feel like a premium blog article header from a health, fintech, or tech brand."
+        )
+        variants = {
+            "reference": "In reference mode, adapt the reference's editorial typography hierarchy while keeping brand colors and mark placement.",
+            "inspiration": "In inspiration mode, borrow the editorial gravity and text confidence of the inspiration while staying in the brand palette.",
+            "hybrid": "In hybrid mode, match the reference's type scale and white space rhythm but use the brand's actual display and body fonts.",
+        }
+        if variant in variants:
+            return f"{base}\n\n{variants[variant]}"
+        return base
+
     if material_key not in snippets:
         return ""
     values = snippets[material_key]
@@ -2513,7 +2599,7 @@ def build_effective_prompt(profile: dict, identity: dict, body: str, *, brand_ge
                 messaging_snippet = messaging_snippet[:250].rstrip() + "…"
 
     copy_anchor_snippet = ""
-    if not disable_brand_guardrails and material_key in {"landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner"}:
+    if not disable_brand_guardrails and material_key in {"landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner", "content_card", "editorial_card"}:
         messaging = identity.get("messaging") or {}
         copy_bank = messaging.get("approved_copy_bank") or {}
         approved_strings = dedupe_keep_order(

@@ -83,6 +83,34 @@
         ]
       },
       "recommendation": "Podcast surfaces work better when the prompt names the show title and whether any episode / host / guest text should appear."
+    },
+    {
+      "id": "content_card_missing_copy",
+      "materials": [
+        "content_card",
+        "editorial_card"
+      ],
+      "when": {
+        "raw_prompt_missing_any_keywords": [
+          "headline",
+          "body",
+          "text",
+          "copy",
+          "title"
+        ]
+      },
+      "recommendation": "Content cards and editorial cards require explicit copy (headline, body text, CTA). Run the brand-content-ideation skill to generate a content brief first."
+    },
+    {
+      "id": "content_card_too_much_body_text",
+      "materials": [
+        "content_card",
+        "editorial_card"
+      ],
+      "when": {
+        "raw_prompt_chars_gt": 800
+      },
+      "recommendation": "Content card prompt seeds should be concise (under 400 chars). The prompt should specify the text to render, not explain it at length."
     }
   ]
 }

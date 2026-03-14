@@ -138,6 +138,10 @@ User wants to generate a material?
 │  └─ route-request → plan-draft → critique-plan → build-generation-scratchpad → generate
 └─ User wants to discuss positioning or copy first?
    └─ ideate-messaging → update-messaging → ideate-copy → then generate
+├─ User wants content cards, carousel slides, or editorial materials?
+│  └─ load `brand-content-ideation` skill → discovery questions → content brief → pipeline with content-card / editorial-card / carousel-slide
+└─ User has an image and wants branded overlays/text added to it?
+   └─ pipeline with --base-image and flux-2-pro
 ```
 
 ## Fast session lifecycle

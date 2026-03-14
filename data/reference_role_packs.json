@@ -399,5 +399,43 @@
         "buck-playgrounds-in-motion"
       ]
     }
+  },
+  "content_card": {
+    "roles": [
+      {
+        "role": "brand_field",
+        "bucket": "product",
+        "required": true,
+        "description": "Brand background color or pattern"
+      },
+      {
+        "role": "typography_reference",
+        "bucket": "inspiration",
+        "required": false,
+        "description": "Example of the desired headline/body hierarchy"
+      },
+      {
+        "role": "photo_inset",
+        "bucket": "product",
+        "required": false,
+        "description": "Photo to use as circular inset in the card"
+      }
+    ]
+  },
+  "editorial_card": {
+    "roles": [
+      {
+        "role": "brand_field",
+        "bucket": "product",
+        "required": true,
+        "description": "Brand background color or pattern"
+      },
+      {
+        "role": "editorial_reference",
+        "bucket": "inspiration",
+        "required": false,
+        "description": "Example editorial card to match hierarchy and density"
+      }
+    ]
   }
 }
