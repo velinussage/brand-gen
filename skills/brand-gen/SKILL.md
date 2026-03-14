@@ -26,7 +26,8 @@ python3 mcp/brand_iterate.py init --brand-name "<optional-brand-key>"
 ```
 
 Use `init` to create the shared workspace. If you already know the intended saved brand key,
-pass it here so the folder exists under `.brand-gen/brands/<key>/`.
+pass it here so the folder exists under `.brand-gen/brands/<key>/`. `init` now scaffolds a minimal
+`brand-profile.json` + `brand-identity.json` so the saved brand is immediately usable.
 
 ### Path A — use an existing saved brand
 

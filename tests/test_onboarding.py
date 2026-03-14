@@ -42,6 +42,25 @@ class OnboardingTests(unittest.TestCase):
             self.assertEqual(profile['brand_name'], 'Acme Cloud')
             self.assertEqual(config['active'], 'acme-cloud')
 
+
+    def test_init_is_idempotent_for_existing_brand(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_gen_dir = Path(tmpdir) / '.brand-gen'
+            cmd = [
+                sys.executable,
+                str(BRAND_ITERATE),
+                'init',
+                '--brand-name',
+                'Acme Cloud',
+                '--brand-gen-dir',
+                str(brand_gen_dir),
+            ]
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+            brand_dir = brand_gen_dir / 'brands' / 'acme-cloud'
+            self.assertTrue((brand_dir / 'brand-profile.json').exists())
+            self.assertTrue((brand_dir / 'brand-identity.json').exists())
+
     def test_create_brand_bootstraps_from_conversational_inputs(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             brand_gen_dir = Path(tmpdir) / '.brand-gen'
