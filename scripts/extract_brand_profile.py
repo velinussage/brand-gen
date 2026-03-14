@@ -285,7 +285,80 @@ def first_readme(project_root: Path) -> tuple[str, list[str]]:
     return main, [str(p.relative_to(project_root)) for p in readmes[:10]]
 
 
-def extract_fonts(text: str) -> list[str]:
+# Generic/fallback fonts that are CSS defaults, not brand choices.
+# Keep them as fallbacks in the raw list but filter from brand-level typography cues.
+GENERIC_FONT_FAMILIES = {
+    'system-ui', '-apple-system', 'blinkmacsystemfont', 'sans-serif', 'serif',
+    'monospace', 'cursive', 'fantasy', 'ui-sans-serif', 'ui-serif', 'ui-monospace',
+    'ui-rounded', 'inherit', 'initial', 'unset', 'revert',
+}
+
+# Common CSS variable patterns → resolved font names.
+# Populated from project CSS vars during extraction; this is the static fallback map.
+CSS_VAR_FONT_MAP: dict[str, str] = {
+    'var(--font-inter)': 'Inter',
+    'var(--font-fraunces)': 'Fraunces',
+    'var(--font-mono)': 'monospace',
+    'var(--font-sans)': 'sans-serif',
+    'var(--font-serif)': 'serif',
+}
+CSS_VAR_FONT_RE = re.compile(r'var\(\s*(--[a-zA-Z0-9-]+)\s*\)')
+
+
+def resolve_css_var_font(token: str, css_vars: dict[str, str] | None = None) -> str:
+    """Resolve a CSS variable font reference to an actual font name.
+
+    Checks the project's own CSS vars first, then a static fallback map,
+    then strips the var() wrapper and infers the font name from the variable name.
+    """
+    if not token.startswith('var('):
+        return token
+    m = CSS_VAR_FONT_RE.match(token)
+    if not m:
+        return token
+    var_name = m.group(1)  # e.g. --font-inter
+    # Check project CSS vars
+    if css_vars:
+        value = css_vars.get(var_name, '').strip().strip('"\'').strip()
+        if value and not value.startswith('var('):
+            # Take the first font family from a comma-separated list
+            first = value.split(',')[0].strip().strip('"\'').strip()
+            if first:
+                return first
+    # Check static map
+    low = token.lower().strip()
+    if low in CSS_VAR_FONT_MAP:
+        return CSS_VAR_FONT_MAP[low]
+    # Infer from variable name: --font-inter → Inter, --sage-font-sans → sans
+    name_part = var_name.split('font-')[-1] if 'font-' in var_name else ''
+    if name_part:
+        cleaned = name_part.replace('-', ' ').strip()
+        # If it resolves to a generic family, return the generic (will be filtered later)
+        if cleaned.lower() in GENERIC_FONT_FAMILIES:
+            return cleaned.lower()
+        if cleaned:
+            return cleaned.title()
+    return token
+
+
+def classify_font_role(font_name: str, index: int, total: int) -> str:
+    """Heuristic classification of a font's semantic role based on name and position."""
+    low = font_name.lower()
+    if any(kw in low for kw in ['mono', 'code', 'fira code', 'jetbrains', 'consolas', 'courier', 'source code']):
+        return 'mono'
+    if any(kw in low for kw in ['display', 'playfair', 'fraunces', 'crimson', 'lora', 'merriweather', 'georgia', 'garamond']):
+        return 'display'
+    if any(kw in low for kw in ['heading', 'title', 'hero']):
+        return 'heading'
+    # First font in the list is typically body/primary; second is often heading/display
+    if index == 0:
+        return 'body'
+    if index == 1 and total > 2:
+        return 'heading'
+    return 'body'
+
+
+def extract_fonts(text: str, css_vars: dict[str, str] | None = None) -> list[str]:
     fonts = []
     for match in FONT_RE.findall(text):
         fonts.extend(part.strip().strip('"\'') for part in match.split(',') if part.strip())
@@ -300,12 +373,48 @@ def extract_fonts(text: str) -> list[str]:
         item = str(item).strip()
         if not item:
             continue
+        # Resolve CSS variables to actual font names
+        item = resolve_css_var_font(item, css_vars)
         low = item.lower()
         if low in seen:
             continue
         seen.add(low)
         normalized.append(item)
     return normalized[:16]
+
+
+# Short/meaningless names that result from poorly-resolved CSS variable inference.
+# These are not real font names and should be filtered alongside generics.
+INFERRED_JUNK_NAMES = {'family', 'sans', 'mono', 'body', 'heading', 'display', 'text', 'base', 'default', 'primary', 'secondary'}
+
+
+def filter_generic_fonts(fonts: list[str]) -> list[str]:
+    """Remove generic CSS fallback families and junk inferred names, keeping only named brand fonts."""
+    return [f for f in fonts if f.lower() not in GENERIC_FONT_FAMILIES and f.lower() not in INFERRED_JUNK_NAMES]
+
+
+def build_font_roles(fonts: list[str]) -> dict[str, str]:
+    """Assign semantic roles (body, heading, display, mono) to brand fonts.
+
+    Returns a dict like {"body": "Inter", "display": "Fraunces", "mono": "JetBrains Mono"}.
+    """
+    brand_fonts = filter_generic_fonts(fonts)
+    if not brand_fonts:
+        return {}
+    roles: dict[str, str] = {}
+    assigned: set[str] = set()
+    for idx, font in enumerate(brand_fonts):
+        role = classify_font_role(font, idx, len(brand_fonts))
+        if role not in roles:
+            roles[role] = font
+            assigned.add(font)
+    # If we have 2+ fonts and no heading, promote the second to heading
+    if len(brand_fonts) >= 2 and 'heading' not in roles and 'display' not in roles:
+        for font in brand_fonts[1:]:
+            if font not in assigned:
+                roles['heading'] = font
+                break
+    return roles
 
 
 def extract_keywords(texts: list[str]) -> list[str]:
@@ -451,10 +560,14 @@ def summarize_design_language(*, colors: list[str], fonts: list[str], radius: li
     border_radius = (design_tokens.get('border_radius') or {}).get('values', [])[:12]
     components = design_tokens.get('components') or {}
     component_cues = [key for key, value in components.items() if value]
+    # Filter generics and build semantic font roles
+    brand_fonts = filter_generic_fonts(fonts)
+    font_roles = build_font_roles(brand_fonts)
     return {
         'palette_direction': colors[:10],
         'semantic_palette_roles': semantic_names,
-        'typography_voice': fonts[:10],
+        'typography_voice': brand_fonts[:10],
+        'typography_roles': font_roles,
         'typography_styles': typography_styles,
         'shape_language': {
             'radius_tokens': radius[:10],
@@ -471,7 +584,17 @@ def summarize_design_language(*, colors: list[str], fonts: list[str], radius: li
 def build_guardrail_prelude(brand_name: str, description: str, keywords: list[str], colors: list[str], fonts: list[str], radius: list[str], design_language: dict[str, Any], design_memory: dict[str, Any] | None = None) -> str:
     tone = ', '.join(keywords[:5]) or 'clear, confident, and specific'
     palette = ', '.join(colors[:6]) or 'the existing brand palette'
-    typography = ', '.join(fonts[:4]) or 'the existing typography'
+    # Use semantic font roles when available, fall back to raw list
+    font_roles = design_language.get('typography_roles') or build_font_roles(filter_generic_fonts(fonts))
+    if font_roles:
+        role_parts = []
+        for role in ['body', 'heading', 'display', 'mono']:
+            if role in font_roles:
+                role_parts.append(f'{font_roles[role]} ({role})')
+        typography = ', '.join(role_parts) if role_parts else ', '.join(filter_generic_fonts(fonts)[:4]) or 'the existing typography'
+    else:
+        brand_fonts = filter_generic_fonts(fonts)
+        typography = ', '.join(brand_fonts[:4]) or 'the existing typography'
     shape = ', '.join(radius[:4]) or 'the existing interface geometry'
     component_cues = ', '.join(design_language.get('component_cues', [])[:4]) or 'the brand\'s UI components'
     parts = [
@@ -521,7 +644,7 @@ def extract_profile(project_root: Path, brand_name: str | None, homepage_url: st
         colors = COLOR_RE.findall(text)
         color_counter.update(color.lower() for color in colors)
         css_vars.update({name: value.strip() for name, value in CSS_VAR_RE.findall(text)})
-        fonts.extend(extract_fonts(text))
+        fonts.extend(extract_fonts(text, css_vars))
         rounded.update(ROUNDED_RE.findall(text))
         if colors or 'font-family' in text or rel.lower().startswith('tailwind.config'):
             evidence_files.append(rel)
@@ -604,7 +727,8 @@ def extract_profile(project_root: Path, brand_name: str | None, homepage_url: st
         'keywords': keywords,
         'color_candidates': top_colors,
         'css_variables': merged_css_vars,
-        'font_candidates': unique_fonts[:12],
+        'font_candidates': filter_generic_fonts(unique_fonts)[:12],
+        'font_roles': build_font_roles(filter_generic_fonts(unique_fonts)),
         'radius_tokens': top_radius,
         'logo_candidates': sorted(dict.fromkeys(logo_files))[:20],
         'brand_assets': brand_assets,

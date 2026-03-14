@@ -102,7 +102,12 @@ def derive_non_interface_devices(profile: dict, design_language: dict, design_me
 def build_material_prompt_snippets(profile: dict, design_language: dict, design_memory: dict) -> dict[str, dict[str, str]]:
     brand_name = profile.get('brand_name') or 'The brand'
     palette = sentence_join((profile.get('color_candidates') or [])[:4]) or 'the stored brand palette'
-    typography = sentence_join((profile.get('font_candidates') or [])[:3]) or 'the stored typography system'
+    font_roles = profile.get('font_roles') or design_language.get('typography_roles') or {}
+    if font_roles:
+        role_parts = [f'{v} ({k})' for k, v in font_roles.items() if v]
+        typography = sentence_join(role_parts) or 'the stored typography system'
+    else:
+        typography = sentence_join((profile.get('font_candidates') or [])[:3]) or 'the stored typography system'
     shape = sentence_join((profile.get('radius_tokens') or [])[:3]) or 'the stored shape language'
     components = sentence_join((design_language.get('component_cues') or design_memory.get('components') or [])[:4]) or 'the stored component system'
     layout = sentence_join((design_memory.get('layout') or [])[:3]) or 'quiet whitespace and a single dominant proof surface'
@@ -368,11 +373,17 @@ def build_identity(profile: dict) -> dict:
     mark_anatomy = get_mark_anatomy(profile)
     mark_primitives = get_mark_primitives(profile)
     mark_compositions = get_mark_compositions(profile)
+    font_roles = profile.get('font_roles') or design_language.get('typography_roles') or {}
+    if font_roles:
+        role_parts = [f'{v} ({k})' for k, v in font_roles.items() if v]
+        typography_desc = sentence_join(role_parts) or sentence_join(fonts[:3]) or 'its existing typography'
+    else:
+        typography_desc = sentence_join(fonts[:3]) or 'its existing typography'
     prompt_prelude = (
         f'Preserve the brand truth of {brand_name}. '
         f'The brand should feel {sentence_join(keywords[:5]) or "clear, confident, and specific"}. '
         f'Keep palette direction anchored in {sentence_join(colors[:5]) or "its existing palette"}, '
-        f'typography cues anchored in {sentence_join(fonts[:3]) or "its existing typography"}, '
+        f'typography anchored in {typography_desc}, '
         f'and shape language anchored in {sentence_join(radius[:3]) or "its existing interface geometry"}. '
         f'External references may improve framing, crop, and atmosphere, but must not replace the brand identity.'
     )
@@ -421,6 +432,7 @@ def build_identity(profile: dict) -> dict:
             'must_preserve': {
                 'palette_direction': colors[:10],
                 'typography_cues': fonts[:10],
+                'typography_roles': font_roles,
                 'shape_language': radius[:10],
             },
             'brand_truth_rules': [

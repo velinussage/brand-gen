@@ -68,7 +68,7 @@ TOOLS = [
     {
         "name": "brand_compare",
         "description": "Generate an HTML comparison board for images, gifs, or short videos.",
-        "inputSchema": {"type": "object", "properties": {"versions": {"type": "array", "items": {"type": "string"}}, "favorites": {"type": "boolean"}, "top": {"type": "integer"}}}
+        "inputSchema": {"type": "object", "properties": {"versions": {"type": "array", "items": {"type": "string"}}, "favorites": {"type": "boolean"}, "top": {"type": "integer"}, "latest": {"type": "integer"}, "all_versions": {"type": "boolean"}}}
     },
     {
         "name": "brand_evolve",
@@ -90,6 +90,25 @@ TOOLS = [
                 "brand_gen_dir": {"type": "string", "description": "Optional override for .brand-gen location."},
                 "legacy_brand_dir": {"type": "string", "description": "Optional legacy brand-materials directory to migrate."}
             }
+        }
+    },
+    {
+        "name": "brand_create",
+        "description": "Create a saved brand from a conversational brief and scaffold a minimal valid brand-profile.json + brand-identity.json.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Brand display name."},
+                "description": {"type": "string", "description": "Short plain-language description of the brand or product."},
+                "tone": {"type": "array", "items": {"type": "string"}, "description": "Tone words or comma-separated groups."},
+                "palette": {"type": "array", "items": {"type": "string"}, "description": "Palette colors or comma-separated groups."},
+                "keywords": {"type": "array", "items": {"type": "string"}, "description": "Keywords describing the brand/product."},
+                "homepage_url": {"type": "string", "description": "Optional homepage URL."},
+                "voice_description": {"type": "string", "description": "Optional description of the desired brand voice."},
+                "value_props": {"type": "array", "items": {"type": "string"}, "description": "Approved value propositions."},
+                "brand_gen_dir": {"type": "string", "description": "Optional override for .brand-gen location."}
+            },
+            "required": ["name"]
         }
     },
     {
@@ -983,6 +1002,10 @@ def handle_tool_call(name, arguments):
             cmd.append("--favorites")
         if args.get("top"):
             cmd += ["--top", str(args["top"])]
+        if args.get("latest"):
+            cmd += ["--latest", str(args["latest"])]
+        if args.get("all_versions"):
+            cmd.append("--all")
         output, ok = run_brand_iterate(cmd)
         return output, not ok
     if name == "brand_evolve":
@@ -999,6 +1022,26 @@ def handle_tool_call(name, arguments):
             cmd += ["--brand-gen-dir", args["brand_gen_dir"]]
         if args.get("legacy_brand_dir"):
             cmd += ["--legacy-brand-dir", args["legacy_brand_dir"]]
+        output, ok = run_brand_iterate(cmd)
+        return output, not ok
+    if name == "brand_create":
+        cmd = ["create-brand", "--name", args["name"]]
+        if args.get("description"):
+            cmd += ["--description", args["description"]]
+        for value in args.get("tone", []) or []:
+            cmd += ["--tone", value]
+        for value in args.get("palette", []) or []:
+            cmd += ["--palette", value]
+        for value in args.get("keywords", []) or []:
+            cmd += ["--keywords", value]
+        if args.get("homepage_url"):
+            cmd += ["--homepage-url", args["homepage_url"]]
+        if args.get("voice_description"):
+            cmd += ["--voice-description", args["voice_description"]]
+        for value in args.get("value_props", []) or []:
+            cmd += ["--value-prop", value]
+        if args.get("brand_gen_dir"):
+            cmd += ["--brand-gen-dir", args["brand_gen_dir"]]
         output, ok = run_brand_iterate(cmd)
         return output, not ok
     if name == "brand_start_testing":

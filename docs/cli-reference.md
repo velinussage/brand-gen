@@ -17,16 +17,26 @@ python3 mcp/brand_iterate.py extract-brand --project-root /path/to/project --bra
 python3 mcp/brand_iterate.py use acme
 ```
 
-### No brand yet: conversation-first session
+### No brand yet: create from conversation
 ```bash
-python3 mcp/brand_iterate.py start-testing --session-name exploration --working-name Acme --goal "Find the first strong branded direction"
-python3 mcp/brand_iterate.py build-identity \
-  --profile .brand-gen/sessions/exploration/brand-materials/brand-profile.json \
-  --output-json .brand-gen/sessions/exploration/brand-materials/brand-identity.json \
-  --output-markdown .brand-gen/sessions/exploration/brand-materials/brand-identity.md
+python3 mcp/brand_iterate.py create-brand \
+  --name Acme \
+  --description "Operational software for modern field teams" \
+  --tone "calm,technical" \
+  --palette "#1A6B6B,#C85A2A"
 ```
 
+Use `start-testing --working-name ...` instead if you want a temporary session sandbox before creating a durable saved brand.
+
 Use `show-session-summary --format json` immediately after onboarding to confirm the active workspace.
+
+### `create-brand`
+Create a saved brand from a conversational brief and scaffold a valid profile + identity.
+
+```bash
+python3 mcp/brand_iterate.py create-brand --name "Acme" --description "Operational software for modern field teams" --tone "calm,technical" --palette "#1A6B6B,#C85A2A"
+```
+
 
 ## Most-used commands
 
@@ -82,4 +92,13 @@ Compare prompt length, prelude size, refs, critic issues, and workflow lineage a
 
 ```bash
 python3 mcp/brand_iterate.py diagnose v14 v20 --format json
+```
+
+
+### `compare`
+Build the HTML comparison board. With no explicit versions it now works well as a history view, and each card includes a copyable prompt for asking your agent to regenerate from that version with a new screen or new input.
+
+```bash
+python3 mcp/brand_iterate.py compare --all
+python3 mcp/brand_iterate.py compare --latest 12
 ```

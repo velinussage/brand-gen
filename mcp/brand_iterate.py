@@ -11,6 +11,7 @@ Usage:
   brand_iterate.py evolve                                   Analyze prompt patterns from feedback
   brand_iterate.py inspire [CATEGORY]                       Browse / list inspiration references
   brand_iterate.py extract-brand [opts]                     Extract a brand profile from a codebase/site
+  brand_iterate.py create-brand [opts]                      Create a saved brand from a conversational brief
   brand_iterate.py build-identity [opts]                    Build brand-identity.json and brand-identity.md from a profile
   brand_iterate.py describe-brand [opts]                    Generate reusable brand description prompts
   brand_iterate.py show-identity [opts]                     Show a readable or JSON summary of stored brand identity
@@ -74,6 +75,14 @@ SCRIPTS_DIR = REPO_ROOT / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.append(str(SCRIPTS_DIR))
 
+from brand_scaffold import (  # type: ignore
+    build_profile_from_brief,
+    ensure_brand_structure,
+    get_brand_registry_path,
+    load_brand_registry,
+    parse_csv_values,
+    register_brand,
+)
 from load_inspiration_doctrine import (  # type: ignore
     load_component_hints,
     load_principles,
@@ -2267,6 +2276,7 @@ def summarize_identity(profile: dict, identity: dict) -> dict:
         "brand_anchors": identity_core.get("brand_anchors") or profile.get("logo_candidates") or [],
         "palette_direction": must_preserve.get("palette_direction") or profile.get("color_candidates") or [],
         "typography_cues": must_preserve.get("typography_cues") or profile.get("font_candidates") or [],
+        "typography_roles": must_preserve.get("typography_roles") or design_language.get("typography_roles") or profile.get("font_roles") or {},
         "shape_language": must_preserve.get("shape_language") or profile.get("radius_tokens") or [],
         "approved_graphic_devices": identity_core.get("approved_graphic_devices") or [],
         "forbidden_elements": identity_core.get("forbidden_elements") or [],
@@ -2304,6 +2314,7 @@ def validate_identity_summary(profile_path: Path, identity_path: Path, profile: 
     checks["tone_words"] = bool(summary["tone_words"])
     checks["palette_direction"] = bool(summary["palette_direction"])
     checks["typography_cues"] = bool(summary["typography_cues"])
+    checks["typography_roles"] = bool(summary.get("typography_roles"))
     checks["shape_language"] = bool(summary["shape_language"])
     checks["brand_anchors"] = bool(summary["brand_anchors"])
     checks["approved_graphic_devices"] = bool(summary["approved_graphic_devices"])
@@ -2334,6 +2345,8 @@ def validate_identity_summary(profile_path: Path, identity_path: Path, profile: 
         if not checks[field]:
             warnings.append(f"Missing {label}.")
 
+    if not checks["typography_roles"]:
+        warnings.append("No semantic font roles (body/heading/display/mono) stored; typography prompts will be generic.")
     if not checks["brand_anchors"]:
         warnings.append("No brand anchors / logo candidates stored.")
     if not checks["approved_graphic_devices"]:
@@ -3210,9 +3223,17 @@ def list_brand_dirs(brand_gen_dir: Path | None = None) -> list[Path]:
     if not resolved:
         return []
     brands_dir = resolved / "brands"
-    if not brands_dir.exists():
-        return []
-    return sorted([path for path in brands_dir.iterdir() if path.is_dir()])
+    discovered: dict[str, Path] = {}
+    if brands_dir.exists():
+        for path in brands_dir.iterdir():
+            if path.is_dir():
+                discovered[path.name] = path
+    registry = load_brand_registry(resolved)
+    for key, item in (registry.get("brands") or {}).items():
+        candidate = Path(str((item or {}).get("path") or (brands_dir / key))).expanduser()
+        if candidate.exists() and candidate.is_dir():
+            discovered[str(key)] = candidate
+    return [discovered[name] for name in sorted(discovered)]
 
 
 def resolve_active_brand_key(brand_gen_dir: Path | None = None) -> str | None:
@@ -3868,8 +3889,8 @@ def cmd_generate(args):
         current_payload["_previous_vid"] = vid
         current_payload["_vlm_critique"] = vlm_result
 
-    # Compare all generated versions
-    cmd_compare(argparse.Namespace(versions=all_vids, favorites=False, top=None, output=None))
+    # Refresh the default compare board with the full workspace history so the newest result is visible in context.
+    cmd_compare(argparse.Namespace(versions=[], favorites=False, top=None, latest=None, all_versions=True, output=None))
 
 
 def cmd_pipeline(args):
@@ -4024,6 +4045,81 @@ def _version_sort_key(vid: str) -> int:
     return int(match.group(1)) if match else 0
 
 
+def html_escape(value: object) -> str:
+    return (
+        str(value or "")
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def summarize_version_metadata(version_id: str, entry: dict) -> dict:
+    prompt_len = entry.get("prompt_char_count") or len(entry.get("prompt") or "")
+    raw_prompt = entry.get("raw_prompt") or ""
+    prompt_prelude = entry.get("prompt_prelude") or ""
+    critic = entry.get("critic_summary") or {}
+    prompt_review = entry.get("prompt_review") or {}
+    return {
+        "version": version_id,
+        "material_type": entry.get("material_type") or "",
+        "generation_mode": entry.get("generation_mode") or "",
+        "mode": entry.get("mode") or "",
+        "model": entry.get("model") or "",
+        "aspect_ratio": entry.get("aspect_ratio") or "",
+        "timestamp": entry.get("timestamp") or "",
+        "score": entry.get("score"),
+        "status": entry.get("status") or "",
+        "workflow_id": entry.get("workflow_id") or "",
+        "source_version": entry.get("source_version") or "",
+        "scratchpad": entry.get("generation_scratchpad") or "",
+        "auto_review_path": entry.get("auto_review_path") or "",
+        "files": list(entry.get("files") or []),
+        "reference_images": list(entry.get("reference_images") or []),
+        "reference_count": entry.get("reference_count") or 0,
+        "prompt_chars": prompt_len,
+        "raw_prompt_chars": len(raw_prompt),
+        "prelude_chars": len(prompt_prelude),
+        "critic_issues": list(critic.get("issues") or []),
+        "prompt_review_ok": prompt_review.get("ok", True),
+        "prompt_review_warnings": list(prompt_review.get("warnings") or []),
+        "notes": entry.get("notes") or "",
+        "tag": entry.get("tag") or "",
+        "prompt": entry.get("prompt") or "",
+        "raw_prompt": raw_prompt,
+    }
+
+
+def build_agent_regeneration_prompt(version_id: str, entry: dict) -> str:
+    meta = summarize_version_metadata(version_id, entry)
+    lines = [
+        "Use brand-gen in the current active workspace.",
+        f"Start from version {version_id} as the baseline.",
+        f"Material type: {meta['material_type'] or 'material'}.",
+        f"Workflow mode: {meta['mode'] or 'hybrid'}.",
+    ]
+    if meta["aspect_ratio"]:
+        lines.append(f"Aspect ratio: {meta['aspect_ratio']}.")
+    if meta["model"]:
+        lines.append(f"Prefer the same model unless there is a clear reason to switch: {meta['model']}.")
+    lines.append("Keep the brand direction and any approved messaging that made this version useful.")
+    if meta["notes"]:
+        lines.append(f"Existing notes to preserve or react to: {meta['notes'][:220]}")
+    if meta["critic_issues"]:
+        lines.append("Avoid repeating these issues: " + "; ".join(str(item) for item in meta["critic_issues"][:3]))
+    if meta["reference_images"]:
+        lines.append("Replace the primary product/reference image with <NEW_SCREEN_PATH> if you are using a new screen from the app.")
+    else:
+        lines.append("If you want to incorporate a new app screen, attach it as <NEW_SCREEN_PATH> and use it as the new primary product truth reference.")
+    if meta["material_type"] in {"landing-hero", "social", "campaign-poster", "merch-poster", "podcast-cover", "podcast-banner", "og-card"}:
+        lines.append("If visible copy appears, use explicit user-provided copy or approved messaging only; do not invent new slogans or event names.")
+    if meta["raw_prompt"]:
+        lines.append(f"Starting prompt seed from {version_id}: {meta['raw_prompt'][:400]}")
+    lines.append(f"After generating the new version, compare it against {version_id} and summarize what improved.")
+    return "\n".join(lines)
+
+
 def cmd_compare(args):
     manifest = load_manifest()
     brand_dir = get_brand_dir()
@@ -4033,14 +4129,31 @@ def cmd_compare(args):
         scored = [(k, v) for k, v in manifest["versions"].items() if v.get("score")]
         scored.sort(key=lambda x: -(x[1].get("score") or 0))
         vids = [k for k, _ in scored[: args.top]]
+    elif getattr(args, "latest", None):
+        vids = [k for k, _ in sorted(manifest["versions"].items(), key=lambda item: _version_sort_key(item[0]), reverse=True)[: args.latest]]
+    elif getattr(args, "all_versions", False):
+        vids = [k for k, _ in sorted(manifest["versions"].items(), key=lambda item: _version_sort_key(item[0]), reverse=True)]
     else:
-        vids = args.versions
+        vids = args.versions or [k for k, _ in sorted(manifest["versions"].items(), key=lambda item: _version_sort_key(item[0]), reverse=True)]
     if not vids:
-        print("No versions to compare. Specify versions or use --favorites/--top N")
+        print("No versions to compare.")
         sys.exit(1)
 
+    filter_label = "selected versions"
+    if args.favorites:
+        filter_label = "favorites"
+    elif args.top:
+        filter_label = f"top {args.top}"
+    elif getattr(args, "latest", None):
+        filter_label = f"latest {args.latest}"
+    elif getattr(args, "all_versions", False) or not args.versions:
+        filter_label = "all versions"
+
+    ordered_vids = sorted(vids, key=_version_sort_key, reverse=True)
+    latest_selected_version = ordered_vids[0] if ordered_vids else ''
+    latest_overall_version = next(iter(sorted(manifest["versions"].keys(), key=_version_sort_key, reverse=True)), "")
     cards_html = []
-    for vid in sorted(vids, key=_version_sort_key):
+    for vid in ordered_vids:
         version = manifest["versions"].get(vid)
         if not version:
             print(f"WARNING: {vid} not in manifest, skipping", file=sys.stderr)
@@ -4062,22 +4175,23 @@ def cmd_compare(args):
                     media_file = fp
                     break
         media_html = media_tag(media_file) if media_file and media_file.exists() else '<div class="no-media">No media</div>'
-        score = version.get("score")
+        meta = summarize_version_metadata(vid, version)
+        score = meta.get("score")
         stars = ("★" * score + "☆" * (5 - score)) if score else "unscored"
-        status = version.get("status") or ""
-        prompt = (version.get("prompt") or "—").replace("<", "&lt;").replace(">", "&gt;")
-        notes = (version.get("notes") or "").replace("<", "&lt;").replace(">", "&gt;")
-        # Diagnostic fields
-        prompt_len = version.get("prompt_char_count") or len(version.get("prompt") or "")
-        workflow_id = version.get("workflow_id") or ""
-        scratchpad_path = version.get("generation_scratchpad") or ""
-        critic = version.get("critic_summary") or {}
-        critic_issues = critic.get("issues") or []
-        prompt_review = version.get("prompt_review") or {}
-        pr_ok = prompt_review.get("ok", True)
-        pr_warnings = prompt_review.get("warnings") or []
-        ref_count = version.get("reference_count") or 0
-        aspect = version.get("aspect_ratio") or ""
+        status = meta.get("status") or ""
+        prompt = html_escape(meta.get("prompt") or "—")
+        raw_prompt = html_escape(meta.get("raw_prompt") or "—")
+        notes = html_escape(meta.get("notes") or "")
+        prompt_len = meta.get("prompt_chars") or 0
+        workflow_id = meta.get("workflow_id") or ""
+        scratchpad_path = meta.get("scratchpad") or ""
+        source_version = meta.get("source_version") or ""
+        critic_issues = meta.get("critic_issues") or []
+        pr_ok = meta.get("prompt_review_ok", True)
+        pr_warnings = meta.get("prompt_review_warnings") or []
+        ref_count = meta.get("reference_count") or 0
+        aspect = meta.get("aspect_ratio") or ""
+        regen_prompt = html_escape(build_agent_regeneration_prompt(vid, version))
         # Build diagnostic HTML
         diag_parts = []
         diag_parts.append(f"prompt: {prompt_len} chars")
@@ -4086,6 +4200,8 @@ def cmd_compare(args):
             diag_parts.append(f"aspect: {aspect}")
         if workflow_id:
             diag_parts.append(f"wf: {workflow_id[:12]}")
+        if source_version:
+            diag_parts.append(f"from: {source_version}")
         if not pr_ok:
             diag_parts.append(f"⚠ prompt review failed")
         if pr_warnings:
@@ -4096,12 +4212,32 @@ def cmd_compare(args):
         # Critic issues detail
         critic_html = ""
         if critic_issues:
-            escaped_issues = [str(i).replace("<", "&lt;").replace(">", "&gt;") for i in critic_issues[:3]]
+            escaped_issues = [html_escape(i) for i in critic_issues[:3]]
             critic_html = '<div class="critic-issues">' + "<br>".join(f"• {i}" for i in escaped_issues) + '</div>'
+        warnings_html = ""
+        if pr_warnings:
+            warnings_html = '<div class="prompt-warnings">' + "<br>".join(f"• {html_escape(i)}" for i in pr_warnings[:3]) + '</div>'
+        metadata_rows = [
+            ("Timestamp", meta.get("timestamp") or "n/a"),
+            ("Material", meta.get("material_type") or "n/a"),
+            ("Mode", meta.get("mode") or "n/a"),
+            ("Model", meta.get("model") or "n/a"),
+            ("Aspect", meta.get("aspect_ratio") or "n/a"),
+            ("Refs", str(meta.get("reference_count") or 0)),
+            ("Workflow", workflow_id or "n/a"),
+            ("Scratchpad", scratchpad_path or "n/a"),
+            ("Auto review", meta.get("auto_review_path") or "n/a"),
+        ]
+        metadata_html = "".join(
+            f"<div class='meta-key'>{html_escape(label)}</div><div class='meta-value'>{html_escape(value)}</div>"
+            for label, value in metadata_rows
+        )
+        latest_badge = '<div class="latest-badge">Most recent overall</div>' if vid == latest_overall_version else ('<div class="latest-badge">Most recent in view</div>' if vid == latest_selected_version else '')
         cards_html.append(f'''
-    <div class="card {status}">
+    <div class="card {status}" data-version="{html_escape(vid)}" data-material="{html_escape(meta.get('material_type') or '')}" data-status="{html_escape(status or 'unscored')}" data-score="{html_escape(score or '')}">
       <div class="media expandable" role="button" tabindex="0" aria-label="Expand {vid}" data-version="{vid}">
         <div class="expand-chip">Click to expand</div>
+        {latest_badge}
         {media_html}
       </div>
       <div class="meta">
@@ -4109,11 +4245,18 @@ def cmd_compare(args):
         <div class="info">{version.get('material_type','')} · {version.get('generation_mode','')} · {version.get('model','')}</div>
         {diag_html}
         {critic_html}
-        <div class="prompt">{prompt}</div>
+        {warnings_html}
+        <div class="meta-grid">{metadata_html}</div>
+        <details class="detail-block"><summary>Resolved prompt</summary><div class="prompt">{prompt}</div></details>
+        <details class="detail-block"><summary>Raw prompt</summary><div class="prompt">{raw_prompt}</div></details>
+        <details class="detail-block openable"><summary>Paste-to-agent regeneration prompt</summary><div class="copy-row"><button class="copy-btn" data-copy="{regen_prompt}">Copy prompt</button></div><textarea class="agent-prompt" readonly>{regen_prompt}</textarea></details>
         {"<div class='notes'>" + notes + "</div>" if notes else ""}
       </div>
     </div>''')
 
+    total_versions = len(manifest["versions"])
+    scored_versions = sum(1 for v in manifest["versions"].values() if v.get("score") is not None)
+    favorite_versions = sum(1 for v in manifest["versions"].values() if v.get("status") == "favorite")
     html = f'''<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Brand Material Comparison</title>
 <style>
@@ -4121,9 +4264,13 @@ def cmd_compare(args):
   body {{ font-family: system-ui, -apple-system, sans-serif; background: #1a1a1a; color: #eee; margin: 2rem; }}
   body.modal-open {{ overflow: hidden; }}
   h1 {{ font-size: 1.5rem; font-weight: 600; margin-bottom: 0.4rem; }}
-  .subhead {{ color: #9b9b9b; margin-bottom: 1.4rem; font-size: 0.92rem; }}
+  .subhead {{ color: #9b9b9b; margin-bottom: 1rem; font-size: 0.92rem; }}
+  .toolbar {{ position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; background: rgba(26,26,26,0.96); border: 1px solid #333; border-radius: 14px; padding: 0.9rem 1rem; margin-bottom: 1.25rem; }}
+  .toolbar .summary {{ color: #bdbdbd; font-size: 0.88rem; }}
+  .toolbar input, .toolbar select {{ background: #111; color: #eee; border: 1px solid #3a3a3a; border-radius: 10px; padding: 0.55rem 0.7rem; font: inherit; }}
   .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }}
   .card {{ background: #2a2a2a; border-radius: 12px; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 10px 24px rgba(0,0,0,0.18); }}
+  .card.hidden {{ display: none; }}
   .card:hover {{ transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0,0,0,0.24); }}
   .media {{ position: relative; background: #111; }}
   .media.expandable {{ cursor: zoom-in; outline: none; }}
@@ -4131,6 +4278,7 @@ def cmd_compare(args):
   .media img, .media video {{ width: 100%; display: block; background: #111; }}
   .media video {{ max-height: 420px; object-fit: contain; }}
   .expand-chip {{ position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2; background: rgba(0,0,0,0.58); color: #fff; font-size: 0.72rem; padding: 0.35rem 0.55rem; border-radius: 999px; pointer-events: none; letter-spacing: 0.02em; }}
+  .latest-badge {{ position: absolute; top: 0.7rem; left: 0.7rem; z-index: 2; background: rgba(245,166,35,0.92); color: #1a1a1a; font-size: 0.72rem; font-weight: 700; padding: 0.35rem 0.55rem; border-radius: 999px; pointer-events: none; letter-spacing: 0.02em; }}
   .no-media {{ height: 220px; display: flex; align-items: center; justify-content: center; background: #333; color: #666; }}
   .meta {{ padding: 1rem; }}
   .version {{ font-size: 1.1rem; font-weight: 700; }}
@@ -4138,7 +4286,16 @@ def cmd_compare(args):
   .info {{ font-size: 0.8rem; color: #888; margin-top: 0.25rem; }}
   .diag {{ font-size: 0.75rem; color: #7a7a7a; margin-top: 0.3rem; font-family: ui-monospace, 'SF Mono', monospace; }}
   .critic-issues {{ font-size: 0.75rem; color: #e8a040; margin-top: 0.3rem; line-height: 1.3; }}
+  .prompt-warnings {{ font-size: 0.75rem; color: #d7c06f; margin-top: 0.3rem; line-height: 1.3; }}
+  .meta-grid {{ display: grid; grid-template-columns: 110px 1fr; gap: 0.35rem 0.65rem; margin-top: 0.7rem; font-size: 0.78rem; }}
+  .meta-key {{ color: #8a8a8a; }}
+  .meta-value {{ color: #ddd; word-break: break-word; }}
+  .detail-block {{ margin-top: 0.75rem; background: #232323; border: 1px solid #333; border-radius: 10px; padding: 0.55rem 0.7rem; }}
+  .detail-block summary {{ cursor: pointer; color: #ddd; font-size: 0.82rem; }}
   .prompt {{ font-size: 0.82rem; color: #aaa; margin-top: 0.5rem; line-height: 1.4; max-height: 6em; overflow-y: auto; }}
+  .copy-row {{ margin-top: 0.55rem; }}
+  .copy-btn {{ appearance: none; border: 0; background: #3a3a3a; color: #fff; border-radius: 999px; padding: 0.45rem 0.75rem; cursor: pointer; font: inherit; }}
+  .agent-prompt {{ width: 100%; min-height: 12rem; margin-top: 0.6rem; background: #111; color: #ddd; border: 1px solid #3a3a3a; border-radius: 10px; padding: 0.75rem; font: 12px/1.45 ui-monospace, 'SF Mono', monospace; resize: vertical; }}
   .notes {{ font-size: 0.82rem; color: #8f8; margin-top: 0.5rem; font-style: italic; }}
   .card.favorite {{ border: 2px solid #f5a623; }}
   .card.rejected {{ opacity: 0.45; }}
@@ -4154,7 +4311,17 @@ def cmd_compare(args):
 </style></head>
 <body>
 <h1>Brand Material Comparison — {len(vids)} versions</h1>
-<div class="subhead">Click any preview to expand it. Press Esc to close.</div>
+<div class="subhead">Viewing {html_escape(filter_label)}. Most recent versions appear first. The latest overall generation is highlighted directly on the card grid. Click any preview to expand it. Use the copy button to grab a ready-to-paste regeneration prompt for your agent.</div>
+<div class="toolbar">
+  <div class="summary">History: {total_versions} total · {scored_versions} scored · {favorite_versions} favorites · latest overall: {html_escape(latest_overall_version or 'n/a')} · latest in view: {html_escape(latest_selected_version or 'n/a')}</div>
+  <input id="filter-search" type="search" placeholder="Filter by version, material, notes, model..." />
+  <select id="filter-status">
+    <option value="">All statuses</option>
+    <option value="favorite">Favorites</option>
+    <option value="rejected">Rejected</option>
+    <option value="unscored">Unscored</option>
+  </select>
+</div>
 <div class="grid">{"".join(cards_html)}</div>
 <div class="lightbox" id="lightbox" aria-hidden="true">
   <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="Expanded media preview">
@@ -4225,6 +4392,36 @@ def cmd_compare(args):
   document.addEventListener('keydown', (event) => {{
     if (event.key === 'Escape') closeLightbox();
   }});
+
+  document.querySelectorAll('.copy-btn').forEach((btn) => {{
+    btn.addEventListener('click', async () => {{
+      const text = btn.dataset.copy || '';
+      try {{
+        await navigator.clipboard.writeText(text);
+        const previous = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => btn.textContent = previous, 1200);
+      }} catch (err) {{
+        console.error(err);
+      }}
+    }});
+  }});
+
+  const searchInput = document.getElementById('filter-search');
+  const statusSelect = document.getElementById('filter-status');
+  const cards = Array.from(document.querySelectorAll('.card'));
+  function applyFilters() {{
+    const query = (searchInput.value || '').toLowerCase().trim();
+    const status = statusSelect.value;
+    cards.forEach((card) => {{
+      const haystack = card.textContent.toLowerCase();
+      const statusMatch = !status || (card.dataset.status || '') === status;
+      const queryMatch = !query || haystack.includes(query);
+      card.classList.toggle('hidden', !(statusMatch && queryMatch));
+    }});
+  }}
+  searchInput.addEventListener('input', applyFilters);
+  statusSelect.addEventListener('change', applyFilters);
 </script>
 </body></html>'''
     out = Path(args.output).expanduser() if args.output else brand_dir / "compare.html"
@@ -4437,6 +4634,11 @@ def cmd_show_identity(args):
     print(f"Brand anchors: {', '.join(summary['brand_anchors']) or 'n/a'}")
     print(f"Palette direction: {', '.join(summary['palette_direction']) or 'n/a'}")
     print(f"Typography cues: {', '.join(summary['typography_cues']) or 'n/a'}")
+    font_roles = summary.get("typography_roles") or {}
+    if font_roles:
+        print(f"Typography roles: {', '.join(f'{v} ({k})' for k, v in font_roles.items())}")
+    else:
+        print("Typography roles: n/a (run extract-brand to detect)")
     print(f"Shape language: {', '.join(summary['shape_language']) or 'n/a'}")
     print(f"Approved graphic devices: {', '.join(summary['approved_graphic_devices']) or 'n/a'}")
     print(f"Forbidden elements: {', '.join(summary['forbidden_elements']) or 'n/a'}")
@@ -5849,6 +6051,7 @@ def ensure_reference_analysis(
         f"Summary: {summary.get('summary') or 'n/a'}\n"
         f"Palette direction: {', '.join(summary.get('palette_direction') or []) or 'n/a'}\n"
         f"Typography cues: {', '.join(summary.get('typography_cues') or []) or 'n/a'}\n"
+        f"Typography roles: {', '.join(f'{v} ({k})' for k, v in (summary.get('typography_roles') or {}).items()) or 'n/a'}\n"
         f"Approved devices: {', '.join(summary.get('approved_graphic_devices') or []) or 'n/a'}"
     )
     analyses = [run_vlm_reference_analysis(item, brand_context) for item in reference_inputs]
@@ -6242,6 +6445,7 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         "prompt_review": dict(payload.get("prompt_review") or {}, scratchpad=(payload.get("prompt_review") or {}).get("scratchpad") or ""),
         "generation_scratchpad": payload.get("_scratchpad_path") or "",
         "workflow_id": workflow_id or "",
+        "source_version": payload.get("_previous_vid") or payload.get("source_version") or "",
         "prompt_char_count": len(effective_prompt),
     }
     manifest["versions"][vid]["critic_summary"] = build_structural_auto_critic(payload)
@@ -7035,6 +7239,26 @@ def cmd_init(args):
     run_child_script(REPO_ROOT / "scripts" / "init_brand_gen.py", cmd)
 
 
+def cmd_create_brand(args):
+    brand_gen_dir = Path(args.brand_gen_dir).expanduser().resolve() if args.brand_gen_dir else (get_brand_gen_dir() or (REPO_ROOT / ".brand-gen"))
+    cmd = ["--brand-gen-dir", str(brand_gen_dir), "--brand-name", args.name]
+    if args.description:
+        cmd += ["--description", args.description]
+    if args.homepage_url:
+        cmd += ["--homepage-url", args.homepage_url]
+    if args.voice_description:
+        cmd += ["--voice-description", args.voice_description]
+    for item in args.tone or []:
+        cmd += ["--tone", item]
+    for item in args.palette or []:
+        cmd += ["--palette", item]
+    for item in args.keywords or []:
+        cmd += ["--keywords", item]
+    for item in args.value_prop or []:
+        cmd += ["--value-prop", item]
+    run_child_script(REPO_ROOT / "scripts" / "init_brand_gen.py", cmd)
+
+
 def cmd_start_testing(args):
     brand_gen_dir = Path(args.brand_gen_dir).expanduser().resolve() if args.brand_gen_dir else (get_brand_gen_dir() or (REPO_ROOT / ".brand-gen"))
     brand_gen_dir.mkdir(parents=True, exist_ok=True)
@@ -7163,14 +7387,19 @@ def cmd_list_brands(args):
         print("No .brand-gen directory found.")
         return
     active = resolve_active_brand_key(brand_gen_dir)
+    registry = load_brand_registry(brand_gen_dir)
+    registry_items = registry.get("brands") or {}
     items = []
     for brand_dir in list_brand_dirs(brand_gen_dir):
         profile = brand_dir / "brand-profile.json"
         identity = brand_dir / "brand-identity.json"
         inspirations = load_inspirations_config(brand_dir.name, brand_gen_dir)
         report = validate_identity_summary(profile, identity, load_json_file(profile), load_json_file(identity))
+        reg = registry_items.get(brand_dir.name) or {}
         items.append({
             "key": brand_dir.name,
+            "name": reg.get("name") or (load_json_file(profile).get("brand_name") or brand_dir.name),
+            "description": reg.get("description") or (load_json_file(profile).get("description") or ""),
             "active": brand_dir.name == active,
             "profile": profile.exists(),
             "identity": identity.exists(),
@@ -7186,6 +7415,8 @@ def cmd_list_brands(args):
     for item in items:
         marker = "*" if item["active"] else " "
         print(f"{marker:<2} {item['key']:<20} {str(item['profile']):<8} {str(item['identity']):<9} {item['score']:<8} {item['warnings']:<5} {item['inspiration_sources']}")
+        if item["description"]:
+            print(f"   {item['description'][:120]}")
 
 
 def cmd_extract_inspiration(args):
@@ -7408,6 +7639,17 @@ def main():
     init.add_argument("--brand-name", help="Brand key to initialize / activate")
     init.add_argument("--brand-gen-dir", help="Override .brand-gen location")
     init.add_argument("--legacy-brand-dir", help="Optional legacy brand-materials directory to migrate")
+
+    create_brand = sub.add_parser("create-brand", help="Create a saved brand from a conversational brief and scaffold profile + identity files")
+    create_brand.add_argument("--name", required=True, help="Brand display name")
+    create_brand.add_argument("--description", help="Short plain-language description of the brand or product")
+    create_brand.add_argument("--tone", action="append", help="Comma-separated tone words; repeat for multiple groups")
+    create_brand.add_argument("--palette", action="append", help="Comma-separated palette values (e.g. #1A6B6B,#C85A2A)")
+    create_brand.add_argument("--keywords", action="append", help="Comma-separated brand/product keywords")
+    create_brand.add_argument("--homepage-url", help="Optional homepage URL")
+    create_brand.add_argument("--voice-description", help="Optional short description of the desired brand voice")
+    create_brand.add_argument("--value-prop", action="append", help="Approved value proposition; repeatable")
+    create_brand.add_argument("--brand-gen-dir", help="Override .brand-gen location")
 
     start_testing = sub.add_parser("start-testing", help="Start an explicit brand testing session instead of defaulting to a saved brand")
     start_testing.add_argument("--session-name", help="Session key; defaults to a slug from the working name or timestamp")
@@ -7822,6 +8064,8 @@ def main():
     cmp.add_argument("versions", nargs="*", help="Versions to compare")
     cmp.add_argument("--favorites", action="store_true", help="Compare favorites")
     cmp.add_argument("--top", type=int, help="Compare top N")
+    cmp.add_argument("--latest", type=int, help="Compare latest N versions")
+    cmp.add_argument("--all", dest="all_versions", action="store_true", help="Compare all historical versions")
     cmp.add_argument("--output", "-o", help="Output HTML path")
 
     diag = sub.add_parser("diagnose", aliases=["diag"], help="Compare diagnostic metadata for versions side-by-side")
@@ -7846,6 +8090,7 @@ def main():
         "bootstrap": cmd_bootstrap,
         "types": lambda _args: list_material_types(),
         "init": cmd_init,
+        "create-brand": cmd_create_brand,
         "start-testing": cmd_start_testing,
         "use": cmd_use,
         "list-brands": cmd_list_brands,

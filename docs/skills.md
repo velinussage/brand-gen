@@ -16,7 +16,7 @@ What it covers:
 
 1. **Existing saved brand?** Use `list-brands` and either `use <brand-key>` or `start-testing --brand <brand-key>`.
 2. **Repo/docs bundle exists but no saved brand yet?** Use `init --brand-name`, then `extract-brand`, then `use`.
-3. **No brand yet at all?** Use `start-testing --working-name`, gather product truth from conversation, write the session profile, and rebuild identity with `build-identity`.
+3. **No brand yet at all?** Use `create-brand --name ... --description ... --tone ... --palette ...` to scaffold a saved brand immediately, or `start-testing --working-name` only when you want a temporary sandbox first.
 
 ## `brand-gen-reference`
 

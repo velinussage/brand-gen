@@ -47,22 +47,25 @@ python3 mcp/brand_iterate.py use acme
 ```
 
 ### C. No brand yet — start from conversation
-If there is no repo/docs bundle and the user is still defining the brand:
+If there is no repo/docs bundle and the user is still defining the brand, the fastest path is:
+
+```bash
+python3 mcp/brand_iterate.py create-brand \
+  --name "Acme" \
+  --description "Operational software for modern field teams" \
+  --tone "calm,technical,trustworthy" \
+  --palette "#1A6B6B,#C85A2A"
+```
+
+This scaffolds a saved brand, writes a minimal valid `brand-profile.json`, builds `brand-identity.json`, and makes the new brand active.
+
+Use `start-testing` instead when you explicitly want a temporary sandbox before saving anything durable:
 
 ```bash
 python3 mcp/brand_iterate.py start-testing \
   --session-name first-social-pass \
   --working-name "Acme" \
   --goal "Create a product-led social card"
-```
-
-Then gather basic product truth from conversation and write the session profile directly. Rebuild the session identity from that file:
-
-```bash
-python3 mcp/brand_iterate.py build-identity \
-  --profile .brand-gen/sessions/first-social-pass/brand-materials/brand-profile.json \
-  --output-json .brand-gen/sessions/first-social-pass/brand-materials/brand-identity.json \
-  --output-markdown .brand-gen/sessions/first-social-pass/brand-materials/brand-identity.md
 ```
 
 ## 3. Check current workspace state

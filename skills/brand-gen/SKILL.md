@@ -76,6 +76,20 @@ This is the cleanest onboarding path because it creates reusable saved-brand mem
 
 Use this when there is no repo/docs bundle and the user is still forming the brand.
 
+Fast durable path:
+
+```bash
+python3 mcp/brand_iterate.py create-brand \
+  --name "<brand-name>" \
+  --description "<what the product is and who it serves>" \
+  --tone "calm,technical,trustworthy" \
+  --palette "#1A6B6B,#C85A2A"
+```
+
+This creates `.brand-gen/brands/<key>/`, writes a minimal valid `brand-profile.json`, builds `brand-identity.json`, and makes the new brand active.
+
+Use `start-testing` instead only when you explicitly want a temporary sandbox before saving a durable brand:
+
 ```bash
 python3 mcp/brand_iterate.py start-testing \
   --session-name "exploration" \
@@ -83,28 +97,15 @@ python3 mcp/brand_iterate.py start-testing \
   --goal "figure out the first good branded materials"
 ```
 
-Then gather the minimum viable brand truth from conversation:
-- what the product/project is called
-- what it does and who it is for
-- 3–5 tone adjectives
-- what it must not feel like
-- whether any logo/wordmark/palette already exists
-
-**Important:** there is no single CLI command that turns those answers into a full saved brand yet.
-The correct v1 path is:
+Testing-session path:
 1. start the testing session,
 2. write or edit the session `brand-profile.json` directly,
 3. rebuild the session identity from that file,
 4. generate inside the session,
-5. only later promote durable messaging or manually copy the session memory into a saved brand.
-
-Rebuild the session identity after editing the profile:
+5. promote durable messaging or manually copy the session memory into a saved brand later.
 
 ```bash
-python3 mcp/brand_iterate.py build-identity \
-  --profile .brand-gen/sessions/<session>/brand-materials/brand-profile.json \
-  --output-json .brand-gen/sessions/<session>/brand-materials/brand-identity.json \
-  --output-markdown .brand-gen/sessions/<session>/brand-materials/brand-identity.md
+python3 mcp/brand_iterate.py build-identity   --profile .brand-gen/sessions/<session>/brand-materials/brand-profile.json   --output-json .brand-gen/sessions/<session>/brand-materials/brand-identity.json   --output-markdown .brand-gen/sessions/<session>/brand-materials/brand-identity.md
 ```
 
 ### Resume the current context
@@ -278,8 +279,9 @@ Each entry shows **CLI + MCP**, the **return shape**, and the main **gotcha**.
 - **Workspace summary**: `python3 mcp/brand_iterate.py show-session-summary --format json` / `brand_show_session_summary()`
 - **Blackboard**: `python3 mcp/brand_iterate.py show-blackboard --format json` / `brand_show_blackboard()`
 - **Manifest**: `python3 mcp/brand_iterate.py show --format json --latest 5` / `brand_show(format="json", latest=5)`
+- **Compare board**: `python3 mcp/brand_iterate.py compare --all` / `brand_compare(all_versions=true)`
 - **Iteration memory**: `python3 mcp/brand_iterate.py show-iteration-memory --format json` / `brand_show_iteration_memory()`
-- **Gotcha**: `show-session-summary` is the fastest “what changed?” command; use the others only when you need raw detail.
+- **Gotcha**: `show-session-summary` is the fastest “what changed?” command; use the others only when you need raw detail. `compare --all` is the best visual history view and now includes copyable prompts for regenerating from any prior version.
 
 ### review-brand
 - **When**: after generating something serious and before asking the user for a final score.
@@ -298,6 +300,7 @@ Each entry shows **CLI + MCP**, the **return shape**, and the main **gotcha**.
 - **List brands**: `python3 mcp/brand_iterate.py list-brands --format json` / `brand_list(format="json")`
 - **Switch brand**: `python3 mcp/brand_iterate.py use <brand-key>` / `brand_use(brand="<key>")`
 - **Init workspace**: `python3 mcp/brand_iterate.py init --brand-name "<name>"`
+- **Create brand from conversation**: `python3 mcp/brand_iterate.py create-brand --name "<name>" --description "<what it is>" --tone "calm,technical" --palette "#1A6B6B,#C85A2A"` / `brand_create(name="<name>", description="...", tone=[...], palette=[...])`
 - **Extract brand**: `python3 mcp/brand_iterate.py extract-brand --project-root <path> --brand-name "<name>"` / `brand_extract(project_root="<path>", brand_name="<name>")`
 - **Start testing session**: `python3 mcp/brand_iterate.py start-testing --session-name "<name>" --brand <brand-key> --goal "<goal>"`
 - **Gotcha**: `start-testing --brand <key>` seeds the session from the saved brand. Without `--brand`, the session starts as a fresh testing workspace.
@@ -314,7 +317,8 @@ Each entry shows **CLI + MCP**, the **return shape**, and the main **gotcha**.
 - Don't send more than **2 refs** for interface materials unless you are debugging reference behavior. More refs usually create muddier compositions, not richer ones.
 - Don't assume the saved brand identity is the active truth. Sessions often use a copied workspace; if messaging feels missing, inspect `show-session-summary` before editing the saved brand.
 - Don't use `open`/folder-review flows as the primary agent loop when `--format json` is available.
-- Don't treat `init --brand-name` as if it fully defines a brand. It only creates the saved-brand workspace; you still need `extract-brand` or a manually written profile.
+- Don't use `start-testing` when the user actually wants a durable saved brand immediately; prefer `create-brand` for conversation-first onboarding.
+- Don't assume `init --brand-name` is the best conversation-first path; it now scaffolds usable files, but `create-brand` is better because it captures description, tone, and palette in one step.
 
 ## Brand-specific material policies
 
