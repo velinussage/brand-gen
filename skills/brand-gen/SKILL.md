@@ -151,6 +151,61 @@ User wants to generate a material?
 2. `show-session-summary` to review generations, scores, notes, and messaging.
 3. `show-iteration-memory` only if you need the raw note buckets.
 
+## Scoring and feedback
+
+Scoring is how brand-gen turns a one-off generation session into reusable memory.
+
+### The rule
+
+- **Final numeric scores should reflect user preference**, not silent agent guesswork.
+- The agent **can propose** a score or favorite based on conversation ("this one is closest", "reject that one", "I like the calmer direction"), but should only write canonical feedback when the user intent is explicit enough.
+
+### Current write path
+
+```bash
+python3 mcp/brand_iterate.py feedback v17 --score 4 --notes "Strong direction, simplify the copy"
+python3 mcp/brand_iterate.py feedback v17 --status favorite
+python3 mcp/brand_iterate.py feedback v18 --score 1 --status rejected --notes "Feels generic and the copy is invented"
+```
+
+MCP equivalent:
+
+- `brand_feedback(version="v17", score=4, notes="...", status="favorite")`
+
+### How to think about scores
+
+- **5** = should strongly shape future work; near-ship or best-in-session
+- **4** = clearly good direction; preserve major traits and refine
+- **3** = mixed; useful signal but not a direction to lock in
+- **2** = weak; keep only narrow lessons from it
+- **1** = reject; use as a negative example
+
+### What the agent should do
+
+After compare/review, summarize preference like this:
+
+```text
+Best candidate: v17
+Suggested score: 4/5
+Why: strongest brand anchor, calmer field, copy closest to approved messaging
+
+Reject: v18
+Suggested score: 1/5
+Why: invented copy, weak product truth, too generic
+```
+
+Then write `feedback` only when the user has clearly endorsed or rejected the direction.
+
+### Why this matters
+
+Scores feed:
+- manifest ranking
+- positive / negative examples in iteration memory
+- future `evolve` analysis
+- stronger prompt shaping over time
+
+Unscored generations are basically lost learning.
+
 ## What I can see vs what I can't
 
 - Best agent-readable outputs: commands with `--format json`, especially `pipeline`, `route-request`, `plan-draft`, `critique-plan`, `build-generation-scratchpad`, `ideate-messaging`, `ideate-copy`, `show-session-summary`, `show-blackboard`, and `show`.

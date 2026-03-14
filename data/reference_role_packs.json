@@ -340,6 +340,64 @@
         "buck-playgrounds-in-motion",
         "buck-zapier-motion-library"
       ]
+    },
+    "podcast_cover": {
+      "priority": [
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Choose one composition ref for square cover hierarchy and one application ref for premium podcast/cover confidence. Keep title legibility and brand ownership clearer than the decoration.",
+      "composition": [
+        "gretel-work",
+        "ramotion",
+        "clay"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "mother-design-home",
+        "gretel-work",
+        "pentagram-poster-house"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ]
+    },
+    "podcast_banner": {
+      "priority": [
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "composition",
+        "application"
+      ],
+      "selection_note": "Choose one wide composition ref and one application ref for episode-promo confidence. Keep the title block dominant and avoid generic audio-wave clutter.",
+      "composition": [
+        "ramotion",
+        "gretel-work",
+        "metalab"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work"
+      ],
+      "application": [
+        "mother-design-home",
+        "gretel-work",
+        "pentagram-poster-house"
+      ],
+      "motion": [
+        "buck-zapier-motion-library",
+        "buck-playgrounds-in-motion"
+      ]
     }
   }
 }

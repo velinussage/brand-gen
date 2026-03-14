@@ -19,6 +19,8 @@ python3 mcp/brand_iterate.py social-specs
 | LinkedIn feed (square) | `1080x1080` | `1:1` | Cross-platform square format |
 | LinkedIn feed (portrait) | `627x1200` | `1:1.91` | Taller LinkedIn-native post |
 | OG card | `1200x630` | `1.91:1` | Safe universal preview image |
+| Podcast cover | `3000x3000` | `1:1` | Apple Podcasts / Spotify square show or episode art |
+| Podcast banner | `1280x720` | `16:9` | YouTube thumbnail or landscape episode promo |
 
 ## Practical guidance
 
@@ -31,6 +33,8 @@ python3 mcp/brand_iterate.py social-specs
 - X / feed surfaces want stronger headline-safe space and quicker legibility.
 - LinkedIn usually benefits from more breathing room and less aggressive contrast stacking.
 - OG should be treated as a preview surface, not as a dense poster.
+- Podcast covers need fewer words, bigger title hierarchy, and stronger thumbnail readability than generic social cards.
+- Podcast banners should behave like editorial episode promos, not dashboard hero shots.
 
 ## Copy / messaging rules
 
@@ -44,6 +48,8 @@ python3 mcp/brand_iterate.py social-specs
 - LinkedIn landscape/square/portrait feed presets align to current official LinkedIn single-image specs.
 - X feed landscape/square/portrait presets are brand-gen working defaults chosen for practical composition, not one official organic-feed spec.
 - OG `1200x630` is a practical cross-platform default.
+- Podcast cover `3000x3000` aligns to Apple Podcasts and Spotify guidance.
+- Podcast banner `1280x720` aligns to YouTube thumbnail guidance.
 
 ## Gotchas
 

@@ -120,6 +120,8 @@ MATERIAL_CONFIG = {
     "linkedin-feed-square": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1:1"},
     "linkedin-feed-portrait": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1:1.91"},
     "og-card": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1.91:1"},
+    "podcast-cover": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "1:1"},
+    "podcast-banner": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "16:9"},
     "poster": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "4:5"},
     "event-poster": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "4:5"},
     "merch-poster": {"generation_mode": "image", "default_model": "recraft-v4", "default_aspect_ratio": "4:5"},
@@ -226,6 +228,22 @@ SOCIAL_SPECS = {
         "notes": "Common cross-platform OG default inferred from major social preview ecosystems.",
         "source": "brand-gen inference from major social preview ecosystems",
     },
+    "podcast-cover": {
+        "label": "Podcast cover art",
+        "width": 3000,
+        "height": 3000,
+        "aspect_ratio": "1:1",
+        "notes": "Square podcast artwork aligned to Apple Podcasts and Spotify guidance. Keep the show title large and legible at thumbnail size.",
+        "source": "Apple Podcasts Marketing Tools + Spotify for Creators",
+    },
+    "podcast-banner": {
+        "label": "Podcast episode / YouTube promo banner",
+        "width": 1280,
+        "height": 720,
+        "aspect_ratio": "16:9",
+        "notes": "Landscape episode-promo surface aligned to YouTube thumbnail guidance. Keep the title hierarchy bold and safe inside a 16:9 crop.",
+        "source": "YouTube Help thumbnail guidance",
+    },
 }
 
 
@@ -315,6 +333,8 @@ MATERIAL_PROMPT_SNIPPET_ALIASES = {
     "linkedin-feed-square": "social",
     "linkedin-feed-portrait": "social",
     "og-card": "social",
+    "podcast-cover": "podcast_cover",
+    "podcast-banner": "podcast_banner",
     "social": "social",
     "campaign-poster": "campaign_poster",
     "poster": "campaign_poster",
@@ -349,6 +369,8 @@ INTERFACE_MATERIAL_KEYS = {
     "product_banner",
     "feature_illustration",
     "social",
+    "podcast_cover",
+    "podcast_banner",
     "feature_animation",
 }
 
@@ -417,6 +439,24 @@ MATERIAL_BRAND_POLICIES = {
         "target_surface": "social feed or preview card",
         "purpose": "be instantly recognizable and legible in-feed",
         "product_truth_expression": "either a real proof moment or a clearly branded product claim",
+        "abstraction_level": "low",
+        "logo_mode": "required",
+        "clearly_branded_without_logo_min": 3,
+    },
+    "podcast_cover": {
+        "role": "podcast cover",
+        "target_surface": "podcast app square artwork",
+        "purpose": "make the show recognizable at thumbnail size with a clear title hierarchy",
+        "product_truth_expression": "the show identity plus one explicit episode or guest cue if the user supplies it",
+        "abstraction_level": "low",
+        "logo_mode": "required",
+        "clearly_branded_without_logo_min": 3,
+    },
+    "podcast_banner": {
+        "role": "podcast episode promo",
+        "target_surface": "YouTube thumbnail, social landscape card, or episode promo banner",
+        "purpose": "announce one episode or podcast surface with immediate title legibility and brand recognition",
+        "product_truth_expression": "the show title plus one real episode cue, host, or guest only if explicitly supplied",
         "abstraction_level": "low",
         "logo_mode": "required",
         "clearly_branded_without_logo_min": 3,
@@ -673,7 +713,7 @@ def build_iteration_memory_snippet(brand_dir: Path, material_type: str | None) -
         lines.append("Recent brand memory:")
         for item in brand_notes[-2:]:
             lines.append(f"- {item}")
-    if messaging_notes and (key in INTERFACE_MATERIAL_KEYS or key in {"campaign_poster", "merch_poster", "landing_hero"}):
+    if messaging_notes and (key in INTERFACE_MATERIAL_KEYS or key in {"campaign_poster", "merch_poster", "landing_hero", "podcast_cover", "podcast_banner"}):
         lines.append("Recent messaging notes:")
         for item in messaging_notes[-3:]:
             lines.append(f"- {item}")
@@ -681,7 +721,7 @@ def build_iteration_memory_snippet(brand_dir: Path, material_type: str | None) -
         lines.append("Recent material-specific notes:")
         for item in material_notes[-3:]:
             lines.append(f"- {item}")
-    if copy_notes and (key in INTERFACE_MATERIAL_KEYS or key in {"campaign_poster", "merch_poster"}):
+    if copy_notes and (key in INTERFACE_MATERIAL_KEYS or key in {"campaign_poster", "merch_poster", "podcast_cover", "podcast_banner"}):
         lines.append("Recent copy notes:")
         for item in copy_notes[-2:]:
             lines.append(f"- {item}")
@@ -1811,6 +1851,25 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
 
 def default_idea_tracks(material_type: str) -> list[dict]:
     key = role_pack_material_key(material_type) or (material_type or "").strip().lower().replace("-", "_")
+    if key in {"podcast_cover", "podcast_banner"}:
+        return [
+            {
+                "name": "title-first editorial cover",
+                "mechanic": "one strong title hierarchy with one calm brand field",
+                "why": "Best when the show name or episode title needs to read instantly at thumbnail size.",
+                "preserve": ["brand palette", "clear title hierarchy", "one obvious brand anchor"],
+                "push": ["editorial framing", "quiet audio motif", "one portrait or product accent if explicitly supplied"],
+                "ban": ["tiny metadata", "fake platform UI", "generic waveform wallpaper"],
+            },
+            {
+                "name": "brand-field promo banner",
+                "mechanic": "one central copy block with one support motif",
+                "why": "Best when the asset should work across YouTube, social, and landing-page promo slots.",
+                "preserve": ["legible 16:9 crop", "deterministic copy only", "clean negative space"],
+                "push": ["route-band rhythm", "episode accent color", "host or guest framing if supplied"],
+                "ban": ["poster clutter", "prompt-ref boxes", "made-up subtitles"],
+            },
+        ]
     if key == "pattern_system":
         return [
             {
@@ -1938,6 +1997,11 @@ def default_alignment_questions(material_type: str) -> list[str]:
         "Should this feel calmer and more institutional, or bolder and more collectible?",
         "What would make you reject a version immediately?",
     ]
+    if key in {"podcast_cover", "podcast_banner"}:
+        return common + [
+            "What exact text must be visible, and what text should stay outside the image entirely?",
+            "Should the asset feel more show-brand-first or episode-specific?",
+        ]
     if key == "pattern_system":
         return common + [
             "Do you want the system to feel more infrastructural and routed, or more emblematic and poster-like?",
@@ -2132,12 +2196,13 @@ def resolve_material_prompt_snippet(profile: dict, identity: dict, material_type
         or {}
     )
     if not isinstance(snippets, dict):
-        return key, "", ""
+        return key, "", fallback_material_prompt_snippet(key, workflow_mode)
     value = snippets.get(key) or ""
     if isinstance(value, str):
-        return key, "default", value.strip()
+        stripped = value.strip()
+        return key, "default", stripped or fallback_material_prompt_snippet(key, workflow_mode)
     if not isinstance(value, dict):
-        return key, "", ""
+        return key, "", fallback_material_prompt_snippet(key, workflow_mode)
     requested_mode = (workflow_mode or "").strip().lower()
     if requested_mode in {"reference", "inspiration", "hybrid"}:
         variant = requested_mode
@@ -2146,7 +2211,34 @@ def resolve_material_prompt_snippet(profile: dict, identity: dict, material_type
     default_value = value.get("default") or ""
     variant_value = value.get(variant) or ""
     parts = [part.strip() for part in [default_value, variant_value if variant != "default" else ""] if isinstance(part, str) and part.strip()]
-    return key, variant, "\n\n".join(parts)
+    combined = "\n\n".join(parts).strip()
+    if combined:
+        return key, variant, combined
+    return key, variant, fallback_material_prompt_snippet(key, workflow_mode)
+
+
+def fallback_material_prompt_snippet(material_key: str, workflow_mode: str | None = None) -> str:
+    variant = (workflow_mode or "default").strip().lower()
+    snippets = {
+        "podcast_cover": {
+            "default": "For podcast covers, use a square 1:1 composition with one dominant title hierarchy, one unmistakable brand anchor, and thumbnail-first legibility. Keep copy deterministic, short, and explicit. Avoid fake app chrome, metadata clutter, or generic waveform wallpaper.",
+            "reference": "In reference mode, preserve the supplied brand anchor and keep the title block large and readable at small sizes.",
+            "inspiration": "In inspiration mode, borrow editorial cover confidence and hierarchy only. Do not replace the actual brand palette or typography voice.",
+            "hybrid": "In hybrid mode, combine one real brand anchor with one bold editorial title move. If no explicit copy is supplied, use approved messaging or render no text.",
+        },
+        "podcast_banner": {
+            "default": "For podcast banners, use a 16:9 episode-promo composition with one clear title block, one brand anchor, and one optional host, guest, or product cue only if explicitly supplied. Keep the crop safe for YouTube-style thumbnail usage and avoid fake UI or metadata panels.",
+            "reference": "In reference mode, preserve the brand anchor and keep the copy block dominant inside the landscape crop.",
+            "inspiration": "In inspiration mode, borrow editorial pacing and promo confidence only. Avoid generic audio-wave clutter or platform imitations.",
+            "hybrid": "In hybrid mode, pair one calm branded field with one decisive title-led composition move. Visible copy must be deterministic, not model-invented.",
+        },
+    }
+    if material_key not in snippets:
+        return ""
+    values = snippets[material_key]
+    if variant in {"reference", "inspiration", "hybrid"}:
+        return "\n\n".join(part for part in [values.get("default", ""), values.get(variant, "")] if part).strip()
+    return values.get("default", "").strip()
 
 
 def get_brand_guardrail_prelude(profile: dict, identity: dict, brand_gen_dir: Path | None = None, active_brand: str | None = None) -> str:
@@ -2407,6 +2499,34 @@ def build_effective_prompt(profile: dict, identity: dict, body: str, *, brand_ge
             if material_key in INTERFACE_MATERIAL_KEYS and len(messaging_snippet) > 250:
                 messaging_snippet = messaging_snippet[:250].rstrip() + "…"
 
+    copy_anchor_snippet = ""
+    if not disable_brand_guardrails and material_key in {"landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner"}:
+        messaging = identity.get("messaging") or {}
+        copy_bank = messaging.get("approved_copy_bank") or {}
+        approved_strings = dedupe_keep_order(
+            [messaging.get("tagline") or ""]
+            + list(copy_bank.get("headlines") or [])[:3]
+            + list(copy_bank.get("subheadlines") or [])[:2]
+            + list(copy_bank.get("slogans") or [])[:2]
+        )
+        if approved_strings:
+            quoted = "; ".join(f'"{item}"' for item in approved_strings[:5])
+            copy_anchor_snippet = (
+                "If visible copy appears in the image, use only explicit user-provided copy or one of these approved brand strings: "
+                f"{quoted}. If none fit, render no text rather than inventing slogans, episode titles, event names, or captions."
+            )
+        else:
+            copy_anchor_snippet = (
+                "If visible copy appears in the image, use only explicit user-provided copy. "
+                "Otherwise render no text rather than inventing slogans, episode titles, event names, or captions."
+            )
+
+    image_safety_snippet = ""
+    if not disable_brand_guardrails:
+        image_safety_snippet = (
+            "Output only the designed artwork. Never render prompt metadata, prompt-ref labels, reference callout boxes, hashes, CID strings, file paths, system notes, or technical annotations as visible content."
+        )
+
     # Apply per-part caps for non-interface materials to prevent prelude bloat
     if material_key not in INTERFACE_MATERIAL_KEYS:
         brand_prelude = cap_text_at_sentence(brand_prelude, NON_INTERFACE_PRELUDE_CAP)
@@ -2414,7 +2534,7 @@ def build_effective_prompt(profile: dict, identity: dict, body: str, *, brand_ge
         reference_analysis_snippet = cap_text_at_sentence(reference_analysis_snippet, NON_INTERFACE_REF_ANALYSIS_CAP)
 
     combined_prelude = "\n\n".join(
-        part for part in [brand_prelude.strip(), messaging_snippet.strip(), iteration_memory_snippet.strip(), material_snippet.strip(), role_pack_snippet.strip(), reference_analysis_snippet.strip(), doctrine.strip()] if part and part.strip()
+        part for part in [brand_prelude.strip(), messaging_snippet.strip(), copy_anchor_snippet.strip(), iteration_memory_snippet.strip(), material_snippet.strip(), role_pack_snippet.strip(), reference_analysis_snippet.strip(), doctrine.strip(), image_safety_snippet.strip()] if part and part.strip()
     )
     # Hard cap on total prelude for non-interface materials
     if material_key not in INTERFACE_MATERIAL_KEYS and len(combined_prelude) > NON_INTERFACE_TOTAL_PRELUDE_CAP:
@@ -2437,6 +2557,8 @@ def build_effective_prompt(profile: dict, identity: dict, body: str, *, brand_ge
         "reference_role_pack_prefer_unique_sources": role_pack.get("prefer_unique_sources", True),
         "reference_analysis": reference_analysis or {},
         "reference_analysis_snippet": reference_analysis_snippet,
+        "copy_anchor_snippet": copy_anchor_snippet,
+        "image_safety_snippet": image_safety_snippet,
         "inspiration_doctrine": doctrine,
         "token_block": token_block,
         "resolved_prompt": resolved,
@@ -3386,6 +3508,8 @@ def infer_material_type_from_filename(filename: str) -> str:
         "linkedin-feed-square",
         "linkedin-feed",
         "linkedin-card",
+        "podcast-banner",
+        "podcast-cover",
         "x-feed-portrait",
         "x-feed-square",
         "x-feed",
@@ -3661,8 +3785,7 @@ def cmd_generate(args):
         vid = execute_generation_scratchpad(current_payload)
         all_vids.append(vid)
 
-        # Skip VLM critique on last iteration or if disabled
-        if skip_vlm or iteration >= max_iterations - 1:
+        if skip_vlm:
             break
 
         # --- VLM Critique (Hole 2) ---
@@ -3726,6 +3849,9 @@ def cmd_generate(args):
             print(f"   P1 issues: {'; '.join(str(i) for i in vlm_result['p1'][:3])}")
         if vlm_result.get("refinement_suggestion"):
             print(f"   Suggestion: {vlm_result['refinement_suggestion']}")
+
+        if iteration >= max_iterations - 1:
+            break
 
         refined_prompt = refine_prompt_from_vlm_critique(
             current_payload.get("effective_prompt") or "",
@@ -4415,6 +4541,7 @@ def build_session_summary_payload(brand_dir: Path, profile: dict, identity: dict
             "count": len(versions),
             "favorites": sum(1 for entry in versions.values() if entry.get("status") == "favorite"),
             "scored": sum(1 for entry in versions.values() if entry.get("score") is not None),
+            "unscored": sum(1 for entry in versions.values() if entry.get("score") is None),
             "recent_versions": recent_versions,
             "recent_feedback": recent_feedback,
         },
@@ -4461,7 +4588,7 @@ def cmd_show_session_summary(args):
     print(f"Brand dir: {payload['brand_dir']}")
 
     generated = payload['generated']
-    print(f"\nGenerated versions: {generated['count']} total, {generated['scored']} scored, {generated['favorites']} favorites")
+    print(f"\nGenerated versions: {generated['count']} total, {generated['scored']} scored, {generated['unscored']} unscored, {generated['favorites']} favorites")
     if generated['recent_versions']:
         print("Recent versions:")
         for item in generated['recent_versions']:
@@ -7632,8 +7759,8 @@ def main():
     collect_examples.add_argument("--height", type=int, default=1100)
     collect_examples.add_argument("--open-folder", action="store_true")
 
-    specs = sub.add_parser("social-specs", help="Show recommended X / LinkedIn / OG card and feed dimensions")
-    specs.add_argument("format", nargs="?", help="Optional single format filter (x-card, x-feed, x-feed-square, x-feed-portrait, linkedin-card, linkedin-feed, linkedin-feed-square, linkedin-feed-portrait, og-card)")
+    specs = sub.add_parser("social-specs", help="Show recommended X / LinkedIn / OG card, podcast, and feed dimensions")
+    specs.add_argument("format", nargs="?", help="Optional single format filter (x-card, x-feed, x-feed-square, x-feed-portrait, linkedin-card, linkedin-feed, linkedin-feed-square, linkedin-feed-portrait, og-card, podcast-cover, podcast-banner)")
     specs.add_argument("--verbose", action="store_true", help="Include notes and source hints")
 
     gen = sub.add_parser("generate", aliases=["gen", "g"], help="Generate a new brand material version from a generation scratchpad")

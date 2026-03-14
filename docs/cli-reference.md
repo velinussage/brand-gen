@@ -68,3 +68,11 @@ python3 mcp/brand_iterate.py update-messaging --tagline "..." --add-headline "..
 
 ### `plan-set` / `validate-set` / `generate-set`
 Use for coordinated multi-material campaigns.
+
+
+### `diagnose`
+Compare prompt length, prelude size, refs, critic issues, and workflow lineage across versions.
+
+```bash
+python3 mcp/brand_iterate.py diagnose v14 v20 --format json
+```

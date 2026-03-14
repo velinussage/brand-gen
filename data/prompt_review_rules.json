@@ -3,7 +3,9 @@
   "rules": [
     {
       "id": "interface_non_interface_contamination",
-      "material_groups": ["interface"],
+      "material_groups": [
+        "interface"
+      ],
       "when": {
         "brand_prelude_contains": "For non-interface materials"
       },
@@ -12,7 +14,9 @@
     },
     {
       "id": "interface_resolved_prompt_too_long",
-      "material_groups": ["interface"],
+      "material_groups": [
+        "interface"
+      ],
       "when": {
         "resolved_prompt_chars_gt": 1800
       },
@@ -21,7 +25,9 @@
     },
     {
       "id": "interface_missing_role_pack",
-      "material_groups": ["interface"],
+      "material_groups": [
+        "interface"
+      ],
       "when": {
         "role_pack_empty": true
       },
@@ -30,22 +36,53 @@
     },
     {
       "id": "hero_social_missing_copy",
-      "materials": ["landing_hero", "social"],
+      "materials": [
+        "landing_hero",
+        "social",
+        "podcast_cover",
+        "podcast_banner"
+      ],
       "when": {
-        "raw_prompt_missing_any_keywords": ["headline", "slogan", "copy"]
+        "raw_prompt_missing_any_keywords": [
+          "headline",
+          "slogan",
+          "copy"
+        ]
       },
-      "recommendation": "Consider adding deterministic copy so the surface is not image-only."
+      "recommendation": "Consider adding deterministic copy so the surface is not image-only. Podcast materials usually need an explicit show title or episode cue."
     },
     {
       "id": "interface_too_many_bans",
-      "material_groups": ["interface"],
+      "material_groups": [
+        "interface"
+      ],
       "when": {
         "raw_prompt_phrase_count_gte": {
-          "phrases": ["do not", "never"],
+          "phrases": [
+            "do not",
+            "never"
+          ],
           "count": 5
         }
       },
       "recommendation": "Too many bans can flatten the composition. Keep only the critical bans."
+    },
+    {
+      "id": "podcast_missing_title_signal",
+      "materials": [
+        "podcast_cover",
+        "podcast_banner"
+      ],
+      "when": {
+        "raw_prompt_missing_any_keywords": [
+          "title",
+          "episode",
+          "show",
+          "host",
+          "guest"
+        ]
+      },
+      "recommendation": "Podcast surfaces work better when the prompt names the show title and whether any episode / host / guest text should appear."
     }
   ]
 }

@@ -208,6 +208,37 @@ def build_material_prompt_snippets(profile: dict, design_language: dict, design_
                 "In hybrid mode, pair one real product or logo truth anchor with one bold campaign move from references."
             ),
         },
+        'podcast_cover': {
+            'default': (
+                f"For podcast covers, build a square 1:1 cover that reads at thumbnail size. Use one clear show-title hierarchy, one unmistakable brand anchor, and at most one explicit episode or guest cue if the user supplied it. "
+                f"Keep the field rooted in {palette}, {typography}, and {shape}; avoid fake app chrome, dense metadata, and generic waveform wallpaper. "
+                f"If copy appears, use deterministic approved text only."
+            ),
+            'reference': (
+                "In reference mode, preserve recognizable brand anchors and prioritize title legibility over decorative detail."
+            ),
+            'inspiration': (
+                f"In inspiration mode, borrow editorial hierarchy and cover confidence, but keep the cover unmistakably within {brand_name}'s real identity."
+            ),
+            'hybrid': (
+                "In hybrid mode, combine one real brand anchor with one bold title-led composition move that stays legible at small sizes."
+            ),
+        },
+        'podcast_banner': {
+            'default': (
+                f"For podcast banners, build a 16:9 episode-promo surface that can work for YouTube thumbnails or social promos. Keep one dominant title block, one clear brand anchor, and one optional host/guest or product cue only if it is explicitly supplied. "
+                f"Use {layout}, preserve {palette}, and avoid fake UI chrome, inspector boxes, prompt metadata, or made-up subtitles."
+            ),
+            'reference': (
+                "In reference mode, keep title hierarchy bold and safe inside the crop. Preserve the brand anchor before adding atmosphere."
+            ),
+            'inspiration': (
+                f"In inspiration mode, push editorial pacing and cover confidence, but keep the banner inside {brand_name}'s actual palette and typographic voice."
+            ),
+            'hybrid': (
+                "In hybrid mode, pair one calm branded field with one decisive title-led composition move. Visible copy must be deterministic, not model-invented."
+            ),
+        },
         'feature_animation': {
             'default': (
                 f"For feature animation and motion outputs, preserve UI/product truth and animate with {motion}. "
@@ -440,6 +471,8 @@ def build_identity(profile: dict) -> dict:
             'feature_illustration': 'Concept-led proof visual that connects one product moment to the brand\'s larger system or story.',
             'styleframe': 'Motion-ready campaign still with a stronger brand field, stronger mood, and less generic screenshot packaging.',
             'social': 'Poster-first branded social asset that stays readable on mobile and carries the brand vibe clearly at thumbnail size.',
+            'podcast_cover': 'Square podcast artwork with deterministic show-title hierarchy, strong thumbnail legibility, and a clear brand anchor.',
+            'podcast_banner': 'Landscape episode-promo banner with bold title hierarchy, safe 16:9 framing, and brand-first podcast presentation.',
             'campaign_poster': 'Deterministic or fixed-copy poster that keeps the brand mark, palette, and motifs more important than invented campaign text.',
             'pattern_system': 'Reusable tile, path, or band logic derived from the mark and palette rather than one-off illustration.',
             'sticker_family': 'A coherent family of icons, stickers, or badges that all clearly descend from the mark and approved motifs.',

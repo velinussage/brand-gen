@@ -64,3 +64,25 @@ python3 mcp/brand_iterate.py generate --scratchpad <scratchpad.json>
 ```
 
 6. Generate only when the draft is critiqued and the scratchpad is clean.
+
+## After each real generation
+
+Do not leave the session unscored.
+
+1. Compare the strongest and weakest outputs.
+2. Convert clear user preference into feedback.
+3. Save at least one positive or negative signal:
+
+```bash
+python3 mcp/brand_iterate.py feedback vN --score 4 --status favorite --notes "Closest to the desired direction"
+python3 mcp/brand_iterate.py feedback vM --score 1 --status rejected --notes "Reject for future iterations"
+```
+
+Use scores as user-truth:
+- 5 = best / near-ship
+- 4 = strong direction
+- 3 = mixed
+- 2 = weak
+- 1 = reject
+
+If the user has not given an explicit number, the agent may propose one, but should keep the final written score aligned to clear user intent.

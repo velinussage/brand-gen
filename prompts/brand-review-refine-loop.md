@@ -102,6 +102,36 @@ For a landing hero:
 python3 mcp/brand_iterate.py review-brand v11
 ```
 
+After review, turn the critique into a score recommendation before the next generation:
+
+```text
+## Feedback proposal
+
+- Best version: v11
+- Suggested score: 4/5
+- Status: favorite
+- Why: strongest message hierarchy, best brand anchor, least hallucinated UI/copy
+
+- Reject version: v9
+- Suggested score: 1/5
+- Status: rejected
+- Why: generic promise, broken product truth, weak brand recognition
+```
+
+Then persist only the user-confirmed judgment:
+
+```bash
+python3 mcp/brand_iterate.py feedback v11 --score 4 --status favorite --notes "Strongest hierarchy; keep this calmer direction."
+python3 mcp/brand_iterate.py feedback v9 --score 1 --status rejected --notes "Invented copy and weak product truth."
+```
+
+Scoring rubric:
+- **5** = near-ship / clearly best direction
+- **4** = strong direction worth preserving
+- **3** = mixed, informative but not a lock
+- **2** = weak, keep only narrow lessons
+- **1** = reject / negative example
+
 Then have the agent produce:
 
 ```text

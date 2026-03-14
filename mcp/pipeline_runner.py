@@ -365,7 +365,7 @@ class PipelineRunner:
         for iteration in range(self.max_iterations):
             version_id = execute_generation_scratchpad(current_payload, workflow_id=self.workflow_id)
             all_versions.append(version_id)
-            if self.skip_vlm or iteration >= self.max_iterations - 1:
+            if self.skip_vlm:
                 break
 
             brand_dir = Path(current_payload["brand_dir"]).expanduser().resolve()
@@ -379,6 +379,8 @@ class PipelineRunner:
             if not final_vlm.get("vlm_available"):
                 break
             if final_vlm.get("approved"):
+                break
+            if iteration >= self.max_iterations - 1:
                 break
             refined_prompt = refine_prompt_from_vlm_critique(current_payload.get("effective_prompt") or "", final_vlm)
             next_payload = dict(current_payload)

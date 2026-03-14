@@ -54,6 +54,18 @@ TOOLS = [
         "inputSchema": {"type": "object", "properties": {"version": {"type": "string"}, "favorites": {"type": "boolean"}, "top": {"type": "integer"}, "latest": {"type": "integer"}, "format": {"type": "string", "enum": ["text", "json"], "default": "json"}}}
     },
     {
+        "name": "brand_diagnose",
+        "description": "Compare diagnostic metadata for one or more generated versions side-by-side, including prompt length, prelude length, refs, prompt review, critic issues, and workflow lineage.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "versions": {"type": "array", "items": {"type": "string"}},
+                "format": {"type": "string", "enum": ["text", "json"], "default": "json"}
+            },
+            "required": ["versions"]
+        }
+    },
+    {
         "name": "brand_compare",
         "description": "Generate an HTML comparison board for images, gifs, or short videos.",
         "inputSchema": {"type": "object", "properties": {"versions": {"type": "array", "items": {"type": "string"}}, "favorites": {"type": "boolean"}, "top": {"type": "integer"}}}
@@ -805,7 +817,7 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "format": {"type": "string", "description": "Optional single format filter (x-card, x-feed, x-feed-square, x-feed-portrait, linkedin-card, linkedin-feed, linkedin-feed-square, linkedin-feed-portrait, og-card)."},
+                "format": {"type": "string", "description": "Optional single format filter (x-card, x-feed, x-feed-square, x-feed-portrait, linkedin-card, linkedin-feed, linkedin-feed-square, linkedin-feed-portrait, og-card, podcast-cover, podcast-banner)."},
                 "verbose": {"type": "boolean", "default": False}
             }
         }
@@ -949,6 +961,14 @@ def handle_tool_call(name, arguments):
             cmd += ["--top", str(args["top"])]
         if args.get("latest"):
             cmd += ["--latest", str(args["latest"])]
+        if args.get("format"):
+            cmd += ["--format", args["format"]]
+        output, ok = run_brand_iterate(cmd)
+        return output, not ok
+    if name == "brand_diagnose":
+        cmd = ["diagnose"]
+        for version in args.get("versions") or []:
+            cmd.append(version)
         if args.get("format"):
             cmd += ["--format", args["format"]]
         output, ok = run_brand_iterate(cmd)

@@ -19,6 +19,7 @@ Recommended start logic:
 - `brand_pipeline` — one-call generative workflow
 - `brand_show_session_summary` — current workspace summary
 - `brand_show` — manifest inspection
+- `brand_diagnose` — side-by-side prompt/critic/ref diagnostics for generated versions
 - `brand_show_blackboard` — blackboard state
 - `brand_ideate_messaging` — returns context for agent-generated messaging angles
 - `brand_update_messaging` — persists approved messaging
