@@ -86,13 +86,14 @@ Use this config:
 
 ```json
 {
-  "brandIterateMcpPath": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
   "brandGenDir": "~/.brand-gen",
   "approvalMode": "output_only",
   "heartbeatIntervalMinutes": 60,
   "autoHeartbeat": true
 }
 ```
+
+`brandIterateMcpPath` is optional for a normal repo checkout or fork. When Pi points at `packages/pi-brand-gen/`, the extension auto-detects `<repo>/mcp/brand_iterate_mcp.py`. Only set `brandIterateMcpPath` if your checkout layout is unusual or you want to override the backend path manually.
 
 ### 4. Verify the extension inside Pi
 
@@ -108,13 +109,19 @@ Run:
 
 ### Python runtime note
 
-This extension launches the backend with:
+This extension launches the backend by preferring the repo-local Python environment when it exists:
 
 ```text
-python3 /absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py
+<repo>/.venv/bin/python <repo>/mcp/brand_iterate_mcp.py
 ```
 
-So the `python3` visible to Pi must be able to import brand-gen's Python dependencies. The repo `.env` is still read by the backend automatically, but the interpreter itself must be correct. The safest path is to launch Pi from the same environment where you installed brand-gen or otherwise ensure that host `python3` has the required packages.
+If that repo-local Python interpreter is not present, it falls back to:
+
+```text
+python3 <repo>/mcp/brand_iterate_mcp.py
+```
+
+So a normal fork/checkout can work without any absolute MCP-path config as long as you keep the standard repo layout. The repo `.env` is still read by the backend automatically. The safest path is to create the repo `.venv`; otherwise ensure the host `python3` visible to Pi has brand-gen's Python dependencies.
 
 ### Brand switching in Pi
 
@@ -146,7 +153,7 @@ The Pi extension config schema is declared in `pi.extension.json`.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `brandGenDir` | `string` | no | host-specific / usually `~/.brand-gen` | Durable workspace root for brands, sessions, and runtime markers |
-| `brandIterateMcpPath` | `string` | **yes** | — | Absolute path to `mcp/brand_iterate_mcp.py` |
+| `brandIterateMcpPath` | `string` | no | auto-detected from the registered checkout | Optional override for the path to `mcp/brand_iterate_mcp.py` |
 | `approvalMode` | `"all" \| "output_only" \| "none"` | no | `"output_only"` | How much human approval is required between autonomous cycles |
 | `logLevel` | `"debug" \| "info" \| "warn" \| "error"` | no | `"info"` | Extension log verbosity |
 | `heartbeatIntervalMinutes` | `number` | no | `60` | Heartbeat timer interval |
@@ -157,7 +164,6 @@ Example:
 ```json
 {
   "brandGenDir": "~/.brand-gen",
-  "brandIterateMcpPath": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
   "approvalMode": "output_only",
   "heartbeatIntervalMinutes": 60,
   "autoHeartbeat": true
@@ -166,7 +172,7 @@ Example:
 
 Recommended quick-setup values:
 
-- `brandIterateMcpPath` — always set this to the absolute repo path for `mcp/brand_iterate_mcp.py`
+- `brandIterateMcpPath` — leave unset for a normal fork/checkout; only override it if the extension cannot infer the backend path from the repo layout
 - `brandGenDir` — keep the default `~/.brand-gen` unless you want Pi to write state elsewhere
 - `approvalMode` — `output_only` is the safest default for normal use
 - `autoHeartbeat` — keep `true` unless you want Pi to stay entirely manual

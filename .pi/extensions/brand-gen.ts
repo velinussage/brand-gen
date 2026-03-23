@@ -171,13 +171,13 @@ export default function brandGenExtension(pi: ExtensionAPI): void {
 
 	pi.registerTool({
 		name: "brand_share_card",
-		label: "Sage Artifact Share Card",
+		label: "Artifact Share Card",
 		description:
-			"Generate an HTML share card ONLY for sharing a real Sage prompt or skill. " +
-			"Use sage CLI first to find the artifact (sage search, sage library skill list). " +
+			"Generate an HTML share card for a real prompt or skill page from a source URL. " +
+			"Use an exact source URL and entity type when proof matters. " +
 			"Do NOT use for general brand materials — use the brand-orchestrator agent instead.",
 		parameters: Type.Object({
-			source_url: Type.String({ description: "Sage artifact URL (e.g. https://sageprotocol.io/skills/sage-codebase)" }),
+			source_url: Type.String({ description: "Artifact URL (for example https://example.com/skills/design-system)" }),
 			entity_type: Type.String({ description: "prompt or skill" }),
 			headline: Type.Optional(Type.String({ description: "Override headline" })),
 			subhead: Type.Optional(Type.String({ description: "Override subhead" })),

@@ -13,6 +13,12 @@ import {
   runHeartbeatCycle,
   writeRuntimeStatusMarker,
 } from '../src/core.ts';
+import {
+  defaultBrandIterateMcpPath,
+  preferredPythonForRepo,
+  repoRootFromModuleUrl,
+  resolvePiRuntimePaths,
+} from '../src/runtime-paths.ts';
 import { createBrandSearchTool } from '../src/tool.ts';
 import { defaultLearnings, saveLearnings, appendJournal, getRecentEntries, journalPathForWorkspace } from '../src/memory.ts';
 
@@ -35,10 +41,27 @@ class FakeBridge {
 }
 
 test('parsePluginConfig applies pi defaults', () => {
-  const cfg = parsePluginConfig({ brandIterateMcpPath: '/tmp/server.py' });
+  const cfg = parsePluginConfig({});
   assert.equal(cfg.brandGenDir.endsWith('.brand-gen'), true);
+  assert.equal(cfg.brandIterateMcpPath, '');
   assert.equal(cfg.autoHeartbeat, true);
   assert.equal(cfg.heartbeatIntervalMinutes, 60);
+});
+
+test('resolvePiRuntimePaths finds the repo backend from the package checkout', () => {
+  const repoRoot = repoRootFromModuleUrl(import.meta.url);
+  const mcpPath = defaultBrandIterateMcpPath(repoRoot);
+  assert.ok(existsSync(mcpPath));
+  const runtime = resolvePiRuntimePaths(import.meta.url);
+  assert.equal(runtime.repoRoot, repoRoot);
+  assert.equal(runtime.mcpPath, mcpPath);
+});
+
+test('preferredPythonForRepo prefers a repo-local venv when present', () => {
+  const root = mkdtempSync(join(tmpdir(), 'pi-brand-python-'));
+  mkdirSync(join(root, '.venv', 'bin'), { recursive: true });
+  writeFileSync(join(root, '.venv', 'bin', 'python'), '');
+  assert.equal(preferredPythonForRepo(root), join(root, '.venv', 'bin', 'python'));
 });
 
 test('resolveActiveWorkspace prefers activeSession and seeded_from_brand', () => {

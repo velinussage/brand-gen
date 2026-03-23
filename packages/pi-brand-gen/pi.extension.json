@@ -9,7 +9,7 @@
     "brandIterateMcpPath": {
       "label": "brand_iterate MCP Path",
       "placeholder": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
-      "help": "Path to brand-gen's Python MCP server entry point."
+      "help": "Optional override for brand-gen's Python MCP entry point. Usually auto-detected from the registered repo checkout."
     },
     "approvalMode": {
       "label": "Approval Mode",
@@ -34,7 +34,6 @@
       "logLevel": { "type": "string", "enum": ["debug", "info", "warn", "error"] },
       "heartbeatIntervalMinutes": { "type": "number" },
       "autoHeartbeat": { "type": "boolean" }
-    },
-    "required": ["brandIterateMcpPath"]
+    }
   }
 }

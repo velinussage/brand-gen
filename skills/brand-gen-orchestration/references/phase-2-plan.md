@@ -39,6 +39,9 @@ Or skip auto-routing with `--route <route_key>` if the route is already known.
 The router returns a `route_key`, `confidence` score, and reasoning. If confidence is
 low (< 0.6), consider whether the material request is ambiguous and clarify with the user.
 
+Record the route decision in a compact planning memo. Do not jump from explorer findings
+straight into prompt writing without explicitly naming the route and why it fits.
+
 ---
 
 ## Philosophy Enrichment
@@ -62,6 +65,7 @@ Weave these into the prompt seed:
 - Paste the philosophy verbatim — this produces overwrought, self-referential output
 - Use all metaphors at once — pick 2-3 that fit this specific material
 - Force composition rules that contradict the layout suggestion
+- Ignore blackboard / prior approved mechanics when they already point to a winning direction
 
 **Example transformation:**
 
@@ -70,6 +74,11 @@ has witnessed weather — stone that remembers rain, earth that holds heat."
 
 Prompt seed becomes: "...textured surface with warmth of sun-baked earth, grain visible
 at edges, deliberately placed elements with meticulous attention to negative space"
+
+Also enrich from blackboard and prior winners:
+- preserve successful mechanics from approved versions
+- explicitly avoid mechanics blackboard flags as failures
+- state what is intentionally new versus intentionally locked
 
 ---
 
@@ -111,6 +120,20 @@ Add constraint flags from preparation:
 | Base image (interface mats) | `--base-image` | `--base-image /path/to/screenshot.png` |
 
 ---
+
+## Required Planning Memo
+
+Before validation, you should be able to state:
+
+- chosen material type
+- chosen route
+- prior versions referenced
+- blackboard learnings applied
+- inspiration / references selected and what each contributes
+- preserve / push / ban logic
+- what is new in this run
+
+If this memo is vague, the plan is not ready.
 
 ## Plan-Draft Flags Reference
 
@@ -159,6 +182,9 @@ Read the returned plan JSON. Check:
 
 4. **Does the prompt seed reflect the philosophy?** If the philosophy emphasizes natural
    materials and the prompt says "sleek glass interface", there is a disconnect.
+
+5. **Does the plan visibly use blackboard and prior winners?** If the plan could have
+   been written without reading them, it is too generic.
 
 If the plan is generic or has warnings about creative direction, refine the prompt seed
 and rerun plan-draft once. Do not rerun more than once at this stage — Phase 3 provides

@@ -166,13 +166,15 @@ npm run typecheck
 
 Then register the local extension in Pi. Note that brand-gen's Pi integration currently ships from this repo checkout under `packages/pi-brand-gen/`; it is not yet a standalone published Pi package. Configure at least:
 
-- `brandIterateMcpPath`
-- optionally `brandGenDir`, `approvalMode`, `heartbeatIntervalMinutes`, `autoHeartbeat`
+- `brandGenDir`
+- optionally `brandIterateMcpPath`, `approvalMode`, `heartbeatIntervalMinutes`, `autoHeartbeat`
 
 Important Pi note:
 
 - the backend still reads the repo `.env`, so set `REPLICATE_API_TOKEN` there
-- but Pi launches `python3 <brandIterateMcpPath>`, so the `python3` visible to Pi must have brand-gen's Python dependencies available
+- in a normal repo checkout or fork, Pi auto-detects `mcp/brand_iterate_mcp.py`
+- Pi prefers `<repo>/.venv/bin/python` if that interpreter exists; otherwise it falls back to `python3`
+- only set `brandIterateMcpPath` if you need to override the detected backend path
 
 After Pi is wired up, verify with:
 

@@ -4,6 +4,50 @@
 
 brand-gen is a local, file-backed toolkit that an AI agent can use to understand a brand, plan materials, generate assets, review them, and learn over time. It is designed to work for any brand and across multiple agent hosts — CLI-first agents, MCP hosts, Pi, OpenClaw, and host-specific skill systems.
 
+## Start here
+
+For a first run, make two choices up front:
+
+1. **Pick your host**
+   - **Any agent with shell access** → use the skill files directly
+   - **Pi** → use the tracked extension in `packages/pi-brand-gen/`
+   - **OpenClaw** → use the tracked plugin in `packages/openclaw-brand-gen/`
+2. **Pick your brand starting point**
+   - **Existing saved brand** → activate it and inspect current memory
+   - **New saved brand** → create it from docs, a repo, or conversation
+   - **Testing session** → use `bgen start-testing` when you want a safer scratch workspace first
+
+If you are brand new, the shortest path is:
+
+1. install the repo and set `REPLICATE_API_TOKEN`
+2. read `skills/brand-gen-setup/SKILL.md`, `skills/brand-gen/SKILL.md`, and `skills/brand-gen-orchestration/SKILL.md`
+3. run `bgen context-snapshot --format json`
+4. follow the planning-first orchestration flow below before any generation
+5. if Pi is your default host, register `packages/pi-brand-gen/` and verify `/brand-gen status`
+
+## The default operating model
+
+Even outside Pi, agents should follow the same orchestrator-first workflow described in [`.pi/agents/brand-orchestrator.md`](.pi/agents/brand-orchestrator.md).
+
+| Phase | What to do | Output |
+|---|---|---|
+| 1. Explorer | inspect workspace state, blackboard, recent winners, and active brand memory | a grounded picture of what already exists |
+| 2. Router | choose the route before planning | route choice / route rationale |
+| 3. Planner | draft the material plan | plan draft |
+| 4. Critic | review the draft before generation | approved plan or blocking feedback |
+| 5. Generator | generate only after the plan is approved | first output version |
+
+Do not jump straight from request → freehand generation unless you are intentionally using the bundled automated pipeline. If you are doing the flow manually, do not skip critique.
+
+Default inputs for that flow:
+
+- use the active `logo.png` / resolved brand mark when relevant
+- use proven winners such as prior approved versions (`v012`, `v021`, `v048`, or whichever strong versions actually exist)
+- use blackboard recipe hints and learned setup guidance
+- avoid direct freehand generation until the plan has been critiqued
+
+If you want the same behavior in a host-neutral instruction set, load `skills/brand-gen-orchestration/SKILL.md`.
+
 ## What you need
 
 - Python 3.11+ and a [Replicate API token](https://replicate.com/account/api-tokens)
@@ -11,7 +55,7 @@ brand-gen is a local, file-backed toolkit that an AI agent can use to understand
 - Optional: an Obsidian vault or brand docs folder (not required to get started)
 - Optional: Pi or OpenClaw if you want a host integration (the CLI works standalone)
 
-## How agents use brand-gen
+## Read these in order
 
 brand-gen ships as skill files that any agent can read. No host-specific plugin is required.
 
@@ -29,26 +73,6 @@ brand-gen ships as skill files that any agent can read. No host-specific plugin 
 - **Pi**: `.pi/agents/` multi-agent pipeline with parallel subagents — see `packages/pi-brand-gen/`
 - **OpenClaw**: MCP bridge plugin — see `packages/openclaw-brand-gen/`
 - **Claude Code / Codex / CLI**: skills work directly, no plugin needed
-
-## Default manual flow for non-Pi agents
-
-If your agent is not running the Pi subagents directly, it should still follow the orchestrator flow manually instead of jumping straight to `bgen pipeline` or freehand generation.
-
-Start from `.pi/agents/brand-orchestrator.md` and emulate this order:
-
-1. **brand-explorer behavior** — inspect workspace, blackboard, recent winners, and active brand state
-2. **brand-router behavior** — choose the route before planning
-3. **brand-planner behavior** — build the plan draft
-4. **brand-critic behavior** — critique the plan before generation
-5. **brand-generator behavior** — generate only after the plan is approved
-
-Default inputs for that flow:
-- use the active `logo.png` / resolved brand mark when relevant
-- use proven winners such as prior approved versions (`v012`, `v021`, `v048`, or whichever strong versions actually exist)
-- use blackboard recipe hints and learned setup guidance
-- avoid direct freehand generation until the plan has been critiqued
-
-If you want this behavior in a host-neutral way, load `skills/brand-gen-orchestration/SKILL.md` and follow it before any generation request.
 
 ## Copy-paste starter prompts
 
@@ -70,6 +94,11 @@ Clone `https://github.com/velinussage/brand-gen`, install it, validate the envir
 If I am using Pi as my default host, also follow:
 
 - https://github.com/velinussage/brand-gen/blob/main/packages/pi-brand-gen/README.md
+
+For any generation request after setup, follow the planning-first orchestration flow described in:
+
+- https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-orchestration/SKILL.md
+- https://github.com/velinussage/brand-gen/blob/main/.pi/agents/brand-orchestrator.md
 
 After setup, run:
 
@@ -102,7 +131,7 @@ Start by interviewing me to create a strong first brand brief. Then either:
 - create a durable saved brand with `bgen create-brand`, or
 - start a testing session with `bgen start-testing` if that is safer
 
-After that, propose 2-3 first material directions, help me choose one, and generate the first branded illustration or social asset. Start by checking the active workspace with `bgen context-snapshot --format json`.
+After that, follow the planning-first orchestration flow: explorer → router → planner → critic → generator. Propose 2-3 first material directions, help me choose one, and only then generate the first branded illustration or social asset. Start by checking the active workspace with `bgen context-snapshot --format json`.
 ```
 
 </details>
@@ -124,7 +153,7 @@ Inspect the current workspace with `bgen context-snapshot --format json`.
 
 If no saved brand exists yet, extract one from my project or materials with the appropriate brand-gen workflow. If a brand already exists, connect to it and summarize what the system already knows.
 
-Then recommend the best first generated asset to make from the available materials — for example a browser illustration, landing hero, x-feed card, or brand scene — and generate it.
+Then follow explorer → router → planner → critic → generator, recommend the best first generated asset to make from the available materials — for example a browser illustration, landing hero, x-feed card, or brand scene — and only then generate it.
 ```
 
 </details>
@@ -329,13 +358,14 @@ Use config like:
 
 ```json
 {
-  "brandIterateMcpPath": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
   "brandGenDir": "~/.brand-gen",
   "approvalMode": "output_only",
   "heartbeatIntervalMinutes": 60,
   "autoHeartbeat": true
 }
 ```
+
+`brandIterateMcpPath` is optional for a normal fork or repo checkout. When Pi points at `packages/pi-brand-gen/`, the extension auto-detects `<repo>/mcp/brand_iterate_mcp.py`. Only set it if your layout is unusual or you need to override the backend path manually.
 
 ### 4. Verify it inside Pi
 
@@ -351,12 +381,25 @@ Run:
 
 ### Important Pi note
 
-The Pi extension launches the backend with `python3 <brandIterateMcpPath>`. In practice that means:
+The Pi extension auto-detects the backend from the registered repo checkout and prefers the repo-local venv when it exists:
+
+```text
+<repo>/.venv/bin/python <repo>/mcp/brand_iterate_mcp.py
+```
+
+If that interpreter is not present, it falls back to:
+
+```text
+python3 <repo>/mcp/brand_iterate_mcp.py
+```
+
+In practice that means:
 
 - the repo `.env` is still read by the Python backend
-- but the `python3` that Pi uses must be able to import brand-gen's Python dependencies
+- the safest setup is still the repo-local `.venv`
+- if you skip the repo-local `.venv`, then the host `python3` that Pi uses must be able to import brand-gen's Python dependencies
 
-The safest setup is to launch Pi from the same shell/environment where you installed brand-gen, or otherwise ensure the host `python3` has the required packages available.
+This makes the tracked Pi extension much more fork-friendly: a normal fork with the standard repo layout no longer needs an absolute MCP-path override just to boot.
 
 You can switch **existing saved brands** explicitly in Pi — not only through conversation — with:
 

@@ -12,6 +12,7 @@ import {
   writeRuntimeStatusMarker,
   type PluginConfig,
 } from "../../brand-gen-core/src/index.ts";
+import { resolvePiRuntimePaths } from "./runtime-paths.ts";
 import { createBrandExecuteTool, createBrandSearchTool, createBrandStatusTool } from "./tool.ts";
 import { BrandGenWidget } from "./ui/brand-widget.ts";
 
@@ -45,11 +46,13 @@ function extractPrompt(event: any): string {
 
 export default async function brandGenPiExtension(pi: any) {
   const config: PluginConfig = parsePluginConfig(pi?.config ?? pi?.pluginConfig ?? {});
+  const runtime = resolvePiRuntimePaths(import.meta.url, config.brandIterateMcpPath);
   const env: Record<string, string> = {
     HOME: process.env.HOME || "",
     PATH: process.env.PATH || "",
     USER: process.env.USER || "",
     BRAND_GEN_DIR: config.brandGenDir,
+    BRAND_GEN_REPO_ROOT: runtime.repoRoot,
   };
   for (const key of [
     "REPLICATE_API_TOKEN",
@@ -61,7 +64,7 @@ export default async function brandGenPiExtension(pi: any) {
     if (process.env[key]) env[key] = process.env[key] as string;
   }
 
-  const bridge = new McpBridge("python3", [config.brandIterateMcpPath], env);
+  const bridge = new McpBridge(runtime.pythonCommand, [runtime.mcpPath], env);
   const heartbeat = createHeartbeatState();
   const widget = new BrandGenWidget(bridge, config, heartbeat);
 

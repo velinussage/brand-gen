@@ -2,19 +2,44 @@
 
 ## Table of Contents
 
-1. [Creative-Context Bootstrap](#creative-context-bootstrap)
-2. [Vault Sync](#vault-sync)
-3. [Design Philosophy Check](#design-philosophy-check)
-4. [Learnings Check](#learnings-check)
-5. [Role Pack Suggestion](#role-pack-suggestion)
-6. [Layout Suggestion](#layout-suggestion)
-7. [Improvement Questions](#improvement-questions)
-8. [Copy Ideation](#copy-ideation)
-9. [Concept Diversity Check](#concept-diversity-check)
-10. [Base Image Check](#base-image-check)
-11. [Logo Resolution](#logo-resolution)
+1. [Explorer Pass](#explorer-pass)
+2. [Creative-Context Bootstrap](#creative-context-bootstrap)
+3. [Vault Sync](#vault-sync)
+4. [Design Philosophy Check](#design-philosophy-check)
+5. [Learnings Check](#learnings-check)
+6. [Blackboard Check](#blackboard-check)
+7. [Role Pack Suggestion](#role-pack-suggestion)
+8. [Layout Suggestion](#layout-suggestion)
+9. [Improvement Questions](#improvement-questions)
+10. [Copy Ideation](#copy-ideation)
+11. [Concept Diversity Check](#concept-diversity-check)
+12. [Base Image Check](#base-image-check)
+13. [Logo Resolution](#logo-resolution)
 
 ---
+
+## Explorer Pass
+
+**Why:** The Pi-style workflow starts with a read-only workspace inspection. Without it,
+planning drifts into generic prompts instead of building on the actual brand memory.
+
+Before any planning, inspect:
+
+```bash
+source .venv/bin/activate && bgen context-snapshot --format json
+source .venv/bin/activate && bgen show --format json --latest 10
+source .venv/bin/activate && bgen show-blackboard --format json
+```
+
+Also inspect at least **2 relevant prior approved / high-scoring versions** and their image files.
+
+Your explorer summary must identify:
+- what worked in prior approved outputs
+- what failed in prior rejected outputs
+- which mechanics are locked
+- which variable is safe to change this run
+
+Do not move on to planning until this summary is concrete.
 
 ## Creative-Context Bootstrap
 
@@ -145,6 +170,31 @@ nano-banana-2 + with refs", use those parameters in Phase 2.
 Also check `failurePatterns` — these are things that reliably fail. Apply them as
 `--ban` directives in Phase 2.
 
+## Blackboard Check
+
+**Why:** Blackboard is the most compact source of operational brand memory. It tells you
+which recipes have won, which mechanics should be preserved, and which material-specific
+mistakes should not be repeated.
+
+Read:
+
+```bash
+cat .brand-gen/brands/<active>/blackboard.json
+```
+
+For the requested material, inspect:
+- `learning_summary[material]`
+- `material_recipes[material]`
+- `active_brief` if it is relevant to the same family of work
+
+Translate the findings into concrete planning inputs:
+- successful mechanics → `--preserve`
+- underexplored improvements → `--push`
+- repeated failure modes → `--ban`
+- winning mode/model/reference usage → Phase 2 defaults
+
+Do not treat blackboard as passive context. Its learnings must appear explicitly in the plan.
+
 ---
 
 ## Role Pack Suggestion
@@ -233,6 +283,9 @@ concept. This ensures coverage across the brand's concept space.
 
 Also check `creative_context.metaphor_vocabulary`. If metaphors are configured, check
 iteration memory — are there metaphors that have never been illustrated? Prioritize those.
+
+Also review prior approved implementations. If a concept has already produced a strong
+approved mechanic, preserve that mechanic and vary only one dimension at a time.
 
 ---
 

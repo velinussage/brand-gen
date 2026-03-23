@@ -44,6 +44,56 @@ When a host does not provide the Pi subagents directly, emulate the same orchest
 
 Use the active brand logo, proven winning prior versions, and blackboard recipe hints as your default evidence base. Do not skip straight to freehand generation before the plan has been critiqued.
 
+## Pi-Style Orchestration Is Mandatory
+
+Do not treat the Pi-style chain as a suggestion. For any real generation request, you must complete these stages in order:
+
+1. **Explorer** — inspect workspace, blackboard, learnings, prior approved versions
+2. **Router** — choose the route and explain why
+3. **Planner** — create the plan draft using the evidence base
+4. **Critic** — run plan critique and brand-fit validation
+5. **Generator** — generate only after the plan is approved
+
+If any of steps 1-4 are skipped, the workflow is invalid. Do not generate anyway.
+
+## Required Evidence Base Before Generation
+
+Before you generate anything, you must inspect and apply all of the following when they exist:
+
+- `blackboard.json` → `learning_summary[material]`
+- `blackboard.json` → `material_recipes[material]`
+- `blackboard.json` → `active_brief` when relevant
+- `learnings.json` model preferences for the requested material
+- at least **2 prior approved / high-scoring versions** for the same material or adjacent material
+- the active brand logo path
+- any product screenshots or proof assets required for the material type
+
+Treat these as inputs, not background reading. The plan must visibly reflect them.
+
+## Required Pi Orchestration Memo
+
+Before generation, produce a compact orchestration memo in your reasoning / working notes that includes:
+
+- chosen material type
+- chosen route
+- workspace state summary
+- blackboard learnings applied
+- prior versions referenced
+- inspiration / references selected and what each contributes
+- key preserve / push / ban decisions
+- validation result
+
+If you cannot produce this memo, you are not ready to generate.
+
+## Hard Rules
+
+- **Do not generate from abstract brand language alone when approved exemplars exist.**
+- **Do not use blackboard learnings as advisory only** — convert them into concrete plan constraints.
+- **Do not fall back to ad hoc direct model calls** (`generate.py`, manual composites, external edits) unless the structured orchestration path is blocked and you explicitly state why.
+- **Do not use deterministic composites as a substitute for the pipeline** unless the task itself is a deterministic composite / proof layout task.
+- **Do not skip validation because a prompt “seems fine.”**
+- **Do not mutate the saved brand workspace for speculative retries when a disposable testing session is available and working.**
+
 ## Step 0: Read the Workspace
 
 Before anything else, understand where you are:
@@ -79,26 +129,49 @@ Gather context, apply learnings, prevent repetition. Full details:
 
 Critical steps (do not skip):
 
-1. **Creative-context bootstrap** — Read `brand-profile.json`. If `creative_context`
+1. **Explorer pass first** — Before planning, inspect:
+   - `bgen context-snapshot --format json`
+   - the active `blackboard.json`
+   - the active `learnings.json`
+   - at least 2 relevant prior approved / high-scoring versions and their images
+
+   Summarize what worked, what failed, and what must remain locked.
+
+2. **Creative-context bootstrap** — Read `brand-profile.json`. If `creative_context`
    block is missing, create it with defaults and write it back. Without this block,
    concept diversity and quality calibration cannot function.
 
-2. **Design philosophy check** — Read `design-philosophy.md` from the active brand
+3. **Design philosophy check** — Read `design-philosophy.md` from the active brand
    directory. If it does not exist, create one before proceeding (see
    [references/philosophy-workflow.md](references/philosophy-workflow.md)). Extract
    material metaphors, composition rules, and quality boosters for use in planning.
 
-3. **Learnings check** — Read `learnings.json` for `modelPreferences` matching the
+4. **Learnings check** — Read `learnings.json` for `modelPreferences` matching the
    requested material type. Apply winning setups (mode, model). If learnings say
    "social works without refs", do not force reference mode.
 
-4. **Concept diversity** — Read `creative_context.concept_categories`. Check recent
+5. **Blackboard check** — Read `blackboard.json` for:
+   - `learning_summary[material]`
+   - `material_recipes[material]`
+   - `active_brief`
+
+   Convert these into explicit preserve / push / ban / mode / reference decisions.
+   Do not continue with only a generic paraphrase.
+
+6. **Concept diversity** — Read `creative_context.concept_categories`. Check recent
    generations. Auto-select the least illustrated concept if the caller did not
    specify one.
 
-5. **Role pack and layout suggestions** — Run `bgen suggest-role-pack` and
+7. **Role pack and layout suggestions** — Run `bgen suggest-role-pack` and
    `bgen suggest-layout` for the material type. These provide composition references
    and surface strategy.
+
+8. **Previous implementations review** — If approved exemplars exist, identify:
+   - what visual mechanic is preserved
+   - what brand anchor is preserved
+   - what new variable is being explored
+
+   Never attempt a “fresh” direction that discards all prior successful mechanics at once.
 
 ### Phase 2: Plan
 
@@ -107,11 +180,19 @@ Build an informed plan from preparation context. Full details:
 
 Critical steps:
 
-1. **Enrich the prompt seed** with philosophy metaphors — use material words as
+1. **Run routing explicitly** — Choose the route before drafting. Record why the route fits the material and evidence base.
+
+2. **Enrich the prompt seed** with philosophy metaphors — use material words as
    texture references, apply composition rules as structural guidance, end with
    craftsmanship boosters. Do NOT paste philosophy verbatim.
 
-2. **Run plan-draft** with all preparation context:
+3. **Enrich with blackboard and prior winners** — The prompt seed and flags must reflect:
+   - blackboard success patterns
+   - blackboard failure patterns
+   - prior approved mechanics
+   - explicit brand-anchor decisions
+
+4. **Run plan-draft** with all preparation context:
    ```bash
    source .venv/bin/activate && bgen plan-draft \
      --material-type <type> \
@@ -121,8 +202,14 @@ Critical steps:
      --format json
    ```
 
-3. **Review the plan JSON** — Is the creative direction specific? Are sources
+5. **Review the plan JSON** — Is the creative direction specific? Are sources
    appropriate? Are there warnings? If generic, refine the seed and rerun once.
+
+6. **Show the plan logic clearly** — The plan review must make clear:
+   - which prior versions were referenced
+   - which learnings were applied
+   - which inspiration mechanics were borrowed
+   - what is intentionally new versus intentionally locked
 
 ### Phase 3: Validate
 
@@ -151,6 +238,8 @@ source .venv/bin/activate && bgen validate-brand-fit --plan <plan-path> --format
 If BLOCKING: adjust plan parameters and re-validate. Max 2 plan revision iterations.
 If warnings only: proceed but note them for post-generation review.
 
+**No generation is allowed before a pass here.**
+
 ### Phase 4: Generate
 
 Build scratchpad and generate. Full details:
@@ -167,6 +256,13 @@ screenshot, the model invents fake UI that scores 1-2 every time.
 
 If the scratchpad has blocking issues, stop and report clearly. Do not generate
 from a broken scratchpad.
+
+If the generation path is blocked and you believe a deterministic fallback is appropriate, state:
+- why the normal pipeline is blocked
+- why the fallback matches the user’s requested artifact type
+- what brand-truth constraints will still be preserved
+
+Do not silently switch modes or tools.
 
 ### Phase 5: Critique
 

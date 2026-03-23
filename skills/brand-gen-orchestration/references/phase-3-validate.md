@@ -47,6 +47,8 @@ campaign posters and social posts that represent the brand publicly).
 The output includes fit score and specific misalignment notes. A low fit score
 (< 0.6) should be treated as blocking.
 
+No generation is allowed before both the structural critique and brand-fit pass are complete.
+
 ---
 
 ## P3-to-Blocker Promotions
@@ -94,6 +96,15 @@ text strategy, or brief scope. Do not repeat a failing configuration.
 
 Remain advisory. Proceed but note them for post-generation review. They may become
 relevant if the output scores poorly.
+
+Also check whether the plan still reflects the required evidence base:
+- blackboard learnings for the material
+- prior approved implementations
+- explicit route choice
+- explicit preserve / push / ban logic
+
+If those are absent or too vague, treat the plan as needing revision even if the validator
+does not emit a formal blocking flag.
 
 ---
 
@@ -162,6 +173,12 @@ When validation produces warnings only:
 2. Proceed to Phase 4
 3. After generation, check if any warnings predicted actual quality issues
 4. If they did, update the P3-to-blocker promotion list for future runs
+
+Do not bypass validation by switching to ad hoc direct generation or deterministic fallback
+unless you explicitly report:
+- why the normal pipeline is blocked
+- why the fallback matches the requested artifact type
+- what brand-truth constraints will still be preserved
 
 ### Validation Output Format
 
