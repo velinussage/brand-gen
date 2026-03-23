@@ -612,7 +612,7 @@ def compose_share_card_html(card: ShareCardPayload, *, material_type: str, asset
         composition_support_html += f'<img src="{assets_base}{accent_rule}" alt="" style="position:absolute;right:112px;top:72px;width:136px;opacity:.34;pointer-events:none;" />'
     # Use brand name from profile for the badge label, not the scraped page
     # title. The page title may be a tagline ("Govern Your Autonomy") rather
-    # than the brand name ("Sage").
+    # than the actual brand name.
     _brand_name = html.escape(str(card.brand_name).strip()) if hasattr(card, "brand_name") and card.brand_name else ""
     brand_label = _brand_name or html.escape((source_domain or "Brand").split(".")[0].capitalize()[:24] or "Brand")
     logo_html = f'<img src="{assets_base}{logo}" alt="{brand_label}" class="logo-img" />' if logo else '<div class="logo-fallback">B</div>'

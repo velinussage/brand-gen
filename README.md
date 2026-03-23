@@ -663,8 +663,8 @@ See [docs/skills.md](docs/skills.md) for the recommended loading order.
 
 The HTML share-card renderer fetches source data through a plugin system.
 
-- Built-in specialized plugin: **Sage**
-- Built-in generic fallback: **Web** (OG/meta + page scraping)
+- Built-in platform-specific plugins (ships with a **Sage Protocol** example)
+- Built-in generic fallback: **Web** (OG/meta + page scraping) for any URL
 - Custom plugins: add a `CardDataPlugin` subclass under `mcp/card_plugins/`
 
 Minimal example:

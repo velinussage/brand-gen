@@ -14,9 +14,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 ENV_CANDIDATES = [REPO_ROOT / '.env', Path.home() / '.claude' / '.env']
 DEFAULT_SURFACES = ['homepage-hero', 'dashboard-overview', 'key-feature', 'detail-state', 'settings', 'mobile-or-narrow']
 
-# Named shot presets -- expanded when --preset is used
+# Named shot presets -- expanded when --preset is used.
+# Add your own brand presets here or pass --shot label=url pairs directly.
 SHOT_PRESETS: dict[str, list[tuple[str, str]]] = {
-    'sage-full': [
+    'example-sage': [
         ('home', 'https://app.sageprotocol.io'),
         ('discover', 'https://app.sageprotocol.io/discover'),
         ('libraries', 'https://app.sageprotocol.io/libraries'),
@@ -188,7 +189,7 @@ def main() -> int:
 
     capture = sub.add_parser('capture', help='Capture product screenshots')
     capture.add_argument('--shot', action='append', help='Shot spec as label=url. Repeat for multiple shots')
-    capture.add_argument('--preset', choices=sorted(SHOT_PRESETS), help='Expand a named preset shotlist (e.g. sage-full)')
+    capture.add_argument('--preset', choices=sorted(SHOT_PRESETS), help='Expand a named preset shotlist (e.g. example-sage)')
     capture.add_argument('--url', help='Fallback single URL')
     capture.add_argument('--label', help='Fallback single label when using --url')
     capture.add_argument('--out-dir', required=True, help='Output directory')

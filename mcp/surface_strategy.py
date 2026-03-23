@@ -238,10 +238,10 @@ def _score_strategy(
 
     if template_selected and key == template_selected:
         score += 8.0
-        reasons.insert(0, "matches Sage session template")
+        reasons.insert(0, "matches selected session template")
     elif key in {str(item or "").strip() for item in (template_preferred or []) if str(item or "").strip()}:
         score += 4.0
-        reasons.insert(0, "matches Sage session template family")
+        reasons.insert(0, "matches session template family")
 
     return score, reasons
 

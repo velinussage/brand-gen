@@ -6,7 +6,7 @@ Known limitations:
 - generation test coverage is still mostly structural/unit level; external model execution is not fully mocked end-to-end
 - some policy/default behavior is still hardcoded in Python and JSON data instead of being fully data-driven per brand
 - HTML share cards require Google Chrome for headless PNG rendering
-- specialized share-card platform coverage is still limited; the built-in platform-specific plugin is Sage, with a generic web fallback for everything else
+- share-card platform plugin coverage is still limited; the repo ships one example plugin (Sage Protocol) alongside the generic web fallback
 - governed/source-text extraction is still imperfect when the source page is procedural, navigation-heavy, or weakly structured
 - visual quality validation is still partly agent/manual even though QA packets, critique artifacts, and blackboard learning have improved
 - the runtime still reads some host-specific legacy env/config fallbacks for compatibility, so you may still see historical `.claude` wording in a few internal paths/messages

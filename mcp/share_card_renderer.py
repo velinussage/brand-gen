@@ -4,7 +4,7 @@ Module map:
     card_text     — text analysis, HTTP utilities, line scoring
     card_engine   — ShareCardPayload, LayoutSpec, HTML rendering, PNG render
     card_builder  — payload construction, entity defaults
-    card_plugins  — plugin interface, Sage plugin, generic web plugin
+    card_plugins  — plugin interface, platform plugins, generic web plugin
 """
 from .card_text import *  # noqa: F401,F403
 from .card_engine import *  # noqa: F401,F403
@@ -36,7 +36,7 @@ from .card_text import _extract_prompt_share_blocks, _extract_skill_share_blocks
 from .card_text import _prompt_body_lines, _truncate_multiline_copy  # noqa: F401
 from .card_text import _detail_card_budget, _prompt_detail_items  # noqa: F401
 
-# Sage plugin internals that old code may reference via share_card_renderer
+# Platform plugin internals that old code may reference via share_card_renderer
 from .card_plugins.sage import (  # noqa: F401
     _looks_like_cid,
     _try_sage_local_skill,

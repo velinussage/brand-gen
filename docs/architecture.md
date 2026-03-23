@@ -161,7 +161,7 @@ source_url → card-data plugin → structured payload → HTML layout → Chrom
 
 Built-ins currently include:
 
-- specialized **Sage** plugin
+- platform-specific plugins (ships with a Sage Protocol example)
 - generic **Web** fallback plugin
 
 Additional platforms can be added through `mcp/card_plugins/`.

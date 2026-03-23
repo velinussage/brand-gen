@@ -263,7 +263,7 @@ def build_capture_product_cli(parser: argparse.ArgumentParser, *, inspire_urls: 
     parser.add_argument("--label", help="Label for --url captures")
     parser.add_argument("--cdp", type=int, metavar="PORT", help="Connect to an already-running Chrome via CDP on this port (e.g. 9222). Start Chrome with: /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222")
     parser.add_argument("--shot", action="append", help="Repeatable label=url pair for multiple captures")
-    parser.add_argument("--preset", choices=["sage-full"], help="Expand a named preset shotlist instead of specifying --shot/--url manually")
+    parser.add_argument("--preset", choices=["example-sage"], help="Expand a named preset shotlist instead of specifying --shot/--url manually")
     parser.add_argument("--out-dir", help="Output directory for screenshots")
     parser.add_argument("--count", type=int, default=1, help="How many scroll positions to capture per shot")
     parser.add_argument("--scroll-px", type=int, default=1400)

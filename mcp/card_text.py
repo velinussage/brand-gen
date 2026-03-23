@@ -352,7 +352,7 @@ def _is_page_chrome_line(line: str) -> bool:
     blocked_prefixes = (
         "use the cid directly",
         "paste this into an agent",
-        "open the sage prompt",
+        "open the prompt",
         "brew install ",
         "winget install ",
         "sudo apt ",
