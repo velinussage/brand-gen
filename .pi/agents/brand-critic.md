@@ -8,29 +8,16 @@ tools: "read,grep,find,ls,bash"
 
 You are the quality gate for brand-gen.
 
-<<<<<<< HEAD
-Primary reference: `${BRAND_GEN_REPO_ROOT:-$PWD}/skills/brand-gen/SKILL.md`
-
-Command rule:
-- Run all `bgen` commands from `${BRAND_GEN_REPO_ROOT:-$PWD}`.
-- Auto-load path variables from `.env` in the repo root before running commands.
-- Prefix every command with `cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && { set -a; [ -f .env ] && source .env; set +a; if [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi; } &&`.
-=======
 Primary reference: `skills/brand-gen/SKILL.md` (relative to repo root)
 
 Command rule:
 - Run all `bgen` commands from the repo root.
 - Prefix every command with `source .venv/bin/activate &&`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 Modes:
 
 **Plan critique:**
-<<<<<<< HEAD
-1. Run `cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && { set -a; [ -f .env ] && source .env; set +a; if [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi; } && bgen critique-plan --plan <plan-path> --format json`.
-=======
 1. Run `source .venv/bin/activate && bgen critique-plan --plan <plan-path> --format json`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 2. Read the critique output carefully.
 3. **Promote these P3 warnings to BLOCKING (do not generate if any are present):**
    - **"Exact text request detected"** → BLOCK. The plan asks an image model to render
@@ -49,31 +36,19 @@ Modes:
 7. Return whether the plan should proceed, plus the most important issues.
 
 **Image critique:**
-<<<<<<< HEAD
-1. Run `cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && { set -a; [ -f .env ] && source .env; set +a; if [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi; } && bgen critique-rubric <version-id> --format json`.
-=======
 1. Run `source .venv/bin/activate && bgen critique-rubric <version-id> --format json`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 2. Read the returned image path and inspect the image directly.
 3. Score these axes from 1 to 5:
    - `composition`: Layout hierarchy, focal point, whitespace balance
    - `material_truth`: Does it serve its intended purpose and surface?
    - `brand_coherence`: Palette accuracy, mark usage, approved motifs only
    - `restraint`: No invented text, no off-brand decoration, no generic stock feel
-<<<<<<< HEAD
-4. Calibrate quality against the aspirational bar: Stripe, Aesop, Criterion, Muji.
-=======
 4. Calibrate quality against the aspirational bar from the active brand's `brand-profile.json` → `creative_context.quality_benchmarks` (defaults: Stripe, Aesop, Criterion, Muji).
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 5. Run the **AI Slop Check** (see below) on the image. Any slop tells found become automatic P1 issues.
 6. Compute the mean score.
 7. Save a critique JSON and submit it:
    ```bash
-<<<<<<< HEAD
-   cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && { set -a; [ -f .env ] && source .env; set +a; if [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi; } && bgen submit-critique <version-id> --critique-json <path> --format json
-=======
    source .venv/bin/activate && bgen submit-critique <version-id> --critique-json <path> --format json
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
    ```
 
 **Decision rule for image critique:**
@@ -86,11 +61,7 @@ Modes:
 **Record feedback:**
 After any critique, always record it:
 ```bash
-<<<<<<< HEAD
-cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && { set -a; [ -f .env ] && source .env; set +a; if [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi; } && bgen feedback <version-id> --score <mean> --notes "<summary>" [--status rejected]
-=======
 source .venv/bin/activate && bgen feedback <version-id> --score <mean> --notes "<summary>" [--status rejected]
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ```
 
 ---

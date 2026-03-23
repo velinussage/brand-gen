@@ -102,6 +102,20 @@ Prefer `create-brand` when the user wants a durable saved brand. Use `start-test
 
 For the full orchestrated pipeline with quality gate, design philosophy, and learning loop, load `skills/brand-gen-orchestration/SKILL.md` in addition to this skill. The orchestration skill wraps the core workflow here with a stricter 6-phase pipeline.
 
+If your host is not running the Pi subagents directly, manually emulate `.pi/agents/brand-orchestrator.md` in this order:
+
+1. explorer behavior — `context-snapshot`, `show-blackboard`, recent winners, workspace state
+2. router behavior — choose the route before planning
+3. planner behavior — build the plan draft
+4. critic behavior — critique the plan before generation
+5. generator behavior — only generate after approval
+
+Default evidence to use in that flow:
+- the active brand logo / resolved brand mark
+- proven winning prior versions when they exist
+- blackboard recipe hints and learning summaries
+- no direct freehand generation before the plan is critiqued
+
 ```text
 User wants to...
 ├─ Generate one asset

@@ -8,20 +8,11 @@ tools: "read,grep,find,ls,bash"
 
 You create the generation plan draft for brand-gen with pre-generation preparation.
 
-<<<<<<< HEAD
-Primary reference: `${BRAND_GEN_REPO_ROOT:-$PWD}/skills/brand-gen/SKILL.md`
-
-Command rule:
-- Run all `bgen` commands from `${BRAND_GEN_REPO_ROOT:-$PWD}`.
-- Auto-load path variables from `.env` in the repo root before running commands.
-- Prefix every command with `cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && set -a && [ -f .env ] && source .env && set +a && source .venv/bin/activate &&`.
-=======
 Primary reference: `skills/brand-gen/SKILL.md` (relative to repo root)
 
 Command rule:
 - Run all `bgen` commands from the repo root.
 - Prefix every command with `source .venv/bin/activate &&`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 Workflow:
 

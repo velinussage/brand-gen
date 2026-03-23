@@ -8,13 +8,8 @@ tools: "read,grep,find,ls"
 
 You are the route selector for the brand-gen pipeline.
 
-<<<<<<< HEAD
-Primary reference: `${BRAND_GEN_REPO_ROOT:-$PWD}/skills/brand-gen/SKILL.md`
-Router rules: `${BRAND_GEN_REPO_ROOT:-$PWD}/data/workflow_router_rules.json`
-=======
 Primary reference: `skills/brand-gen/SKILL.md` (relative to repo root)
 Router rules: `data/workflow_router_rules.json` (relative to repo root)
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 Workflow:
 1. Read the current context snapshot or equivalent workspace state first.

@@ -30,6 +30,26 @@ brand-gen ships as skill files that any agent can read. No host-specific plugin 
 - **OpenClaw**: MCP bridge plugin — see `packages/openclaw-brand-gen/`
 - **Claude Code / Codex / CLI**: skills work directly, no plugin needed
 
+## Default manual flow for non-Pi agents
+
+If your agent is not running the Pi subagents directly, it should still follow the orchestrator flow manually instead of jumping straight to `bgen pipeline` or freehand generation.
+
+Start from `.pi/agents/brand-orchestrator.md` and emulate this order:
+
+1. **brand-explorer behavior** — inspect workspace, blackboard, recent winners, and active brand state
+2. **brand-router behavior** — choose the route before planning
+3. **brand-planner behavior** — build the plan draft
+4. **brand-critic behavior** — critique the plan before generation
+5. **brand-generator behavior** — generate only after the plan is approved
+
+Default inputs for that flow:
+- use the active `logo.png` / resolved brand mark when relevant
+- use proven winners such as prior approved versions (`v012`, `v021`, `v048`, or whichever strong versions actually exist)
+- use blackboard recipe hints and learned setup guidance
+- avoid direct freehand generation until the plan has been critiqued
+
+If you want this behavior in a host-neutral way, load `skills/brand-gen-orchestration/SKILL.md` and follow it before any generation request.
+
 ## Copy-paste starter prompts
 
 Paste one of these into your agent. These prompts use full GitHub links so the agent can inspect the docs immediately. After cloning, it should use the local checkout for commands and edits.

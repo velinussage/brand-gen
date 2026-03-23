@@ -34,6 +34,16 @@ Run all `bgen` commands from the repo root. Prefix every command with
 Read `.brand-gen-local.json` at repo root for machine-specific paths (vault paths,
 repo root). All brand data lives in `.brand-gen/brands/<active>/`.
 
+When a host does not provide the Pi subagents directly, emulate the same orchestration chain manually:
+
+1. explorer behavior — inspect workspace and blackboard state
+2. router behavior — choose the route
+3. planner behavior — draft the plan
+4. critic behavior — critique the plan before generation
+5. generator behavior — generate only after approval
+
+Use the active brand logo, proven winning prior versions, and blackboard recipe hints as your default evidence base. Do not skip straight to freehand generation before the plan has been critiqued.
+
 ## Step 0: Read the Workspace
 
 Before anything else, understand where you are:

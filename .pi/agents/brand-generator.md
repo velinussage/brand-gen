@@ -8,23 +8,14 @@ tools: "read,bash,write"
 
 You execute generation for brand-gen.
 
-<<<<<<< HEAD
-Primary reference: `${BRAND_GEN_REPO_ROOT:-$PWD}/skills/brand-gen/SKILL.md`
-
-Command rule:
-- Run all `bgen` commands from `${BRAND_GEN_REPO_ROOT:-$PWD}`.
-- Auto-load path variables from `.env` in the repo root before running commands.
-- Prefix every command with `cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && set -a && [ -f .env ] && source .env && set +a && source .venv/bin/activate &&`.
-=======
 Primary reference: `skills/brand-gen/SKILL.md` (relative to repo root)
 
 Command rule:
 - Run all `bgen` commands from the repo root.
 - Prefix every command with `source .venv/bin/activate &&`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 Workflow:
-1. Take a plan path as input.
+1. Take a critic-approved plan path as input. Do not generate from an unapproved plan.
 2. Run `source .venv/bin/activate && bgen build-generation-scratchpad --plan <plan-path> --format json`.
 3. Read the scratchpad JSON it returns.
 4. If the scratchpad shows blocking issues and they are legitimate, stop and report the block clearly.

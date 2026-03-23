@@ -21,13 +21,7 @@ The process is iterative:
 
 ## Command Rule
 
-<<<<<<< HEAD
-- Run all `bgen` commands from `${BRAND_GEN_REPO_ROOT:-$PWD}` (or repo root if forked).
-- Auto-load path variables from `.env` in the repo root before running commands.
-- Prefix every command with `cd "${BRAND_GEN_REPO_ROOT:-$PWD}" && set -a && [ -f .env ] && source .env && set +a && source .venv/bin/activate &&`.
-=======
 - Run all `bgen` commands from the repo root. Read `.brand-gen-local.json` at repo root for paths. Prefix every command with `source .venv/bin/activate &&`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 ## Inputs
 
@@ -40,28 +34,6 @@ You receive:
 
 ### 1. Brand Vault (Primary — The Soul)
 
-<<<<<<< HEAD
-For Sage, the Obsidian vault is at:
-```
-${BRAND_SOURCE_VAULT}
-```
-
-Read these files in order of importance:
-
-| File | What to extract |
-|------|----------------|
-| `Brand Session/17-metaphors-and-symbols.md` | Canon, swarm, burning, signals, library, soul, wardrobe, garden, gallery — the visual language already present |
-| `Brand Session/15-emotional-territory.md` | Quiet authority, gravitas, craftsmanship, deliberation — the feelings the brand should evoke |
-| `Brand Session/sage-design-language-chosen-not-collected.md` | The wardrobe metaphor — "chosen, not collected" as core design principle |
-| `Brand Session/19-aspirational-brands.md` | Stripe, Aesop, Criterion, Muji, Vitsoe — quality calibration points |
-| `Brand Session/18-brand-tensions.md` | The productive tensions the brand holds |
-| `Brand Session/12-core-values.md` | What the brand stands for |
-| `Brand Session/14-brand-voice-audit.md` | How the brand speaks |
-| `Positioning/pitch-narrative-arc.md` | The story structure |
-| `Website Copy/landing-message-playbook.md` | Approved headlines and CTAs |
-
-**Do not skim these.** Read them fully. The philosophy is already in there — scattered across metaphors, emotional territory, and design principles. Your job is to find it and name it.
-=======
 Read vault paths from `.brand-gen-local.json` → `vault_paths`. If no vault is configured, the philosopher can still work from brand-identity.json and inspiration sources alone — vault is optional.
 
 If vault paths are configured, recursively scan for .md files and read them in order of modification date (newest first). Look for files about: metaphors, emotional territory, design language, aspirational brands, brand tensions, core values, brand voice, positioning, and messaging.
@@ -69,7 +41,6 @@ If vault paths are configured, recursively scan for .md files and read them in o
 Read quality benchmarks from the active brand's `brand-profile.json` → `creative_context.quality_benchmarks`. Default to ['Stripe', 'Aesop', 'Criterion', 'Muji'] if not configured. Use these as quality calibration points when reading vault content about aspirational brands.
 
 **Do not skim vault files.** Read them fully. The philosophy is already in there — scattered across metaphors, emotional territory, and design principles. Your job is to find it and name it.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 ### 2. Brand Identity JSON (Secondary — The Mechanics)
 
@@ -144,11 +115,7 @@ Look for convergence:
 Before writing, ask 1-3 targeted questions. Examples:
 - "The vault describes [X] and [Y] as core metaphors. Which feels more central to how you see the brand visually?"
 - "The emotional territory emphasizes quiet authority. Should the design philosophy lean more toward institutional gravitas or organic warmth?"
-<<<<<<< HEAD
-- "The aspirational brands include both Stripe (technical precision) and Aesop (natural restraint). Which end of that spectrum feels more like Sage's visual future?"
-=======
 - "The aspirational brands in creative_context include [list them]. Which end of that spectrum feels more like the brand's visual future?"
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 Do NOT ask generic questions. Every question should reference specific vault content.
 
@@ -191,12 +158,8 @@ When the philosophy already exists, the goal is targeted update, not rewrite.
 
 1. **New vault content?** Has the brand vault been updated since the philosophy was written?
    ```bash
-<<<<<<< HEAD
-   find "${BRAND_SOURCE_VAULT}" -newer .brand-gen/brands/<active>/design-philosophy.md -name "*.md" 2>/dev/null
-=======
    # For each vault path from .brand-gen-local.json → vault_paths:
    find "<vault_path>" -newer .brand-gen/brands/<active>/design-philosophy.md -name "*.md" 2>/dev/null
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
    ```
 
 2. **Generation feedback?** Do recent scores suggest the philosophy isn't guiding well?
@@ -280,11 +243,7 @@ Search queries (run 2-3):
 - "award winning [material_type] [brand_industry]"
 ```
 
-<<<<<<< HEAD
-For Sage specifically, the industry is "developer tools / crypto / AI agents / open source."
-=======
 For the active brand, infer the industry from brand-profile.json → description and keywords.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 Examples:
 - For `podcast_cover`: "best podcast cover design developer tools 2026"
@@ -314,10 +273,10 @@ Write a research brief in this format:
 - Example: "Podcast covers in developer tools almost universally use dark backgrounds
   with a single accent color and bold sans-serif typography"
 
-### Opportunities (RISK choices — where Sage can stand out)
+### Opportunities (RISK choices — where the brand can stand out)
 - [2-3 departures from convention that would be distinctive]
 - Example: "Nobody in developer tools uses warm earth tones for podcast covers —
-  Sage's terracotta palette would be immediately distinctive"
+  the brand's distinctive palette could be immediately recognizable"
 
 ### Composition Recommendations
 - Preferred layout: [specific recommendation with rationale]
