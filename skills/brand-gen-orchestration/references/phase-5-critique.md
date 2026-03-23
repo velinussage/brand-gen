@@ -21,8 +21,9 @@
 alone.
 
 Inspect the generated image at the path returned by Phase 4. If your host supports
-image viewing (most do), view the image directly. If not, note that the scoring will
-rely on the VLM critique from the generation step.
+image viewing (most do), view the image directly. If not, note that scoring will
+rely on the VLM critique from the generation step — but do not confuse a template
+review packet with a completed critique.
 
 ---
 
@@ -37,6 +38,18 @@ This returns:
 - Material type and intended purpose
 - Brand identity context for calibration
 - Any plan warnings that were noted during validation
+
+After retrieving the rubric, actually complete the critique loop:
+- inspect the image
+- score the artifact
+- submit critique / feedback
+
+If you have not scored and recorded the output, the Pi-style workflow is incomplete.
+
+Also check for style drift relative to any required style anchor:
+- Did the output keep the locked line quality / palette / finish / framing behavior?
+- If not, say so explicitly in the critique notes.
+- If repeated high scores cluster around one style anchor and drift happens when it is absent, record that for Phase 6 as a style-reference policy candidate.
 
 ---
 
@@ -182,6 +195,11 @@ The output does not meet the quality bar. Record rejection and iterate:
 
 4. Critique the new output (return to the start of Phase 5)
 5. Maximum 2 retry cycles total
+
+If the failure was style drift, include that directly in the notes and directives:
+- notes: `"style drift away from required v014 storyboard art direction"`
+- push: `"restore v014 storyboard line quality / palette / unfinished concept-art finish"`
+- preserve: `"keep required style anchor v014"`
 
 ### Mean >= 3 → ACCEPT
 

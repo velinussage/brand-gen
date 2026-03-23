@@ -49,7 +49,8 @@ Self-healing prevents silent failures downstream.
 
 Read `brand-profile.json` for the active brand. Check if `creative_context` exists.
 
-If missing, create it with these defaults:
+If missing, do **not** silently overwrite a saved brand workspace during orchestration.
+Use these defaults ephemerally for planning:
 
 ```json
 {
@@ -67,7 +68,13 @@ If missing, create it with these defaults:
   exist, leave empty.
 - `metaphor_vocabulary`: Start empty. The philosophy workflow populates this later.
 
-Write the new block back to `brand-profile.json` so future sessions have it.
+Only write the new block back to `brand-profile.json` when:
+- the user explicitly approved the repair, or
+- you are in a disposable testing session.
+
+Otherwise, note in the memo that `creative_context` is missing and continue with ephemeral defaults.
+
+This is a hard rule: do not rewrite an existing saved-brand profile in place during normal orchestration just because schema drift was detected.
 
 ---
 
@@ -170,6 +177,24 @@ nano-banana-2 + with refs", use those parameters in Phase 2.
 Also check `failurePatterns` — these are things that reliably fail. Apply them as
 `--ban` directives in Phase 2.
 
+Also check for `styleReferencePolicies` (or equivalent style-lock records if your brand memory
+stores them elsewhere). These capture cases where a specific prior version must remain the
+style anchor even when the concept changes.
+
+Example style-lock:
+
+```json
+{
+  "material_type": "campaign_poster",
+  "required_style_reference_versions": ["v014"],
+  "reference_policy": "single_style_anchor",
+  "failure_mode_if_missing": "style drift",
+  "model_behavior_note": "nano-banana-2 drifts when concepts change unless v014 remains the style carrier"
+}
+```
+
+If such a policy exists, record it as a locked planning input.
+
 ## Blackboard Check
 
 **Why:** Blackboard is the most compact source of operational brand memory. It tells you
@@ -192,6 +217,11 @@ Translate the findings into concrete planning inputs:
 - underexplored improvements → `--push`
 - repeated failure modes → `--ban`
 - winning mode/model/reference usage → Phase 2 defaults
+- required style-anchor versions → explicit mandatory references in Phase 2
+
+If the intended route is `inspiration`, also verify whether real inspiration sources are configured.
+If none are configured, flag that now. Do not wait until generation to discover that the
+“inspiration” route has no actual inspiration inputs.
 
 Do not treat blackboard as passive context. Its learnings must appear explicitly in the plan.
 

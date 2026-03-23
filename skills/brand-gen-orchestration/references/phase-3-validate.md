@@ -103,6 +103,11 @@ Also check whether the plan still reflects the required evidence base:
 - explicit route choice
 - explicit preserve / push / ban logic
 
+Promote to BLOCKING when:
+- the route claims `inspiration` but `selected_inspiration_ids` is empty and no explicit reroute was recorded
+- the plan relies on reference roles for grounding, but the selected model/wrapper will not actually transport those refs into image generation
+- a style-lock policy exists for this material, but the required style reference version is not explicitly carried into the plan
+
 If those are absent or too vague, treat the plan as needing revision even if the validator
 does not emit a formal blocking flag.
 

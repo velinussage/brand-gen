@@ -42,6 +42,10 @@ low (< 0.6), consider whether the material request is ambiguous and clarify with
 Record the route decision in a compact planning memo. Do not jump from explorer findings
 straight into prompt writing without explicitly naming the route and why it fits.
 
+If the route is `inspiration` but there are no configured inspiration sources, do not continue
+as if the route is healthy. Either reroute explicitly to a prior-winner / brand-memory plan,
+or stop and report the missing inspiration setup.
+
 ---
 
 ## Philosophy Enrichment
@@ -104,6 +108,15 @@ Add constraint flags from preparation:
 - `--ban "<element to prohibit>"` (repeatable)
 - `--pick composition=<source>` (from role pack)
 
+Treat the logo / brand mark as a brand-anchor input, not as a generic semantic role translation problem.
+Do not force `logo.png` through a role interpretation that turns it into fake “product truth” like nav structure or button labels.
+
+If a style-lock policy exists:
+- include the required style reference version(s) explicitly in the plan
+- state that they are mandatory style carriers, not optional adjacent winners
+- allow other refs to vary for concept/mechanic only after the style anchor is locked
+- if the current toolchain has no dedicated `style` role, record the style anchor explicitly in the planning memo and keep it first in the evidence list
+
 ### Flags from Preparation
 
 | Preparation insight | Flag | Example |
@@ -128,6 +141,7 @@ Before validation, you should be able to state:
 - chosen material type
 - chosen route
 - prior versions referenced
+- required style reference versions
 - blackboard learnings applied
 - inspiration / references selected and what each contributes
 - preserve / push / ban logic
@@ -185,6 +199,12 @@ Read the returned plan JSON. Check:
 
 5. **Does the plan visibly use blackboard and prior winners?** If the plan could have
    been written without reading them, it is too generic.
+
+6. **Will the planned evidence actually survive into generation?** If the selected model/wrapper
+   only uses refs for prompt routing/context, do not overstate how much grounding you have.
+
+7. **Is the style anchor truly locked?** If learnings say a prior version is required to hold
+   the art direction, the plan should make that mandatory. “We looked at v014” is not enough.
 
 If the plan is generic or has warnings about creative direction, refine the prompt seed
 and rerun plan-draft once. Do not rerun more than once at this stage — Phase 3 provides

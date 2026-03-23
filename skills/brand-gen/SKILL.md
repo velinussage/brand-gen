@@ -172,6 +172,13 @@ bgen update-messaging --format json
 
 Use sessions when exploring. Use saved-brand mode when working directly on the durable brand memory.
 
+Implementation rule set:
+
+- Never overwrite an existing saved-brand `brand-profile.json` just to bootstrap missing schema.
+- If a saved brand is missing fields like `creative_context`, prefer `bgen start-testing --brand <brand-key>` and patch the session copy instead.
+- Only migrate the durable saved brand profile when the user explicitly asked for that repair.
+- If the request is actually for a different brand, create a new saved brand instead of mutating the current one.
+
 ### 4. Choose a composition mechanic, not just a vibe
 
 Before writing the prompt seed, decide the dominant move.

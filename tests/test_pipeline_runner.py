@@ -1,6 +1,7 @@
 import argparse
 import io
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from contextlib import redirect_stderr
@@ -121,6 +122,23 @@ class PipelineRunnerTests(unittest.TestCase):
         result = runner.run(argparse.Namespace())
         self.assertEqual(result.stopped_at, 'plan_draft')
         self.assertIn('nope', result.stop_reason)
+
+    def test_ensure_inspiration_uses_seeded_brand_for_testing_sessions(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            runner = PipelineRunner(
+                root / 'sessions' / 'acme-fork' / 'brand-materials',
+                {"session_context": {"seeded_from_brand": "acme"}},
+                {},
+            )
+
+            with patch('mcp.runtime_brand.get_brand_gen_dir', return_value=root), \
+                 patch('mcp.runtime_brand.resolve_context_brand_key', return_value='acme'), \
+                 patch('mcp.runtime_brand.load_inspirations_config', return_value={'sources': ['koto-pairpoint']}) as load_cfg, \
+                 patch('mcp.runtime_brand.load_inspiration_index', return_value={'sources': {'koto-pairpoint': {'status': 'complete'}}}):
+                runner._ensure_inspiration(argparse.Namespace(material_type='brand-scene'))
+
+            load_cfg.assert_called_once_with('acme', root)
 
     def test_pipeline_can_proceed_past_blocking_critique_when_bypass_recorded(self):
         runner = PipelineRunner(Path('/tmp/brand-gen'), {}, {}, allow_blocking=True)

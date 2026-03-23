@@ -34,6 +34,11 @@ The scratchpad auto-injects:
 Read the returned scratchpad path. Verify the scratchpad JSON is well-formed before
 proceeding.
 
+Before generation, compare the final execution prompt/scratchpad against the approved plan.
+If key planned mechanics disappeared during prompt assembly (for example: explicit panel borders,
+required prior-winner mechanics, or the intended brand-mark preservation strategy), stop and revise
+instead of “seeing what the model does.”
+
 ---
 
 ## Scratchpad Flags Reference

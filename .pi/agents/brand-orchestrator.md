@@ -28,6 +28,7 @@ When this orchestration is emulated manually by a non-Pi agent, follow this exac
 Default evidence to use:
 - the active brand logo / resolved brand mark
 - proven winners such as prior approved versions when they exist
+- required style-anchor versions from scored learnings when they exist
 - blackboard recipe hints and learned setup guidance
 - no direct freehand generation until the plan is critiqued
 
@@ -48,17 +49,17 @@ You receive from the caller:
 
 Before planning, gather context and apply learnings:
 
-**Creative-context bootstrap (self-heal for older brands):**
+**Creative-context check (non-mutating by default):**
 Before any other preparation step, read `brand-profile.json` for the active brand. If the
-`creative_context` block does not exist (older brands or `extract-brand` workflows), create it
-with defaults:
+`creative_context` block does not exist (older brands or `extract-brand` workflows), use
+ephemeral defaults for this run:
 - `quality_benchmarks`: value from `.brand-gen-local.json` → `quality_benchmarks` if present,
   otherwise `["Stripe", "Aesop", "Criterion", "Muji"]`
 - `concept_categories`: derived from `brand-profile.json` → `keywords` (copy the keywords list)
 - `metaphor_vocabulary`: `[]`
 
-Write the new `creative_context` block back to `brand-profile.json` so future sessions have it.
-Then continue with the rest of Phase 1.
+Do not write the block back to a saved brand workspace unless the user explicitly asked for a repair
+or you are in a disposable testing session. Then continue with the rest of Phase 1.
 
 1. **Check workspace state:**
    ```bash
@@ -97,7 +98,13 @@ Then continue with the rest of Phase 1.
    - **Quality boosters** for prompt suffixes (e.g., "meticulous", "labored over", "masterful")
 
 3. **Check learnings for this material type:**
-   Read `.brand-gen/brands/<active>/learnings.json` directly. Look for `modelPreferences` entries matching the requested material_type. Apply winning setups (mode, model preferences).
+   Read `.brand-gen/brands/<active>/learnings.json` directly. Look for:
+   - `modelPreferences` entries matching the requested material_type
+   - `styleReferencePolicies` entries matching the requested material_type or adjacent family
+
+   Apply winning setups (mode, model preferences). If a style-reference policy says a
+   specific prior version is the mandatory style carrier, keep that version explicitly
+   in the plan even when the concept changes.
 
 4. **Suggest role pack** (get composition references):
    ```bash
@@ -150,6 +157,10 @@ Then continue with the rest of Phase 1.
 
 Collect all insights from steps 2-10.  The design philosophy provides creative DNA; learnings provide tactical setup; role pack and layout provide structural options; concept diversity prevents repetition; and the logo path ensures brand mark consistency. All inform the plan draft.
 
+If the caller asks for an inspiration-led material and no real inspiration sources are configured,
+do not quietly proceed as if inspiration exists. Either reroute explicitly to a prior-winner / style-lock
+driven plan, or stop and report the setup gap.
+
 ### Phase 2: Plan (Informed Plan from Preparation)
 
 Build the plan using preparation context:
@@ -180,6 +191,11 @@ source .venv/bin/activate && bgen plan-draft \
 
 Add `--preserve`, `--push`, `--ban` flags from preparation findings.
 
+If a style-reference policy exists, make the required style anchor explicit in the planning handoff:
+- name the required version(s)
+- state that they are mandatory style carriers
+- distinguish them from concept/mechanic refs
+
 Review the plan JSON:
 - Is the creative direction specific? Not generic?
 - Are inspiration sources appropriate for this material type?
@@ -206,6 +222,11 @@ source .venv/bin/activate && bgen validate-brand-fit --plan <plan-path> --format
 - Re-validate (max 2 plan iterations)
 
 **If only warnings:** proceed but note them for post-generation review.
+
+Treat these as effectively blocking for manual orchestration even if the tool reports them as warnings:
+- no real inspiration sources for an inspiration route
+- required style anchor missing from the plan
+- chosen model/wrapper cannot actually carry the refs the route depends on
 
 ### Phase 4: Generate (--max-iterations 2 + VLM Critique)
 
@@ -249,6 +270,7 @@ After generation, apply the quality gate:
 4. **Calibrate** against the aspirational bar from `brand-profile.json` → `creative_context.quality_benchmarks`. Also test against the design philosophy — does the output embody the named movement?
 
 5. **Submit critique and record feedback.**
+   If the output drifted away from a required style anchor, say so explicitly and feed that into iteration/evolve.
 
 6. **Decision:**
 

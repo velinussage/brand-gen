@@ -30,6 +30,10 @@ Modes:
    - **"Iterating from vXXX: text issues found"** → BLOCK. Previous version already failed
      on text with the same setup. Require the planner to change something — model, mode,
      text strategy, or brief scope. Do not repeat a failing configuration.
+   - **Missing required style anchor** → BLOCK. If learnings say a prior version must remain
+     the style carrier to prevent drift, the plan is invalid without it.
+   - **Inspiration route with no real inspiration sources** → BLOCK unless the planner explicitly
+     rerouted and documented that decision.
 4. All other P3 warnings remain advisory (proceed but note them).
 5. If blocking: return specific description of WHAT is wrong. Do NOT prescribe HOW to fix it.
 6. Run the **Design Coherence Check** (see below) on the plan.
@@ -45,8 +49,10 @@ Modes:
    - `restraint`: No invented text, no off-brand decoration, no generic stock feel
 4. Calibrate quality against the aspirational bar from the active brand's `brand-profile.json` → `creative_context.quality_benchmarks` (defaults: Stripe, Aesop, Criterion, Muji).
 5. Run the **AI Slop Check** (see below) on the image. Any slop tells found become automatic P1 issues.
-6. Compute the mean score.
-7. Save a critique JSON and submit it:
+6. Check for style drift relative to any required style anchor. If the line quality, palette behavior,
+   finish, or framing language drifted away from the locked reference, record that explicitly.
+7. Compute the mean score.
+8. Save a critique JSON and submit it:
    ```bash
    source .venv/bin/activate && bgen submit-critique <version-id> --critique-json <path> --format json
    ```
@@ -55,6 +61,7 @@ Modes:
 - If mean score < 3: return `ITERATE` with:
   - Specific `--ban` directives for the next attempt
   - Specific `--push` directives
+  - Specific style-anchor preservation directives when drift occurred
   - Updated prompt seed suggestion incorporating what went wrong
 - If mean score >= 3: return `APPROVED` with concise summary.
 
@@ -155,3 +162,4 @@ Rules:
 - P1 issues should be concrete defects, not vague complaints.
 - **The gate must actually block.** When a promoted P3 warning is present, return BLOCK. Do not mark clean and proceed.
 - **Tell the planner WHAT is wrong, not HOW to fix it.** The planner owns the solution.
+- **When style drift is the defect, name the missing anchor explicitly.** Do not reduce it to generic “off-brand” language.

@@ -66,6 +66,8 @@ Before you generate anything, you must inspect and apply all of the following wh
 - `learnings.json` model preferences for the requested material
 - at least **2 prior approved / high-scoring versions** for the same material or adjacent material
 - the active brand logo path
+- for `inspiration` mode, actual configured inspiration sources or explicitly approved prior exemplars that are being translated
+- `learnings.json` → `styleReferencePolicies` / style-lock records for the requested material or adjacent family
 - any product screenshots or proof assets required for the material type
 
 Treat these as inputs, not background reading. The plan must visibly reflect them.
@@ -78,6 +80,7 @@ Before generation, produce a compact orchestration memo in your reasoning / work
 - chosen route
 - workspace state summary
 - blackboard learnings applied
+- style-anchor policy applied (or explicit statement that none exists)
 - prior versions referenced
 - inspiration / references selected and what each contributes
 - key preserve / push / ban decisions
@@ -92,7 +95,10 @@ If you cannot produce this memo, you are not ready to generate.
 - **Do not fall back to ad hoc direct model calls** (`generate.py`, manual composites, external edits) unless the structured orchestration path is blocked and you explicitly state why.
 - **Do not use deterministic composites as a substitute for the pipeline** unless the task itself is a deterministic composite / proof layout task.
 - **Do not skip validation because a prompt “seems fine.”**
-- **Do not mutate the saved brand workspace for speculative retries when a disposable testing session is available and working.**
+- **Do not mutate saved brand memory during orchestration** (`brand-profile.json`, `brand-identity.json`, learnings, blackboard) unless the user explicitly asked for a repair/update or you are in a disposable testing session.
+- **Do not treat “inspiration mode” as valid when no real inspiration sources are configured.** If `selected_inspiration_ids` is empty, either reroute explicitly or stop and report the gap.
+- **Do not let the plan rely on reference roles the selected model/wrapper cannot actually carry.** If the route depends on image refs but the wrapper only uses them for prompt routing/context, treat that as a validation risk and prefer reroute/block over wishful thinking.
+- **Do not drop a proven style anchor when the learnings say it is required to prevent drift.** Treat required style references as first-class constraints, not optional taste notes.
 
 ## Step 0: Read the Workspace
 
@@ -137,9 +143,11 @@ Critical steps (do not skip):
 
    Summarize what worked, what failed, and what must remain locked.
 
-2. **Creative-context bootstrap** — Read `brand-profile.json`. If `creative_context`
-   block is missing, create it with defaults and write it back. Without this block,
-   concept diversity and quality calibration cannot function.
+2. **Creative-context check (non-mutating by default)** — Read `brand-profile.json`.
+   If `creative_context` is missing in a saved brand workspace, report the gap and use
+   ephemeral defaults in your memo for this run. Only write the block back when:
+   - the user explicitly approved the repair, or
+   - you are inside a disposable testing session.
 
 3. **Design philosophy check** — Read `design-philosophy.md` from the active brand
    directory. If it does not exist, create one before proceeding (see
@@ -147,8 +155,10 @@ Critical steps (do not skip):
    material metaphors, composition rules, and quality boosters for use in planning.
 
 4. **Learnings check** — Read `learnings.json` for `modelPreferences` matching the
-   requested material type. Apply winning setups (mode, model). If learnings say
-   "social works without refs", do not force reference mode.
+   requested material type. Apply winning setups (mode, model). Also read any
+   `styleReferencePolicies` / style-lock records for the material. If learnings say
+   a specific prior version is the mandatory style carrier, keep it in the plan even
+   when the concept/mechanic changes.
 
 5. **Blackboard check** — Read `blackboard.json` for:
    - `learning_summary[material]`
@@ -181,6 +191,10 @@ Build an informed plan from preparation context. Full details:
 Critical steps:
 
 1. **Run routing explicitly** — Choose the route before drafting. Record why the route fits the material and evidence base.
+   If the intended route is `inspiration` but the workspace has no configured inspiration
+   sources, do not quietly pretend prior outputs alone satisfy that route. Either:
+   - explicitly reroute to a prior-winner / brand-memory driven plan, or
+   - stop and report that inspiration setup is missing.
 
 2. **Enrich the prompt seed** with philosophy metaphors — use material words as
    texture references, apply composition rules as structural guidance, end with
@@ -190,6 +204,7 @@ Critical steps:
    - blackboard success patterns
    - blackboard failure patterns
    - prior approved mechanics
+   - required style-anchor versions
    - explicit brand-anchor decisions
 
 4. **Run plan-draft** with all preparation context:
@@ -208,8 +223,10 @@ Critical steps:
 6. **Show the plan logic clearly** — The plan review must make clear:
    - which prior versions were referenced
    - which learnings were applied
+   - which style anchor was required and why
    - which inspiration mechanics were borrowed
    - what is intentionally new versus intentionally locked
+   - how the logo / brand mark is being preserved without sending it through the wrong semantic role
 
 ### Phase 3: Validate
 
@@ -239,6 +256,10 @@ If BLOCKING: adjust plan parameters and re-validate. Max 2 plan revision iterati
 If warnings only: proceed but note them for post-generation review.
 
 **No generation is allowed before a pass here.**
+
+Also block or revise if either of these is true:
+- the route claims `inspiration` but `selected_inspiration_ids` is empty and no explicit reroute was recorded
+- the plan depends on reference roles that the chosen model/wrapper will not actually transport into generation
 
 ### Phase 4: Generate
 

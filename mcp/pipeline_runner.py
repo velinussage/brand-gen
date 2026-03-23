@@ -800,15 +800,30 @@ class PipelineRunner:
         continues regardless of success or failure.
         """
         try:
-            from .runtime_brand import get_brand_gen_dir, load_inspirations_config, load_inspiration_index
+            from .runtime_brand import (
+                get_brand_gen_dir,
+                load_inspiration_index,
+                load_inspirations_config,
+                resolve_context_brand_key,
+            )
         except ImportError:
-            from runtime_brand import get_brand_gen_dir, load_inspirations_config, load_inspiration_index  # type: ignore
+            from runtime_brand import (  # type: ignore
+                get_brand_gen_dir,
+                load_inspiration_index,
+                load_inspirations_config,
+                resolve_context_brand_key,
+            )
 
         brand_gen_dir = get_brand_gen_dir()
         if not brand_gen_dir or not brand_gen_dir.exists():
             return
 
-        active_brand = self.brand_dir.name
+        active_brand = resolve_context_brand_key(
+            brand_dir=self.brand_dir,
+            profile=self.profile,
+            identity=self.identity,
+            brand_gen_dir=brand_gen_dir,
+        ) or self.brand_dir.name
         config = load_inspirations_config(active_brand, brand_gen_dir)
         sources = config.get("sources") or []
         if not sources:

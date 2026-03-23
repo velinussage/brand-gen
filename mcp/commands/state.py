@@ -5,6 +5,7 @@ from ..material_planning import *
 from ..generation_flow import *
 from ..session_summary import *
 from ..media_board import *
+from ..brand_scaffold import build_profile_from_brief, deep_merge_defaults, load_brand_profile_template
 
 def cmd_bootstrap(args):
     manifest = load_manifest()
@@ -117,32 +118,23 @@ def cmd_start_testing(args):
         seeded_from = args.brand
 
     profile_path = brand_dir / "brand-profile.json"
+    template = load_brand_profile_template()
     if profile_path.exists():
         profile_payload = load_json_file(profile_path)
     else:
         working_name = args.working_name or args.brand or "Working Brand"
-        profile_payload = {
-            "profile_version": 2,
-            "brand_name": working_name,
-            "description": args.goal or "Session brand under active exploration.",
-            "project_root": str(brand_dir),
-            "keywords": [],
-            "color_candidates": [],
-            "font_candidates": [],
-            "radius_tokens": [],
-            "logo_candidates": [],
-            "brand_assets": {
-                "icon": "",
-                "wordmark": "",
-                "lockup": "",
-                "icon_candidates": [],
-                "wordmark_candidates": [],
-                "lockup_candidates": [],
-                "allow_synthetic_lockup": False,
-            },
-            "design_language": {},
-            "brand_guardrail_prelude": "",
-        }
+        profile_payload = build_profile_from_brief(
+            brand_name=working_name,
+            brand_dir=brand_dir,
+            description=args.goal or "Session brand under active exploration.",
+        )
+    profile_payload = deep_merge_defaults(profile_payload or {}, template)
+    profile_payload["profile_version"] = max(int(profile_payload.get("profile_version") or 1), 2)
+    profile_payload["project_root"] = str(brand_dir)
+    if not profile_payload.get("brand_name"):
+        profile_payload["brand_name"] = args.working_name or args.brand or "Working Brand"
+    if not profile_payload.get("description"):
+        profile_payload["description"] = args.goal or "Session brand under active exploration."
     profile_payload["session_context"] = {
         "type": "testing-session",
         "session_key": session_key,

@@ -58,6 +58,7 @@ dimensions:
 3. **Composition patterns** — Which layout structures score well
 4. **Failure patterns** — Which setups reliably fail
 5. **Messaging insights** — Which copy approaches resonate
+6. **Style reference policies** — Which prior versions must remain present as style anchors to prevent drift
 
 The output includes:
 - New patterns discovered
@@ -82,6 +83,7 @@ Patterns are promoted to `learnings.json` only after appearing in 2+ scored vers
 | `failurePatterns` | 2 consistent failures | "ideogram + concept-illustration always muddy" |
 | `colorInsights` | 2 consistent observations | "warm undertones score higher than cool" |
 | `messagingInsights` | 2 consistent observations | "short imperatives outperform questions" |
+| `styleReferencePolicies` | 2+ high scores with same style anchor, or 1 strong cluster + repeated drift when absent | "`v014` must remain the style carrier for campaign posters" |
 
 ### What Gets Extracted
 
@@ -91,12 +93,14 @@ From high-scoring versions (4-5):
 - Color treatment (warm/cool, contrast level, palette usage)
 - Texture and material treatment
 - Prompt strategies that worked
+- Style-anchor references that stayed constant across the best results
 
 From low-scoring versions (1-2):
 - Failure conditions to avoid
 - Model/mode combinations that underperform
 - Prompt patterns that produce AI slop
 - Material type mismatches
+- Style drift conditions (e.g. concept changed and the anchor style ref was missing)
 
 ---
 
@@ -116,6 +120,19 @@ From low-scoring versions (1-2):
       "source": "blackboard_promotion",
       "promoted_at": "2026-03-20T23:12:17",
       "correction_note": "works best with warm palette direction"
+    }
+  ],
+  "styleReferencePolicies": [
+    {
+      "text": "[campaign_poster] Keep v014 as the mandatory style anchor",
+      "material_type": "campaign_poster",
+      "required_style_reference_versions": ["v014"],
+      "reference_policy": "single_style_anchor",
+      "evidence_versions": ["v031", "v032", "v033"],
+      "source": "score_pattern_promotion",
+      "promoted_at": "2026-03-21T01:26:46",
+      "failure_mode_if_missing": "style drift",
+      "correction_note": "When concepts change, nano-banana-2 does not reliably preserve the v014 art direction without that exact style anchor."
     }
   ],
   "colorInsights": [],
@@ -144,6 +161,11 @@ When Phase 1 reads learnings, it matches `material_type` against the requested t
    may apply to `announcement-card`)
 3. No related match: Default to `hybrid` mode and let the current run establish a baseline
 
+For `styleReferencePolicies`:
+1. Exact match: lock the required style reference version(s) into the next plan
+2. Adjacent family match: inherit cautiously if the visual family is clearly shared
+3. No match: do not invent a style lock
+
 ---
 
 ## Updating Iteration Memory
@@ -165,6 +187,7 @@ source .venv/bin/activate && bgen update-iteration-memory \
 Record discoveries that Phase 1 should know about:
 
 - **Winning styles:** "v058 + v061 are the art direction — use as positive reference"
+- **Style locks:** "STYLE LOCK: v014 must remain the only style carrier for campaign posters"
 - **Critical constraints:** "CRITICAL: No realistic textures for this brand"
 - **Benchmark versions:** "5-STAR BENCHMARK: v087 is the definitive art style target"
 - **New metaphors from vault:** "VAULT AUDIT — NEW METAPHORS: garden tending, gallery wall"
@@ -194,11 +217,13 @@ After evolve, the next generation run will:
 
 1. **Apply new model preferences** — If evolve discovered that `inspiration` mode wins
    for `social`, the next social generation will default to `inspiration`
-2. **Apply new failure patterns** — If evolve identified that `gradient text` fails for
+2. **Apply style locks** — If evolve discovered that `v014` is the mandatory style carrier
+   for `campaign_poster`, the next campaign-poster plan must explicitly include it
+3. **Apply new failure patterns** — If evolve identified that `gradient text` fails for
    `concept-illustration`, the next concept illustration will auto-ban it
-3. **Reference positive examples** — High-scoring versions become implicit quality
+4. **Reference positive examples** — High-scoring versions become implicit quality
    benchmarks for future critiques
-4. **Avoid negative patterns** — Documented failures become automatic bans
+5. **Avoid negative patterns** — Documented failures become automatic bans
 
 This is how the pipeline gets smarter over time. Each generation contributes to the
 learnings that shape future generations. The first 5 generations for a new material type

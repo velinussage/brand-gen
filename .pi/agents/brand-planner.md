@@ -18,7 +18,10 @@ Workflow:
 
 **Step 1: Preparation** (always do this)
 1. Run `source .venv/bin/activate && bgen context-snapshot --format json` to understand the workspace.
-2. Read `learnings.json` from the active brand directory. Look for modelPreferences matching the requested material type. Note any winning setups.
+2. Read `learnings.json` from the active brand directory. Look for:
+   - `modelPreferences` matching the requested material type
+   - `styleReferencePolicies` matching the requested material type or adjacent family
+   Note any winning setups and any mandatory style anchors.
 3. Run `source .venv/bin/activate && bgen suggest-role-pack --material-type <type> --format json` for composition references.
 4. Run `source .venv/bin/activate && bgen suggest-layout --material-type <type> --format json` for layout candidates.
 
@@ -27,6 +30,7 @@ Use insights from preparation to build a better plan:
 - If learnings suggest a specific mode (e.g., "without refs"), use `--mode inspiration` instead of hybrid.
 - If role-pack suggests composition references, pass them via `--pick composition=<source>`.
 - If layout suggests a specific strategy, use `--design-variance` to bias toward it.
+- If a style-reference policy exists, make that prior version the mandatory style carrier for the plan rather than an optional adjacent winner.
 
 ```bash
 source .venv/bin/activate && bgen plan-draft \
@@ -43,6 +47,7 @@ Read the returned plan JSON. Check:
 - Is the creative direction specific enough? (not generic)
 - Are inspiration sources appropriate for this material type?
 - Are there warnings that point to weak setup?
+- If a style anchor is required, is it explicit enough that another agent could not accidentally omit it?
 
 If warnings indicate weak creative direction, refine the prompt seed and rerun once.
 
@@ -54,6 +59,7 @@ Return JSON in this shape:
   "creative_direction": "Concrete paragraph on visual and strategic direction.",
   "preparation": {
     "learnings_applied": [],
+    "style_anchors_applied": [],
     "role_pack_available": true,
     "layout_suggested": "compact_proof_card"
   },
@@ -65,5 +71,6 @@ Return JSON in this shape:
 Rules:
 - Always run preparation steps before planning.
 - Apply learnings explicitly — don't ignore winning setups.
+- When style-lock learnings exist, treat them as hard constraints.
 - Prefer a clean, defensible plan over a clever but noisy one.
 - Keep the returned creative_direction concrete, not generic.

@@ -93,6 +93,90 @@ class OnboardingTests(unittest.TestCase):
             self.assertIn('Clearer operational visibility', profile['messaging']['value_propositions'])
             self.assertEqual(identity.get('brand', {}).get('name'), 'Orbit Ops')
 
+    def test_start_testing_uses_canonical_profile_template_for_new_sessions(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_gen_dir = Path(tmpdir) / '.brand-gen'
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(BRAND_ITERATE),
+                    'start-testing',
+                    '--working-name',
+                    'Scratch Test',
+                    '--goal',
+                    'Explore a first direction',
+                    '--brand-gen-dir',
+                    str(brand_gen_dir),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            session_dir = brand_gen_dir / 'sessions' / 'scratch-test' / 'brand-materials'
+            profile = json.loads((session_dir / 'brand-profile.json').read_text())
+            config = json.loads((brand_gen_dir / 'config.json').read_text())
+
+            self.assertEqual(profile['brand_name'], 'Scratch Test')
+            self.assertIn('creative_context', profile)
+            self.assertIn('messaging', profile)
+            self.assertIn('identity', profile)
+            self.assertEqual(profile['session_context']['type'], 'testing-session')
+            self.assertEqual(config['activeSession'], 'scratch-test')
+
+    def test_start_testing_only_patches_missing_schema_in_session_copy(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_gen_dir = Path(tmpdir) / '.brand-gen'
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(BRAND_ITERATE),
+                    'create-brand',
+                    '--name',
+                    'Acme Cloud',
+                    '--description',
+                    'Operational intelligence for teams.',
+                    '--brand-gen-dir',
+                    str(brand_gen_dir),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            saved_brand_dir = brand_gen_dir / 'brands' / 'acme-cloud'
+            saved_profile_path = saved_brand_dir / 'brand-profile.json'
+            saved_profile = json.loads(saved_profile_path.read_text())
+            saved_profile.pop('creative_context', None)
+            saved_profile_path.write_text(json.dumps(saved_profile, indent=2) + '\n')
+
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(BRAND_ITERATE),
+                    'start-testing',
+                    '--brand',
+                    'acme-cloud',
+                    '--session-name',
+                    'acme-fork',
+                    '--goal',
+                    'Try a new direction safely',
+                    '--brand-gen-dir',
+                    str(brand_gen_dir),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            session_profile = json.loads(
+                (brand_gen_dir / 'sessions' / 'acme-fork' / 'brand-materials' / 'brand-profile.json').read_text()
+            )
+            saved_profile_after = json.loads(saved_profile_path.read_text())
+
+            self.assertNotIn('creative_context', saved_profile_after)
+            self.assertIn('creative_context', session_profile)
+            self.assertEqual(session_profile['session_context']['seeded_from_brand'], 'acme-cloud')
+
     def test_mcp_exposes_brand_create(self):
         tools = {tool['name']: tool for tool in brand_iterate_mcp.TOOLS}
         self.assertIn('brand_create', tools)
