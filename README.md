@@ -4,6 +4,35 @@
 
 brand-gen is a local, file-backed toolkit that an AI agent can use to understand a brand, plan materials, generate assets, review them, and learn over time. It is designed to work for any brand and across multiple agent hosts — CLI-first agents, MCP hosts, Pi, OpenClaw, and host-specific skill systems.
 
+## If you use Pi, start here
+
+brand-gen ships with a tracked Pi multi-agent pipeline under [`.pi/agents/`](.pi/agents/). The default entry point is [`.pi/agents/brand-orchestrator.md`](.pi/agents/brand-orchestrator.md), which coordinates the full planning-first workflow before any generation happens.
+
+In practice, Pi should behave like this:
+
+| Pi agent | Job |
+|---|---|
+| `brand-orchestrator` | default entry point; coordinates the full flow and keeps generation planning-first |
+| `brand-explorer` | inspects workspace state, blackboard, prior winners, learnings, and current brand memory |
+| `brand-router` | chooses the route (for example generative explore vs. other specialist paths) |
+| `brand-planner` | drafts the material plan with the right inputs, constraints, and references |
+| `brand-critic` | critiques the plan before generation and blocks weak or under-specified work |
+| `brand-generator` | generates only after plan approval |
+| `brand-philosopher` | synthesizes or refines the brand's design philosophy when the creative system is underdefined |
+
+That means the default Pi pipeline is:
+
+1. `brand-orchestrator`
+2. `brand-explorer`
+3. `brand-router`
+4. `brand-planner`
+5. `brand-critic`
+6. `brand-generator`
+
+`brand-philosopher` is pulled in when the brand needs a stronger design philosophy or creative framing.
+
+Even if you are **not** using Pi, this is still the intended operating model. Non-Pi agents should manually emulate the same flow rather than jumping straight to freehand generation.
+
 ## Start here
 
 For a first run, make two choices up front:
@@ -20,10 +49,11 @@ For a first run, make two choices up front:
 If you are brand new, the shortest path is:
 
 1. install the repo and set `REPLICATE_API_TOKEN`
-2. read `skills/brand-gen-setup/SKILL.md`, `skills/brand-gen/SKILL.md`, and `skills/brand-gen-orchestration/SKILL.md`
-3. run `bgen context-snapshot --format json`
-4. follow the planning-first orchestration flow below before any generation
-5. if Pi is your default host, register `packages/pi-brand-gen/` and verify `/brand-gen status`
+2. if Pi is your default host, read `packages/pi-brand-gen/README.md` and `.pi/agents/brand-orchestrator.md` first
+3. read `skills/brand-gen-setup/SKILL.md`, `skills/brand-gen/SKILL.md`, and `skills/brand-gen-orchestration/SKILL.md`
+4. run `bgen context-snapshot --format json`
+5. follow the planning-first orchestration flow below before any generation
+6. if Pi is your default host, register `packages/pi-brand-gen/` and verify `/brand-gen status`
 
 ## The default operating model
 
@@ -38,6 +68,16 @@ Even outside Pi, agents should follow the same orchestrator-first workflow descr
 | 5. Generator | generate only after the plan is approved | first output version |
 
 Do not jump straight from request → freehand generation unless you are intentionally using the bundled automated pipeline. If you are doing the flow manually, do not skip critique.
+
+If you want the concrete Pi-agent implementation of each step, read:
+
+- [`.pi/agents/brand-orchestrator.md`](.pi/agents/brand-orchestrator.md)
+- [`.pi/agents/brand-explorer.md`](.pi/agents/brand-explorer.md)
+- [`.pi/agents/brand-router.md`](.pi/agents/brand-router.md)
+- [`.pi/agents/brand-planner.md`](.pi/agents/brand-planner.md)
+- [`.pi/agents/brand-critic.md`](.pi/agents/brand-critic.md)
+- [`.pi/agents/brand-generator.md`](.pi/agents/brand-generator.md)
+- [`.pi/agents/brand-philosopher.md`](.pi/agents/brand-philosopher.md)
 
 Default inputs for that flow:
 
