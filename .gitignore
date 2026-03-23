@@ -37,8 +37,6 @@ brands/
 inspiration/
 sources/
 config.json
-<<<<<<< HEAD
-=======
 .brand-gen-local.json
 brand_gen.egg-info/
 
@@ -54,4 +52,3 @@ IMPROVEMENT-PLAN.md
 
 # Pi subagent session logs
 .pi/subagents/
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)

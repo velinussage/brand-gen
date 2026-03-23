@@ -19,11 +19,7 @@ Preferred MCP server: `python3 -m mcp.brand_iterate_mcp`
 
 Most CLI commands are also exposed as MCP tools with a `brand_` prefix. A few names are customized for host ergonomics (for example `list-brands` → `brand_list`, `review-brand` → `brand_review`, `pipeline` → `brand_pipeline`).
 
-<<<<<<< HEAD
-Do **not** assume host-private local agents like `brand-orchestrator` exist. The public repo’s default workflow is the `bgen` / MCP command surface itself. If a host wraps that surface with native tools or commands, treat those as convenience wrappers over the same backend.
-=======
-Do **not** assume host-private local agents like `brand-orchestrator` exist unless you are running in a Pi workspace with `.pi/agents/` configured. The public repo's default workflow is the `bgen` / MCP command surface itself. If a Pi workspace wraps that surface with local agents, those agents read configuration from `.brand-gen-local.json`.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
+Do **not** assume host-private local agents like `brand-orchestrator` exist unless the current checkout explicitly ships them and you are running in a Pi workspace that uses `.pi/agents/`. The public repo's default workflow is the `bgen` / MCP command surface itself. If a Pi workspace wraps that surface with local agents, those agents read machine-local config from `.brand-gen-local.json`.
 
 ## Start every session here
 
@@ -43,8 +39,6 @@ Use them in this order:
 - `capabilities` — current material/model/tool surface
 - `show-session-summary` — human-readable current state and recent artifact pointers
 
-<<<<<<< HEAD
-=======
 ## Agent config
 
 Pi agents read two config sources:
@@ -53,7 +47,6 @@ Pi agents read two config sources:
 
 If you need to create `.brand-gen-local.json` manually, see `.brand-gen-local.json.example`.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ## Onboarding — pick the right path
 
 ### Step 0 — ensure the workspace exists
@@ -105,13 +98,9 @@ bgen create-brand \
 
 Prefer `create-brand` when the user wants a durable saved brand. Use `start-testing --working-name ...` only when they explicitly want a temporary sandbox first.
 
-<<<<<<< HEAD
-## Routing — match the user’s intent to the right workflow
-=======
 ## Routing — match the user's intent to the right workflow
 
-For the full orchestrated pipeline with quality gate, design philosophy, and learning loop, load `skills/brand-gen-orchestration/SKILL.md` instead. The orchestration skill wraps this workflow skill with the 6-phase pipeline that was previously only available through Pi agents.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
+For the full orchestrated pipeline with quality gate, design philosophy, and learning loop, load `skills/brand-gen-orchestration/SKILL.md` in addition to this skill. The orchestration skill wraps the core workflow here with a stricter 6-phase pipeline.
 
 ```text
 User wants to...
@@ -182,11 +171,8 @@ bgen suggest-role-pack --material-type campaign-poster --format json
 
 If richer brand materials live outside the repo, set `BRAND_SOURCE_VAULT` in `.env`.
 
-<<<<<<< HEAD
-=======
 Note: Pi agents use `vault_paths` in `.brand-gen-local.json` for the same purpose. If you use Pi, set `vault_paths`. If you use the CLI directly, set `BRAND_SOURCE_VAULT`. Both can coexist — they point at the same kind of source material through different configuration paths.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 Use it for things like:
 
 - positioning notes
@@ -498,31 +484,28 @@ Load these only when needed:
 For models, surfaces, and file layout, load the companion skill:
 
 - `skills/brand-gen-reference/SKILL.md`
-<<<<<<< HEAD
-=======
 
 ## Nano-banana-2 creative pipeline (direct generation)
 
-For product-led material types (browser-illustration, announcement-card, product-banner, landing-hero, feature-illustration, carousel-slide, linkedin-feed, x-feed), the winning approach is **nano-banana-2 with reference images** called directly via `python3 mcp/generate.py image`:
+For product-led material types (browser-illustration, announcement-card, product-banner, landing-hero, feature-illustration, carousel-slide, linkedin-feed, x-feed), one effective pattern is **nano-banana-2 with reference images** called directly via `python3 mcp/generate.py image`:
 
 ```bash
 python3 mcp/generate.py image \
   -m nano-banana-2 \
   -p "<narrative prompt describing the composition>" \
-  -i brands/<active>/logo.png \
-  -i brands/<active>/product-shots/<relevant-page>.png \
+  -i .brand-gen/brands/<active>/logo.png \
+  -i .brand-gen/brands/<active>/product-shots/<relevant-page>.png \
   -i <style-reference-image> \
   --aspect-ratio <ratio> \
   -o <output-path>
 ```
 
 **Rules for direct nano-banana generation:**
-- ALWAYS include the brand logo (`brands/<active>/logo.png`) as a reference image (`-i`)
-- For product-led materials, include a relevant product screenshot as reference
-- Include the v14 storyboard or another high-scoring output as style reference
+- Include the brand logo (`.brand-gen/brands/<active>/logo.png`) as a reference image when it exists
+- For product-led materials, include a relevant product screenshot when one exists
+- Prefer a strong prior output or curated style reference rather than a vague moodboard
 - Use narrative paragraph prompts, not keyword lists
 - The prompt should describe the composition as a story, not a spec sheet
-- Small Sage column mark in a corner — never dominant, never duplicated
-- No redundant URL text (if QR code exists, URL text is pointless)
-- Ask the user for data/stats rather than hallucinating numbers
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
+- If you include a small brand mark, keep it subordinate and never duplicated
+- Do not add redundant URL text when a QR code or stronger CTA already handles the action
+- Ask the user for real data/stats rather than hallucinating numbers

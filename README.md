@@ -4,8 +4,6 @@
 
 brand-gen is a local, file-backed toolkit that an AI agent can use to understand a brand, plan materials, generate assets, review them, and learn over time. It is designed to work for any brand and across multiple agent hosts — CLI-first agents, MCP hosts, Pi, OpenClaw, and host-specific skill systems.
 
-<<<<<<< HEAD
-=======
 ## What you need
 
 - Python 3.11+ and a [Replicate API token](https://replicate.com/account/api-tokens)
@@ -32,7 +30,6 @@ brand-gen ships as skill files that any agent can read. No host-specific plugin 
 - **OpenClaw**: MCP bridge plugin — see `packages/openclaw-brand-gen/`
 - **Claude Code / Codex / CLI**: skills work directly, no plugin needed
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ## Copy-paste starter prompts
 
 Paste one of these into your agent. These prompts use full GitHub links so the agent can inspect the docs immediately. After cloning, it should use the local checkout for commands and edits.
@@ -48,10 +45,7 @@ Clone `https://github.com/velinussage/brand-gen`, install it, validate the envir
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-setup/SKILL.md
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen/SKILL.md
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-reference/SKILL.md
-<<<<<<< HEAD
-=======
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-orchestration/SKILL.md
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 If I am using Pi as my default host, also follow:
 
@@ -77,16 +71,13 @@ I want to establish my first brand in brand-gen and generate the first illustrat
 Read these files first:
 
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen/SKILL.md
+- https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-orchestration/SKILL.md
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-content-ideation/SKILL.md
 - https://github.com/velinussage/brand-gen/blob/main/prompts/brand-reverse-interview-intake.md
 - https://github.com/velinussage/brand-gen/blob/main/prompts/brand-concept-exploration.md
 - https://github.com/velinussage/brand-gen/blob/main/prompts/non-interface-brand-brief.md
 
 Start by interviewing me to create a strong first brand brief. Then either:
-<<<<<<< HEAD
-=======
-- https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-orchestration/SKILL.md
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 - create a durable saved brand with `bgen create-brand`, or
 - start a testing session with `bgen start-testing` if that is safer
@@ -145,8 +136,6 @@ After verification, if no brand exists yet, have me create one with `bgen create
 
 </details>
 
-<<<<<<< HEAD
-=======
 ## Local Configuration
 
 Pi agents need a `.brand-gen-local.json` file at the repo root for machine-specific paths. This file is created automatically during setup — the agent detects the repo root and asks about optional vault paths.
@@ -164,7 +153,6 @@ Creative defaults (quality benchmarks, concept categories, metaphor vocabulary) 
 
 This file is gitignored.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ## Example output
 
 Generated from a real `pipeline` run (v14 storyboard):
@@ -376,9 +364,6 @@ After that, Pi can inspect, switch, summarize, generate, critique, and iterate a
 
 ## Connect to your agent
 
-<<<<<<< HEAD
-Start with the most generic option that your host supports.
-=======
 The simplest integration is skill files — copy them to your agent's skill directory or point at them directly. Host-specific plugins add convenience (widgets, heartbeats, MCP bridges) but are not required.
 
 ### Any agent (skill files only — no plugin)
@@ -395,7 +380,6 @@ Start by running: bgen context-snapshot --format json
 ```
 
 This works on Claude Code, Codex, OpenClaw, Cursor, or any agent that can run bash and read files.
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 ### CLI-first agents
 
@@ -442,10 +426,7 @@ cp -r skills/brand-gen/ ~/.claude/skills/brand-gen/
 cp -r skills/brand-gen-reference/ ~/.claude/skills/brand-gen-reference/
 cp -r skills/brand-gen-logo/ ~/.claude/skills/brand-gen-logo/
 cp -r skills/brand-content-ideation/ ~/.claude/skills/brand-content-ideation/
-<<<<<<< HEAD
-=======
 cp -r skills/brand-gen-orchestration/ ~/.claude/skills/brand-gen-orchestration/
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 claude mcp add brand-gen -- python3 -m mcp.brand_iterate_mcp
 ```
@@ -492,8 +473,6 @@ npm run typecheck
 
 Then add the plugin to your OpenClaw config and point it at the repo-local brand-gen backend.
 
-<<<<<<< HEAD
-=======
 **Skills for OpenClaw (no plugin required):**
 
 If you only need the generation pipeline without the full plugin, add skill paths to your OpenClaw config:
@@ -509,7 +488,6 @@ skills:
 
 The orchestration skill encodes the full multi-agent pipeline as instructions a single agent can follow — no Pi agents or host-specific extensions required.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ### Agent starter prompt
 
 Copy this into your agent to get started. This version uses full GitHub links; after cloning, the agent can switch to local repo paths for commands and edits.
@@ -529,6 +507,7 @@ https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen/SKILL.md to 
 planning, generation, review, iteration, and workspace inspection.
 
 Additional skill files for reference:
+- https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-orchestration/SKILL.md — full 6-phase generation pipeline
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-reference/SKILL.md — model selection, surface
   dimensions, and workspace/file-layout details
 - https://github.com/velinussage/brand-gen/blob/main/skills/brand-gen-logo/SKILL.md — logo, wordmark, and lockup
@@ -568,11 +547,8 @@ bgen create-brand \
   --tone "calm,technical,trustworthy" \
   --palette "#1A6B6B,#C85A2A"
 
-<<<<<<< HEAD
-=======
 # Modes: reference (product screenshots), inspiration (collected examples), hybrid (both). Use hybrid if unsure.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 # 2. Generate a first asset
 bgen pipeline \
   --material-type x-feed \
@@ -607,7 +583,7 @@ Once the main skill is loaded, you can talk naturally:
 
 ## Skills
 
-The repo ships five public skills under `skills/`:
+The repo ships six public skills under `skills/`:
 
 | Skill | Purpose |
 |-------|---------|
@@ -616,10 +592,7 @@ The repo ships five public skills under `skills/`:
 | `skills/brand-gen-reference/SKILL.md` | On-demand reference for models, surfaces, and workspace layout |
 | `skills/brand-gen-logo/SKILL.md` | Logo / wordmark / lockup exploration |
 | `skills/brand-content-ideation/SKILL.md` | Messaging / copy / content-direction ideation |
-<<<<<<< HEAD
-=======
 | `skills/brand-gen-orchestration/SKILL.md` | Full 6-phase generation pipeline (prepare → plan → validate → generate → critique → evolve) with quality gate, design philosophy, and learning loop |
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 
 See [docs/skills.md](docs/skills.md) for the recommended loading order.
 
@@ -682,36 +655,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 ## License
 
 MIT
-<<<<<<< HEAD
-=======
-ture.md)
-- [Concepts](docs/concepts.md)
-- [CLI Reference](docs/cli-reference.md)
-- [MCP Reference](docs/mcp-reference.md)
-- [Skills](docs/skills.md)
-- [Limitations](docs/limitations.md)
-- [How-to guides](docs/how-to/)
-
-Notes under `docs/plans/`, `docs/brainstorms/`, and `docs/scratchpad/` are historical working docs, not the current public API reference.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
-
-## License
-
-MIT
-kills](docs/skills.md)
-- [Limitations](docs/limitations.md)
-- [How-to guides](docs/how-to/)
-
-Notes under `docs/plans/`, `docs/brainstorms/`, and `docs/scratchpad/` are historical working docs, not the current public API reference.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
-
-## License
-
-MIT
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)

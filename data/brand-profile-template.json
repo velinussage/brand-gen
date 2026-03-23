@@ -9,14 +9,10 @@
   "audiences": [],
   "color_candidates": [],
   "font_candidates": [],
-<<<<<<< HEAD
-  "radius_tokens": ["12px", "16px"],
-=======
   "radius_tokens": [
     "12px",
     "16px"
   ],
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
   "logo_candidates": [],
   "brand_assets": {
     "icon": "",
@@ -65,10 +61,6 @@
       "cta_pairs": []
     }
   },
-<<<<<<< HEAD
-  "brand_guardrail_prelude": ""
-}
-=======
   "brand_guardrail_prelude": "",
   "creative_context": {
     "quality_benchmarks": [
@@ -81,4 +73,3 @@
     "metaphor_vocabulary": []
   }
 }
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)

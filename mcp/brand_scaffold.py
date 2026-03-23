@@ -93,12 +93,7 @@ def load_brand_profile_template() -> dict:
             "elevator": "",
             "voice": {"description": "", "tone_words": [], "do": [], "dont": []},
             "value_propositions": [],
-<<<<<<< HEAD
             "approved_copy_bank": {"headlines": [], "slogans": [], "subheadlines": [], "cta_pairs": []},
-        },
-        "brand_guardrail_prelude": "",
-=======
-           "approved_copy_bank": {"headlines": [], "slogans": [], "subheadlines": [], "cta_pairs": []},
         },
         "brand_guardrail_prelude": "",
         "creative_context": {
@@ -106,7 +101,6 @@ def load_brand_profile_template() -> dict:
             "concept_categories": [],
             "metaphor_vocabulary": [],
         },
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
     }
 
 

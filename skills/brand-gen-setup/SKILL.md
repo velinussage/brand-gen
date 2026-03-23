@@ -54,8 +54,6 @@ Important notes:
 - a legacy host-specific fallback may still be read for compatibility
 - set `BRAND_GEN_DIR` if you want durable state outside the repo checkout
 
-<<<<<<< HEAD
-=======
 ## Local config
 
 Create `.brand-gen-local.json` at the repo root. The agent should do this automatically:
@@ -81,7 +79,6 @@ block. If missing (older brands or `extract-brand` workflows), the agent should 
 defaults: `quality_benchmarks` from `.brand-gen-local.json` or `["Stripe", "Aesop", "Criterion",
 "Muji"]`, `concept_categories` derived from the brand's `keywords`, `metaphor_vocabulary` empty.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ## Step 3 — install recommended optional tools
 
 | Tool | Install | Purpose |
@@ -142,6 +139,7 @@ cp -r skills/brand-gen/ ~/.claude/skills/brand-gen/
 cp -r skills/brand-gen-reference/ ~/.claude/skills/brand-gen-reference/
 cp -r skills/brand-gen-logo/ ~/.claude/skills/brand-gen-logo/
 cp -r skills/brand-content-ideation/ ~/.claude/skills/brand-content-ideation/
+cp -r skills/brand-gen-orchestration/ ~/.claude/skills/brand-gen-orchestration/
 
 claude mcp add brand-gen -- python3 -m mcp.brand_iterate_mcp
 ```
@@ -218,15 +216,12 @@ Then configure the plugin with at least:
 
 See `packages/openclaw-brand-gen/README.md` for the current config and tool surface.
 
-<<<<<<< HEAD
-=======
 ## Loading the orchestration pipeline
 
 For the full 6-phase generation pipeline (prepare → plan → validate → generate → critique → evolve), load `skills/brand-gen-orchestration/SKILL.md` after setup. This skill encodes the multi-agent quality workflow as sequential instructions any host can follow.
 
 On OpenClaw, add it to your skills paths. On Claude Code, copy it to `~/.claude/skills/`. On CLI-first agents, reference it in your agent instructions.
 
->>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
 ## Step 6 — verify with a test run
 
 ```bash

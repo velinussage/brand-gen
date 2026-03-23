@@ -1,6 +1,6 @@
 # Skills
 
-brand-gen exposes five public skills under `skills/`.
+brand-gen exposes six public skills under `skills/`.
 
 Hosts can either:
 
@@ -40,6 +40,19 @@ What it covers:
 1. **Existing saved brand?** Use `list-brands` and either `use <brand-key>` or `start-testing --brand <brand-key>`.
 2. **Repo/docs bundle exists but no saved brand yet?** Use `init --brand-name`, then `extract-brand`, then `use`.
 3. **No brand yet at all?** Use `create-brand --name ... --description ... --tone ... --palette ...` for a durable brand, or `start-testing --working-name` only when you want a temporary sandbox first.
+
+## `brand-gen-orchestration`
+
+Load this when you want the full 6-phase generation pipeline on top of the core workflow skill.
+
+What it covers:
+
+- prepare → plan → validate → generate → critique → evolve
+- quality-gated generation with explicit plan review
+- design-philosophy and source-vault guidance
+- learning-loop and critique expectations for iterative sessions
+
+Load `brand-gen` first, then add `brand-gen-orchestration` when you want the stricter pipeline.
 
 ## `brand-gen-reference`
 
