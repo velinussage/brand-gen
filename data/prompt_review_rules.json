@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "interface_non_interface_contamination",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "brand_prelude_contains": "For non-interface materials"
+      },
+      "issue": "Interface material is inheriting non-interface motif language.",
+      "recommendation": "Use interface_prompt_prelude only for interface/product-led materials."
+    },
+    {
+      "id": "interface_resolved_prompt_too_long",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "resolved_prompt_chars_gt": 1800
+      },
+      "issue": "Resolved prompt is too long for an interface material.",
+      "recommendation": "Keep interface prompts short: brand truth, one material rule, one reference translation block, one art-direction ask."
+    },
+    {
+      "id": "interface_missing_role_pack",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "role_pack_empty": true
+      },
+      "issue": "No composition/application role-pack refs were selected for a product-led material.",
+      "recommendation": "Require at least one composition ref and one application ref before generation."
+    },
+    {
+      "id": "hero_social_missing_copy",
+      "materials": [
+        "landing_hero",
+        "social"
+      ],
+      "when": {
+        "raw_prompt_missing_any_keywords": [
+          "headline",
+          "slogan",
+          "copy"
+        ]
+      },
+      "recommendation": "Consider adding deterministic copy so the surface is not image-only."
+    },
+    {
+      "id": "interface_too_many_bans",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "raw_prompt_phrase_count_gte": {
+          "phrases": [
+            "do not",
+            "never"
+          ],
+          "count": 5
+        }
+      },
+      "recommendation": "Too many bans can flatten the composition. Keep only the critical bans."
+    },
+    {
+      "id": "learned_interface_prompt_still_too_long",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "recent_low_score_count_gte": 2,
+        "resolved_prompt_chars_gt": 1400
+      },
+      "issue": "Recent low scores suggest the interface prompt is still over-specified.",
+      "recommendation": "Compress harder: keep one product-truth statement, one learning snippet, and one composition ask."
+    },
+    {
+      "id": "learned_interface_hallucination_guard",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "recent_low_score_count_gte": 2,
+        "learning_failure_patterns_include_any": [
+          "hallucinated",
+          "invented",
+          "garbled",
+          "fake",
+          "dashboard"
+        ]
+      },
+      "issue": "Recent critiques show repeat hallucination / fake-UI drift for this interface material.",
+      "recommendation": "Re-center the prompt on product truth: one real screen, explicit crop discipline, and no invented interface chrome."
+    },
+    {
+      "id": "learned_interface_reference_warning",
+      "material_groups": [
+        "interface"
+      ],
+      "when": {
+        "recent_low_score_count_gte": 2,
+        "learning_reference_bias_contains_any": [
+          "without references",
+          "reference-backed"
+        ]
+      },
+      "recommendation": "Recent learning signals favor a reference-backed setup. Add real product proof and translated role-pack refs before the next run."
+    },
+    {
+      "id": "podcast_missing_title_signal",
+      "materials": [
+        "podcast_cover",
+        "podcast_banner"
+      ],
+      "when": {
+        "raw_prompt_missing_any_keywords": [
+          "title",
+          "episode",
+          "show",
+          "host",
+          "guest"
+        ]
+      },
+      "recommendation": "Podcast surfaces work better when the prompt names the show title and whether any episode / host / guest text should appear."
+    },
+    {
+      "id": "content_card_missing_copy",
+      "materials": [
+        "content_card",
+        "editorial_card"
+      ],
+      "when": {
+        "raw_prompt_missing_any_keywords": [
+          "headline",
+          "body",
+          "text",
+          "copy",
+          "title"
+        ]
+      },
+      "recommendation": "Content cards and editorial cards require explicit copy (headline, body text, CTA). Run the brand-content-ideation skill to generate a content brief first."
+    },
+    {
+      "id": "content_card_too_much_body_text",
+      "materials": [
+        "content_card",
+        "editorial_card"
+      ],
+      "when": {
+        "raw_prompt_chars_gt": 800
+      },
+      "recommendation": "Content card prompt seeds should be concise (under 400 chars). The prompt should specify the text to render, not explain it at length."
+    },
+    {
+      "id": "exact_text_prefers_deterministic_composition",
+      "materials": [
+        "social",
+        "state_card",
+        "browser_illustration",
+        "landing_hero",
+        "product_banner",
+        "announcement_card",
+        "content_card",
+        "editorial_card",
+        "podcast_cover",
+        "podcast_banner"
+      ],
+      "when": {
+        "raw_prompt_contains_any_keywords": [
+          "exact text",
+          "exact title",
+          "exact headline",
+          "exact tagline",
+          "keep the exact",
+          "verbatim"
+        ]
+      },
+      "recommendation": "If the surface must carry exact text, prefer deterministic composition or shrink the visible proof/copy rather than relying on image generation alone."
+    }
+  ]
+}

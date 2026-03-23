@@ -1,0 +1,111 @@
+{
+  "version": 2,
+  "image_safety": "Output only the designed artwork. No metadata, annotations, file paths, or technical overlays.",
+  "non_interface_quality_prelude": "Editorial photography, medium-format depth, real material textures — never CGI renders.",
+  "copy_anchor_with_strings": "Approved copy only: {quoted_strings}. If none fit, render no text. Never invent slogans or captions.",
+  "copy_anchor_no_strings": "Use only explicit user-provided copy. If none given, render no text. Never invent slogans or captions.",
+  "copy_anchor_materials": ["landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner", "content_card", "editorial_card", "data_card", "quote_card", "announcement_card", "process_card", "concept_illustration", "brand_scene", "lifestyle_mockup", "billboard_mockup"],
+  "compact_bans_interface": "Preserve the real product UI exactly. No invented chrome, no floating elements, no simplified redrawing.",
+  "compact_bans_non_interface": "No metadata overlays, no technical annotations, no prompt text rendered as content.",
+  "brand_anchor_acceptable": [
+    "logo or wordmark",
+    "exact brand palette",
+    "exact mark geometry or approved motif",
+    "real product surface or workflow proof",
+    "brand name or approved product phrase",
+    "approved carrier or composition pattern"
+  ],
+  "identity_freshness": {
+    "rebuild_interval": 10,
+    "low_score_ratio_threshold": 0.5,
+    "negative_examples_threshold": 3,
+    "min_scored_versions": 3
+  },
+  "copy_candidate_defaults": {
+    "visual_angles": [
+      "Wordmark + one strong product crop + one proof line",
+      "Logo-led ad illustration + short slogan + one small UI proof inset (roughly 20–25% visual weight max)",
+      "Quiet product frame + bold headline + minimal proof chips"
+    ],
+    "anti_patterns": [
+      "screenshot-only composition with no brand copy",
+      "headline text invented by the image model",
+      "generic AI dashboard marketing phrasing",
+      "social card without visible brand anchor",
+      "portrait card with a full screenshot competing against the headline"
+    ]
+  },
+  "html_share_card_rules": {
+    "base": [
+      "Brand direction: warm cream field, terracotta/rust accents, dark ink typography, premium editorial spacing, clear brand logo.",
+      "Critical rule: the proof must read as a real information module, not a vague decorative UI rectangle.",
+      "Do not clip the proof against the canvas edge. Keep every module fully inside the card bounds.",
+      "Do not use process labels like social square, brand-first share card, ~20% weight, or secondary cue as visible copy.",
+      "Use actual product language from the page: real titles, real metadata, real labels, real summaries. Avoid generic startup copy.",
+      "Prefer a recreated HTML/text proof module over a tiny raster screenshot. A small screenshot crop may appear only as subtle supporting texture.",
+      "No overlapping support renders on top of the proof. No fake UI chrome. No invented product claims.",
+      "Depict a single branded artifact frame, not a website, homepage, archive, magazine spread, or publication shell.",
+      "Do not generate navigation, tabs, mastheads, issue numbers, publication dates, search/menu controls, or decorative archive labels unless they exist in the source.",
+      "Do not hallucinate a QR code, barcode, extra logo, or substitute wordmark; reserve clean space for injected assets instead."
+    ],
+    "announcement_card": [
+      "Use one strong title field and one subordinate reading card. This should feel like a branded artifact share, not a site landing page.",
+      "Avoid multi-section homepage layouts, mastheads, or navigation-heavy compositions.",
+      "The QR code is a support element only; it must not compete with the headline or proof."
+    ],
+    "governed_entity": [
+      "For governed text artifacts, curate proof language for scanning: prefer coverage, capabilities, topics, or categories over procedural steps.",
+      "Do not surface instructional headings like How to Use, Step 1, Recommended search order, Example workflow, or install/setup text.",
+      "If the source text is mostly procedural, condense it into editorial labels and short semantic proof lines rather than repeating instructions verbatim.",
+      "Prompt and skill shares should look like a single source document or excerpt sheet, not a publication brand system with invented sections."
+    ]
+  },
+  "html_taste_directives": {
+    "typography": "Cormorant Garamond (serif) for headlines: weight 700, tracking -0.035em, line-height 0.94. Manrope (sans-serif, Geist fallback) for body: weight 500, line-height 1.55. Labels and kickers: Manrope 700-800, tracking 0.16-0.18em, uppercase. Never use pure black; all text uses warm ink #2a231a at varying opacities (headline 100%, body 68-76%, metadata 44-62%).",
+    "color": "Warm cream field #f4ebd9. Single accent: rust #c67b5c. Ink: #2a231a. Sage: #9caf99 (backgrounds only, max 16% opacity). Sand: #eadbcc. All shadows brown-based rgba(42,35,26,n), never pure black. Accent borders use rust at 14-20% opacity. Max 1 saturated accent color per card.",
+    "surfaces": "Proof cards: double-bezel with outer ring (1px rgba(42,35,26,.04) at inset -1px) and inner highlight (inset 0 1px 1px rgba(255,255,255,.22)). Three-layer shadow: ambient (0 20px 48px, 10% opacity), edge (0 2px 8px, 6% opacity), inset highlight. Detail tiles inside proof use softer shadow (inset 0 1px 0 rgba(255,255,255,.52)). SVG noise grain overlay at 2.8% opacity on cream background for tactile depth.",
+    "border_radius_hierarchy": "Frame: 0 (canvas edge). Proof card: 22px. Proof ::before bezel: 23px. Detail tiles: 20px (concentric to proof). Proof crops: 18px. QR containers: 14-16px. Logo tile: 20-24px. Pills/badges/CTA: 999px.",
+    "shadow_system": "Logo: 0 12px 28px rgba(42,35,26,.12). Proof card: 0 20px 48px rgba(42,35,26,.10), 0 2px 8px rgba(42,35,26,.06), inset 0 1px 1px rgba(255,255,255,.22). CTA button: 0 4px 14px rgba(198,123,92,.22) — rust-tinted. Detail tiles: inset 0 1px 0 rgba(255,255,255,.52). All shadows warm-tinted; never rgba(0,0,0,n).",
+    "spacing": "Card padding: 68-84px from frame edge. Grid gaps: 20-24px between major zones. Proof interior padding: 24-34px. Label-to-content margin: 12-18px. Proof-row separator: 1px solid rgba(42,35,26,.08) with 14px padding-top. All spacing in 4px increments.",
+    "type_scale": "Display: 64-104px (headline, varies by card size). Title: 28-34px (proof-title). Lead: 24px (prompt-detail-lead). Body: 16-17px (excerpt, detail values). Small: 13-14px (domain, source-link, proof-row). Micro: 11-12px (labels, kickers, captions). Stat: 34px weight 800 tracking -0.04em (detail-block-value).",
+    "anti_patterns": [
+      "Inter or Roboto as sole typeface",
+      "purple or blue AI gradient aesthetic",
+      "generic 3-column equal-card grid",
+      "neon outer glow or saturated drop shadows",
+      "pure black (#000000) text, backgrounds, or shadows",
+      "placeholder names (Acme Corp, John Doe)",
+      "AI copywriting cliches (elevate, seamless, unleash, next-gen)",
+      "pill-shaped New/Beta badges",
+      "glassmorphism or heavy blur effects",
+      "transform: scale(0) on any element — always start from scale(0.95)+opacity",
+      "animation duration > 300ms on UI elements",
+      "ease-in on any user-facing transition — use ease-out or custom cubic-bezier(0.23,1,0.32,1)",
+      "centered QR codes competing with headlines",
+      "proof cards stretched beyond content height"
+    ],
+    "variance_guidance": {
+      "low": "Clean, centered, predictable grid. Standard symmetrical spacing. Balanced visual weight between headline and proof. Conservative border-radius (20px proof).",
+      "mid": "Slight asymmetry: offset margins, varied type sizes between headline and subhead. Editorial spacing rhythm with deliberate contrast between tight display tracking (-0.035em) and airy body text (line-height 1.55). Proof card offset from center.",
+      "high": "Strong asymmetry: massive whitespace zones, overlapping depth layers, tighter display tracking (-0.04em) with generous body spacing. Background uses subtle radial color accents at 10-16% opacity. Proof module may offset from the main grid."
+    }
+  },
+  "html_design_engineering": {
+    "philosophy": "Every invisible detail compounds into something that feels right. The aggregate of correctness creates interfaces people trust without knowing why. Beauty is leverage — good defaults and good aesthetics are real differentiators.",
+    "review_format": "When reviewing card output, evaluate against the design system using Before/After/Why columns. Flag any deviation from the shadow_system, border_radius_hierarchy, type_scale, or color values.",
+    "composition_rules": [
+      "Headline must be the dominant visual element. Proof card is subordinate. QR is utility — never competing with either.",
+      "Two-column layouts: headline column gets 1fr-1.1fr, proof column gets 0.72fr-0.88fr. Never equal columns.",
+      "Proof card sizes to content (no min-height, no forced stretching). Empty space below a proof card is the cream background doing its job, not wasted space.",
+      "Logo aligns center to the headline text block, not to the full card height.",
+      "Footer elements (domain, source-link) are anchored to the bottom edge, not floating."
+    ],
+    "detail_quality_checks": [
+      "Concentric border-radius: every nested container has a radius 2-4px smaller than its parent",
+      "All shadows use rgba(42,35,26,n) — never rgba(0,0,0,n)",
+      "Text opacity hierarchy: primary 100%, secondary 68-76%, tertiary 44-62%, disabled 30%",
+      "Label font-size 12px matches proof-label exactly — never 10px or 14px",
+      "Proof-row always has border-top separator even when it is the only footer content"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "non_interface": {
+    "prelude_cap": 1500,
+    "doctrine_cap": 600,
+    "ref_analysis_cap": 500,
+    "token_block_cap": 400,
+    "total_prelude_cap": 2400,
+    "inspiration_translation_cap": 500,
+    "inspiration_memory_cap": 350,
+    "selected_inspiration_cap": 500,
+    "compact_memory_cap": 500,
+    "compress_max_sentences": 8,
+    "compress_max_chars": 900,
+    "compact_body_max_sentences": 6,
+    "compact_body_max_chars": 700
+  },
+  "interface": {
+    "messaging_snippet_cap": 250,
+    "ref_analysis_cap": 250,
+    "selected_inspiration_cap": 350,
+    "doctrine_cap": 350,
+    "compress_max_sentences": 4,
+    "compress_max_chars": 400,
+    "compact_body_max_sentences": 3,
+    "compact_body_max_chars": 320
+  },
+  "shared": {
+    "copy_rule_cap": 280,
+    "execution_inspiration_cap": 320
+  }
+}

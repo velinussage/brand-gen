@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "common": [
+    "Which direction feels most like the brand you want to become, not just the brand you have now?",
+    "Should this feel calmer and more institutional, or bolder and more collectible?",
+    "What would make you reject a version immediately?"
+  ],
+  "material_specific": {
+    "podcast_cover": [
+      "What exact text must be visible, and what text should stay outside the image entirely?",
+      "Should the asset feel more show-brand-first or episode-specific?"
+    ],
+    "podcast_banner": [
+      "What exact text must be visible, and what text should stay outside the image entirely?",
+      "Should the asset feel more show-brand-first or episode-specific?"
+    ],
+    "pattern_system": [
+      "Do you want the system to feel more infrastructural and routed, or more emblematic and poster-like?",
+      "Should this extend more naturally into product surfaces or into editorial/poster surfaces first?"
+    ],
+    "sticker_family": [
+      "Should the family feel more utility-badge, more collectible, or more merch-ready?",
+      "How much silhouette variety is too much before it stops feeling like one family?"
+    ],
+    "brand_bumper": [
+      "Should the motion feel more calm and editorial, or more active and infrastructural?",
+      "Is the final hold the main goal, or is the reveal itself supposed to be memorable?"
+    ]
+  }
+}

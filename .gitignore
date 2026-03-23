@@ -1,0 +1,57 @@
+.env
+*.pyc
+__pycache__/
+.DS_Store
+Thumbs.db
+*.zip
+node_modules/
+
+# User workspace data (never publish)
+.brand-gen/
+brand-materials/
+logo-redesigns/
+
+examples/**/*.png
+examples/**/*.jpg
+examples/**/*.jpeg
+examples/**/*.webp
+examples/**/*.gif
+examples/**/*.mp4
+examples/**/*.mov
+examples/**/*.webm
+examples/**/*.txt
+
+
+# Internal planning / scratch docs (keep local)
+plans/
+docs/plans/
+docs/brainstorms/
+docs/scratchpad/
+
+# Local skill notes / brand-specific overlays
+skills/**/SKILL.local.md
+
+# Local Pi/session/workspace state
+.pi/subagents/sessions/
+brands/
+inspiration/
+sources/
+config.json
+<<<<<<< HEAD
+=======
+.brand-gen-local.json
+brand_gen.egg-info/
+
+# Python build artifacts
+*.egg-info/
+*.egg
+dist/
+build/
+.venv/
+
+# Session artifacts (not repo content)
+IMPROVEMENT-PLAN.md
+
+# Pi subagent session logs
+.pi/subagents/
+>>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)

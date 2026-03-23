@@ -1,0 +1,607 @@
+{
+  "version": 1,
+  "tracks": {
+    "podcast_cover": [
+      {
+        "name": "title-first editorial cover",
+        "mechanic": "one strong title hierarchy with one calm brand field",
+        "why": "Best when the show name or episode title needs to read instantly at thumbnail size.",
+        "preserve": [
+          "brand palette",
+          "clear title hierarchy",
+          "one obvious brand anchor"
+        ],
+        "push": [
+          "editorial framing",
+          "quiet audio motif",
+          "one portrait or product accent if explicitly supplied"
+        ],
+        "ban": [
+          "tiny metadata",
+          "fake platform UI",
+          "generic waveform wallpaper"
+        ]
+      },
+      {
+        "name": "brand-field promo banner",
+        "mechanic": "one central copy block with one support motif",
+        "why": "Best when the asset should work across YouTube, social, and landing-page promo slots.",
+        "preserve": [
+          "legible 16:9 crop",
+          "deterministic copy only",
+          "clean negative space"
+        ],
+        "push": [
+          "route-band rhythm",
+          "episode accent color",
+          "host or guest framing if supplied"
+        ],
+        "ban": [
+          "poster clutter",
+          "prompt-ref boxes",
+          "made-up subtitles"
+        ]
+      }
+    ],
+    "podcast_banner": [
+      {
+        "name": "title-first editorial cover",
+        "mechanic": "one strong title hierarchy with one calm brand field",
+        "why": "Best when the show name or episode title needs to read instantly at thumbnail size.",
+        "preserve": [
+          "brand palette",
+          "clear title hierarchy",
+          "one obvious brand anchor"
+        ],
+        "push": [
+          "editorial framing",
+          "quiet audio motif",
+          "one portrait or product accent if explicitly supplied"
+        ],
+        "ban": [
+          "tiny metadata",
+          "fake platform UI",
+          "generic waveform wallpaper"
+        ]
+      },
+      {
+        "name": "brand-field promo banner",
+        "mechanic": "one central copy block with one support motif",
+        "why": "Best when the asset should work across YouTube, social, and landing-page promo slots.",
+        "preserve": [
+          "legible 16:9 crop",
+          "deterministic copy only",
+          "clean negative space"
+        ],
+        "push": [
+          "route-band rhythm",
+          "episode accent color",
+          "host or guest framing if supplied"
+        ],
+        "ban": [
+          "poster clutter",
+          "prompt-ref boxes",
+          "made-up subtitles"
+        ]
+      }
+    ],
+    "pattern_system": [
+      {
+        "name": "banded route lattice",
+        "mechanic": "banded route lattice",
+        "why": "Best when the brand should feel systemic, infrastructural, and modular without becoming abstract slop.",
+        "preserve": [
+          "exact cap-and-stem silhouette",
+          "copper-square carrier logic",
+          "cream/copper/espresso palette discipline"
+        ],
+        "push": [
+          "repeat-tile logic",
+          "border-band treatment",
+          "junction emphasis"
+        ],
+        "ban": [
+          "gallery mockups",
+          "unrelated rounded icons",
+          "invented text"
+        ]
+      },
+      {
+        "name": "pillar fragment grid",
+        "mechanic": "pillar fragment crop grid",
+        "why": "Best when you want the mark to feel editorial and architectural with tighter module discipline.",
+        "preserve": [
+          "pillar proportions",
+          "softly rounded cap bar",
+          "flat board presentation"
+        ],
+        "push": [
+          "crop variation",
+          "tile tension",
+          "negative-space rhythm"
+        ],
+        "ban": [
+          "photo environments",
+          "3D embossing",
+          "decorative gradients"
+        ]
+      },
+      {
+        "name": "carrier field system",
+        "mechanic": "carrier repetition",
+        "why": "Best when the system should branch easily into posters, stickers, and product accents later.",
+        "preserve": [
+          "square carrier silhouette",
+          "line-weight consistency",
+          "quiet cream field"
+        ],
+        "push": [
+          "carrier scale contrast",
+          "badge variants",
+          "repeat spacing"
+        ],
+        "ban": [
+          "random symbols",
+          "moodboard collage",
+          "startup-knot geometry"
+        ]
+      }
+    ],
+    "sticker_family": [
+      {
+        "name": "carrier repetition",
+        "mechanic": "carrier repetition",
+        "why": "Best when you want the family to feel unmistakably branded and easy to deploy as merch or social accents.",
+        "preserve": [
+          "exact mark anatomy",
+          "carrier geometry",
+          "cream/copper palette"
+        ],
+        "push": [
+          "badge silhouette variety",
+          "capsule variants",
+          "collectible sheet rhythm"
+        ],
+        "ban": [
+          "invented text",
+          "faces or mascots",
+          "generic startup icons"
+        ]
+      },
+      {
+        "name": "utility badge family",
+        "mechanic": "utility badge family",
+        "why": "Best when you want a more functional, product-adjacent sticker set with tight system coherence.",
+        "preserve": [
+          "mark-derived strokes",
+          "repeat corner logic",
+          "flat cutout presentation"
+        ],
+        "push": [
+          "utility badge shapes",
+          "small emblem variations",
+          "sheet spacing"
+        ],
+        "ban": [
+          "poster framing",
+          "human illustration",
+          "meme stickers"
+        ]
+      },
+      {
+        "name": "capsule strip set",
+        "mechanic": "capsule strip set",
+        "why": "Best when the brand should feel more collectible and motion-ready without losing discipline.",
+        "preserve": [
+          "mark-derived pillar fragments",
+          "one repeated line weight",
+          "brand palette discipline"
+        ],
+        "push": [
+          "horizontal formats",
+          "capsule carriers",
+          "set contrast"
+        ],
+        "ban": [
+          "freeform doodles",
+          "dashboard UI chrome",
+          "unrelated medallions"
+        ]
+      }
+    ],
+    "campaign_poster": [
+      {
+        "name": "single emblem field",
+        "mechanic": "single emblem field",
+        "why": "Best for bold poster framing with one commanding brand move.",
+        "preserve": [
+          "exact mark recognition",
+          "quiet field",
+          "deterministic copy"
+        ],
+        "push": [
+          "headline scale",
+          "band support move",
+          "print authority"
+        ],
+        "ban": [
+          "fake SaaS hero layout",
+          "extra symbols",
+          "copy invented by model"
+        ]
+      },
+      {
+        "name": "band strike poster",
+        "mechanic": "band strike",
+        "why": "Best when the brand should feel more active and infrastructural.",
+        "preserve": [
+          "brand palette",
+          "mark-derived banding",
+          "poster logic"
+        ],
+        "push": [
+          "diagonal energy",
+          "scale tension",
+          "footer detail"
+        ],
+        "ban": [
+          "installation photos",
+          "multiple slogans",
+          "visual clutter"
+        ]
+      },
+      {
+        "name": "quiet field with footer",
+        "mechanic": "quiet field with footer",
+        "why": "Best when you want more editorial restraint and premium calm.",
+        "preserve": [
+          "ample negative space",
+          "one emblem block",
+          "tight copy system"
+        ],
+        "push": [
+          "footer rhythm",
+          "micro-detail",
+          "tone authority"
+        ],
+        "ban": [
+          "collage layout",
+          "generic illustration",
+          "UI remnants"
+        ]
+      }
+    ],
+    "brand_bumper": [
+      {
+        "name": "mask reveal",
+        "mechanic": "mask reveal",
+        "why": "Best when you want one elegant reveal and a clean final hold.",
+        "preserve": [
+          "exact end-frame mark",
+          "camera lock",
+          "palette discipline"
+        ],
+        "push": [
+          "reveal pacing",
+          "edge wipe confidence",
+          "final hold polish"
+        ],
+        "ban": [
+          "3D spin",
+          "particles",
+          "extra symbols"
+        ]
+      },
+      {
+        "name": "band slide reveal",
+        "mechanic": "band slide reveal",
+        "why": "Best when the identity should feel more infrastructural and system-led.",
+        "preserve": [
+          "mark fidelity",
+          "flat field",
+          "single motion idea"
+        ],
+        "push": [
+          "band timing",
+          "mask overlap",
+          "tempo"
+        ],
+        "ban": [
+          "camera moves",
+          "multi-effect blends",
+          "chaotic transitions"
+        ]
+      },
+      {
+        "name": "edge crop settle",
+        "mechanic": "edge crop settle",
+        "why": "Best when you want a calmer, more editorial motion signature.",
+        "preserve": [
+          "locked composition",
+          "final silhouette",
+          "quiet hold"
+        ],
+        "push": [
+          "crop rhythm",
+          "subtle scale change",
+          "timing confidence"
+        ],
+        "ban": [
+          "glow bursts",
+          "audio gimmicks",
+          "brand morphing"
+        ]
+      }
+    ],
+    "brand_scene": [
+      {
+        "name": "architectural corridor",
+        "mechanic": "deep perspective with brand mark at the vanishing point",
+        "why": "Monumental hero moments. Use sparingly \u2014 easy to over-rely on.",
+        "preserve": [
+          "brand palette",
+          "lattice/screen motif",
+          "mark recognition"
+        ],
+        "push": [
+          "depth",
+          "light play",
+          "material texture"
+        ],
+        "ban": [
+          "text",
+          "UI chrome",
+          "people"
+        ]
+      },
+      {
+        "name": "aerial landscape",
+        "mechanic": "bird-eye view of a terrain or cityscape with brand geometry embedded in the landscape",
+        "why": "Conveys scale and network. Good for ecosystem/platform positioning.",
+        "preserve": [
+          "brand palette",
+          "geometric motif from mark"
+        ],
+        "push": [
+          "aerial perspective",
+          "natural terrain meeting geometric pattern",
+          "sunrise/sunset light"
+        ],
+        "ban": [
+          "obvious logo stamp",
+          "text overlays",
+          "generic stock landscape"
+        ]
+      },
+      {
+        "name": "material close-up",
+        "mechanic": "extreme close-up of a textured surface \u2014 terracotta, woven lattice, stone carving \u2014 with brand geometry emerging from the material",
+        "why": "Tactile and premium. Works well for backgrounds and texture fills.",
+        "preserve": [
+          "brand colors",
+          "craft/material feel"
+        ],
+        "push": [
+          "shallow depth of field",
+          "natural imperfections",
+          "warm directional light"
+        ],
+        "ban": [
+          "logo",
+          "text",
+          "digital artifacts"
+        ]
+      },
+      {
+        "name": "abstract data flow",
+        "mechanic": "flowing lines, particles, or light paths suggesting data movement through a governed system \u2014 routed through lattice structures",
+        "why": "Communicates the protocol/network idea without showing literal UI.",
+        "preserve": [
+          "brand palette",
+          "lattice geometry"
+        ],
+        "push": [
+          "motion implied by light trails",
+          "depth layers",
+          "warm-to-cool gradient"
+        ],
+        "ban": [
+          "generic node graphs",
+          "blockchain clich\u00e9s",
+          "neon colors"
+        ]
+      },
+      {
+        "name": "still life / object composition",
+        "mechanic": "carefully arranged objects on a warm surface \u2014 carved tokens, manuscript pages, architectural models \u2014 that suggest curation and governance",
+        "why": "Editorial and intimate. Good for social and detail shots.",
+        "preserve": [
+          "brand palette",
+          "warm lighting",
+          "craft quality"
+        ],
+        "push": [
+          "overhead or 3/4 angle",
+          "natural shadows",
+          "imperfect arrangement"
+        ],
+        "ban": [
+          "digital screens",
+          "generic desk setup",
+          "stock photography feel"
+        ]
+      }
+    ],
+    "concept_illustration": [
+      {
+        "name": "abstract system diagram",
+        "mechanic": "flowing lines connecting nodes through governance gates \u2014 manifests entering, votes accumulating, approved updates emerging",
+        "why": "Explains the system visually without words.",
+        "preserve": [
+          "brand palette",
+          "lattice motif"
+        ],
+        "push": [
+          "flow direction",
+          "clear hierarchy of stages",
+          "warm gradient transitions"
+        ],
+        "ban": [
+          "literal flowcharts",
+          "boxes and arrows",
+          "text labels"
+        ]
+      },
+      {
+        "name": "layered landscape",
+        "mechanic": "stratified horizontal layers suggesting library stacks, governance tiers, or distribution channels",
+        "why": "Good for conveying depth/layers of the protocol.",
+        "preserve": [
+          "brand palette",
+          "horizontal rhythm"
+        ],
+        "push": [
+          "paper-cut or collage aesthetic",
+          "depth through overlapping planes",
+          "subtle texture"
+        ],
+        "ban": [
+          "3D renders",
+          "photorealism",
+          "busy detail"
+        ]
+      },
+      {
+        "name": "single symbol expansion",
+        "mechanic": "the brand mark geometry exploded or expanded into a larger compositional system \u2014 columns becoming a forest, lattice becoming a city grid",
+        "why": "Shows the brand as a living system, not a static logo.",
+        "preserve": [
+          "mark geometry as seed",
+          "brand palette"
+        ],
+        "push": [
+          "transformation from simple to complex",
+          "organic growth from geometric seed"
+        ],
+        "ban": [
+          "literal logo repetition",
+          "pattern stamp"
+        ]
+      }
+    ],
+    "hero_banner": [
+      {
+        "name": "gradient atmosphere",
+        "mechanic": "wide cinematic gradient with subtle brand geometry embedded as texture or particle field",
+        "why": "Clean backdrop for overlaid text. Works as website hero.",
+        "preserve": [
+          "brand gradient direction (warm to cool)",
+          "subtle lattice texture"
+        ],
+        "push": [
+          "atmospheric depth",
+          "light bloom",
+          "horizontal calm"
+        ],
+        "ban": [
+          "centered logo",
+          "text baked in",
+          "busy detail"
+        ]
+      },
+      {
+        "name": "split composition",
+        "mechanic": "asymmetric split \u2014 one side dense with brand texture/pattern, other side open negative space for text overlay",
+        "why": "Practical for hero with text overlay on one side.",
+        "preserve": [
+          "brand palette",
+          "texture quality"
+        ],
+        "push": [
+          "bold asymmetry",
+          "one strong edge"
+        ],
+        "ban": [
+          "centered symmetry",
+          "stock gradient",
+          "generic lens flare"
+        ]
+      }
+    ],
+    "social": [
+      {
+        "name": "proof showcase",
+        "mechanic": "one real product surface or artifact displayed on a warm brand background",
+        "why": "Best for announcing specific features or content.",
+        "preserve": [
+          "real product truth",
+          "brand palette"
+        ],
+        "push": [
+          "clear focal hierarchy",
+          "one strong message"
+        ],
+        "ban": [
+          "invented UI",
+          "multiple competing messages"
+        ]
+      },
+      {
+        "name": "typography-led",
+        "mechanic": "bold headline on a textured brand background \u2014 the copy IS the visual",
+        "why": "Best for provocative statements, quotes, or announcements. Use HTML backend for exact fonts.",
+        "preserve": [
+          "approved copy only",
+          "brand typography system"
+        ],
+        "push": [
+          "display font scale",
+          "negative space",
+          "one accent color"
+        ],
+        "ban": [
+          "decorative illustration competing with text",
+          "small body copy"
+        ]
+      },
+      {
+        "name": "ambient brand",
+        "mechanic": "close-up brand texture or pattern with a subtle mark presence \u2014 no text, pure mood",
+        "why": "Good for maintaining feed presence between announcements.",
+        "preserve": [
+          "brand palette",
+          "material quality"
+        ],
+        "push": [
+          "tactile close-up",
+          "warm light"
+        ],
+        "ban": [
+          "text",
+          "UI",
+          "logo stamp"
+        ]
+      }
+    ]
+  },
+  "default_track": {
+    "name": "core brand extension",
+    "mechanic": "one clear repeated brand mechanic",
+    "why": "Best when you need a safe starting direction before branching.",
+    "preserve": [
+      "brand truth",
+      "palette",
+      "mark recognition"
+    ],
+    "push": [
+      "one composition move",
+      "one system mechanic",
+      "one application idea"
+    ],
+    "ban": [
+      "generic startup aesthetics",
+      "invented text",
+      "unrelated symbols"
+    ]
+  }
+}

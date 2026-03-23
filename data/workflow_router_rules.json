@@ -1,0 +1,88 @@
+{
+  "version": 2,
+  "predicates": {
+    "threshold": 0.5,
+    "motion_material_keys": ["feature_animation", "brand_bumper"],
+    "translate_material_keys": ["browser_illustration", "product_banner", "feature_illustration", "social"],
+    "scores": {
+      "set_orchestrator_match": 1.0,
+      "motion_reference_match": 1.0,
+      "motion_material_match": 0.9,
+      "translate_material_match": 0.9,
+      "translate_inspiration_combo": 0.7,
+      "generative_explore_baseline": 0.2
+    }
+  },
+  "routes": [
+
+    {
+      "key": "reference_translate",
+      "label": "Reference Translator",
+      "specialists": ["brand_director", "identity_strategist", "visual_composer", "critic_agent"],
+      "required_assets": ["one composition ref", "one application ref", "real product proof"],
+      "required_questions": [
+        "What product truth must survive intact?",
+        "Which external references are only for framing, not identity?"
+      ],
+      "next_commands": [
+        "bgen suggest-role-pack --material-type <material>",
+        "bgen plan-draft --material-type <material> --mode hybrid ...",
+        "bgen critique-plan --plan <draft-or-plan>.json",
+        "bgen build-generation-scratchpad --plan <draft-or-plan>.json",
+        "bgen generate --scratchpad <scratchpad>.json"
+      ],
+      "notes": "Use for product-led browser, social, and feature visuals where references should be translated into framing and composition only."
+    },
+    {
+      "key": "generative_explore",
+      "label": "Generative Explorer",
+      "specialists": ["brand_director", "identity_strategist", "visual_composer", "critic_agent"],
+      "required_assets": ["brand truth", "translated motif/application refs"],
+      "required_questions": [
+        "What mechanic are we exploring, and what should stay locked?",
+        "How abstract is this allowed to be before it stops feeling like the brand?"
+      ],
+      "next_commands": [
+        "bgen ideate-material --material-type <material> --mode hybrid",
+        "bgen plan-draft --material-type <material> --mode hybrid ...",
+        "bgen critique-plan --plan <draft>.json",
+        "bgen build-generation-scratchpad --plan <draft>.json",
+        "bgen generate --scratchpad <scratchpad>.json"
+      ],
+      "notes": "Use for pattern systems, sticker families, and exploratory brand-first experiments after the brand memory is clear."
+    },
+    {
+      "key": "motion_specialist",
+      "label": "Motion Specialist",
+      "specialists": ["brand_director", "motion_director", "critic_agent"],
+      "required_assets": ["approved still or logo frame", "motion reference"],
+      "required_questions": [
+        "Is the still or final frame already good enough to animate?",
+        "Which motion attitude should be borrowed: reveal, wipe, parallax, or settle?"
+      ],
+      "next_commands": [
+        "bgen plan-draft --material-type feature-animation --mode reference ...",
+        "bgen critique-plan --plan <draft>.json --motion-reference <clip>",
+        "bgen build-generation-scratchpad --plan <draft>.json --motion-reference <clip>",
+        "bgen generate --scratchpad <scratchpad>.json"
+      ],
+      "notes": "Still-before-motion. Do not animate weak stills."
+    },
+    {
+      "key": "set_orchestrator",
+      "label": "Set Orchestrator",
+      "specialists": ["brand_director", "identity_strategist", "copy_strategist", "visual_composer", "critic_agent"],
+      "required_assets": ["set goal", "brand rule", "frozen brand DNA snapshot"],
+      "required_questions": [
+        "Which materials belong in the set, and what job does each one do?",
+        "Which materials should be deterministic vs generative?"
+      ],
+      "next_commands": [
+        "bgen plan-set --template product-core",
+        "bgen validate-set --set <set>.json",
+        "bgen generate-set --set <set>.json"
+      ],
+      "notes": "Use when building a family of coherent materials from one frozen brand memory snapshot."
+    }
+  ]
+}

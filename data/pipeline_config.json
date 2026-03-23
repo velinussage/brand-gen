@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "max_iterations": {
+    "default": 1,
+    "hard_cap": 3
+  }
+}

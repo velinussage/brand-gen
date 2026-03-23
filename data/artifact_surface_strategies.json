@@ -1,0 +1,482 @@
+{
+  "defaults": {
+    "candidate_limit": 3
+  },
+  "composition_profile_aliases": {
+    "editorial_sheet": "statement_poster",
+    "artifact_sheet": "statement_poster",
+    "document_spread": "prompt_sheet",
+    "proof_monograph": "excerpt_sheet",
+    "excerpt_card": "excerpt_sheet",
+    "utility_rail": "utility_sidebar",
+    "utility_anchor": "utility_sidebar",
+    "signal_grid": "split_editorial",
+    "capability_brief": "split_editorial",
+    "library_spread": "utility_sidebar",
+    "collection_brief": "utility_sidebar",
+    "scan_card": "scan_card",
+    "prompt_sheet": "prompt_sheet",
+    "statement_poster": "statement_poster",
+    "split_editorial": "split_editorial",
+    "ledger_snapshot": "utility_sidebar"
+  },
+  "composition_profiles": {
+    "statement_poster": {
+      "summary": "Large title-led poster with one full-width excerpt slab and reserved utility corners.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "lower-right motif"
+      ]
+    },
+    "prompt_sheet": {
+      "summary": "Document-style prompt sheet with one title stack and one wide exact-text reading card.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "reading card edge"
+      ]
+    },
+    "excerpt_sheet": {
+      "summary": "Centered excerpt sheet with one dominant reading card and restrained utility anchors.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "card-edge motif"
+      ]
+    },
+    "split_editorial": {
+      "summary": "Asymmetric editorial split with a title field on one side and a structured reading slab on the other.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "split reading slab"
+      ]
+    },
+    "utility_sidebar": {
+      "summary": "Reading-focused sheet with a narrow utility rail for QR, meta, and branded support signals.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "accent_rule"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "right utility rail",
+        "subtle accent rule"
+      ]
+    },
+    "scan_card": {
+      "summary": "Scan-forward card with a readable excerpt sheet and a more intentional QR affordance.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "lower-right motif"
+      ]
+    },
+    "artifact_monolith": {
+      "summary": "Monumental title field paired with one floating detail sheet and quiet utility anchors.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "floating detail sheet"
+      ]
+    },
+    "detail_matrix": {
+      "summary": "Structured detail matrix with one summary line and multiple exact-text tiles for richer prompt or skill coverage.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "detail matrix slab"
+      ]
+    },
+    "reference_sheet": {
+      "summary": "Stacked reference sheet with one intro band and one wider exact-text document slab for denser governed artifacts.",
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "top-right QR",
+        "stacked reading sheets"
+      ]
+    }
+  },
+  "strategies": {
+    "editorial_poster": {
+      "label": "Editorial poster",
+      "summary": "Lead with one dominant headline, keep proof subordinate, and make the page read like a designed portrait poster rather than a dashboard tile.",
+      "layout_family": "poster",
+      "composition_modes": [
+        "statement_poster",
+        "artifact_monolith",
+        "prompt_sheet",
+        "reference_sheet"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "prompt_directive": "Use a poster-first composition with a dominant headline, strong vertical rhythm, and a compact subordinate proof module.",
+      "best_for_material_types": [
+        "announcement-card"
+      ],
+      "best_for_entity_types": [
+        "prompt",
+        "skill",
+        "library",
+        "proposal",
+        "community",
+        "dao",
+        "update"
+      ],
+      "preferred_source_shapes": [
+        "governed_text",
+        "source_resolved_text"
+      ],
+      "supports_exact_text": true,
+      "experimental_range": [
+        4,
+        10
+      ]
+    },
+    "compact_proof_card": {
+      "label": "Compact proof card",
+      "summary": "Keep the card feed-speed readable with a concise headline and a tight proof module anchored by a few high-signal details.",
+      "layout_family": "proof_card",
+      "composition_modes": [
+        "excerpt_sheet",
+        "split_editorial",
+        "detail_matrix",
+        "reference_sheet"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "prompt_directive": "Prioritize fast scanning, concise hierarchy, and one compact proof module with strong semantic curation.",
+      "best_for_material_types": [
+        "social",
+        "x-feed",
+        "announcement-card"
+      ],
+      "best_for_entity_types": [
+        "prompt",
+        "skill",
+        "library",
+        "proposal",
+        "update"
+      ],
+      "preferred_source_shapes": [
+        "governed_text",
+        "source_resolved_text",
+        "product_detail"
+      ],
+      "supports_exact_text": true,
+      "experimental_range": [
+        1,
+        8
+      ]
+    },
+    "capability_card": {
+      "label": "Capability card",
+      "summary": "Frame the artifact as a reusable capability with outcome-led copy, clustered signals, and less document-like presentation.",
+      "layout_family": "capability",
+      "composition_modes": [
+        "split_editorial",
+        "utility_sidebar",
+        "detail_matrix"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "prompt_directive": "Present the artifact as a reusable capability. Emphasize outcomes, repeatable value, and recognizable capability framing over document chrome.",
+      "best_for_material_types": [
+        "social",
+        "x-feed"
+      ],
+      "best_for_entity_types": [
+        "skill",
+        "prompt"
+      ],
+      "preferred_source_shapes": [
+        "governed_text",
+        "source_resolved_text"
+      ],
+      "supports_exact_text": false,
+      "experimental_range": [
+        3,
+        9
+      ]
+    },
+    "collection_card": {
+      "label": "Collection card",
+      "summary": "Show the artifact as part of a governed collection with breadth, curation, and recognizable library context.",
+      "layout_family": "collection",
+      "composition_modes": [
+        "utility_sidebar",
+        "reference_sheet",
+        "detail_matrix"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "prompt_directive": "Emphasize curation, collection breadth, and governed distribution. Use the proof module to signal scope rather than isolated document detail.",
+      "best_for_material_types": [
+        "x-feed",
+        "social"
+      ],
+      "best_for_entity_types": [
+        "library"
+      ],
+      "preferred_source_shapes": [
+        "governed_text",
+        "source_resolved_text"
+      ],
+      "supports_exact_text": false,
+      "experimental_range": [
+        2,
+        8
+      ]
+    },
+    "governance_snapshot": {
+      "label": "Governance snapshot",
+      "summary": "Lead with the governed outcome or artifact status, then support it with compact provenance and participation context.",
+      "layout_family": "governance",
+      "composition_modes": [
+        "utility_sidebar",
+        "detail_matrix",
+        "excerpt_sheet"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "prompt_directive": "Frame the card as a governance-aware snapshot. Lead with the artifact or outcome first, and keep mechanics compact and subordinate.",
+      "best_for_material_types": [
+        "x-feed",
+        "social"
+      ],
+      "best_for_entity_types": [
+        "proposal",
+        "community",
+        "dao",
+        "library"
+      ],
+      "preferred_source_shapes": [
+        "governed_text",
+        "governance_record"
+      ],
+      "supports_exact_text": false,
+      "experimental_range": [
+        2,
+        7
+      ]
+    },
+    "qr_spotlight": {
+      "label": "QR spotlight",
+      "summary": "Use the QR as an intentional scan affordance, but only when the destination itself is the core interaction.",
+      "layout_family": "scan_forward",
+      "composition_modes": [
+        "scan_card",
+        "reference_sheet",
+        "utility_sidebar"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif"
+      ],
+      "prompt_directive": "Treat the QR as a designed affordance for scanning, not as the primary hero. It should support the composition, not overwhelm the message.",
+      "best_for_material_types": [
+        "announcement-card",
+        "social"
+      ],
+      "best_for_entity_types": [
+        "prompt",
+        "skill",
+        "library"
+      ],
+      "preferred_source_shapes": [
+        "governed_text",
+        "source_resolved_text"
+      ],
+      "supports_exact_text": true,
+      "experimental_range": [
+        5,
+        10
+      ]
+    }
+  },
+  "matches": [
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "announcement-card"
+        ],
+        "entity_types": [
+          "prompt",
+          "skill",
+          "library"
+        ]
+      },
+      "strategies": [
+        "editorial_poster",
+        "compact_proof_card",
+        "qr_spotlight"
+      ]
+    },
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "social"
+        ],
+        "entity_types": [
+          "prompt"
+        ]
+      },
+      "strategies": [
+        "compact_proof_card",
+        "qr_spotlight",
+        "editorial_poster"
+      ]
+    },
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "social"
+        ],
+        "entity_types": [
+          "skill"
+        ]
+      },
+      "strategies": [
+        "capability_card",
+        "compact_proof_card",
+        "qr_spotlight"
+      ]
+    },
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "x-feed"
+        ],
+        "entity_types": [
+          "library"
+        ]
+      },
+      "strategies": [
+        "collection_card",
+        "governance_snapshot",
+        "compact_proof_card"
+      ]
+    },
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "x-feed",
+          "social"
+        ],
+        "entity_types": [
+          "proposal",
+          "community",
+          "dao"
+        ]
+      },
+      "strategies": [
+        "governance_snapshot",
+        "compact_proof_card",
+        "editorial_poster"
+      ]
+    },
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "social",
+          "x-feed",
+          "announcement-card"
+        ],
+        "entity_types": [
+          "prompt",
+          "skill",
+          "library",
+          "proposal",
+          "community",
+          "dao",
+          "update"
+        ]
+      },
+      "strategies": [
+        "compact_proof_card",
+        "editorial_poster",
+        "qr_spotlight"
+      ]
+    }
+  ]
+}

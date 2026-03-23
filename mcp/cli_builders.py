@@ -1,0 +1,831 @@
+from __future__ import annotations
+
+import argparse
+import json
+from typing import Any, Callable
+
+CliBuilder = Callable[..., None]
+
+
+def _add_subparser(sub: argparse._SubParsersAction, spec: Any) -> argparse.ArgumentParser:
+    kwargs = {"help": spec.help}
+    if getattr(spec, "aliases", ()):
+        kwargs["aliases"] = list(spec.aliases)
+    return sub.add_parser(spec.name, **kwargs)
+
+
+def noop_cli_builder(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    return None
+
+
+def build_bootstrap_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    return None
+
+
+def build_types_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    return None
+
+
+def build_init_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand-name", help="Brand key to initialize / activate")
+    parser.add_argument("--brand-gen-dir", help="Override .brand-gen location")
+    parser.add_argument("--legacy-brand-dir", help="Optional legacy brand-materials directory to migrate")
+
+
+def build_create_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--name", required=True, help="Brand display name")
+    parser.add_argument("--description", help="Short plain-language description of the brand or product")
+    parser.add_argument("--tone", action="append", help="Comma-separated tone words; repeat for multiple groups")
+    parser.add_argument("--palette", action="append", help="Comma-separated palette values (e.g. #1A6B6B,#C85A2A)")
+    parser.add_argument("--keywords", action="append", help="Comma-separated brand/product keywords")
+    parser.add_argument("--homepage-url", help="Optional homepage URL")
+    parser.add_argument("--voice-description", help="Optional short description of the desired brand voice")
+    parser.add_argument("--value-prop", action="append", help="Approved value proposition; repeatable")
+    parser.add_argument("--inspiration-image", action="append", help="Inspiration image path to consolidate after brand creation; repeat as needed")
+    parser.add_argument("--consolidate-inspiration", action="store_true", help="Run the standalone inspiration-memory consolidation post-step after brand creation")
+    parser.add_argument("--brand-gen-dir", help="Override .brand-gen location")
+
+
+def build_start_testing_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--session-name", help="Session key; defaults to a slug from the working name or timestamp")
+    parser.add_argument("--working-name", help="Temporary working brand name for this session")
+    parser.add_argument("--brand", help="Optional saved brand to seed the session from")
+    parser.add_argument("--goal", help="What this test session is trying to learn or generate")
+    parser.add_argument("--brand-gen-dir", help="Override .brand-gen location")
+
+
+def build_use_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("brand", nargs="?", help="Brand key to activate")
+    parser.add_argument("--list", dest="list_only", action="store_true", help="List available brands instead")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_list_brands_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_extract_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--project-root", default=".", help="Codebase or docs root to inspect")
+    parser.add_argument("--brand-name", help="Optional explicit brand name")
+    parser.add_argument("--homepage-url", help="Optional homepage URL to record")
+    parser.add_argument("--notes-file", help="Optional text file with extra notes")
+    parser.add_argument("--reference-dir", help="Optional reference asset directory to include as brand anchors")
+    parser.add_argument("--design-tokens-json", help="Optional dembrandt-style design tokens JSON to merge into the profile")
+    parser.add_argument("--design-memory-path", help="Optional .design-memory folder or project root containing one; defaults to <project-root>/.design-memory when present")
+    parser.add_argument("--inspiration-image", action="append", help="Inspiration image path to consolidate after extraction; repeat as needed")
+    parser.add_argument("--consolidate-inspiration", action="store_true", help="Run the standalone inspiration-memory consolidation post-step after extraction")
+    parser.add_argument("--output-json", help="Optional output path for the JSON profile")
+    parser.add_argument("--output-markdown", help="Optional output path for the Markdown profile")
+    parser.add_argument("--output-identity-json", help="Optional output path for brand-identity.json")
+    parser.add_argument("--output-identity-markdown", help="Optional output path for brand-identity.md")
+
+
+def build_build_identity_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Path to brand-profile.json")
+    parser.add_argument("--output-json", help="Output path for brand-identity.json")
+    parser.add_argument("--output-markdown", help="Output path for brand-identity.md")
+
+
+def build_describe_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--output", help="Output path for the Markdown prompt file")
+
+
+def build_show_identity_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--show-prelude", action="store_true", help="Include the full brand guardrail prompt prelude")
+
+
+def build_show_blackboard_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_show_session_summary_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--limit", type=int, default=5, help="How many recent versions/notes to show")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_context_snapshot_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--limit", type=int, default=5, help="How many recent items to inspect when deriving snapshot pointers")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_capabilities_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_workspace_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_improvement_questions_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--limit", type=int, default=3, help="Max questions to return")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_show_workflow_lineage_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--workflow-id", required=True, help="Workflow id to inspect")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_show_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--refresh-reference-analysis", action="store_true", help="Recompute cached reference analysis before showing it")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_prompts_list_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_prompts_get_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("name", help="Prompt-relative resource path under prompts/ (e.g. replicate/image-workflow.md)")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_reference_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--material-type", help="Material type context for analysis")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_submit_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--analysis-json", required=True, help="Path to reference analysis JSON file")
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_route_request_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", help="Target material type if known")
+    parser.add_argument("--goal", help="What this artifact or set should accomplish")
+    parser.add_argument("--request", help="Freeform request text or brief")
+    parser.add_argument("--motion-reference", help="Optional motion reference path to bias routing toward motion")
+    parser.add_argument("--set-scope", action="store_true", help="Treat this as a multi-material set request")
+    parser.add_argument("--route", help="Agent-selected route key (skip automatic routing)")
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_resolve_prompt_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("-p", "--prompt", help="Base prompt body")
+    parser.add_argument("--plan", help="Optional material plan JSON generated by plan-material")
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--material-type", help="Optional material type to tailor inspiration doctrine loading")
+    parser.add_argument("--mode", choices=["auto", "reference", "inspiration", "hybrid"], default="auto", help="Optional workflow mode to inspect material-specific snippet variants")
+    parser.add_argument("--disable-brand-guardrails", action="store_true", help="Skip automatic brand guardrail prelude injection")
+    parser.add_argument("--refresh-reference-analysis", action="store_true", help="Recompute cached reference analysis before resolving the prompt")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_review_prompt_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("-p", "--prompt", help="Base prompt body")
+    parser.add_argument("--plan", help="Optional material plan JSON generated by plan-material")
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--material-type", help="Optional material type to tailor prompt review")
+    parser.add_argument("--mode", choices=["auto", "reference", "inspiration", "hybrid"], default="auto", help="Optional workflow mode to inspect material-specific snippet variants")
+    parser.add_argument("--disable-brand-guardrails", action="store_true", help="Skip automatic brand guardrail prelude injection")
+    parser.add_argument("--refresh-reference-analysis", action="store_true", help="Recompute cached reference analysis before reviewing the prompt")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_validate_identity_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--strict", action="store_true", help="Exit non-zero if errors or warnings are present")
+
+
+def build_parse_design_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--path", required=True, help="Path to a .design-memory folder, file inside it, or project root containing one")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--output-json", help="Optional output path for the parsed design-memory summary")
+
+
+def build_extract_css_variables_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--path", required=True, help="Path to a .design-memory folder, local file, or project root")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--output-json", help="Optional output path for the extracted CSS variables")
+    parser.add_argument("--max-files", type=int, default=250, help="Maximum number of files to scan when the input is a directory")
+
+
+def build_diff_design_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--before", required=True, help="Earlier .design-memory folder or project root containing one")
+    parser.add_argument("--after", required=True, help="Later .design-memory folder or project root containing one")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--output-json", help="Optional output path for the diff report")
+
+
+def build_extract_inspiration_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--category", help="Filter by category key")
+    parser.add_argument("--source", action="append", help="Specific inspiration source key; repeat as needed")
+    parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--limit", type=int)
+    parser.add_argument("--timeout", type=int, default=120)
+
+
+def build_consolidate_inspiration_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--image", action="append", help="Explicit inspiration image path; repeat as needed")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_inspiration_mode_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("state", nargs="?", help="on|off")
+
+
+def build_shotlist_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--product-name", help="Product name to use in the shotlist")
+    parser.add_argument("--goal", help="Optional marketing goal for the shotlist")
+    parser.add_argument("--output", help="Output path for the shotlist markdown")
+
+
+def build_capture_product_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--url", help="Single URL to capture")
+    parser.add_argument("--label", help="Label for --url captures")
+    parser.add_argument("--cdp", type=int, metavar="PORT", help="Connect to an already-running Chrome via CDP on this port (e.g. 9222). Start Chrome with: /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222")
+    parser.add_argument("--shot", action="append", help="Repeatable label=url pair for multiple captures")
+    parser.add_argument("--preset", choices=["sage-full"], help="Expand a named preset shotlist instead of specifying --shot/--url manually")
+    parser.add_argument("--out-dir", help="Output directory for screenshots")
+    parser.add_argument("--count", type=int, default=1, help="How many scroll positions to capture per shot")
+    parser.add_argument("--scroll-px", type=int, default=1400)
+    parser.add_argument("--session", help="Explicit agent-browser session id")
+    parser.add_argument("--open-folder", action="store_true")
+
+
+def build_explore_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--brand-name", help="Explicit brand name")
+    parser.add_argument("--business", help="Business or product summary")
+    parser.add_argument("--audience", help="Target audience summary")
+    parser.add_argument("--tone", help="Comma-separated tone words")
+    parser.add_argument("--avoid", help="Comma-separated anti-patterns or avoid words")
+    parser.add_argument("--product-context", help="Which product surfaces matter and what product truth should anchor the work")
+    parser.add_argument("--material", action="append", help="Target material type; repeat as needed")
+    parser.add_argument("--source", action="append", help="Preferred curated source key to constrain suggested example sources; repeat as needed")
+    parser.add_argument("--top", type=int, default=4, help="How many directions to include")
+    parser.add_argument("--output", help="Markdown output path")
+    parser.add_argument("--output-json", help="JSON output path")
+
+
+def build_plan_set_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--template", default="product-core", help="Template key (product-core, launch-core, brand-system-core, social-launch)")
+    parser.add_argument("--set-name", help="Optional explicit set slug/name")
+    parser.add_argument("--goal", help="What this set should accomplish")
+    parser.add_argument("--surface", help="Primary use surface or campaign context")
+    parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid")
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--output", help="Output path for the set JSON manifest")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_validate_brand_fit_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--plan", help="Path to a material plan JSON")
+    parser.add_argument("--set", help="Path to a set manifest JSON")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--strict", action="store_true")
+
+
+def build_validate_set_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--set", required=True, help="Path to a set manifest JSON")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--strict", action="store_true")
+
+
+def build_generate_set_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--set", required=True, help="Path to a set manifest JSON")
+    parser.add_argument("--only", action="append", help="Only generate these material types; repeat as needed")
+    parser.add_argument("--skip", action="append", help="Skip these material types; repeat as needed")
+    parser.add_argument("--model", help="Optional model override passed through to generate")
+    parser.add_argument("--aspect-ratio", help="Optional aspect ratio override passed through to generate")
+    parser.add_argument("--parallel", action="store_true", help="Generate independent materials in parallel using a thread pool")
+    parser.add_argument("--workers", type=int, default=3, help="Max parallel workers when --parallel is set (default: 3, max: 5)")
+
+
+def build_review_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("version", nargs="?", help="Version to review; defaults to latest")
+    parser.add_argument("--output", help="Optional output path for the review markdown")
+    parser.add_argument("--open", action="store_true", help="Open the review markdown after writing it")
+
+
+def build_suggest_role_pack_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to inspect (e.g. pattern-system, sticker-family, campaign-poster)")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--top", type=int, default=3, help="How many suggestions to show per role")
+
+
+def build_plan_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to plan")
+    parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid", help="Workflow mode for the plan")
+    parser.add_argument("--mechanic", help="The one system mechanic or reveal move to emphasize")
+    parser.add_argument("--purpose", help="What job this material should do")
+    parser.add_argument("--target-surface", help="Where this material will be used")
+    parser.add_argument("--product-truth-expression", help="What concrete product truth this material must express")
+    parser.add_argument("--abstraction-level", choices=["low", "medium", "high"], help="How abstract this material is allowed to be")
+    parser.add_argument("--render-backend", choices=["native", "html"], default="native", help="Rendering backend; use html to plan governed-text share cards")
+    parser.add_argument("--source-url", help="Real product/app URL to plan against")
+    parser.add_argument("--entity-type", help="Entity type for governed share-card planning")
+    parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10) used when selecting a surface strategy")
+    parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
+    parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
+    parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
+    parser.add_argument("--pick", action="append", help="Explicit role pick in the form role=source-key-or-path; repeat as needed")
+    parser.add_argument("--prompt-seed", help="Optional explicit prompt seed; otherwise one is generated")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--output", help="Optional output path for the plan JSON")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_plan_draft_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to plan")
+    parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid", help="Workflow mode for the draft")
+    parser.add_argument("--mechanic", help="The one system mechanic or reveal move to emphasize")
+    parser.add_argument("--purpose", help="What job this material should do")
+    parser.add_argument("--target-surface", help="Where this material will be used")
+    parser.add_argument("--product-truth-expression", help="What concrete product truth this material must express")
+    parser.add_argument("--abstraction-level", choices=["low", "medium", "high"], help="How abstract this material is allowed to be")
+    parser.add_argument("--render-backend", choices=["native", "html"], default="native", help="Rendering backend; use html to plan governed-text share cards")
+    parser.add_argument("--source-url", help="Real product/app URL to plan against")
+    parser.add_argument("--entity-type", help="Entity type for governed share-card planning")
+    parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10) used when selecting a surface strategy")
+    parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
+    parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
+    parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
+    parser.add_argument("--pick", action="append", help="Explicit role pick in the form role=source-key-or-path; repeat as needed")
+    parser.add_argument("--prompt-seed", help="Optional explicit prompt seed; otherwise one is generated")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--output", help="Optional output path for the plan draft JSON")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--base-image", help="Path to an image to edit or overlay on during generation")
+
+
+def build_critique_plan_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--plan", required=True, help="Path to a material plan JSON or plan-draft JSON")
+    parser.add_argument("-p", "--prompt", help="Optional prompt override for the critique pass")
+    parser.add_argument("--material-type", help="Optional material type override")
+    parser.add_argument("--generation-mode", choices=["auto", "image", "video"], default="auto")
+    parser.add_argument("--mode", choices=["auto", "reference", "inspiration", "hybrid"], default="auto")
+    parser.add_argument("-m", "--model", help="Optional model override")
+    parser.add_argument("--aspect-ratio", "-ar")
+    parser.add_argument("--resolution")
+    parser.add_argument("--duration", "-d", type=int)
+    parser.add_argument("--tag", "-t")
+    parser.add_argument("-i", "--image", action="append")
+    parser.add_argument("--reference-dir")
+    parser.add_argument("--motion-reference")
+    parser.add_argument("--motion-mode", choices=["std", "pro"])
+    parser.add_argument("--character-orientation", choices=["image", "video"])
+    parser.add_argument("--keep-original-sound", action="store_true")
+    parser.add_argument("--preset")
+    parser.add_argument("--negative-prompt", "-n")
+    parser.add_argument("--style")
+    parser.add_argument("--make-gif", action="store_true")
+    parser.add_argument("--profile")
+    parser.add_argument("--identity")
+    parser.add_argument("--disable-brand-guardrails", action="store_true")
+    parser.add_argument("--critique-mode", choices=["advisory", "strict"], default="advisory", help="Whether this standalone critique should only report issues or also exit non-zero on blocking findings")
+    parser.add_argument("--output", help="Optional output path for the plan critique JSON")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_build_generation_scratchpad_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("-p", "--prompt", help="Generation prompt override")
+    parser.add_argument("--plan", required=True, help="Material plan JSON or plan-draft JSON")
+    parser.add_argument("--material-type", help="Material type override")
+    parser.add_argument("--generation-mode", choices=["auto", "image", "video"], default="auto")
+    parser.add_argument("--mode", choices=["auto", "reference", "inspiration", "hybrid"], default="auto")
+    parser.add_argument("-m", "--model")
+    parser.add_argument("--aspect-ratio", "-ar")
+    parser.add_argument("--resolution")
+    parser.add_argument("--duration", "-d", type=int)
+    parser.add_argument("--tag", "-t")
+    parser.add_argument("-i", "--image", action="append")
+    parser.add_argument("--reference-dir")
+    parser.add_argument("--motion-reference")
+    parser.add_argument("--motion-mode", choices=["std", "pro"])
+    parser.add_argument("--character-orientation", choices=["image", "video"])
+    parser.add_argument("--keep-original-sound", action="store_true")
+    parser.add_argument("--preset")
+    parser.add_argument("--negative-prompt", "-n")
+    parser.add_argument("--style")
+    parser.add_argument("--make-gif", action="store_true")
+    parser.add_argument("--profile")
+    parser.add_argument("--identity")
+    parser.add_argument("--disable-brand-guardrails", action="store_true")
+    parser.add_argument("--render-backend", choices=["native", "html"], default="native", help="Rendering backend; use html for structured share-card generation")
+    parser.add_argument("--source-url", help="Real product/app URL to extract structured share-card text from")
+    parser.add_argument("--entity-type", help="Entity type for HTML share cards (prompt, skill, library, proposal, community, dao, update)")
+    parser.add_argument("--headline", help="Explicit share-card headline override")
+    parser.add_argument("--subhead", help="Explicit share-card subhead override")
+    parser.add_argument("--cta", help="CTA label override for HTML share cards")
+    parser.add_argument("--proof-title", help="Explicit proof-module title override")
+    parser.add_argument("--proof-excerpt", help="Explicit proof-module excerpt override")
+    parser.add_argument("--proof-row", help="Explicit proof-module footer/detail row override")
+    parser.add_argument("--proof-meta", action="append", help="Proof metadata row/chip for HTML share cards; repeat as needed")
+    parser.add_argument("--proof-crop-path", help="Screenshot crop or product image path used as supporting texture inside the proof module")
+    parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10): 1-3 clean centered, 4-7 editorial asymmetry, 8-10 strong asymmetry")
+    parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
+    parser.add_argument("--skip-extraction", action="store_true", help="Skip cached reference analysis during scratchpad assembly")
+    parser.add_argument("--refresh-reference-analysis", action="store_true", help="Recompute cached reference analysis even if a cache entry exists")
+    parser.add_argument("--critique-mode", choices=["advisory", "strict"], default="strict", help="How blocking critique findings should be treated when building the scratchpad")
+    parser.add_argument("--allow-blocking", action="store_true", help="Write the scratchpad even if blocking issues remain")
+    parser.add_argument("--output", help="Optional output path for the generation scratchpad JSON")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--base-image", help="Path to an image to edit or overlay on during generation")
+
+
+def build_ideate_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to ideate")
+    parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid")
+    parser.add_argument("--goal", help="Optional goal for this material")
+    parser.add_argument("--use-surface", help="Where this material will appear first")
+    parser.add_argument("--concern", help="Main concern or tension to resolve")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_ideate_copy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to ideate copy for")
+    parser.add_argument("--goal", help="What this material should accomplish")
+    parser.add_argument("--surface", help="Primary surface, channel, or placement")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_ideate_messaging_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_promote_messaging_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--include-copy-notes", action="store_true", help="Also promote iteration messaging/copy notes as messaging insights")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+
+
+def build_update_messaging_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--tagline", help="Set the brand tagline")
+    parser.add_argument("--elevator", help="Set the elevator pitch (1-2 sentences)")
+    parser.add_argument("--voice-description", help="Set the brand voice description")
+    parser.add_argument("--add-value-prop", action="append", help="Add an approved value proposition; repeat for multiple")
+    parser.add_argument("--add-headline", action="append", help="Add an approved headline to the copy bank; repeat for multiple")
+    parser.add_argument("--add-slogan", action="append", help="Add an approved slogan; repeat for multiple")
+    parser.add_argument("--add-subheadline", action="append", help="Add an approved subheadline; repeat for multiple")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_show_iteration_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_update_iteration_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version", help="Optional version id related to the note")
+    parser.add_argument("--material-type", help="Optional material type for material-specific notes")
+    parser.add_argument("--kind", choices=["brand", "copy", "messaging", "material"], default="brand")
+    parser.add_argument("--note", help="General note to add")
+    parser.add_argument("--negative", help="Add a negative example summary")
+    parser.add_argument("--positive", help="Add a positive example summary")
+    parser.add_argument("--score", type=int)
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_example_sources_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--category", help="Category key filter (e.g. saas-product-specialists)")
+    parser.add_argument("--query", help="Search query across source names, notes, and tags")
+    parser.add_argument("--format", choices=["table", "json"], default="table")
+
+
+def build_collect_examples_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--category", help="Category key filter (e.g. premium-branding)")
+    parser.add_argument("--query", help="Search query across source names, notes, and tags")
+    parser.add_argument("--site", action="append", help="Specific source key to capture; repeat as needed")
+    parser.add_argument("--limit", type=int, help="Limit number of captures after filtering")
+    parser.add_argument("--out-dir", help="Output directory for example captures")
+    parser.add_argument("--width", type=int, default=1600)
+    parser.add_argument("--height", type=int, default=1100)
+    parser.add_argument("--open-folder", action="store_true")
+
+
+def build_social_specs_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("format", nargs="?", help="Optional single format filter (x-card, x-feed, x-feed-square, x-feed-portrait, linkedin-card, linkedin-feed, linkedin-feed-square, linkedin-feed-portrait, og-card, podcast-cover, podcast-banner)")
+    parser.add_argument("--verbose", action="store_true", help="Include notes and source hints")
+
+
+def build_generate_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--scratchpad", required=True, help="Path to a generation scratchpad JSON created by build-generation-scratchpad")
+    parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→critique→refine loops (1-3, default: 1 = single-shot)")
+    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique)")
+    parser.add_argument("--skip-vlm", action="store_true", help="Deprecated compatibility flag. Internal VLM critique is off by default unless --internal-vlm-critique is set.")
+    parser.add_argument("--vlm-critique", help="Path to agent-provided critique JSON (skips internal VLM call)")
+
+
+def build_generate_once_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--scratchpad", required=True, help="Path to a generation scratchpad JSON created by build-generation-scratchpad")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+    parser.add_argument("--open", action="store_true", help="Open the generated image after creation")
+
+
+def build_derive_video_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--source-version", required=True, help="Approved still version to animate (e.g. v012)")
+    parser.add_argument("--material-type", choices=["short-video", "feature-animation", "motion-loop"], default="short-video")
+    parser.add_argument("--prompt", help="Optional prompt override for the derivative video")
+    parser.add_argument("-m", "--model", help="Optional video model override")
+    parser.add_argument("--aspect-ratio", "-ar")
+    parser.add_argument("--duration", "-d", type=int)
+    parser.add_argument("--tag", "-t")
+    parser.add_argument("--motion-reference", help="Optional reference video for motion-control models")
+    parser.add_argument("--negative-prompt", "-n")
+    parser.add_argument("--make-gif", action="store_true")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_derive_mockup_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--source-version", required=True, help="Approved still version to reinterpret as a generated contextual mockup scene (e.g. v012)")
+    parser.add_argument("--material-type", choices=["device-mockup", "lifestyle-mockup", "billboard-mockup"], default="device-mockup")
+    parser.add_argument("--prompt", help="Optional prompt override for the generated mockup scene (not pixel-precise compositing)")
+    parser.add_argument("-m", "--model", help="Optional image model override")
+    parser.add_argument("--aspect-ratio", "-ar")
+    parser.add_argument("--tag", "-t")
+    parser.add_argument("--negative-prompt", "-n")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_critique_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("version", help="Version ID to critique (e.g. v12)")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_submit_critique_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("version", help="Version ID (e.g. v12)")
+    parser.add_argument("--critique-json", required=True, help="Path to critique JSON file or inline JSON string")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to generate")
+    parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid", help="Workflow mode for the plan")
+    parser.add_argument("--tag", "-t", help="Short output tag for the generated asset/version")
+    parser.add_argument("--mechanic", help="The one system mechanic or reveal move to emphasize")
+    parser.add_argument("--purpose", help="What job this material should do")
+    parser.add_argument("--target-surface", help="Where this material will be used")
+    parser.add_argument("--product-truth-expression", help="What concrete product truth this material must express")
+    parser.add_argument("--abstraction-level", choices=["low", "medium", "high"], help="How abstract this material is allowed to be")
+    parser.add_argument("--briefing", help="Creative brief text passed to the plan draft stage")
+    parser.add_argument("--audience", help="Target audience summary")
+    parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
+    parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
+    parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
+    parser.add_argument("--pick", action="append", help="Explicit role pick in the form role=source-key-or-path; repeat as needed")
+    parser.add_argument("--prompt-seed", help="Optional explicit prompt seed; otherwise one is generated")
+    parser.add_argument("--goal", help="Optional top-level goal used for routing context")
+    parser.add_argument("--request", help="Optional request text used for routing context")
+    parser.add_argument("--motion-reference", help="Optional motion reference path for routing or video generation")
+    parser.add_argument("--base-image", help="Path to an image to edit or overlay on during generation")
+    parser.add_argument("--render-backend", choices=["native", "html"], default="native", help="Rendering backend; use html for structured share-card generation")
+    parser.add_argument("--source-url", help="Real product/app URL to extract structured share-card text from")
+    parser.add_argument("--entity-type", help="Entity type for HTML share cards (prompt, skill, library, proposal, community, dao, update)")
+    parser.add_argument("--headline", help="Explicit share-card headline override")
+    parser.add_argument("--subhead", help="Explicit share-card subhead override")
+    parser.add_argument("--cta", help="CTA label override for HTML share cards")
+    parser.add_argument("--proof-title", help="Explicit proof-module title override")
+    parser.add_argument("--proof-excerpt", help="Explicit proof-module excerpt override")
+    parser.add_argument("--proof-row", help="Explicit proof-module footer/detail row override")
+    parser.add_argument("--proof-meta", action="append", help="Proof metadata row/chip for HTML share cards; repeat as needed")
+    parser.add_argument("--proof-crop-path", help="Screenshot crop or product image path used as supporting texture inside the proof module")
+    parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10): 1-3 clean centered, 4-7 editorial asymmetry, 8-10 strong asymmetry")
+    parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
+    parser.add_argument("--set-scope", action="store_true", help="Route as a set orchestration brief, even though generation remains single-material")
+    parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→VLM-critique→refine loops (1-3)")
+    parser.add_argument("--max-retries", type=int, default=1, help="Max quality-gate retries on very low scores (0-2)")
+    parser.add_argument("--skip-proof", action="store_true", help="Skip the proof module in HTML share cards")
+    parser.add_argument("--dark-mode", action="store_true", help="Use dark background variant for HTML share cards")
+    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique)")
+    parser.add_argument("--skip-vlm", action="store_true", help="Deprecated compatibility flag. Internal VLM critique is off by default unless --internal-vlm-critique is set.")
+    parser.add_argument("--skip-route", action="store_true", help="Skip the routing stage and start at plan-draft")
+    parser.add_argument("--critique-mode", choices=["advisory", "strict"], default="strict", help="How blocking critique findings should be treated inside pipeline orchestration")
+    parser.add_argument("--allow-blocking", action="store_true", help="Record an explicit bypass and continue even if critique or scratchpad blocking issues remain")
+    parser.add_argument("--route", help="Agent-selected route key (skip automatic routing)")
+    parser.add_argument("--source-version", help="Version ID to iterate from (e.g. v012); establishes branch lineage")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+    parser.add_argument("--open", action="store_true", help="Open the generated image after pipeline completes")
+
+
+def build_feedback_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("version", help="Version ID (e.g., v12)")
+    parser.add_argument("--score", "-s", type=int, choices=range(1, 6), help="Score 1-5")
+    parser.add_argument("--notes", "-n", help="Feedback notes")
+    parser.add_argument("--status", choices=["favorite", "rejected"], help="Mark status")
+    parser.add_argument("--lock", nargs="+", help="Lock prompt fragments")
+    parser.add_argument("--prompt", "-p", help="Backfill prompt text")
+
+
+def build_show_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("version", nargs="?", help="Specific version to show")
+    parser.add_argument("--favorites", action="store_true", help="Only favorites")
+    parser.add_argument("--top", type=int, help="Top N by score")
+    parser.add_argument("--latest", type=int, help="Latest N versions by version id")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_compare_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("versions", nargs="*", help="Versions to compare")
+    parser.add_argument("--favorites", action="store_true", help="Compare favorites")
+    parser.add_argument("--top", type=int, help="Compare top N")
+    parser.add_argument("--latest", type=int, help="Compare latest N versions")
+    parser.add_argument("--all", dest="all_versions", action="store_true", help="Compare all historical versions")
+    parser.add_argument("--embed", action="store_true", help="Embed images as base64 (portable but larger)")
+    parser.add_argument("--output", "-o", help="Output HTML path")
+
+
+def build_diagnose_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("versions", nargs="+", help="Versions to diagnose (e.g. v14 v15)")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+
+
+def build_evolve_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    return None
+
+
+def build_inspire_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("category", nargs="?", default="symbol", help=f"Category: {', '.join(inspire_urls.keys())}")
+    parser.add_argument("--url", help="Open a custom inspiration URL")
+    parser.add_argument("--label", help="Optional label for external inspiration captures")
+    parser.add_argument("--list", dest="list_only", action="store_true", help="List saved inspiration assets")
+    parser.add_argument("--brand", help="Brand key to configure inspiration sources for")
+    parser.add_argument("--sources", action="append", help="Comma-separated inspiration source keys to attach to the brand")
+    parser.add_argument("--clear", action="store_true", help="Clear configured inspiration sources for the brand")
+    parser.add_argument("--show", action="store_true", help="Show current inspiration configuration for the brand")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_inspiration_list_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand", help="Brand key to inspect configured inspiration sources for")
+    parser.add_argument("--category", nargs="?", default="symbol", help=f"Category: {', '.join(inspire_urls.keys())}")
+    parser.add_argument("--show-config", action="store_true", help="Show configured indexed inspiration sources instead of captured files")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_inspiration_capture_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("category", nargs="?", default="symbol", help=f"Category: {', '.join(inspire_urls.keys())}")
+    parser.add_argument("--url", help="Open a custom inspiration URL")
+    parser.add_argument("--label", help="Optional label for external inspiration captures")
+    parser.add_argument("--count", type=int, default=3)
+    parser.add_argument("--out-dir", help="Output directory for captured inspiration")
+    parser.add_argument("--open-folder", action="store_true")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_inspiration_configure_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand", help="Brand key to configure inspiration sources for")
+    parser.add_argument("--sources", action="append", help="Comma-separated inspiration source keys to attach to the brand")
+    parser.add_argument("--show", action="store_true", help="Show current inspiration configuration for the brand")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_inspiration_clear_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand", help="Brand key to clear inspiration sources for")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_suggest_layout_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type to suggest layouts for (e.g. campaign-poster, social, brand-scene)")
+    parser.add_argument("--count", type=int, default=4, help="How many layout suggestions to return")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_composite_illustration_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--screenshot", required=True, help="Path to the product screenshot image")
+    parser.add_argument("--feature", help="Feature to highlight (e.g. 'Library sync and distribution')")
+    parser.add_argument("--headline", help="Headline text rendered above the screenshot")
+    parser.add_argument("--subhead", help="Optional subheadline text below the headline")
+    parser.add_argument("--pattern", help="Optional background pattern image to tile")
+    parser.add_argument("--highlight-region", help="Region to highlight in the screenshot as x,y,w,h pixel coords")
+    parser.add_argument("--output", default="composite-illustration.png", help="Output file path (default: composite-illustration.png)")
+    parser.add_argument("--aspect-ratio", default="16:9", choices=["16:9", "4:3", "1:1", "21:9"], help="Canvas aspect ratio (default: 16:9)")
+    parser.add_argument("--logo", help="Optional logo image path; defaults to brand-materials/logo.png")
+    parser.add_argument("--dark", action="store_true", help="Use dark (charcoal) background instead of cream")
+
+
+CLI_BUILDERS: dict[str, CliBuilder] = {
+    'bootstrap': build_bootstrap_cli,
+    'types': build_types_cli,
+    'init': build_init_cli,
+    'create-brand': build_create_brand_cli,
+    'start-testing': build_start_testing_cli,
+    'use': build_use_cli,
+    'list-brands': build_list_brands_cli,
+    'extract-brand': build_extract_brand_cli,
+    'build-identity': build_build_identity_cli,
+    'describe-brand': build_describe_brand_cli,
+    'show-identity': build_show_identity_cli,
+    'show-blackboard': build_show_blackboard_cli,
+    'show-session-summary': build_show_session_summary_cli,
+    'context-snapshot': build_context_snapshot_cli,
+    'capabilities': build_capabilities_cli,
+    'workspace-status': build_workspace_status_cli,
+    'improvement-questions': build_improvement_questions_cli,
+    'show-workflow-lineage': build_show_workflow_lineage_cli,
+    'show-reference-analysis': build_show_reference_analysis_cli,
+    'prompts-list': build_prompts_list_cli,
+    'prompts-get': build_prompts_get_cli,
+    'reference-rubric': build_reference_rubric_cli,
+    'submit-reference-analysis': build_submit_reference_analysis_cli,
+    'route-request': build_route_request_cli,
+    'resolve-prompt': build_resolve_prompt_cli,
+    'review-prompt': build_review_prompt_cli,
+    'validate-identity': build_validate_identity_cli,
+    'parse-design-memory': build_parse_design_memory_cli,
+    'extract-css-variables': build_extract_css_variables_cli,
+    'diff-design-memory': build_diff_design_memory_cli,
+    'extract-inspiration': build_extract_inspiration_cli,
+    'consolidate-inspiration': build_consolidate_inspiration_cli,
+    'inspiration-mode': build_inspiration_mode_cli,
+    'shotlist': build_shotlist_cli,
+    'capture-product': build_capture_product_cli,
+    'explore-brand': build_explore_brand_cli,
+    'plan-set': build_plan_set_cli,
+    'validate-brand-fit': build_validate_brand_fit_cli,
+    'validate-set': build_validate_set_cli,
+    'generate-set': build_generate_set_cli,
+    'review-brand': build_review_brand_cli,
+    'suggest-role-pack': build_suggest_role_pack_cli,
+    'suggest-layout': build_suggest_layout_cli,
+    'plan-material': build_plan_material_cli,
+    'plan-draft': build_plan_draft_cli,
+    'critique-plan': build_critique_plan_cli,
+    'build-generation-scratchpad': build_build_generation_scratchpad_cli,
+    'ideate-material': build_ideate_material_cli,
+    'ideate-copy': build_ideate_copy_cli,
+    'ideate-messaging': build_ideate_messaging_cli,
+    'promote-messaging': build_promote_messaging_cli,
+    'update-messaging': build_update_messaging_cli,
+    'show-iteration-memory': build_show_iteration_memory_cli,
+    'update-iteration-memory': build_update_iteration_memory_cli,
+    'example-sources': build_example_sources_cli,
+    'collect-examples': build_collect_examples_cli,
+    'social-specs': build_social_specs_cli,
+    'generate-once': build_generate_once_cli,
+    'generate': build_generate_cli,
+    'derive-mockup': build_derive_mockup_cli,
+    'derive-video': build_derive_video_cli,
+    'critique-rubric': build_critique_rubric_cli,
+    'submit-critique': build_submit_critique_cli,
+    'pipeline': build_pipeline_cli,
+    'feedback': build_feedback_cli,
+    'show': build_show_cli,
+    'compare': build_compare_cli,
+    'diagnose': build_diagnose_cli,
+    'evolve': build_evolve_cli,
+    'inspire': build_inspire_cli,
+    'inspiration-list': build_inspiration_list_cli,
+    'inspiration-capture': build_inspiration_capture_cli,
+    'inspiration-configure': build_inspiration_configure_cli,
+    'inspiration-clear': build_inspiration_clear_cli,
+    'composite-illustration': build_composite_illustration_cli,
+}
+
+
+def get_cli_builder(name: str) -> CliBuilder:
+    return CLI_BUILDERS.get(name, noop_cli_builder)
+
+
+def build_cli_parser(command_specs: list[Any], *, inspire_urls: dict[str, str], epilog: str | None = None) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Brand iteration wrapper for image and motion materials", formatter_class=argparse.RawDescriptionHelpFormatter, epilog=epilog)
+    sub = parser.add_subparsers(dest="command", required=True)
+    for spec in command_specs:
+        subparser = _add_subparser(sub, spec)
+        builder = getattr(spec, "cli_builder", None) or get_cli_builder(spec.name)
+        builder(subparser, inspire_urls=inspire_urls)
+    return parser

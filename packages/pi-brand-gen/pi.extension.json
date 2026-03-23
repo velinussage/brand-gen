@@ -1,0 +1,40 @@
+{
+  "id": "pi-brand-gen",
+  "uiHints": {
+    "brandGenDir": {
+      "label": "Brand Gen Root",
+      "placeholder": "~/.brand-gen",
+      "help": "Path to the .brand-gen root directory."
+    },
+    "brandIterateMcpPath": {
+      "label": "brand_iterate MCP Path",
+      "placeholder": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
+      "help": "Path to brand-gen's Python MCP server entry point."
+    },
+    "approvalMode": {
+      "label": "Approval Mode",
+      "help": "How much human approval is required between autonomous heartbeat generations."
+    },
+    "heartbeatIntervalMinutes": {
+      "label": "Heartbeat Interval (minutes)",
+      "help": "How often the Pi extension should run autonomous discover/generate cycles."
+    },
+    "autoHeartbeat": {
+      "label": "Enable Heartbeat",
+      "help": "Automatically run heartbeat cycles on a timer during active Pi sessions."
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "brandGenDir": { "type": "string" },
+      "brandIterateMcpPath": { "type": "string" },
+      "approvalMode": { "type": "string", "enum": ["all", "output_only", "none"] },
+      "logLevel": { "type": "string", "enum": ["debug", "info", "warn", "error"] },
+      "heartbeatIntervalMinutes": { "type": "number" },
+      "autoHeartbeat": { "type": "boolean" }
+    },
+    "required": ["brandIterateMcpPath"]
+  }
+}

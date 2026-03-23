@@ -1,0 +1,182 @@
+{
+  "image": {
+    "flux-pro": {
+      "replicate_id": "black-forest-labs/flux-1.1-pro",
+      "cost": "0.04/image",
+      "best_for": "Photorealism, general purpose, highest quality",
+      "output_format": "webp",
+      "defaults": {
+        "width": 1024,
+        "height": 1024,
+        "prompt_upsampling": true,
+        "safety_tolerance": 2
+      },
+      "field_map": {
+        "image": "image_prompt"
+      }
+    },
+    "flux-schnell": {
+      "replicate_id": "black-forest-labs/flux-schnell",
+      "cost": "0.003/image",
+      "best_for": "Fast drafts, iteration, low cost",
+      "output_format": "webp",
+      "defaults": {
+        "width": 1024,
+        "height": 1024
+      },
+      "field_map": {
+        "steps": "num_inference_steps"
+      }
+    },
+    "sdxl": {
+      "replicate_id": "stability-ai/sdxl",
+      "cost": "0.008/image",
+      "best_for": "Versatile, wide style range, LoRA support",
+      "output_format": "png",
+      "defaults": {
+        "width": 1024,
+        "height": 1024,
+        "num_inference_steps": 25,
+        "guidance_scale": 7.5
+      },
+      "field_map": {
+        "steps": "num_inference_steps"
+      }
+    },
+    "recraft-v3": {
+      "replicate_id": "recraft-ai/recraft-v3",
+      "cost": "0.04/image",
+      "best_for": "Vector art, logos, icons, illustrations",
+      "output_format": "png",
+      "defaults": {},
+      "field_map": {}
+    },
+    "recraft-v4": {
+      "replicate_id": "recraft-ai/recraft-v4",
+      "cost": "0.04/image",
+      "best_for": "Design-aware logos, editorial, composition",
+      "output_format": "webp",
+      "defaults": {},
+      "field_map": {}
+    },
+    "recraft-v4-svg": {
+      "replicate_id": "recraft-ai/recraft-v4-svg",
+      "cost": "0.08/image",
+      "best_for": "Native SVG logos, editable vector output",
+      "output_format": "svg",
+      "defaults": {},
+      "field_map": {}
+    },
+    "ideogram": {
+      "replicate_id": "ideogram-ai/ideogram-v3-balanced",
+      "cost": "0.04/image",
+      "best_for": "Logos with text, strong geometric, typography",
+      "output_format": "png",
+      "defaults": {},
+      "field_map": {}
+    },
+    "nano-banana-2": {
+      "replicate_id": "google/nano-banana-2",
+      "cost": "0.02/image",
+      "best_for": "Image editing, recoloring, reference-based generation (up to 14 ref images)",
+      "output_format": "jpg",
+      "defaults": {
+        "resolution": "1K"
+      },
+      "field_map": {
+        "image": "image_input",
+        "aspect_ratio": "aspect_ratio"
+      }
+    }
+  },
+  "video": {
+    "kling": {
+      "replicate_id": "kwaivgi/kling-v2.5-turbo-pro",
+      "cost": "0.04/sec",
+      "best_for": "Fast drafts, budget video, portraits",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 5,
+        "aspect_ratio": "1:1"
+      },
+      "field_map": {
+        "start_image": "start_image"
+      }
+    },
+    "kling-v2.6": {
+      "replicate_id": "kwaivgi/kling-v2.6",
+      "cost": "0.07/sec",
+      "best_for": "Best logo/edge preservation, 1080p, cinematic",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 5,
+        "aspect_ratio": "16:9"
+      },
+      "field_map": {
+        "start_image": "start_image",
+        "negative_prompt": "negative_prompt"
+      }
+    },
+    "kling-v3": {
+      "replicate_id": "kwaivgi/kling-v3-video",
+      "cost": "0.10/sec",
+      "best_for": "Multi-shot, newest Kling, subject consistency",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 5,
+        "aspect_ratio": "16:9",
+        "mode": "pro"
+      },
+      "field_map": {
+        "start_image": "start_image",
+        "negative_prompt": "negative_prompt"
+      }
+    },
+    "veo": {
+      "replicate_id": "google/veo-3.1",
+      "cost": "0.20/sec",
+      "best_for": "Highest production quality, cinematic, audio",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 4,
+        "resolution": "1080p"
+      },
+      "field_map": {
+        "start_image": "image"
+      }
+    },
+    "seedance": {
+      "replicate_id": "bytedance/seedance-1-pro",
+      "cost": "0.15/sec",
+      "best_for": "Best motion dynamics, first+last frame control",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 5
+      },
+      "field_map": {
+        "start_image": "first_frame"
+      }
+    },
+    "minimax": {
+      "replicate_id": "minimax/hailuo-2.3",
+      "cost": "0.05/sec",
+      "best_for": "Realistic motion, cinematic VFX, high detail",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 6,
+        "resolution": "1080p"
+      },
+      "field_map": {
+        "start_image": "first_frame_image"
+      }
+    },
+    "luma": {
+      "replicate_id": "luma/ray-2-720p",
+      "cost": "0.06/sec",
+      "best_for": "Physics-aware motion, nature, fast generation",
+      "output_format": "mp4",
+      "defaults": {},
+      "field_map": {}
+    }
+  }
+}

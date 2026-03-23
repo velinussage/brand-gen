@@ -1,0 +1,299 @@
+# Phase 1: Prepare
+
+## Table of Contents
+
+1. [Creative-Context Bootstrap](#creative-context-bootstrap)
+2. [Vault Sync](#vault-sync)
+3. [Design Philosophy Check](#design-philosophy-check)
+4. [Learnings Check](#learnings-check)
+5. [Role Pack Suggestion](#role-pack-suggestion)
+6. [Layout Suggestion](#layout-suggestion)
+7. [Improvement Questions](#improvement-questions)
+8. [Copy Ideation](#copy-ideation)
+9. [Concept Diversity Check](#concept-diversity-check)
+10. [Base Image Check](#base-image-check)
+11. [Logo Resolution](#logo-resolution)
+
+---
+
+## Creative-Context Bootstrap
+
+**Why:** The `creative_context` block in `brand-profile.json` drives concept diversity
+and quality calibration. Older brands created before this block existed will not have it.
+Self-healing prevents silent failures downstream.
+
+Read `brand-profile.json` for the active brand. Check if `creative_context` exists.
+
+If missing, create it with these defaults:
+
+```json
+{
+  "creative_context": {
+    "quality_benchmarks": ["Stripe", "Aesop", "Criterion", "Muji"],
+    "concept_categories": [],
+    "metaphor_vocabulary": []
+  }
+}
+```
+
+- `quality_benchmarks`: Read from `.brand-gen-local.json` → `quality_benchmarks` first.
+  If not present, use the defaults above.
+- `concept_categories`: Copy from `brand-profile.json` → `keywords`. If no keywords
+  exist, leave empty.
+- `metaphor_vocabulary`: Start empty. The philosophy workflow populates this later.
+
+Write the new block back to `brand-profile.json` so future sessions have it.
+
+---
+
+## Vault Sync
+
+**Why:** Brand vaults (Obsidian, markdown docs) contain the brand's evolving thinking.
+Syncing pulls new metaphors, positioning changes, and emotional territory into the
+generation pipeline. Without syncing, old generations diverge from current brand thinking.
+
+**Trigger:** Run on first generation, then every 10 generations. Track the last sync
+timestamp in iteration memory (look for notes starting with `VAULT_SYNC:`).
+
+Check the manifest version count:
+```bash
+source .venv/bin/activate && bgen show --format json --latest 1
+```
+
+Read vault paths:
+```bash
+cat .brand-gen-local.json
+```
+
+Look for the `vault_paths` array. If `.brand-gen-local.json` does not exist, create it:
+```json
+{
+  "repo_root": "<detected from working directory>",
+  "vault_paths": []
+}
+```
+Then ask the user if they have a brand vault to connect.
+
+If vault paths are configured:
+1. Read ALL `.md` files from configured vault paths
+2. Compare with existing brand notes in iteration memory
+3. If new content exists (check file modification times), extract:
+   - New metaphors
+   - Taglines and emotional territory
+   - Positioning shifts
+4. Propose specific additions to the user before updating iteration memory
+5. Record the sync:
+   ```bash
+   source .venv/bin/activate && bgen update-iteration-memory \
+     --kind brand --note "VAULT_SYNC: <ISO-timestamp>"
+   ```
+
+---
+
+## Design Philosophy Check
+
+**Why:** The design philosophy is the creative DNA for all generation. Without it, output
+is technically competent but visually anonymous — any brand could have produced it.
+
+Read the philosophy file:
+```bash
+cat .brand-gen/brands/<active>/design-philosophy.md 2>/dev/null
+```
+
+**If it does not exist:** This is a critical gap. Create one before proceeding.
+See [philosophy-workflow.md](philosophy-workflow.md) for the full creation process.
+
+**If it exists:** Check if it needs refinement:
+- Has the vault been updated since the philosophy was written?
+  ```bash
+  find "<vault_path>" -newer .brand-gen/brands/<active>/design-philosophy.md -name "*.md" 2>/dev/null
+  ```
+- Do recent scores suggest drift? Check iteration memory for low `philosophy_fit` scores.
+- If refinement is needed, propose specific changes to the user before updating.
+
+**In either case**, extract three things for use in Phase 2:
+
+1. **Material metaphors** — concrete material words for prompt seeds
+   (e.g., "fired earth", "aged stone", "linen texture")
+2. **Composition rules** — structural guidance for preserve/push lists
+   (e.g., "one dominant gesture", "architectural rhythm")
+3. **Quality boosters** — craftsmanship phrases for prompt suffixes
+   (e.g., "meticulous", "labored over", "masterful")
+
+---
+
+## Learnings Check
+
+**Why:** Learnings encode hard-won knowledge about what works. A winning setup recorded
+after 10 generations should not be overridden by default heuristics.
+
+Read learnings directly:
+```bash
+cat .brand-gen/brands/<active>/learnings.json
+```
+
+Look for `modelPreferences` entries matching the requested `material_type`. Each entry
+contains:
+- Winning mode (reference, inspiration, hybrid)
+- Winning model
+- Whether references help or hurt
+- Evidence versions and correction notes
+
+Apply winning setups explicitly. If learnings say "social works best with hybrid +
+nano-banana-2 + with refs", use those parameters in Phase 2.
+
+Also check `failurePatterns` — these are things that reliably fail. Apply them as
+`--ban` directives in Phase 2.
+
+---
+
+## Role Pack Suggestion
+
+**Why:** Role packs provide composition references — real examples of successful layouts
+that guide the image model's composition. Without them, composition is left to chance.
+
+```bash
+source .venv/bin/activate && bgen suggest-role-pack --material-type <type> --format json
+```
+
+The output includes available composition reference sources. Note them for use as
+`--pick composition=<source>` in Phase 2.
+
+---
+
+## Layout Suggestion
+
+**Why:** Different material types benefit from different layout strategies. A social post
+needs compact hierarchy; a campaign poster needs dramatic whitespace.
+
+```bash
+source .venv/bin/activate && bgen suggest-layout --material-type <type> --format json
+```
+
+The output includes layout candidates with design-variance scores. Use the suggested
+`--design-variance` value in Phase 2.
+
+---
+
+## Improvement Questions
+
+**Why:** Surfaces gaps in the current brand setup that could improve generation quality.
+
+```bash
+source .venv/bin/activate && bgen improvement-questions --format json
+```
+
+Review the questions. If any can be answered from existing context (vault, brand profile),
+answer them. If they require user input, present the most important 1-2 to the user.
+
+---
+
+## Copy Ideation
+
+**Why:** Text-bearing materials (social posts, announcement cards, campaign posters with
+headlines) need copy. Generating copy alongside the visual plan ensures text and image
+work together rather than fighting each other.
+
+Only run for materials that include text. Skip for pure visual materials like
+concept-illustration, brand-scene, or pattern-system.
+
+```bash
+source .venv/bin/activate && bgen ideate-copy \
+  --material-type <type> \
+  --goal "<what the material should communicate>" \
+  --format json
+```
+
+The output includes headline, subhead, and CTA candidates. Feed the best options into
+Phase 2 via `--headline`, `--subhead`, `--cta` flags.
+
+---
+
+## Concept Diversity Check
+
+**Why:** Without diversity enforcement, generation converges on the same 2-3 concepts
+repeatedly. This makes brand materials feel repetitive and limits the brand's visual
+vocabulary.
+
+Read concept categories from `brand-profile.json` → `creative_context.concept_categories`.
+If empty, derive from `brand-profile.json` → `keywords`. If neither exists, skip.
+
+Read recent generations:
+```bash
+source .venv/bin/activate && bgen show --format json --latest 30
+```
+
+Categorize recent generations by concept. Count occurrences per category.
+
+**If the caller did NOT specify a concept:** Automatically pick the LEAST illustrated
+concept. This ensures coverage across the brand's concept space.
+
+**If the caller specified a concept with 3+ existing illustrations:** Flag it:
+"This concept has been illustrated N times. Consider [underexplored concept] instead?"
+
+Also check `creative_context.metaphor_vocabulary`. If metaphors are configured, check
+iteration memory — are there metaphors that have never been illustrated? Prioritize those.
+
+---
+
+## Base Image Check
+
+**Why:** Interface materials require a real product screenshot as a base image. Without
+one, image models invent fake UI that is immediately recognizable as artificial and
+scores 1-2 out of 5 every time.
+
+**Applies to:** `browser-illustration`, `landing-hero`, `product-banner`,
+`feature-illustration`
+
+Check if product screenshots exist:
+```bash
+ls .brand-gen/brands/<active>/product-shots/ 2>/dev/null
+```
+
+If screenshots exist, select the one most relevant to the material purpose. Store its
+path for use in Phase 2 (`--base-image`) and Phase 4 (`--base-image`).
+
+If NO screenshots exist, capture them:
+```bash
+source .venv/bin/activate && bgen capture-product \
+  --url <app-url> \
+  --out-dir .brand-gen/brands/<active>/product-shots
+```
+
+The `--base-image` flag is MANDATORY for these material types. Never proceed to Phase 2
+without it.
+
+---
+
+## Logo Resolution
+
+**Why:** The brand logo must be passed as a reference image for all generation types to
+ensure brand mark consistency. The pipeline auto-injects it for `bgen pipeline` and
+`bgen build-generation-scratchpad`, but direct `generate.py` calls need it explicitly.
+
+Resolve the logo path:
+1. Check `.brand-gen/brands/<active>/logo.png` (local workspace copy)
+2. Fall back to `brand_assets.icon` in `brand-identity.json`, resolved via `project_root`
+
+Store the resolved absolute path. When calling `python3 mcp/generate.py image` directly,
+always include `-i <logo-path>` as one of the reference images.
+
+---
+
+## Preparation Summary
+
+After completing all steps, collect:
+
+| Insight | Source | Used in |
+|---------|--------|---------|
+| Material metaphors | Design philosophy | Phase 2 prompt seed |
+| Composition rules | Design philosophy | Phase 2 preserve/push |
+| Quality boosters | Design philosophy | Phase 2 prompt suffix |
+| Winning mode/model | Learnings | Phase 2 --mode, model selection |
+| Failure bans | Learnings | Phase 2 --ban |
+| Role pack references | suggest-role-pack | Phase 2 --pick |
+| Layout strategy | suggest-layout | Phase 2 --design-variance |
+| Copy candidates | ideate-copy | Phase 2 --headline/--subhead/--cta |
+| Selected concept | Concept diversity | Phase 2 prompt seed |
+| Base image path | product-shots/ | Phase 2 + Phase 4 --base-image |
+| Logo path | brand assets | All generation commands |

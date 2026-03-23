@@ -1,0 +1,121 @@
+{
+  "version": 2,
+  "snippets": {
+    "state_card": {
+      "default": "Product truth card: real UI framed like a Monocle feature spread. Screenshot bounded in a carrier with editorial confidence, illustration only in margins. Medium format clarity, matte stock feel. Never fake the interface.",
+      "reference": "Product screenshot is sacred documentary truth. Borrow crop discipline and atmospheric framing from references only. Treat the UI like Magnum photojournalism \u2014 don't stage what's real.",
+      "inspiration": "Borrow editorial card confidence from inspiration, never the interface. Product state stays photojournalistic \u2014 real, readable, untouched. Kinfolk feature restraint. Never stylize into fiction.",
+      "hybrid": "One real product state as truth, one branded gesture around it. Think Wallpaper* product review \u2014 the object is real, the staging is designed. Style the carrier, never replace the screenshot."
+    },
+    "podcast_cover": {
+      "default": "Podcast cover: square jewel case for the ear. Think Criterion Collection packaging or Penguin Classics \u2014 one dominant title, one unmistakable anchor, thumbnail-first. Debossed matte confidence. Never waveform wallpaper or metadata clutter.",
+      "reference": "Brand mark stays sacred. Title block large and legible at 44px thumbnail \u2014 Criterion spine-level hierarchy. Never sacrifice small-size readability for compositional drama.",
+      "inspiration": "Borrow editorial cover authority \u2014 Apartamento or MacGuffin magazine confidence \u2014 but keep brand palette and voice intact. Never ventriloquize another identity.",
+      "hybrid": "One real brand anchor paired with one bold editorial title gesture. No explicit copy means silence. Think album art meets identity poster \u2014 confident restraint over invented words."
+    },
+    "podcast_banner": {
+      "default": "Episode banner: 16:9 editorial promo with cinema lobby card authority. Think A24 title card or Monocle Radio visual \u2014 one clear title, one brand anchor, YouTube-safe crop. Award-winning composition. Never fake UI or audio-wave filler.",
+      "reference": "Brand anchor stays sacred. Title block dominates the landscape frame like a film poster credit block \u2014 bold, hierarchical, undeniable inside the 16:9 crop.",
+      "inspiration": "Borrow editorial pacing and promo confidence only. Think festival poster gravitas, not podcast template. Never audio-wave clutter or platform chrome imitation.",
+      "hybrid": "One calm branded field, one decisive title composition. Visible copy is deterministic \u2014 author-controlled, never model-invented. Think Criterion Channel promo meets identity lockup."
+    },
+    "styleframe": {
+      "default": "Styleframe: the product in its Sunday best. Think Apple keynote hero or Linear changelog shot \u2014 real nav, real sidebar, real labels inside a cinematic branded frame. Hasselblad-sharp UI, designed surround. Never invent fake chrome.",
+      "reference": "Product truth reference is gospel for all UI structure. Borrow framing and background atmosphere from composition refs only \u2014 never override real nav, labels, or page architecture. Documentary fidelity.",
+      "inspiration": "Borrow presentation polish \u2014 framing confidence, environmental staging \u2014 but product UI comes exclusively from product truth. The interface is evidence, not illustration. Never stylize the real.",
+      "hybrid": "Product truth defines the UI. Composition references define the frame and staging. Think architectural photography \u2014 the building is real, the light is directed. Never invent structure."
+    },
+    "concept_illustration": {
+      "default": "Concept illustration: visual metaphor with brand soul. Think Olimpia Zagnoli for The New Yorker or Malika Favre poster \u2014 confident, expressive, editorially grounded in brand color. Pure illustration, zero UI chrome. Never decorative clip-art."
+    },
+    "brand_scene": {
+      "default": "Brand scene: a cinematic world the brand inhabits. Think Olafur Eliasson installation or Tadao Ando architecture \u2014 immersive, monumental, sensory. Hasselblad medium format, golden hour, volumetric light. Never generic stock or AI-looking."
+    },
+    "device_mockup": {
+      "default": "Device mockup: the product in its habitat, shot like a Jony Ive product film. Premium device, considered angle, brand screen glowing inside. Think Apple Newsroom or Nothing launch \u2014 studio-lit, architectural. Never flat floating export.",
+      "reference": "Source asset composition and brand proof stay intact. Translate onto device at a clean presentation angle \u2014 think product photography with intentional light, not Photoshop composite.",
+      "inspiration": "Borrow presentation attitude only \u2014 lighting, camera angle, staging atmosphere. Brand asset stays clearly dominant. Think Wallpaper* product feature, not mood board.",
+      "hybrid": "Source asset recognizable, plus one premium device-context cue: perspective, hand-held, desk, reflected glass. Think MKBHD studio B-roll \u2014 real product, considered staging."
+    },
+    "lifestyle_mockup": {
+      "default": "Lifestyle mockup: the brand in the wild, shot like Cereal Magazine. Real-world context \u2014 desk, studio, hand-held \u2014 with medium format depth of field. Brand asset is the hero, scene is supporting cast. Never generic stock emptiness.",
+      "reference": "Source asset stays recognizable. Stage in a realistic environment with restrained props \u2014 think Kinfolk still life. Brand reads first, scene reads second. Never let props compete.",
+      "inspiration": "Borrow scene mood and camera attitude from inspiration. Branded asset stays the unmistakable focal point \u2014 think product placement in a Wes Anderson frame. Never mood board collage.",
+      "hybrid": "One believable lifestyle setting, one clear branded hero surface. Scene supports like a gallery pedestal \u2014 present, not competing. Think Aesop store interior: environment serves the object."
+    },
+    "billboard_mockup": {
+      "default": "Billboard: the brand at monumental scale. Think Vignelli for American Airlines or Barbara Kruger installation \u2014 one dominant mark, institutional confidence, urban architecture. Owns the street. Never busy or cluttered.",
+      "reference": "Source hierarchy translates to outdoor scale without inventing a second campaign. Think faithful enlargement with architectural presence \u2014 what's on the wall is what was approved.",
+      "inspiration": "Borrow framing, golden hour mood, or environmental drama only. Brand asset stays recognizable and primary. Think architectural photography with the brand as its subject.",
+      "hybrid": "One strong outdoor placement, one faithful brand rendering. The city amplifies scale and gravitas \u2014 think Christo wrapping a building, but your brand is the intervention. Never distract."
+    },
+    "data_card": {
+      "default": "Data card: one stat, monumental. Think Bloomberg Businessweek cover stat or Pentagram annual report \u2014 big number hero in display font, one line of context, brand mark anchored. Solid field, thumbnail-legible. Never charts, graphs, or clutter."
+    },
+    "quote_card": {
+      "default": "Quote card: words given editorial gravity. Think Paris Review interview or Kinfolk pull quote \u2014 large display type, generous whitespace, quiet attribution below. Oversized quotation marks in muted accent optional. Matte, restrained. Never decorative."
+    },
+    "announcement_card": {
+      "default": "Announcement card: a launch with Pentagram rebrand-reveal authority. Bold headline dominates, one branded illustration supports, tiny proof chip if unavoidable. Think unveiling, not poster. Never cluttered or screenshot-led.",
+      "reference": "Borrow launch pacing from references without becoming proof-led. Product evidence stays tiny, secondary, deterministic. Think press release confidence, not demo day deck. Never screenshot-heavy.",
+      "hybrid": "One decisive headline, one restrained branded proof cue. No full screenshot carriers \u2014 tiny proof chip only. Think Apple event keynote slide: statement first, evidence second."
+    },
+    "process_card": {
+      "default": "Process card: how it works, told like a MUJI instruction manual. 3-5 numbered steps with brand-accent circles, short labels, generous vertical whitespace. Think Swiss wayfinding or Dieter Rams \u2014 scannable, quiet authority. Never dense or decorative."
+    },
+    "content_card": {
+      "default": "Content card: carousel slide with magazine authority. Think Monocle feature or Bloomberg editorial \u2014 display headline dominates, colored subhead, readable body. Critical text 250px from edges. Matte editorial feel. Never template.",
+      "reference": "Preserve brand palette and font roles. Match editorial density and hierarchy of the reference \u2014 think adapting a magazine layout to a new story. Same voice, new content. Never drift from identity.",
+      "inspiration": "Borrow compositional confidence and text-image balance. Keep brand palette and type voice intact \u2014 think guest art director, not rebrand. The identity stays yours. Never ventriloquize.",
+      "hybrid": "Brand type system meets reference editorial pacing. Display font for headline, body font for body \u2014 non-negotiable. Think co-branded editorial feature: structure borrowed, voice owned."
+    },
+    "editorial_card": {
+      "default": "Editorial card: longform teaser with publishing authority. Think Fantastic Man or It's Nice That \u2014 large display headline, one body paragraph, 'Read more' CTA. Solid brand field, zero patterns. Letterpress quality. Never blog-template.",
+      "reference": "Adapt reference editorial typography hierarchy, keep brand colors and mark placement. Think restyling a magazine masthead \u2014 new face, same bones. Never lose the identity.",
+      "inspiration": "Borrow editorial gravity and text confidence. Stay in brand palette \u2014 think guest typographer, not rebrand. The words carry weight, the styling amplifies it. Never overpower the voice.",
+      "hybrid": "Match reference type scale and whitespace rhythm using brand display and body fonts. Think co-published special edition \u2014 borrowed pacing, native voice. Never compromise the type system."
+    },
+    "social": {
+      "default": "Social card: one bold visual move that stops the scroll. Think Bloomberg Businessweek cover or Acne Studios campaign \u2014 confident, restrained, unmistakable. Compose copy outside the model if needed. Never busy, never decorative.",
+      "reference": "Brand anchors stay recognizable, composition tightened for thumbnail. Screenshot proof is a small secondary cue \u2014 think Vogue credit, not hero image. Brand reads first, always.",
+      "inspiration": "Stronger poster-like move allowed. Stay unmistakably in brand palette and type voice \u2014 think campaign poster, not mood board. Proof fragments never become screenshot collage.",
+      "hybrid": "One real product truth anchor paired with one bold campaign gesture. Proof stays under 25% visual weight \u2014 think editorial sidebar, not feature image. Brand dominance is non-negotiable."
+    },
+    "campaign_poster": {
+      "default": "Campaign poster: editorial authority on paper. Think Pentagram identity poster or Swiss modernist broadsheet \u2014 one dominant typographic gesture, masterful spacing, institutional confidence. Letterpress on cotton rag. Never clip-art or collage.",
+      "reference": "Campaign poster: editorial authority translated from a real reference composition. Borrow the hierarchy and spatial confidence, not the literal identity. Hasselblad-grade print finish.",
+      "inspiration": "Campaign poster: editorial authority on paper. Think Pentagram identity poster or Swiss modernist broadsheet \u2014 one dominant typographic gesture, masterful spacing, institutional confidence. Letterpress on cotton rag. Never clip-art or collage.",
+      "hybrid": "Campaign poster: editorial authority on paper. One real brand anchor paired with one bold typographic gesture. Borrow editorial pacing from references, not literal composition. Pentagram-level confidence. Letterpress on cotton rag."
+    },
+    "hero_banner": {
+      "default": "Hero banner: the first thing anyone sees. Think Stripe homepage or A24 film title card \u2014 wide cinematic atmosphere, one confident gesture, nothing competing. Arri Alexa color grade, panoramic depth. Never generic gradient or stock-photo vibes."
+    },
+    "pattern_system": {
+      "default": "Pattern system: a repeatable branded texture that tiles seamlessly. Think William Morris meets Josef Albers \u2014 geometric, craft-rich, identifiable from a fragment. Linocut or screen-print materiality. Never digital-looking or perfectly smooth."
+    },
+    "og_card": {
+      "default": "OG card: the link preview that earns the click. Think New York Times article card or Stripe docs preview \u2014 clear mark, clean title, institutional confidence in a sliver of space. Never busy, never decorative."
+    },
+    "event_poster": {
+      "default": "Event poster: somewhere between a museum exhibition announcement and a tech keynote teaser. Think Vignelli for AGI or Experimental Jetset \u2014 systematic, bold, typographic. Never corporate-template or clip-art."
+    },
+    "browser_illustration": {
+      "default": "Browser illustration: a real product UI moment captured as brand material. Show the actual interface \u2014 nav, cards, data \u2014 inside a clean browser frame. Think Stripe docs screenshot or Linear changelog image. Never fake chrome or simplified mockups."
+    },
+    "landing_hero": {
+      "default": "Landing hero: the above-the-fold moment that converts. Show the real product UI in its best light \u2014 one strong crop, one clear proof of value. Think Figma or Notion homepage hero. Hasselblad-grade screenshot clarity. Never invented UI or stock imagery."
+    },
+    "feature_illustration": {
+      "default": "Feature illustration: a branded visual that explains a specific capability. Think Stripe illustrations or Figma feature graphics \u2014 clear, functional, delightful. Brand palette, clean composition, one concept per image. Never generic icon-on-gradient."
+    },
+    "carousel_slide": {
+      "default": "Carousel slide: one clear point per card in a swipeable sequence. Think LinkedIn thought-leadership carousel \u2014 bold headline, supporting detail, consistent brand frame across all slides. Editorial pacing. Never wall-of-text or decorative filler."
+    },
+    "info_card": {
+      "default": "Info card: one piece of useful information made beautiful. Think MUJI product card or Aesop ingredient list \u2014 restrained, informative, trustworthy. Clear hierarchy, generous space. Never busy or over-designed."
+    },
+    "x_card": {
+      "default": "X card: wide-format social impact in a 2:1 frame. Think Bloomberg Businessweek tweet card \u2014 one bold statement, brand-confident background, stops the scroll. Never generic social template."
+    }
+  }
+}

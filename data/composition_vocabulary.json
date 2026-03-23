@@ -1,0 +1,567 @@
+{
+  "version": 2,
+  "layouts": {
+    "campaign_poster": [
+      {
+        "name": "stat-dominant-broadsheet",
+        "label": "Stat-Dominant Broadsheet",
+        "description": "A single oversized statistic dominates the upper frame, with supporting copy and brand bar anchoring the bottom.",
+        "composition": "A large numerical statistic rendered in heavy display weight fills roughly 60% of the vertical frame, top-aligned with tight optical margins. Below the stat, a single line of supporting context in medium weight at 1/5 the stat size. A solid-color brand bar spans the full width across the bottom 12% of the frame, containing a small wordmark left-aligned and a tagline right-aligned.",
+        "best_for": "Impact-driven campaigns where a single data point carries the message",
+        "prompt_fragment": "Bold editorial broadsheet \u2014 enormous serif statistic commanding the frame like a newspaper extra. Restrained copy below. Inspired by Pentagram identity posters. Cream stock, letterpress impression, masterful typography.",
+        "tags": [
+          "data",
+          "impact",
+          "editorial",
+          "type-driven"
+        ]
+      },
+      {
+        "name": "centered-type-stack",
+        "label": "Centered Type Stack",
+        "description": "Vertically centered display typography with generous negative space on all sides, no imagery.",
+        "composition": "All type is vertically and horizontally centered in the frame. A headline in large display weight occupies 2-3 lines max. A subhead in lighter weight sits below with a 1.5x line-height gap. The surrounding negative space is at least 20% on each side. No images, no illustrations, no decorative elements. Pure typographic hierarchy on a flat color field.",
+        "best_for": "Statement pieces, brand manifestos, or typographic identity showcases",
+        "prompt_fragment": "Provocative statement piece \u2014 bold display serif like a protest placard. Generous breathing space on all sides. Like an Acne Studios campaign card or a New Yorker cover quote. Matte paper, confident restraint, impeccable kerning.",
+        "tags": [
+          "minimal",
+          "type-only",
+          "statement",
+          "negative-space"
+        ]
+      },
+      {
+        "name": "asymmetric-split",
+        "label": "Asymmetric Split",
+        "description": "The frame is divided vertically \u2014 one side dense with imagery or pattern, the other side open with type.",
+        "composition": "The frame splits vertically at roughly 55/45 or 60/40. The larger portion holds a full-bleed image, texture, or dense pattern filling edge to edge. The smaller portion is a solid color field with left-aligned type: a headline near the vertical center, a short body paragraph below, and a logo or brand mark near the bottom. The split line is hard \u2014 no gradients or blending between the two halves.",
+        "best_for": "Campaigns balancing visual richness with clear messaging",
+        "prompt_fragment": "Editorial magazine spread \u2014 rich photographic texture bleeding into open typographic space. Like a Kinfolk feature opening or a Wallpaper* editorial page. Linen paper, clean separation, Hasselblad medium format, award-winning layout.",
+        "tags": [
+          "split",
+          "asymmetric",
+          "image-plus-type",
+          "editorial"
+        ]
+      },
+      {
+        "name": "image-dominant-with-type-bar",
+        "label": "Image-Dominant with Type Bar",
+        "description": "A full-bleed atmospheric image fills most of the frame, with a solid-color bar at the bottom carrying all copy.",
+        "composition": "An atmospheric or editorial photograph fills the top 75-80% of the frame, full bleed on all three sides. A solid opaque color bar occupies the bottom 20-25%, creating a hard horizontal division. Within the bar, a headline is left-aligned and a secondary line or CTA is right-aligned, both vertically centered in the bar. A small brand mark sits at the far left or far right of the bar.",
+        "best_for": "Image-led campaigns where the visual does the emotional work and type provides context",
+        "prompt_fragment": "Cinematic film still with bold typographic bar anchoring the bottom edge. Like a Criterion Collection cover or a Magnum Photos exhibition poster. Moody atmospheric photography, confident sans-serif, archival stock, masterful composition.",
+        "tags": [
+          "photo",
+          "cinematic",
+          "image-led",
+          "bar-layout"
+        ]
+      },
+      {
+        "name": "diagonal-tension",
+        "label": "Diagonal Tension",
+        "description": "Type and graphic elements are arranged along a diagonal axis, creating dynamic directional movement across the frame.",
+        "composition": "A dominant diagonal runs from the lower-left to the upper-right of the frame. The headline is set along or parallel to this diagonal at a steep angle. Supporting elements \u2014 a subhead, a graphic mark, or an accent line \u2014 are distributed along the same diagonal at staggered intervals. The corners opposite the diagonal axis are left as open negative space. A small horizontal brand lockup sits conventionally at the bottom center or bottom right, breaking the diagonal to anchor the overall composition.",
+        "best_for": "Energetic campaigns, launch announcements, or disruption-themed messaging",
+        "prompt_fragment": "Dynamic constructivist poster \u2014 bold type cutting diagonally across the frame like a Rodchenko propaganda broadsheet. Raw energy, hard angles, open corners. Offset printing, newsprint texture, avant-garde typography, masterful tension.",
+        "tags": [
+          "dynamic",
+          "angular",
+          "energetic",
+          "unconventional"
+        ]
+      },
+      {
+        "name": "grid-overlay",
+        "label": "Grid Overlay",
+        "description": "A visible or implied grid structures the poster, with type and elements placed in specific cells \u2014 modernist Swiss poster style.",
+        "composition": "The frame is divided into a 4-column by 6-row grid with visible or implied gutters. The headline occupies two cells in the upper-left quadrant. An image or pattern block fills a 2x3 cell region on the right side. Supporting body text sits in one cell below the headline. A brand mark occupies the bottom-left cell. The remaining cells are left empty, and the grid lines or gutters may be faintly visible as thin rules, reinforcing the structure.",
+        "best_for": "Design-forward brands, modernist aesthetics, or systematic visual identities",
+        "prompt_fragment": "Swiss modernist poster on a visible rational grid \u2014 type and image placed with mathematical precision. Like a Josef Muller-Brockmann concert poster. Matte stock, visible grid lines, Akzidenz-Grotesk, masterful structure.",
+        "tags": [
+          "grid",
+          "modernist",
+          "swiss",
+          "structured",
+          "systematic"
+        ]
+      }
+    ],
+    "social": [
+      {
+        "name": "single-stat-callout",
+        "label": "Single Stat Callout",
+        "description": "One large number or metric centered in the frame with a brief contextual line below.",
+        "composition": "A single bold number or short stat phrase is centered horizontally and positioned slightly above vertical center. The number is rendered at the largest possible size that maintains comfortable side margins of at least 15%. A single line of context text in lighter weight sits directly below, also centered. A small brand mark is centered at the bottom with generous padding from the edge.",
+        "best_for": "Data highlights, milestone announcements, metric callouts",
+        "prompt_fragment": "Bold data monument \u2014 one massive statistic anchoring the frame like a Bloomberg terminal flash. Clean negative space, authoritative type. Like a Financial Times infographic card. Matte finish, impeccable typography.",
+        "tags": [
+          "data",
+          "stat",
+          "centered",
+          "minimal"
+        ]
+      },
+      {
+        "name": "headline-on-texture",
+        "label": "Headline on Texture",
+        "description": "A bold headline over a subtle brand texture with no imagery \u2014 pure typographic impact.",
+        "composition": "A short bold headline of 3-6 words is left-aligned and positioned in the upper-left quadrant of the frame, with wide right and bottom margins. The background is a subtle brand texture, pattern, or color noise \u2014 visible but not competing with the type. A small brand mark sits in the bottom-left or bottom-right corner. No photos, no illustrations, no icons.",
+        "best_for": "Brand voice moments, quotable statements, identity-forward posts",
+        "prompt_fragment": "Typographic brand stamp on raw material ground \u2014 like a Maison Margiela label or a rubber-stamped shipping crate. Subtle linen grain, bold confident type, honest materiality, impeccable spacing.",
+        "tags": [
+          "type-driven",
+          "texture",
+          "brand-voice",
+          "minimal"
+        ]
+      },
+      {
+        "name": "proof-showcase",
+        "label": "Proof Showcase",
+        "description": "A real product screenshot or artifact displayed with minimal brand framing.",
+        "composition": "A product screenshot, UI capture, or physical artifact photo is centered in the frame at roughly 80% of the canvas size, with a subtle drop shadow or thin border to separate it from the background. The background is a flat neutral color. A small brand mark and one-line caption sit below the artifact, centered. No headlines \u2014 the artifact is the message.",
+        "best_for": "Product updates, feature releases, real-world proof points",
+        "prompt_fragment": "Clean product artifact floating on neutral ground with a soft contact shadow. Like an Apple product page hero or a Dieter Rams exhibition card. Minimal framing, studio-lit precision, photographic clarity, award-winning restraint.",
+        "tags": [
+          "product",
+          "proof",
+          "screenshot",
+          "authentic"
+        ]
+      },
+      {
+        "name": "quote-attribution",
+        "label": "Quote + Attribution",
+        "description": "A pull quote in display type with small attribution and an accent line for structure.",
+        "composition": "A short quote of 10-20 words is set in a large display typeface, left-aligned, positioned in the upper half of the frame. A thin horizontal accent line spans about 30% of the width below the quote. The attribution \u2014 name and title \u2014 is set in small regular weight below the accent line, also left-aligned. A brand mark sits in the bottom-right corner. Generous left margin of about 15%.",
+        "best_for": "Testimonials, founder quotes, expert endorsements",
+        "prompt_fragment": "Editorial pull quote \u2014 large display type with a quiet attribution below a fine accent rule. Like a Monocle magazine sidebar or a Paris Review interview card. Cream stock, restrained elegance, masterful typographic hierarchy.",
+        "tags": [
+          "quote",
+          "testimonial",
+          "editorial",
+          "attribution"
+        ]
+      },
+      {
+        "name": "split-horizontal",
+        "label": "Split Horizontal",
+        "description": "Top half holds an image or pattern, bottom half holds copy on a solid color ground.",
+        "composition": "The frame is split horizontally at the midpoint. The top 50% is a full-bleed image, texture, or dense pattern. The bottom 50% is a flat solid color with a bold headline left-aligned and vertically centered in that half, a one-line supporting text below, and a brand mark in the bottom-right corner. The split is a hard horizontal edge.",
+        "best_for": "Balanced visual-plus-message posts, event announcements",
+        "prompt_fragment": "Magazine tear \u2014 rich photograph above, bold typographic ground below. Like a Cereal magazine feature spread or a Wallpaper* cover. Clean horizontal division, editorial confidence, Hasselblad clarity, award-winning layout.",
+        "tags": [
+          "split",
+          "balanced",
+          "image-plus-type",
+          "structured"
+        ]
+      },
+      {
+        "name": "icon-plus-message",
+        "label": "Icon + Message",
+        "description": "A brand mark or icon on the left, paired with a short message on the right.",
+        "composition": "The frame splits into a left third and right two-thirds. The left third holds a brand mark, icon, or simple graphic element, vertically centered. The right two-thirds holds a short bold headline and one line of supporting text, both left-aligned and vertically centered. A thin vertical accent line or narrow gap separates the two zones. Background is a flat solid color.",
+        "best_for": "Tips, feature highlights, quick announcements",
+        "prompt_fragment": "Compact brand signal \u2014 icon paired with a short bold message like a wayfinding sign or a Paul Rand trademark lockup. Clean vertical division, utilitarian clarity, Swiss precision, confident restraint.",
+        "tags": [
+          "icon",
+          "paired",
+          "compact",
+          "informational"
+        ]
+      }
+    ],
+    "brand_scene": [
+      {
+        "name": "deep-perspective-corridor",
+        "label": "Deep Perspective Corridor",
+        "description": "A vanishing-point composition with architectural depth drawing the eye into the center of the frame.",
+        "composition": "Architectural or geometric structures recede symmetrically from the edges of the frame toward a single vanishing point at center. The corridor walls, columns, or planes create strong converging lines. The vanishing point sits at the horizontal center and slightly above vertical center. The foreground occupies the outer portions of the frame on each side, the midground fills the middle zone, and the far point glows or brightens slightly as a focal anchor. Brand color is carried in the structures or lighting.",
+        "best_for": "Conveying depth, ambition, forward motion, or technological precision",
+        "prompt_fragment": "Monumental corridor receding into luminous depth \u2014 like a James Turrell light installation or a Tadao Ando concrete temple. Converging stone planes, warm volumetric light, cathedral scale, cinematic, Hasselblad medium format.",
+        "tags": [
+          "perspective",
+          "architectural",
+          "depth",
+          "symmetry",
+          "cinematic"
+        ]
+      },
+      {
+        "name": "aerial-overview",
+        "label": "Aerial Overview",
+        "description": "A bird's-eye view of terrain or surfaces with brand geometry subtly embedded in the landscape.",
+        "composition": "The camera looks straight down at a landscape, surface, or terrain that fills the entire frame. The ground plane has natural variation \u2014 texture, color shifts, topography \u2014 but embedded within it are subtle geometric forms that echo brand shapes: paths, clearings, shadows, or material changes that form recognizable patterns without looking artificially placed. No horizon line is visible. The entire frame is ground surface.",
+        "best_for": "Abstract brand worlds, environmental storytelling, system-level thinking",
+        "prompt_fragment": "Vast terrain seen from directly above \u2014 like an Edward Burtynsky aerial photograph. Subtle geometric patterns embedded in natural landscape. Topographic texture, golden hour warmth, 8K drone cinematography, award-winning photography.",
+        "tags": [
+          "aerial",
+          "overhead",
+          "terrain",
+          "abstract",
+          "embedded-geometry"
+        ]
+      },
+      {
+        "name": "macro-material",
+        "label": "Macro Material",
+        "description": "An extreme close-up of a textured surface with shallow depth of field, revealing material character.",
+        "composition": "The camera is extremely close to a physical surface \u2014 stone, metal, fabric, glass, liquid, organic material. The surface fills the entire frame. A narrow band of sharp focus runs across the center third of the image, with the foreground and background falling into soft bokeh. Surface details \u2014 grain, scratches, reflections, fibers \u2014 are visible at high magnification. The color palette comes entirely from the material itself.",
+        "best_for": "Communicating craft, materiality, premium quality, or tactile brand values",
+        "prompt_fragment": "Extreme macro of raw material surface \u2014 like an Irving Penn still life or a Thomas Demand paper sculpture. Shallow depth of field revealing grain and fiber. Tactile, sensual, studio-lit, Hasselblad 120mm, award-winning detail.",
+        "tags": [
+          "macro",
+          "texture",
+          "material",
+          "shallow-dof",
+          "tactile"
+        ]
+      },
+      {
+        "name": "atmospheric-gradient",
+        "label": "Atmospheric Gradient",
+        "description": "A wide smooth gradient with subtle embedded texture or particles, creating expansive mood.",
+        "composition": "The frame is filled with a smooth color gradient that transitions horizontally or diagonally across the full 16:9 width. Embedded within the gradient are very subtle particles, grain, or soft noise that prevent it from looking digitally flat. No hard edges, no objects, no text. The gradient shift is gentle \u2014 two or three closely related hues rather than contrasting colors. The overall effect is atmospheric and expansive, like a sky or fog.",
+        "best_for": "Background imagery, mood-setting hero areas, ambient brand presence",
+        "prompt_fragment": "Vast atmospheric color field \u2014 like a Mark Rothko painting rendered as landscape photography. Subtle grain and particle dust embedded throughout. Expansive, meditative, no focal point, cinematic mood, 8K resolution.",
+        "tags": [
+          "gradient",
+          "atmospheric",
+          "ambient",
+          "texture",
+          "expansive"
+        ]
+      },
+      {
+        "name": "still-life-arrangement",
+        "label": "Still Life Arrangement",
+        "description": "Curated objects arranged on a surface, shot from overhead or at a 3/4 angle.",
+        "composition": "A set of 4-7 objects are deliberately arranged on a flat surface, filling the frame but not overcrowding it. Each object has breathing room. The camera angle is either directly overhead (flat lay) or at roughly 45 degrees (3/4 view). Objects vary in size, creating a natural visual hierarchy \u2014 one or two larger anchors and several smaller supporting pieces. Shadows are consistent and directional, falling to one side. The surface itself is a single material with subtle texture.",
+        "best_for": "Brand artifact collections, product ecosystems, editorial content",
+        "prompt_fragment": "Curated object tableau \u2014 like a Kinfolk editorial flat lay or a Jiro Takamatsu still life. Deliberate spacing, directional shadows, natural materials on linen ground. Hasselblad medium format, warm studio light, award-winning styling.",
+        "tags": [
+          "still-life",
+          "editorial",
+          "objects",
+          "curated",
+          "overhead"
+        ]
+      },
+      {
+        "name": "environmental-portal",
+        "label": "Environmental Portal",
+        "description": "A framed view through an opening \u2014 doorway, window, arch \u2014 into a branded environment beyond.",
+        "composition": "A dark or neutral foreground frame \u2014 an architectural opening, doorway, arch, or window \u2014 occupies the outer edges of the image, creating a portal shape. Through the opening, a bright or color-saturated environment is visible: a landscape, interior, or abstract space rendered in brand palette. The opening is roughly centered and occupies 50-60% of the total frame area. The contrast between the dark frame and bright interior creates strong focal pull toward the scene beyond.",
+        "best_for": "Inviting viewers into a brand world, reveal moments, experiential storytelling",
+        "prompt_fragment": "Dark architectural frame opening into luminous space beyond \u2014 like a Tadao Ando pavilion threshold or a Gordon Matta-Clark building cut. Dramatic light contrast, raw concrete, volumetric rays, cinematic depth, 8K.",
+        "tags": [
+          "portal",
+          "framed",
+          "architectural",
+          "reveal",
+          "depth"
+        ]
+      }
+    ],
+    "concept_illustration": [
+      {
+        "name": "flow-diagram-abstract",
+        "label": "Flow Diagram Abstract",
+        "description": "Flowing lines and channels connecting nodes or passing through filter-like gate structures.",
+        "composition": "Multiple flowing lines or streams enter from the left edge of the frame, converge through one or two structural gate or filter forms at center, and exit toward the right edge. The lines vary in thickness and opacity, suggesting different volumes or priorities. The gate structures are geometric and solid, contrasting with the organic flow lines. The background is clean and minimal. The composition uses the full height, with flow lines distributed across the upper and lower portions.",
+        "best_for": "Process explanations, data flow concepts, filtering or transformation narratives",
+        "prompt_fragment": "Flowing organic streams passing through geometric gates \u2014 like a Giorgia Lupi data visualization rendered in physical material. Ink on handmade paper, precise yet organic, masterful information design.",
+        "tags": [
+          "flow",
+          "process",
+          "diagram",
+          "abstract",
+          "connections"
+        ]
+      },
+      {
+        "name": "layered-strata",
+        "label": "Layered Strata",
+        "description": "Horizontal layers suggesting geological depth, processing stages, or categorical separation.",
+        "composition": "The frame is divided into 4-6 horizontal bands of varying height, stacked vertically. Each band has a distinct color, texture, or density, suggesting different layers or stages. The boundaries between bands may be sharp, undulating, or slightly irregular. The bands span the full width of the frame. Subtle elements \u2014 particles, small marks, or embedded shapes \u2014 exist within individual layers but do not cross boundaries. The most visually dense band sits near the center.",
+        "best_for": "Layered concepts, category breakdowns, depth or stage metaphors",
+        "prompt_fragment": "Geological strata cross-section \u2014 horizontal layers of varying texture and density. Like a Leanne Shapton watercolor or a core sample photograph. Handmade paper, mineral pigments, undulating boundaries, quiet depth, archival quality.",
+        "tags": [
+          "layers",
+          "strata",
+          "horizontal",
+          "depth",
+          "stages"
+        ]
+      },
+      {
+        "name": "symbol-expansion",
+        "label": "Symbol Expansion",
+        "description": "A single compact geometric element at center explodes or expands into a larger surrounding system.",
+        "composition": "A small, dense geometric symbol sits at the exact center of the frame. Radiating outward from it, the symbol's components separate, scale up, and reconfigure into a larger system of related shapes that fill the surrounding space. The density is highest at center and decreases toward the edges. Lines or subtle connectors link the expanded elements back to the central form. The background is clean, and the outermost elements may fade slightly near the frame edges.",
+        "best_for": "Explaining core concepts that unfold into systems, origin stories, identity breakdowns",
+        "prompt_fragment": "Geometric seed exploding into an orbiting system \u2014 like an Ernst Haeckel biological diagram or a Leonardo anatomical study. Precise linework radiating outward, engraving-quality detail, cream stock, masterful draftsmanship.",
+        "tags": [
+          "expansion",
+          "radial",
+          "symbol",
+          "system",
+          "exploded-view"
+        ]
+      },
+      {
+        "name": "particle-convergence",
+        "label": "Particle Convergence",
+        "description": "Scattered loose elements gradually converging into an ordered, cohesive form.",
+        "composition": "The composition reads from top to bottom (or outside to inside). In the outer or upper region, small particles, shapes, or fragments are scattered loosely with random rotation and spacing. As they move toward a focal zone in the lower-center of the frame, they progressively align, tighten, and organize into a recognizable cohesive shape or structure. The transition from chaos to order is gradual, not abrupt. The formed shape in the convergence zone is the densest and most sharply defined area of the image.",
+        "best_for": "Synthesis concepts, bringing order from complexity, aggregation narratives",
+        "prompt_fragment": "Scattered fragments coalescing into crystalline order \u2014 like iron filings drawn to a magnet or a Calder mobile frozen mid-assembly. Chaos resolving into geometry. Ink and graphite on cotton rag, scientific illustration, masterful rendering.",
+        "tags": [
+          "convergence",
+          "particles",
+          "order",
+          "synthesis",
+          "emergence"
+        ]
+      },
+      {
+        "name": "radial-composition",
+        "label": "Radial Composition",
+        "description": "Elements radiating outward from a central concept, suggesting influence, reach, or interconnection.",
+        "composition": "A central element \u2014 a shape, icon, or node \u2014 is positioned at the center of the frame. From it, 6-10 spokes or branches radiate outward toward the edges, each terminating in or connecting to secondary elements at varying distances from the center. The spokes are not evenly spaced; some cluster and some have wider gaps, creating visual rhythm. The central element is the most visually heavy, and elements decrease in weight toward the periphery. The composition fills the full frame with comfortable margins.",
+        "best_for": "Ecosystem maps, influence diagrams, hub-and-spoke concepts",
+        "prompt_fragment": "Hub-and-spoke ecosystem radiating from a central node \u2014 like a medieval astronomical chart or a Buckminster Fuller tensegrity diagram. Fine pen on vellum, precise connections, archival draftsmanship, impeccable detail.",
+        "tags": [
+          "radial",
+          "hub-spoke",
+          "ecosystem",
+          "connections",
+          "outward"
+        ]
+      }
+    ],
+    "hero_banner": [
+      {
+        "name": "gradient-atmosphere",
+        "label": "Gradient Atmosphere",
+        "description": "A wide cinematic gradient with subtle embedded texture, creating immersive ambient depth.",
+        "composition": "A smooth color gradient fills the entire 16:9 frame, transitioning from a deeper tone on the left to a lighter tone on the right (or vertically from bottom to top). Fine grain, soft noise, or barely visible particle texture is embedded throughout to prevent digital flatness. No objects, no text, no focal point \u2014 the gradient itself is the subject. The color shift is subtle, spanning two or three adjacent hues rather than contrasting colors.",
+        "best_for": "Hero backgrounds, ambient header areas, cinematic mood-setting",
+        "prompt_fragment": "Vast atmospheric color field stretching edge to edge \u2014 like a Rothko canvas at museum scale. Embedded grain and particle dust throughout. Meditative, cinematic, no focal point, volumetric light, 8K resolution.",
+        "tags": [
+          "gradient",
+          "atmospheric",
+          "ambient",
+          "cinematic",
+          "background"
+        ]
+      },
+      {
+        "name": "split-asymmetric",
+        "label": "Split Asymmetric",
+        "description": "Dense brand texture on one side, open negative space for text overlay on the other.",
+        "composition": "The frame is divided vertically into unequal halves. The larger portion is filled with dense brand texture, pattern, or imagery that extends to the edges. The smaller portion is a flat solid color field \u2014 open and empty, designed as a clear zone for text overlay. The transition between zones is a hard vertical edge. The texture side is visually rich; the open side is intentionally bare.",
+        "best_for": "Hero areas that need a text-safe zone alongside visual interest",
+        "prompt_fragment": "Dense brand texture bleeding into open breathing space \u2014 like a Noguchi gallery wall beside a Zen garden void. Tactile richness meeting deliberate emptiness. Hard vertical edge, editorial restraint, masterful balance.",
+        "tags": [
+          "split",
+          "texture",
+          "text-safe",
+          "asymmetric",
+          "overlay-ready"
+        ]
+      },
+      {
+        "name": "panoramic-scene",
+        "label": "Panoramic Scene",
+        "description": "A wide landscape or architectural vista filling the banner at cinematic scale.",
+        "composition": "A full-bleed photographic or rendered landscape fills the entire 16:9 frame. The horizon line sits at the lower third, giving two-thirds to sky or upper environment. The scene has clear foreground, midground, and background planes creating natural depth. The width of the 16:9 format is used to convey scale and expansiveness. Lighting is directional, creating atmosphere \u2014 golden hour, overcast, or dramatic side-light. No text or brand elements in the image.",
+        "best_for": "Brand-at-scale moments, cinematic headers, environmental storytelling",
+        "prompt_fragment": "Sweeping cinematic landscape at golden hour \u2014 like an Emmanuel Lubezki wide shot. Layered depth from foreground detail to infinite horizon. Arri Alexa, anamorphic lens, volumetric atmosphere, 8K, award-winning cinematography.",
+        "tags": [
+          "panoramic",
+          "landscape",
+          "cinematic",
+          "wide",
+          "environmental"
+        ]
+      },
+      {
+        "name": "type-on-field",
+        "label": "Type on Field",
+        "description": "Massive display type stretched across the full width with a subtle textured or toned background.",
+        "composition": "A single line or two lines of very large display type span the full width of the 16:9 frame, horizontally centered and vertically centered. The type is scaled so large that it nearly touches the left and right edges. The background is a flat color or very subtle texture \u2014 present but not competing with the type. No other elements are in the frame. The type itself is the entire composition, with its scale and weight creating visual presence.",
+        "best_for": "Bold brand statements, launch headlines, typographic hero moments",
+        "prompt_fragment": "Massive display type stretching wall-to-wall \u2014 like a Barbara Kruger installation or a Massimo Vignelli subway poster. Type as architecture. Raw scale, confident weight, matte stock, impeccable kerning.",
+        "tags": [
+          "type-dominant",
+          "bold",
+          "statement",
+          "wide-type",
+          "minimal"
+        ]
+      },
+      {
+        "name": "layered-depth",
+        "label": "Layered Depth",
+        "description": "Multiple overlapping translucent planes create a sense of depth and spatial dimension.",
+        "composition": "Three to five large rectangular or organic shapes are layered from back to front across the frame, each partially overlapping the one behind it. Each plane is semi-translucent, allowing the layers beneath to show through with reduced opacity. The planes are offset from each other both horizontally and vertically, creating a staggered depth effect. The frontmost plane is the most opaque and saturated; the rearmost is the most transparent and muted. The layering creates a sense of looking through colored glass panes stacked in space.",
+        "best_for": "Depth and dimension themes, technology or platform concepts, abstract hero imagery",
+        "prompt_fragment": "Translucent overlapping planes creating spatial depth \u2014 like a James Turrell light projection or a Gerhard Richter glass piece. Luminous color bleeding through layers, ethereal, volumetric, masterful composition.",
+        "tags": [
+          "layered",
+          "depth",
+          "translucent",
+          "planes",
+          "dimensional"
+        ]
+      }
+    ],
+    "og_card": [
+      {
+        "name": "mark-plus-title",
+        "label": "Mark + Title",
+        "description": "Brand mark on the left third, title and subtitle on the right two-thirds.",
+        "composition": "The frame is divided into a left third and right two-thirds. The brand mark or logo is centered vertically and horizontally within the left third. The right two-thirds contains a bold title top-aligned within that zone and a lighter subtitle line below it, both left-aligned. A subtle vertical divider or generous gap separates the two zones. The background is a single flat color. All elements are vertically centered as a group within the frame height.",
+        "best_for": "Standard OG cards for pages, articles, or tools where brand recognition matters",
+        "prompt_fragment": "Clean brand lockup \u2014 mark and title in confident alignment like a Pentagram business card or a Swiss railway timetable header. Flat stock, precise spacing, utilitarian clarity, masterful restraint.",
+        "tags": [
+          "brand-mark",
+          "title",
+          "structured",
+          "standard"
+        ]
+      },
+      {
+        "name": "centered-lockup",
+        "label": "Centered Lockup",
+        "description": "Brand mark centered above a centered title, clean minimal background.",
+        "composition": "A brand mark is horizontally centered and positioned above the vertical midline of the frame. Directly below it, with a comfortable gap, a bold title line is also horizontally centered. An optional lighter subtitle sits below the title. The entire lockup group is vertically centered in the frame as a unit. The background is a flat solid color or very subtle gradient. Generous padding on all sides \u2014 the lockup occupies no more than 60% of the frame width.",
+        "best_for": "Clean OG cards, homepage meta images, brand-first presentations",
+        "prompt_fragment": "Centered brand shrine \u2014 mark above title in calm vertical hierarchy. Like an Aesop product label or a museum exhibition title card. Cream stock, generous quiet space, masterful simplicity.",
+        "tags": [
+          "centered",
+          "lockup",
+          "clean",
+          "brand-first",
+          "minimal"
+        ]
+      },
+      {
+        "name": "editorial-strip",
+        "label": "Editorial Strip",
+        "description": "Left-aligned type stack with a vertical accent bar, generous right margin.",
+        "composition": "A thin vertical accent bar in brand color runs along the left edge of the frame from top to bottom, about 3-4% of the frame width. Adjacent to it, with a small gap, a bold title and lighter subtitle are left-aligned and vertically centered in the frame. The type stack sits in the left 55% of the frame, leaving the right 45% as open negative space. A small brand mark is positioned in the bottom-right corner. Background is a flat solid color.",
+        "best_for": "Editorial content, blog posts, thought-leadership pages",
+        "prompt_fragment": "Bold editorial masthead with a vertical accent bar \u2014 like a Monocle magazine header or a Bloomberg Businessweek cover strip. Left-aligned authority, confident asymmetry, fine stock, impeccable typographic hierarchy.",
+        "tags": [
+          "editorial",
+          "accent-bar",
+          "left-aligned",
+          "asymmetric"
+        ]
+      }
+    ],
+    "quote_card": [
+      {
+        "name": "classic-centered",
+        "label": "Classic Centered",
+        "description": "Large italic quote centered in the frame, small attribution below, accent line above.",
+        "composition": "A thin horizontal accent line spans about 20% of the frame width, centered horizontally, positioned at roughly the upper third of the frame. Below it, a quote in large italic or display type is centered, spanning 2-4 lines with comfortable side margins of at least 15%. Below the quote, a small attribution line \u2014 name, title, or source \u2014 is centered in regular weight. The entire stack is vertically centered as a group. Background is a flat solid color.",
+        "best_for": "Testimonials, pull quotes, inspirational statements",
+        "prompt_fragment": "Timeless centered testimonial \u2014 italic quote floating in generous space like a Penguin Classics title page or a letterpress broadside. Fine accent rule above, quiet attribution below. Cream paper, elegant restraint, masterful typesetting.",
+        "tags": [
+          "centered",
+          "classic",
+          "italic",
+          "formal",
+          "testimonial"
+        ]
+      },
+      {
+        "name": "left-aligned-editorial",
+        "label": "Left-Aligned Editorial",
+        "description": "Left-aligned quote in bold display weight with right-aligned attribution for dynamic tension.",
+        "composition": "A bold display-weight quote is left-aligned with a 12-15% left margin, filling the upper 60% of the frame with 2-4 lines. The attribution \u2014 name and title \u2014 is right-aligned with a matching right margin, positioned below the quote in the lower portion. This left-right opposition creates diagonal tension. A small brand mark sits in the bottom-left corner. Background is a flat solid color.",
+        "best_for": "Editorial content, modern brand communications, design-forward presentations",
+        "prompt_fragment": "Bold editorial quote with dynamic left-right tension \u2014 like a Massimo Vignelli broadsheet or a Fabien Baron magazine spread. Display weight, opposing alignments creating visual diagonal. Confident, provocative, masterful typography.",
+        "tags": [
+          "left-aligned",
+          "editorial",
+          "bold",
+          "dynamic",
+          "modern"
+        ]
+      },
+      {
+        "name": "dark-field",
+        "label": "Dark Field",
+        "description": "Light type on a dark branded background with minimal decoration.",
+        "composition": "The background is a dark color from the brand palette \u2014 not pure black but a deep, rich dark tone. A quote in light or white display type is centered horizontally and vertically, spanning 2-4 lines with generous side margins. A small attribution in lighter weight sits below, also centered. No accent lines, no decorative elements, no imagery. The contrast between light type and dark ground is the entire effect. A subtle brand mark in a muted tone sits in the bottom-center.",
+        "best_for": "Evening or night brand moments, premium feel, high-contrast readability",
+        "prompt_fragment": "Luminous type on deep dark ground \u2014 like a Jenny Holzer LED projection or a film title card in a dark theater. Rich dark tone, glowing display serif, intimate contrast, cinematic mood, impeccable clarity.",
+        "tags": [
+          "dark",
+          "high-contrast",
+          "minimal",
+          "premium",
+          "night"
+        ]
+      }
+    ],
+    "podcast_cover": [
+      {
+        "name": "centered-mark-and-title",
+        "label": "Centered Mark and Title",
+        "description": "Brand mark above show title, both centered, with an atmospheric background.",
+        "composition": "A brand mark or show icon is centered horizontally and positioned above the vertical center of the frame. Below it, the show title is set in bold display type, also centered. An optional subtitle or tagline in lighter weight sits below the title. The entire lockup is vertically centered as a group. The background is an atmospheric gradient, subtle texture, or soft photographic blur \u2014 present but not competing with the centered lockup. The lockup occupies roughly 60% of the frame width.",
+        "best_for": "Clean, recognizable podcast covers that prioritize mark and title legibility",
+        "prompt_fragment": "Iconic centered lockup on atmospheric ground \u2014 like a Blue Note jazz album cover or an A24 film poster. Mark above bold title, moody textured backdrop, vinyl-worthy presence, masterful identity design.",
+        "tags": [
+          "centered",
+          "mark",
+          "title",
+          "atmospheric",
+          "clean"
+        ]
+      },
+      {
+        "name": "full-bleed-texture",
+        "label": "Full-Bleed Texture",
+        "description": "An immersive texture or photograph fills the frame with the show mark and title overlaid.",
+        "composition": "A rich texture, pattern, or photograph fills the entire 1:1 frame edge to edge. Over this, a brand mark is positioned in the upper-center area and the show title in bold display type is positioned in the lower-center area, both with sufficient contrast against the background \u2014 achieved through type color choice, a subtle text shadow, or a slight darkening of the background behind the type. The texture is the dominant visual element; the type sits on top of it.",
+        "best_for": "Visually immersive covers, photography-led shows, texture-rich brand identities",
+        "prompt_fragment": "Immersive texture with bold type overlay \u2014 like a Criterion Collection spine or a vintage patent document. Rich material filling the frame, confident type sitting on raw surface. Tactile, collectible, masterful.",
+        "tags": [
+          "full-bleed",
+          "texture",
+          "immersive",
+          "photo",
+          "overlaid"
+        ]
+      },
+      {
+        "name": "editorial-split",
+        "label": "Editorial Split",
+        "description": "Left half atmospheric imagery, right half type-dominant on a solid color ground.",
+        "composition": "The 1:1 frame is split vertically at the center. The left half holds an atmospheric photograph, texture, or gradient that bleeds to the left, top, and bottom edges. The right half is a flat solid color with the show title in bold display type, vertically centered and left-aligned within that half. A brand mark or icon sits above the title. An optional subtitle or episode count sits below. The split is a hard vertical edge. The left side is visual; the right side is typographic.",
+        "best_for": "Editorial or interview-format shows, balanced visual and typographic identity",
+        "prompt_fragment": "Vertical split \u2014 moody photograph meeting clean typographic space. Like a Monocle feature opening or a Kinfolk cover. Half visual warmth, half editorial precision, hard division, Hasselblad clarity, masterful balance.",
+        "tags": [
+          "split",
+          "editorial",
+          "half-image",
+          "half-type",
+          "balanced"
+        ]
+      }
+    ]
+  },
+  "default_layout": {
+    "name": "centered-editorial",
+    "composition": "Centered editorial hierarchy \u2014 brand mark crowning a bold headline with supporting text below. Like a museum exhibition poster or an Aesop product card. Generous breathing space, calm vertical rhythm, flat stock or subtle texture. Adapts to any aspect ratio through vertical spacing. Clean, authoritative, masterful restraint."
+  }
+}

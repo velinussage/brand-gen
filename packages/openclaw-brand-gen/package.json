@@ -1,0 +1,28 @@
+{
+  "name": "@brand-gen/openclaw-brand-gen",
+  "version": "0.1.0",
+  "description": "OpenClaw MCP bridge plugin for brand-gen — autonomous brand material generation with persistent memory",
+  "main": "src/index.ts",
+  "type": "module",
+  "openclaw": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test ./test/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@brand-gen/core": "file:../brand-gen-core"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.0"
+  },
+  "license": "MIT"
+}

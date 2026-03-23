@@ -1,0 +1,929 @@
+{
+  "version": 1,
+  "material_config": {
+    "logo": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "wordmark": {
+      "generation_mode": "image",
+      "default_model": "ideogram",
+      "default_aspect_ratio": "16:9"
+    },
+    "lockup": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "icon": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "banner": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "product-banner": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "landing-hero": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "hero-banner": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "social": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "state-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "1:1"
+    },
+    "campaign-poster": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "x-card": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "2:1"
+    },
+    "x-feed": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "x-feed-square": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "x-feed-portrait": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "linkedin-card": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1.91:1"
+    },
+    "linkedin-feed": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1.91:1"
+    },
+    "linkedin-feed-square": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "linkedin-feed-portrait": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1.91"
+    },
+    "og-card": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1.91:1"
+    },
+    "podcast-cover": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "podcast-banner": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "poster": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "event-poster": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "merch-poster": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "product-visual": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "styleframe": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "pattern-system": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "motif-system": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "sticker-family": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "badge-family": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "icon-family": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "content-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "content-card-square": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "1:1"
+    },
+    "carousel-slide": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "editorial-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "info-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "concept-illustration": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "4:5"
+    },
+    "brand-scene": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "data-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "1:1"
+    },
+    "quote-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "1:1"
+    },
+    "announcement-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "process-card": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "storyboard": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "browser-illustration": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "feature-illustration": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "16:9"
+    },
+    "device-mockup": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "lifestyle-mockup": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "billboard-mockup": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "16:9"
+    },
+    "animation": {
+      "generation_mode": "video",
+      "default_model": "kling-v2.6",
+      "default_aspect_ratio": "16:9"
+    },
+    "logo-animation": {
+      "generation_mode": "video",
+      "default_model": "kling-v2.6",
+      "default_aspect_ratio": "16:9"
+    },
+    "bumper-animation": {
+      "generation_mode": "video",
+      "default_model": "kling-v2.6",
+      "default_aspect_ratio": "16:9"
+    },
+    "stinger-animation": {
+      "generation_mode": "video",
+      "default_model": "kling-v2.6",
+      "default_aspect_ratio": "16:9"
+    },
+    "feature-animation": {
+      "generation_mode": "video",
+      "default_model": "minimax",
+      "default_aspect_ratio": "16:9"
+    },
+    "motion-loop": {
+      "generation_mode": "video",
+      "default_model": "luma",
+      "default_aspect_ratio": "1:1"
+    },
+    "gif": {
+      "generation_mode": "video",
+      "default_model": "kling-v2.6",
+      "default_aspect_ratio": "1:1"
+    },
+    "short-video": {
+      "generation_mode": "video",
+      "default_model": "minimax",
+      "default_aspect_ratio": "16:9"
+    }
+  },
+  "classifications": {
+    "interface": [
+      "browser_illustration",
+      "feature_animation",
+      "feature_illustration",
+      "landing_hero",
+      "product_banner",
+      "styleframe"
+    ],
+    "non_interface": [
+      "announcement_card",
+      "billboard_mockup",
+      "brand_bumper",
+      "brand_scene",
+      "campaign_poster",
+      "concept_illustration",
+      "content_card",
+      "data_card",
+      "device_mockup",
+      "editorial_card",
+      "lifestyle_mockup",
+      "merch_poster",
+      "pattern_system",
+      "podcast_banner",
+      "podcast_cover",
+      "process_card",
+      "quote_card",
+      "social",
+      "sticker_family"
+    ],
+    "copy_bearing": [
+      "announcement-card",
+      "billboard-mockup",
+      "browser-illustration",
+      "campaign-poster",
+      "carousel-slide",
+      "content-card",
+      "content-card-square",
+      "data-card",
+      "device-mockup",
+      "editorial-card",
+      "event-poster",
+      "feature-illustration",
+      "hero-banner",
+      "info-card",
+      "landing-hero",
+      "lifestyle-mockup",
+      "merch-poster",
+      "og-card",
+      "podcast-banner",
+      "podcast-cover",
+      "process-card",
+      "product-banner",
+      "quote-card",
+      "social",
+      "state-card",
+      "wordmark",
+      "x-card"
+    ]
+  },
+  "snippet_aliases": {
+    "browser-illustration": "browser_illustration",
+    "landing-hero": "landing_hero",
+    "hero-banner": "landing_hero",
+    "product-banner": "product_banner",
+    "banner": "product_banner",
+    "product-visual": "feature_illustration",
+    "feature-illustration": "feature_illustration",
+    "device-mockup": "device_mockup",
+    "lifestyle-mockup": "lifestyle_mockup",
+    "billboard-mockup": "billboard_mockup",
+    "styleframe": "styleframe",
+    "storyboard": "styleframe",
+    "x-card": "social",
+    "x-feed": "social",
+    "x-feed-square": "social",
+    "x-feed-portrait": "social",
+    "linkedin-card": "social",
+    "linkedin-feed": "social",
+    "linkedin-feed-square": "social",
+    "linkedin-feed-portrait": "social",
+    "og-card": "social",
+    "podcast-cover": "podcast_cover",
+    "podcast-banner": "podcast_banner",
+    "social": "social",
+    "state-card": "state_card",
+    "content-card": "content_card",
+    "content-card-square": "content_card",
+    "carousel-slide": "content_card",
+    "editorial-card": "editorial_card",
+    "info-card": "content_card",
+    "concept-illustration": "concept_illustration",
+    "brand-scene": "brand_scene",
+    "data-card": "data_card",
+    "quote-card": "quote_card",
+    "announcement-card": "announcement_card",
+    "process-card": "process_card",
+    "campaign-poster": "campaign_poster",
+    "poster": "campaign_poster",
+    "event-poster": "merch_poster",
+    "merch-poster": "merch_poster",
+    "pattern-system": "pattern_system",
+    "motif-system": "pattern_system",
+    "sticker-family": "sticker_family",
+    "badge-family": "sticker_family",
+    "icon-family": "sticker_family",
+    "animation": "feature_animation",
+    "logo-animation": "brand_bumper",
+    "bumper-animation": "brand_bumper",
+    "stinger-animation": "brand_bumper",
+    "feature-animation": "feature_animation",
+    "motion-loop": "feature_animation",
+    "gif": "feature_animation",
+    "short-video": "feature_animation"
+  },
+  "social_specs": {
+    "x-card": {
+      "label": "X Summary Large Image card",
+      "width": 1200,
+      "height": 600,
+      "aspect_ratio": "2:1",
+      "notes": "Use for X link cards and illustrated feature cards.",
+      "source": "X Developer docs \u2014 summary_large_image guidance"
+    },
+    "x-feed": {
+      "label": "X feed post (landscape)",
+      "width": 1600,
+      "height": 900,
+      "aspect_ratio": "16:9",
+      "notes": "Practical wide-post default for organic X feed visuals when you want a broader editorial composition than X cards.",
+      "source": "brand-gen practical feed preset for X organic posts"
+    },
+    "x-feed-square": {
+      "label": "X feed post (square)",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Use when one square asset should work across multiple social feeds.",
+      "source": "brand-gen practical multi-platform feed preset"
+    },
+    "x-feed-portrait": {
+      "label": "X feed post (portrait)",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Use for taller organic X feed visuals that maximize mobile vertical space.",
+      "source": "brand-gen practical mobile-first feed preset"
+    },
+    "linkedin-card": {
+      "label": "LinkedIn custom image / link card",
+      "width": 1200,
+      "height": 627,
+      "aspect_ratio": "1.91:1",
+      "notes": "Best-fit default for LinkedIn link/share cards.",
+      "source": "LinkedIn Help + Marketing Solutions docs"
+    },
+    "linkedin-feed": {
+      "label": "LinkedIn feed post (landscape)",
+      "width": 1200,
+      "height": 627,
+      "aspect_ratio": "1.91:1",
+      "notes": "Safe landscape preset for LinkedIn feed posts and product announcements.",
+      "source": "LinkedIn Marketing Solutions single image specs"
+    },
+    "linkedin-feed-square": {
+      "label": "LinkedIn feed post (square)",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Use for cleaner feed posts where centered composition matters more than wide framing.",
+      "source": "LinkedIn Marketing Solutions single image specs"
+    },
+    "linkedin-feed-portrait": {
+      "label": "LinkedIn feed post (portrait)",
+      "width": 627,
+      "height": 1200,
+      "aspect_ratio": "1:1.91",
+      "notes": "Portrait preset aligned to LinkedIn's supported vertical single-image format.",
+      "source": "LinkedIn Marketing Solutions single image specs"
+    },
+    "og-card": {
+      "label": "Generic Open Graph social card",
+      "width": 1200,
+      "height": 630,
+      "aspect_ratio": "1.91:1",
+      "notes": "Common cross-platform OG default inferred from major social preview ecosystems.",
+      "source": "brand-gen inference from major social preview ecosystems"
+    },
+    "concept-illustration": {
+      "label": "Concept illustration (brand world)",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Abstract branded illustration that explains a concept, value, or idea without showing product UI. Uses brand palette, motifs, and illustration style to create a visual metaphor. Think editorial illustration, not screenshot.",
+      "source": "Brand illustration best practices"
+    },
+    "brand-scene": {
+      "label": "Brand world scene (atmospheric)",
+      "width": 1600,
+      "height": 900,
+      "aspect_ratio": "16:9",
+      "notes": "Atmospheric brand-world imagery \u2014 landscapes, environments, or abstract scenes that establish mood and brand feeling. No UI elements. Think backgrounds, headers, or immersive brand moments.",
+      "source": "Brand world imagery patterns"
+    },
+    "data-card": {
+      "label": "Data visualization card",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "One big number or stat + context sentence on branded field. Bold display font for the number, body font for context. Brand mark bottom-left. Think 'stat of the day' social card.",
+      "source": "Data storytelling card patterns"
+    },
+    "quote-card": {
+      "label": "Quote / testimonial card",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Customer quote or team quote on branded background. Large quotation marks or italic display font for the quote, attribution below. Brand mark anchored. Clean, editorial feel.",
+      "source": "Social testimonial card patterns"
+    },
+    "announcement-card": {
+      "label": "Announcement / launch card",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Bold headline announcing a launch, feature, or milestone. Optional branded illustration or icon supporting the headline. Brand mark + CTA. High energy but brand-disciplined.",
+      "source": "Product announcement card patterns"
+    },
+    "process-card": {
+      "label": "How-it-works / process card",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Numbered steps (3-5) showing a process or how-it-works flow. Each step gets a number + short label. Optional small branded icons per step. Clean whitespace between steps.",
+      "source": "Process visualization card patterns"
+    },
+    "content-card": {
+      "label": "Branded content card (portrait)",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Text-heavy branded card for Instagram/LinkedIn carousels. Headline + body text + optional photo inset + brand mark. Keep text at 24pt+ for mobile readability, 250px safe zone from top/bottom edges.",
+      "source": "Instagram/LinkedIn carousel best practices 2025"
+    },
+    "content-card-square": {
+      "label": "Branded content card (square)",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Square content card for multi-platform carousels and social feeds. Same text-heavy structure as portrait variant.",
+      "source": "Multi-platform social feed spec"
+    },
+    "state-card": {
+      "label": "Truth-first product state card",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Shareable square card built around one real app state, prompt detail, skill page, or feed crop. Preserve screenshot truth and add brand treatment around it rather than redrawing the UI.",
+      "source": "brand-gen hybrid state-card pattern"
+    },
+    "carousel-slide": {
+      "label": "Carousel slide (portrait)",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Sequential carousel slide \u2014 designed as part of a swipeable series. Numbered if part of a how-to or list. Slide 1 = hook, final slide = CTA.",
+      "source": "Instagram/LinkedIn carousel best practices 2025"
+    },
+    "editorial-card": {
+      "label": "Editorial / blog article card",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Long-form branded editorial card with large serif/display headline, body paragraph, CTA link, and brand mark. Inspired by Tia Health blog cards.",
+      "source": "Editorial branded content design patterns"
+    },
+    "info-card": {
+      "label": "Informational card with bullet list",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Branded card with headline, subhead, body text, and bullet list. Optional rounded photo inset in corner. Educational/explainer format.",
+      "source": "Branded infographic card patterns"
+    },
+    "podcast-cover": {
+      "label": "Podcast cover art",
+      "width": 3000,
+      "height": 3000,
+      "aspect_ratio": "1:1",
+      "notes": "Square podcast artwork aligned to Apple Podcasts and Spotify guidance. Keep the show title large and legible at thumbnail size.",
+      "source": "Apple Podcasts Marketing Tools + Spotify for Creators"
+    },
+    "podcast-banner": {
+      "label": "Podcast episode / YouTube promo banner",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "notes": "Landscape episode-promo surface aligned to YouTube thumbnail guidance. Keep the title hierarchy bold and safe inside a 16:9 crop.",
+      "source": "YouTube Help thumbnail guidance"
+    }
+  },
+  "brand_policies": {
+    "landing_hero": {
+      "role": "core explainer",
+      "target_surface": "homepage hero",
+      "purpose": "explain what the product is fast with unmistakable brand presence",
+      "product_truth_expression": "real product proof such as a UI or CLI moment",
+      "abstraction_level": "low",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "browser_illustration": {
+      "role": "product proof",
+      "target_surface": "landing page section or docs",
+      "purpose": "package one real product moment inside a branded frame",
+      "product_truth_expression": "one real product UI surface or workflow moment",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "product_banner": {
+      "role": "supporting product visual",
+      "target_surface": "landing page, docs, or social crop",
+      "purpose": "stage one proof moment inside a wider brand field",
+      "product_truth_expression": "one real product proof surface",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "feature_illustration": {
+      "role": "feature story",
+      "target_surface": "feature section or launch thread",
+      "purpose": "connect a real feature moment to the larger brand system",
+      "product_truth_expression": "one actual workflow, screen, or protocol proof point",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "social": {
+      "role": "social launch or proof card",
+      "target_surface": "social feed or preview card",
+      "purpose": "be instantly recognizable and legible in-feed",
+      "product_truth_expression": "either a real proof moment or a clearly branded product claim",
+      "abstraction_level": "low",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "state-card": {
+      "role": "truth-first state share card",
+      "target_surface": "social feed card or launch update",
+      "purpose": "package one real app state inside a branded card without losing the screenshot truth",
+      "product_truth_expression": "one real prompt, skill, feed item, or app state captured from the actual product",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 4
+    },
+    "podcast_cover": {
+      "role": "podcast cover",
+      "target_surface": "podcast app square artwork",
+      "purpose": "make the show recognizable at thumbnail size with a clear title hierarchy",
+      "product_truth_expression": "the show identity plus one explicit episode or guest cue if the user supplies it",
+      "abstraction_level": "low",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "podcast_banner": {
+      "role": "podcast episode promo",
+      "target_surface": "YouTube thumbnail, social landscape card, or episode promo banner",
+      "purpose": "announce one episode or podcast surface with immediate title legibility and brand recognition",
+      "product_truth_expression": "the show title plus one real episode cue, host, or guest only if explicitly supplied",
+      "abstraction_level": "low",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "feature_animation": {
+      "role": "motion proof",
+      "target_surface": "social, hero loop, or launch page",
+      "purpose": "animate a real product or workflow proof without losing the brand",
+      "product_truth_expression": "a real product frame, workflow, or proof sequence",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "device_mockup": {
+      "role": "device presentation",
+      "target_surface": "app store preview, launch card, portfolio case study, or social proof surface",
+      "purpose": "show one approved branded asset inside a believable device context without collapsing into a generic floating screen",
+      "product_truth_expression": "one approved UI, card, or hero asset translated onto a device-facing presentation",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "lifestyle_mockup": {
+      "role": "lifestyle presentation",
+      "target_surface": "marketing page, campaign board, or social proof scene",
+      "purpose": "show the brand in a real-world context that feels premium and believable rather than like a flat export",
+      "product_truth_expression": "one approved branded asset or screen carried into a realistic scene or hand-held context",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "billboard_mockup": {
+      "role": "large-format presentation",
+      "target_surface": "campaign board, investor deck, outdoor advertising preview, or launch story",
+      "purpose": "translate one approved branded asset into a believable outdoor placement while preserving the hero brand read",
+      "product_truth_expression": "one approved campaign, poster, or hero asset presented as large-format outdoor media",
+      "abstraction_level": "medium",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "campaign_poster": {
+      "role": "campaign still",
+      "target_surface": "poster, launch board, or event announcement",
+      "purpose": "extend the identity into a campaign surface without losing the product brand",
+      "product_truth_expression": "a concrete brand phrase, mark, or product concept that ladders back to the core value proposition",
+      "abstraction_level": "medium",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "pattern_system": {
+      "role": "supporting brand system",
+      "target_surface": "backgrounds, borders, packaging, merch, and motion support",
+      "purpose": "create reusable identity mechanics derived from the mark",
+      "product_truth_expression": "the system behavior of the brand mark and brand memory, not a random abstract pattern",
+      "abstraction_level": "medium",
+      "logo_mode": "optional",
+      "clearly_branded_without_logo_min": 3
+    },
+    "sticker_family": {
+      "role": "supporting family system",
+      "target_surface": "community assets, packaging, event handouts, or social extras",
+      "purpose": "extend the mark into a coherent family of branded units",
+      "product_truth_expression": "the mark anatomy and brand system logic behind the product",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "merch_poster": {
+      "role": "collectible extension",
+      "target_surface": "print, event, merch, or campaign collateral",
+      "purpose": "create a collectible branded surface without becoming generic poster art",
+      "product_truth_expression": "a concrete brand theme, phrase, or motif tied to the actual product identity",
+      "abstraction_level": "medium",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "brand_bumper": {
+      "role": "identity sting",
+      "target_surface": "video intro, social loop, or product reveal",
+      "purpose": "make the brand memorable in motion while preserving exact mark recognition",
+      "product_truth_expression": "the actual brand mark and one concrete motion attitude",
+      "abstraction_level": "low",
+      "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "styleframe": {
+      "role": "product UI styleframe",
+      "target_surface": "pitch deck, brand guidelines, or launch page hero",
+      "purpose": "show what the real product looks like inside the brand system \u2014 the nav, layout, and chrome must match the actual product",
+      "product_truth_expression": "the real product page with actual nav, sidebar, cards, and labels \u2014 not an invented or simplified UI",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    }
+  },
+  "role_translation_defaults": {
+    "composition": {
+      "borrow": [
+        "hierarchy",
+        "crop discipline",
+        "whitespace",
+        "scale contrast"
+      ],
+      "avoid": [
+        "their logo",
+        "their typography",
+        "their copy",
+        "their exact page structure"
+      ]
+    },
+    "motif": {
+      "borrow": [
+        "system logic",
+        "repeat behavior",
+        "family variation",
+        "carrier mechanics"
+      ],
+      "avoid": [
+        "their literal symbols",
+        "their mascot logic",
+        "their icon subject matter",
+        "their letterforms"
+      ]
+    },
+    "application": {
+      "borrow": [
+        "how the identity lands on surfaces",
+        "how one system appears across materials",
+        "print or social pacing"
+      ],
+      "avoid": [
+        "their branded words",
+        "their headlines",
+        "their product claims",
+        "their visual identity"
+      ]
+    },
+    "motion": {
+      "borrow": [
+        "reveal pacing",
+        "masking attitude",
+        "transition rhythm",
+        "final-hold confidence"
+      ],
+      "avoid": [
+        "their exact animation content",
+        "their cinematic language",
+        "their logo timing signature"
+      ]
+    },
+    "product_truth": {
+      "borrow": [
+        "exact nav structure",
+        "real page layout",
+        "actual button labels",
+        "true information architecture"
+      ],
+      "avoid": [
+        "their palette if it conflicts with brand palette",
+        "their typography if brand fonts are defined",
+        "their logo or wordmark"
+      ]
+    }
+  },
+  "role_pack_tag_priority": [
+    "composition",
+    "motif",
+    "application",
+    "motion",
+    "product_truth"
+  ],
+  "set_templates": {
+    "product_core": {
+      "description": "Default product-led set for software brands that need clear product understanding before abstract identity play.",
+      "materials": [
+        {
+          "material_type": "landing-hero",
+          "role": "core explainer"
+        },
+        {
+          "material_type": "browser-illustration",
+          "role": "product proof"
+        },
+        {
+          "material_type": "x-feed",
+          "role": "social launch"
+        },
+        {
+          "material_type": "feature-animation",
+          "role": "motion proof"
+        },
+        {
+          "material_type": "pattern-system",
+          "role": "supporting identity system"
+        }
+      ]
+    },
+    "launch_core": {
+      "description": "Launch-ready set with one hero, one feature visual, one social output, one motion asset, and one support system.",
+      "materials": [
+        {
+          "material_type": "landing-hero",
+          "role": "launch hero"
+        },
+        {
+          "material_type": "feature-illustration",
+          "role": "feature proof"
+        },
+        {
+          "material_type": "x-feed",
+          "role": "launch card"
+        },
+        {
+          "material_type": "bumper-animation",
+          "role": "motion identity"
+        },
+        {
+          "material_type": "pattern-system",
+          "role": "supporting brand field"
+        }
+      ]
+    },
+    "brand_system_core": {
+      "description": "System-first set for brands that already have strong product proof and want applied identity extensions.",
+      "materials": [
+        {
+          "material_type": "campaign-poster",
+          "role": "campaign still"
+        },
+        {
+          "material_type": "pattern-system",
+          "role": "system core"
+        },
+        {
+          "material_type": "sticker-family",
+          "role": "family extension"
+        },
+        {
+          "material_type": "bumper-animation",
+          "role": "motion sting"
+        }
+      ]
+    },
+    "social_launch": {
+      "description": "Social-first set tuned for launch cadence and repeated branded outputs across feeds.",
+      "materials": [
+        {
+          "material_type": "x-feed",
+          "role": "hero feed post"
+        },
+        {
+          "material_type": "linkedin-card",
+          "role": "trust card"
+        },
+        {
+          "material_type": "og-card",
+          "role": "preview card"
+        },
+        {
+          "material_type": "feature-animation",
+          "role": "social motion"
+        },
+        {
+          "material_type": "pattern-system",
+          "role": "supporting crop system"
+        }
+      ]
+    }
+  }
+}

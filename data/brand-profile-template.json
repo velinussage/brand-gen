@@ -1,0 +1,84 @@
+{
+  "profile_version": 2,
+  "brand_name": "Working Brand",
+  "description": "Short plain-language description of what the brand or product is.",
+  "homepage_url": "",
+  "project_root": "",
+  "keywords": [],
+  "product_categories": [],
+  "audiences": [],
+  "color_candidates": [],
+  "font_candidates": [],
+<<<<<<< HEAD
+  "radius_tokens": ["12px", "16px"],
+=======
+  "radius_tokens": [
+    "12px",
+    "16px"
+  ],
+>>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)
+  "logo_candidates": [],
+  "brand_assets": {
+    "icon": "",
+    "wordmark": "",
+    "lockup": "",
+    "icon_candidates": [],
+    "wordmark_candidates": [],
+    "lockup_candidates": [],
+    "allow_synthetic_lockup": false
+  },
+  "identity": {
+    "summary": "",
+    "tone_words": [],
+    "brand_anchors": []
+  },
+  "brand_mark": {
+    "anatomy": [],
+    "approved_primitives": [],
+    "approved_compositions": [],
+    "forbidden_abstractions": []
+  },
+  "design_language": {
+    "semantic_palette_roles": [],
+    "typography_cues": [],
+    "shape_language": [],
+    "component_cues": [],
+    "framework_cues": [],
+    "spacing_scale": [],
+    "approved_graphic_devices": [],
+    "forbidden_elements": []
+  },
+  "messaging": {
+    "tagline": "",
+    "elevator": "",
+    "voice": {
+      "description": "",
+      "tone_words": [],
+      "do": [],
+      "dont": []
+    },
+    "value_propositions": [],
+    "approved_copy_bank": {
+      "headlines": [],
+      "slogans": [],
+      "subheadlines": [],
+      "cta_pairs": []
+    }
+  },
+<<<<<<< HEAD
+  "brand_guardrail_prelude": ""
+}
+=======
+  "brand_guardrail_prelude": "",
+  "creative_context": {
+    "quality_benchmarks": [
+      "Stripe",
+      "Aesop",
+      "Criterion",
+      "Muji"
+    ],
+    "concept_categories": [],
+    "metaphor_vocabulary": []
+  }
+}
+>>>>>>> 0574254 (Portable brand-gen: orchestration skill, config split, quality gate, doc overhaul)

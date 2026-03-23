@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brand-gen"
+version = "0.1.0"
+description = "Agent-driven brand material generation and iteration toolkit"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+  "dataclasses-json>=0.6.7",
+  "Pillow>=10.0",
+]
+
+[project.scripts]
+brand-iterate = "mcp.cli:main"
+bgen = "mcp.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.setuptools.packages.find]
+include = ["mcp*"]
