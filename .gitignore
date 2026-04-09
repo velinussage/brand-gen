@@ -24,9 +24,16 @@ examples/**/*.txt
 
 # Internal planning / scratch docs (keep local)
 plans/
+sessions/
 docs/plans/
 docs/brainstorms/
 docs/scratchpad/
+BRAINSTORM-*.md
+IMPROVEMENT-*.md
+PLAN-*.md
+REVIEW-*.md
+SOURCE-INDEX.txt
+*-brainstorm-scratchpad.md
 
 # Local skill notes / brand-specific overlays
 skills/**/SKILL.local.md
