@@ -115,7 +115,7 @@ Start with the most generic option your host supports.
 Add instructions like:
 
 ```text
-For brand material generation, use `bgen ...` or `python3 -m mcp.brand_iterate ...`.
+For brand material generation, use `bgen ...` or `python3 -m brand_gen ...`.
 Start by checking `bgen context-snapshot --format json`.
 ```
 
@@ -124,7 +124,7 @@ Start by checking `bgen context-snapshot --format json`.
 Run the stdio MCP server:
 
 ```bash
-python3 -m mcp.brand_iterate_mcp
+python3 -m brand_gen.brand_iterate_mcp
 ```
 
 Register that command in your host’s normal MCP config.
@@ -141,7 +141,7 @@ cp -r skills/brand-gen-logo/ ~/.claude/skills/brand-gen-logo/
 cp -r skills/brand-content-ideation/ ~/.claude/skills/brand-content-ideation/
 cp -r skills/brand-gen-orchestration/ ~/.claude/skills/brand-gen-orchestration/
 
-claude mcp add brand-gen -- python3 -m mcp.brand_iterate_mcp
+claude mcp add brand-gen -- python3 -m brand_gen.brand_iterate_mcp
 ```
 
 Or add the MCP server manually to Claude’s config with `cwd` set to the repo root.
@@ -172,7 +172,7 @@ Then register the local extension in Pi. Note that brand-gen's Pi integration cu
 Important Pi note:
 
 - the backend still reads the repo `.env`, so set `REPLICATE_API_TOKEN` there
-- in a normal repo checkout or fork, Pi auto-detects `mcp/brand_iterate_mcp.py`
+- in a normal repo checkout or fork, Pi auto-detects `brand_gen/brand_iterate_mcp.py`
 - Pi prefers `<repo>/.venv/bin/python` if that interpreter exists; otherwise it falls back to `python3`
 - only set `brandIterateMcpPath` if you need to override the detected backend path
 
@@ -251,9 +251,9 @@ If the pipeline completes and `show` returns a recent version, the install is wo
 | `bgen: command not found` | activate the venv or re-run `python3 -m pip install -e .` |
 | `REPLICATE_API_TOKEN not set` | check `.env` and re-run validation |
 | `agent-browser: command not found` | `npm install -g agent-browser && npx playwright install` |
-| MCP server exits immediately | run `python3 -m mcp.brand_iterate_mcp` directly from the repo root |
+| MCP server exits immediately | run `python3 -m brand_gen.brand_iterate_mcp` directly from the repo root |
 | OpenClaw plugin fails to start | check Node 22+, verify `brandIterateMcpPath`, and run `npm run typecheck` |
-| `ModuleNotFoundError: No module named 'mcp'` | run from the repo root with the venv active, or reinstall editable mode |
+| `ModuleNotFoundError: No module named 'brand_gen'` | run from the repo root with the venv active, or reinstall editable mode |
 
 ## What to do next
 

@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.run_ledger import append_run_event, load_all_run_events, load_run_events, prompt_hash
+from brand_gen.run_ledger import append_run_event, load_all_run_events, load_run_events, prompt_hash
 
 
 class RunLedgerTests(unittest.TestCase):

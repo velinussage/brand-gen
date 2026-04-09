@@ -7,10 +7,10 @@ from pathlib import Path
 from contextlib import redirect_stderr
 from unittest.mock import patch
 
-from mcp import brand_iterate_mcp
-from mcp.pipeline_request import PipelineRequest
-from mcp.pipeline_runner import PipelineRunner, StageResult
-from mcp.pipeline_types import (
+from brand_gen import brand_iterate_mcp
+from brand_gen.pipeline_request import PipelineRequest
+from brand_gen.pipeline_runner import PipelineRunner, StageResult
+from brand_gen.pipeline_types import (
     CritiqueChecks,
     GenerationResult,
     GenerationScratchpad,
@@ -132,10 +132,10 @@ class PipelineRunnerTests(unittest.TestCase):
                 {},
             )
 
-            with patch('mcp.runtime_brand.get_brand_gen_dir', return_value=root), \
-                 patch('mcp.runtime_brand.resolve_context_brand_key', return_value='acme'), \
-                 patch('mcp.runtime_brand.load_inspirations_config', return_value={'sources': ['koto-pairpoint']}) as load_cfg, \
-                 patch('mcp.runtime_brand.load_inspiration_index', return_value={'sources': {'koto-pairpoint': {'status': 'complete'}}}):
+            with patch('brand_gen.runtime_brand.get_brand_gen_dir', return_value=root), \
+                 patch('brand_gen.runtime_brand.resolve_context_brand_key', return_value='acme'), \
+                 patch('brand_gen.runtime_brand.load_inspirations_config', return_value={'sources': ['koto-pairpoint']}) as load_cfg, \
+                 patch('brand_gen.runtime_brand.load_inspiration_index', return_value={'sources': {'koto-pairpoint': {'status': 'complete'}}}):
                 runner._ensure_inspiration(argparse.Namespace(material_type='brand-scene'))
 
             load_cfg.assert_called_once_with('acme', root)
@@ -164,11 +164,11 @@ class PipelineRunnerTests(unittest.TestCase):
             },
         }
 
-        with patch('mcp.pipeline_runner.load_plan_payload', return_value=({}, {'material_type': 'social', 'mode': 'hybrid'})), \
-             patch('mcp.pipeline_runner.build_plan_critique_payload', return_value=critique_payload), \
-             patch('mcp.pipeline_runner.save_plan_critique', return_value=Path('/tmp/critique.json')), \
-             patch('mcp.pipeline_runner.persist_plan_critique_to_blackboard', return_value=Path('/tmp/blackboard.json')), \
-             patch('mcp.pipeline_runner.append_run_event', return_value=Path('/tmp/wf-123.jsonl')):
+        with patch('brand_gen.pipeline_runner.load_plan_payload', return_value=({}, {'material_type': 'social', 'mode': 'hybrid'})), \
+             patch('brand_gen.pipeline_runner.build_plan_critique_payload', return_value=critique_payload), \
+             patch('brand_gen.pipeline_runner.save_plan_critique', return_value=Path('/tmp/critique.json')), \
+             patch('brand_gen.pipeline_runner.persist_plan_critique_to_blackboard', return_value=Path('/tmp/blackboard.json')), \
+             patch('brand_gen.pipeline_runner.append_run_event', return_value=Path('/tmp/wf-123.jsonl')):
             stage = runner._run_critique(draft)
 
         self.assertTrue(stage.proceed)
@@ -199,11 +199,11 @@ class PipelineRunnerTests(unittest.TestCase):
             },
         }
 
-        with patch('mcp.pipeline_runner.load_plan_payload', return_value=({}, {'material_type': 'social', 'mode': 'hybrid'})), \
-             patch('mcp.pipeline_runner.build_plan_critique_payload', return_value=critique_payload), \
-             patch('mcp.pipeline_runner.save_plan_critique', return_value=Path('/tmp/critique.json')), \
-             patch('mcp.pipeline_runner.persist_plan_critique_to_blackboard', return_value=Path('/tmp/blackboard.json')), \
-             patch('mcp.pipeline_runner.append_run_event', return_value=Path('/tmp/wf-123.jsonl')):
+        with patch('brand_gen.pipeline_runner.load_plan_payload', return_value=({}, {'material_type': 'social', 'mode': 'hybrid'})), \
+             patch('brand_gen.pipeline_runner.build_plan_critique_payload', return_value=critique_payload), \
+             patch('brand_gen.pipeline_runner.save_plan_critique', return_value=Path('/tmp/critique.json')), \
+             patch('brand_gen.pipeline_runner.persist_plan_critique_to_blackboard', return_value=Path('/tmp/blackboard.json')), \
+             patch('brand_gen.pipeline_runner.append_run_event', return_value=Path('/tmp/wf-123.jsonl')):
             stage = runner._run_critique(draft)
 
         self.assertTrue(stage.proceed)
@@ -220,9 +220,9 @@ class PipelineRunnerTests(unittest.TestCase):
             def run(self, plan_args):
                 return fake_result
 
-        with patch('mcp.pipeline_runner.PipelineRunner', FakeRunner), \
-             patch('mcp.runtime.get_brand_dir', return_value=Path('/tmp/brand-gen')), \
-             patch('mcp.runtime.load_brand_memory', return_value=(None, None, {}, {})):
+        with patch('brand_gen.pipeline_runner.PipelineRunner', FakeRunner), \
+             patch('brand_gen.runtime.get_brand_dir', return_value=Path('/tmp/brand-gen')), \
+             patch('brand_gen.runtime.load_brand_memory', return_value=(None, None, {}, {})):
             output, is_error = brand_iterate_mcp.handle_tool_call('brand_pipeline', {'material_type': 'social'})
 
         self.assertFalse(is_error)
@@ -240,10 +240,10 @@ class PipelineRunnerTests(unittest.TestCase):
             output_path='/tmp/scratch.json',
         )
 
-        with patch('mcp.pipeline_runner.load_json_file', return_value={'brand_dir': '/tmp/brand-gen', 'effective_prompt': 'hello'}), \
-             patch('mcp.pipeline_runner.execute_generation_scratchpad', return_value='v1') as exec_mock, \
-             patch('mcp.pipeline_runner.load_manifest', return_value={'versions': {'v1': {'files': ['v1.png'], 'auto_review_path': '/tmp/v1-auto-review.md', 'agent_review_path': '/tmp/v1-agent-review.json', 'visual_review_status': 'pending'}}}), \
-             patch('mcp.pipeline_runner.run_vlm_critique') as vlm_mock:
+        with patch('brand_gen.pipeline_runner.load_json_file', return_value={'brand_dir': '/tmp/brand-gen', 'effective_prompt': 'hello'}), \
+             patch('brand_gen.pipeline_runner.execute_generation_scratchpad', return_value='v1') as exec_mock, \
+             patch('brand_gen.pipeline_runner.load_manifest', return_value={'versions': {'v1': {'files': ['v1.png'], 'auto_review_path': '/tmp/v1-auto-review.md', 'agent_review_path': '/tmp/v1-agent-review.json', 'visual_review_status': 'pending'}}}), \
+             patch('brand_gen.pipeline_runner.run_vlm_critique') as vlm_mock:
             result = runner._run_generate(scratchpad)
 
         self.assertEqual(result.output.version_id, 'v1')
@@ -304,12 +304,12 @@ class PipelineRunnerTests(unittest.TestCase):
             'identity_path': None,
         }
 
-        with patch('mcp.pipeline_runner.load_json_file', return_value=payload), \
-             patch('mcp.pipeline_runner.execute_generation_scratchpad', return_value='v1'), \
-             patch('mcp.pipeline_runner.load_manifest', return_value={'versions': {'v1': {'files': ['v1.png'], 'auto_review_path': '/tmp/v1-auto-review.md'}}}), \
+        with patch('brand_gen.pipeline_runner.load_json_file', return_value=payload), \
+             patch('brand_gen.pipeline_runner.execute_generation_scratchpad', return_value='v1'), \
+             patch('brand_gen.pipeline_runner.load_manifest', return_value={'versions': {'v1': {'files': ['v1.png'], 'auto_review_path': '/tmp/v1-auto-review.md'}}}), \
              patch('pathlib.Path.exists', return_value=True), \
-             patch('mcp.pipeline_runner.load_blackboard', return_value={'brand_dna': {}}), \
-             patch('mcp.pipeline_runner.run_vlm_critique', return_value={'vlm_available': True, 'approved': True, 'p1': [], 'p2': [], 'p3': []}) as vlm_mock:
+             patch('brand_gen.pipeline_runner.load_blackboard', return_value={'brand_dna': {}}), \
+             patch('brand_gen.pipeline_runner.run_vlm_critique', return_value={'vlm_available': True, 'approved': True, 'p1': [], 'p2': [], 'p3': []}) as vlm_mock:
             result = runner._run_generate(scratchpad)
 
         self.assertEqual(result.output.version_id, 'v1')

@@ -2,11 +2,11 @@
 """Compatibility shim for the brand-gen CLI.
 
 Preferred execution:
-  python -m mcp.brand_iterate ...
-  brand-iterate ...
+  bgen ...
+  python -m brand_gen ...
 
 Legacy execution still works:
-  python3 mcp/brand_iterate.py ...
+  python3 brand_gen/brand_iterate.py ...
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from pathlib import Path
 def _reexec_package_mode() -> "NoReturn":
     repo_root = Path(__file__).resolve().parent.parent
     os.chdir(repo_root)
-    os.execv(sys.executable, [sys.executable, "-m", "mcp.brand_iterate", *sys.argv[1:]])
+    os.execv(sys.executable, [sys.executable, "-m", "brand_gen.brand_iterate", *sys.argv[1:]])
 
 if __name__ == "__main__":
     if __package__ in {None, ""}:

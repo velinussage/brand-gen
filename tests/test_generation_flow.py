@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.generation_flow import (
+from brand_gen.generation_flow import (
     _reserve_manifest_version,
     auto_capture_generation_feedback,
     auto_capture_vlm_feedback,
@@ -14,9 +14,9 @@ from mcp.generation_flow import (
     ensure_base_image_reference_role,
     execute_generation_scratchpad,
 )
-from mcp.iteration_memory import load_iteration_memory
-from mcp.runtime_brand import load_manifest
-from mcp.runtime_models import recommend_text_model
+from brand_gen.iteration_memory import load_iteration_memory
+from brand_gen.runtime_brand import load_manifest
+from brand_gen.runtime_models import recommend_text_model
 
 
 class SourceCritiqueModelOverrideTests(unittest.TestCase):
@@ -184,15 +184,15 @@ class PipelineQaOrderingTests(unittest.TestCase):
                 out.write_text("ok\n")
                 return str(out), True
 
-            with patch("mcp.generation_flow.subprocess.run", side_effect=fake_run), \
-                 patch("mcp.generation_flow.validate_brand_workspace_dir", return_value=brand_dir), \
-                 patch("mcp.generation_flow.stage_reference_assets", return_value=[]), \
-                 patch("mcp.generation_flow.write_agent_visual_review_packet", return_value=({}, brand_dir / "reviews" / "v001-agent-review.json")), \
-                 patch("mcp.generation_flow.run_auto_brand_review", side_effect=fake_run_auto_brand_review), \
-                 patch("mcp.generation_flow.append_run_event"), \
-                 patch("mcp.generation_flow.persist_generated_asset_to_blackboard"), \
-                 patch("mcp.generation_flow.generate_compare_board"), \
-                 patch("mcp.generation_flow.load_brand_memory", return_value=(None, None, {}, {})):
+            with patch("brand_gen.generation_flow.subprocess.run", side_effect=fake_run), \
+                 patch("brand_gen.generation_flow.validate_brand_workspace_dir", return_value=brand_dir), \
+                 patch("brand_gen.generation_flow.stage_reference_assets", return_value=[]), \
+                 patch("brand_gen.generation_flow.write_agent_visual_review_packet", return_value=({}, brand_dir / "reviews" / "v001-agent-review.json")), \
+                 patch("brand_gen.generation_flow.run_auto_brand_review", side_effect=fake_run_auto_brand_review), \
+                 patch("brand_gen.generation_flow.append_run_event"), \
+                 patch("brand_gen.generation_flow.persist_generated_asset_to_blackboard"), \
+                 patch("brand_gen.generation_flow.generate_compare_board"), \
+                 patch("brand_gen.generation_flow.load_brand_memory", return_value=(None, None, {}, {})):
                 version_id = execute_generation_scratchpad(payload)
 
             manifest = load_manifest(brand_dir)
@@ -244,9 +244,9 @@ class PipelineQaOrderingTests(unittest.TestCase):
                 },
             )()
             plan = {"material_type": "social", "mode": "reference", "brand_anchor_policy": {"logo_mode": "required"}}
-            with patch("mcp.generation_flow.load_brand_memory", return_value=(brand_dir / "brand-profile.json", brand_dir / "brand-identity.json", {"brand_assets": {"icon": str(mark)}}, {"brand_assets": {"icon": str(mark)}})), \
-                 patch("mcp.generation_flow.ensure_reference_analysis", return_value={"reference_set_hash": "abc", "warnings": [], "per_image": []}), \
-                 patch("mcp.generation_flow.build_effective_prompt", return_value={
+            with patch("brand_gen.generation_flow.load_brand_memory", return_value=(brand_dir / "brand-profile.json", brand_dir / "brand-identity.json", {"brand_assets": {"icon": str(mark)}}, {"brand_assets": {"icon": str(mark)}})), \
+                 patch("brand_gen.generation_flow.ensure_reference_analysis", return_value={"reference_set_hash": "abc", "warnings": [], "per_image": []}), \
+                 patch("brand_gen.generation_flow.build_effective_prompt", return_value={
                      "material_prompt_key": "social",
                      "material_prompt_variant": "default",
                      "reference_role_pack": [{"role": "product_truth", "path": str(base_image), "source_name": "base"}],
@@ -260,12 +260,12 @@ class PipelineQaOrderingTests(unittest.TestCase):
                      "token_block": "",
                      "resolved_prompt": "Create a mark-led social card.",
                  }), \
-                 patch("mcp.generation_flow.persist_inspiration_source_selection", return_value=([], "")), \
-                 patch("mcp.generation_flow.resolve_default_model", return_value="flux-2-pro"), \
-                 patch("mcp.generation_flow.resolve_default_aspect_ratio", return_value="1:1"), \
-                 patch("mcp.generation_flow.review_prompt_architecture", return_value={"refined_prompt": "refined", "execution_prompt": "exec", "recommendations": [], "issues": []}), \
-                 patch("mcp.generation_flow.check_inspiration_pipeline_status", return_value={"ok": True, "warnings": [], "suggestions": []}):
-                payload = __import__("mcp.generation_flow", fromlist=["assemble_generation_scratchpad"]).assemble_generation_scratchpad(
+                 patch("brand_gen.generation_flow.persist_inspiration_source_selection", return_value=([], "")), \
+                 patch("brand_gen.generation_flow.resolve_default_model", return_value="flux-2-pro"), \
+                 patch("brand_gen.generation_flow.resolve_default_aspect_ratio", return_value="1:1"), \
+                 patch("brand_gen.generation_flow.review_prompt_architecture", return_value={"refined_prompt": "refined", "execution_prompt": "exec", "recommendations": [], "issues": []}), \
+                 patch("brand_gen.generation_flow.check_inspiration_pipeline_status", return_value={"ok": True, "warnings": [], "suggestions": []}):
+                payload = __import__("brand_gen.generation_flow", fromlist=["assemble_generation_scratchpad"]).assemble_generation_scratchpad(
                     args,
                     brand_dir=brand_dir,
                     plan_wrapper={},

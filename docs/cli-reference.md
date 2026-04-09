@@ -4,11 +4,8 @@ Preferred entrypoints:
 
 ```bash
 bgen ...
-brand-iterate ...              # legacy alias, still works
-python3 -m mcp.brand_iterate ...
+python3 -m brand_gen ...
 ```
-
-Legacy file-path execution (`python3 mcp/brand_iterate.py ...`) is compatibility-only.
 
 Use `bgen --help` for the full command list and `bgen <command> --help` for command-level flags.
 

@@ -1,6 +1,6 @@
 import unittest
 
-from mcp.route_predicates import RoutingBrief, route_brief
+from brand_gen.route_predicates import RoutingBrief, route_brief
 
 
 class RoutePredicateTests(unittest.TestCase):

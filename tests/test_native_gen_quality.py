@@ -2,12 +2,12 @@ import json
 import unittest
 from pathlib import Path
 
-from mcp.material_planning import build_effective_prompt
-from mcp.runtime_brand import load_prompt_fragments
+from brand_gen.material_planning import build_effective_prompt
+from brand_gen.runtime_brand import load_prompt_fragments
 
 
 QUALITY_SNIPPET = "Editorial photography, medium-format depth, real material textures — never CGI renders."
-MODELS_PATH = Path(__file__).resolve().parents[1] / "mcp" / "models.json"
+MODELS_PATH = Path(__file__).resolve().parents[1] / "brand_gen" / "models.json"
 
 
 class NativeGenQualityTests(unittest.TestCase):

@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "brand-iterate": {
-      "command": "python3",
-      "args": ["/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py"]
-    }
-  }
-}

@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-from mcp import brand_iterate_mcp
+from brand_gen import brand_iterate_mcp
 
-BRAND_ITERATE = REPO_ROOT / 'mcp' / 'brand_iterate.py'
+BRAND_ITERATE = REPO_ROOT / 'brand_gen' / 'brand_iterate.py'
 
 
 class OnboardingTests(unittest.TestCase):

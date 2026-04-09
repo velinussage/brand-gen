@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "brand-gen": {
+      "command": "python3",
+      "args": ["-m", "brand_gen.brand_iterate_mcp"],
+      "cwd": "/absolute/path/to/brand-gen"
+    }
+  }
+}

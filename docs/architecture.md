@@ -1,54 +1,115 @@
 # Architecture
 
-## High-level flow
+## System overview
 
-Standard generative flow:
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Your AI Agent                       │
+│  (Claude Code / Pi / OpenClaw / Codex / Cursor / ...)   │
+└───────────┬──────────────────────┬──────────────────────┘
+            │ CLI                   │ MCP (stdio)
+            ▼                      ▼
+┌───────────────────────────────────────────────────────┐
+│                  brand_gen/  (Python)                  │
+│                                                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐    │
+│  │ cli.py   │  │ mcp      │  │ command_registry  │    │
+│  │ (bgen)   │  │ bridge   │  │ (single source)   │    │
+│  └────┬─────┘  └────┬─────┘  └────────┬─────────┘    │
+│       │              │                 │              │
+│       └──────────────┴─────────────────┘              │
+│                      │                                │
+│  ┌───────────────────┼───────────────────────────┐    │
+│  │           Pipeline Engine                     │    │
+│  │                                               │    │
+│  │  route_predicates → plan_builder →            │    │
+│  │  plan_validation → pipeline_runner →           │    │
+│  │  prompt_assembly → generate                   │    │
+│  └───────────────────────────────────────────────┘    │
+│                      │                                │
+│  ┌───────────────────┼───────────────────────────┐    │
+│  │         Workspace / State Layer               │    │
+│  │                                               │    │
+│  │  runtime_brand  runtime_paths  session         │    │
+│  │  blackboard     run_ledger     iteration_memory│    │
+│  └───────────────────────────────────────────────┘    │
+│                      │                                │
+│  ┌───────────────────┼───────────────────────────┐    │
+│  │         Review / Learning Layer               │    │
+│  │                                               │    │
+│  │  critique_policy  agent_review  vlm_critique   │    │
+│  │  inspiration_memory  learnings_memory          │    │
+│  └───────────────────────────────────────────────┘    │
+│                      │                                │
+│  ┌───────────────────┼───────────────────────────┐    │
+│  │         Share Cards / Media                   │    │
+│  │                                               │    │
+│  │  card_engine  card_builder  card_plugins/      │    │
+│  │  media_board  share_card_renderer              │    │
+│  └───────────────────────────────────────────────┘    │
+└───────────────────────┬───────────────────────────────┘
+                        │
+                        ▼
+┌───────────────────────────────────────────────────────┐
+│              .brand-gen/  (Durable State)              │
+│                                                       │
+│  brands/<brand>/          sessions/<session>/          │
+│    brand-profile.json       brand-materials/           │
+│    brand-identity.json        manifest.json            │
+│    blackboard.json            blackboard.json          │
+│    learnings.json             iteration-memory.json    │
+│                               runs/                    │
+│                               reviews/                 │
+│  config.json                  scratchpads/             │
+│  runtime-status/plugins/                               │
+└───────────────────────────────────────────────────────┘
+```
 
-```text
+## Pipeline flow
+
+### Generation
+
+```
 route-request → plan-draft → critique-plan → build-generation-scratchpad → generate
 ```
 
-Convenience surface:
+The `pipeline` command runs this full sequence in one call.
 
-```text
-pipeline = route-request → plan-draft → critique-plan → build-generation-scratchpad → generate
+### Review / learning
+
 ```
-
-Review / learning flow:
-
-```text
 critique-rubric → agent/human review → submit-critique → feedback → compare / evolve
 ```
 
-Set flow:
+### Set generation
 
-```text
+```
 plan-set → validate-brand-fit / validate-set → generate-set
 ```
 
 ## Runtime layers
 
-1. **Python runtime (`mcp/`)**
-   - command registry, CLI builders, and package entrypoints
-   - planning, critique, generation, and review logic
-   - share-card HTML renderer and card-data plugins
-   - workspace/state resolution and file IO helpers
+1. **Python runtime (`brand_gen/`)**
+   - Command registry, CLI builders, and package entrypoints
+   - Planning, critique, generation, and review logic
+   - Share-card HTML renderer and card-data plugins
+   - Workspace/state resolution and file IO helpers
 
 2. **Durable workspace (`.brand-gen/`)**
-   - saved brands under `brands/<brand>/`
-   - testing sessions under `sessions/<session>/brand-materials/`
-   - active selectors in `config.json`
-   - runtime markers under `runtime-status/plugins/`
+   - Saved brands under `brands/<brand>/`
+   - Testing sessions under `sessions/<session>/brand-materials/`
+   - Active selectors in `config.json`
+   - Runtime markers under `runtime-status/plugins/`
 
 3. **Shared host core (`packages/brand-gen-core/`)**
-   - workspace resolution for plugins
-   - journal + learnings persistence
-   - context building and prepend summaries
-   - heartbeat cycles and runtime status snapshots
+   - Workspace resolution for plugins
+   - Journal + learnings persistence
+   - Context building and prepend summaries
+   - Heartbeat cycles and runtime status snapshots
 
 4. **Host adapters (`packages/pi-brand-gen/`, `packages/openclaw-brand-gen/`)**
-   - native host tools/commands
-   - host lifecycle hooks
+   - Native host tools/commands
+   - Host lifecycle hooks
    - MCP bridge startup/shutdown
 
 ## Workspace resolution
@@ -56,10 +117,10 @@ plan-set → validate-brand-fit / validate-set → generate-set
 The runtime resolves the active workspace in this order:
 
 1. `BRAND_GEN_DIR` when explicitly set
-2. repo-local `.brand-gen/` when present for CLI/direct runtime use
-3. active session from `.brand-gen/config.json`
-4. active saved brand from `.brand-gen/config.json`
-5. legacy `BRAND_DIR` / `LOGO_DIR` / `SCREENSHOTS_DIR` fallbacks when needed
+2. Repo-local `.brand-gen/` when present for CLI/direct runtime use
+3. Active session from `.brand-gen/config.json`
+4. Active saved brand from `.brand-gen/config.json`
+5. Legacy `BRAND_DIR` / `LOGO_DIR` / `SCREENSHOTS_DIR` fallbacks
 
 Pi and OpenClaw keep their own `brandGenDir` plugin config and generally point to a shared root outside the repo checkout.
 
@@ -94,10 +155,10 @@ Testing sessions live under:
 
 ## Command registry and MCP bridge
 
-The command surface is defined once in `mcp/command_registry.py` and exposed through two front doors:
+The command surface is defined once in `brand_gen/command_registry.py` and exposed through two front doors:
 
-- CLI parser + builders from `mcp/cli_builders.py`
-- MCP tool schemas generated from the registry via `mcp/mcp_bridge_registry.py`
+- CLI parser + builders from `brand_gen/cli_builders.py`
+- MCP tool schemas generated from the registry via `brand_gen/mcp_bridge_registry.py`
 
 Most MCP tools are automatic `brand_<command>` bridges. Two tools remain intentionally custom:
 
@@ -111,19 +172,19 @@ This keeps the CLI and MCP surfaces aligned while still allowing a few high-leve
 - `critique-plan` is advisory/reporting-first unless you explicitly choose strict behavior
 - `build-generation-scratchpad` and `pipeline` are strict by default
 - `allow_blocking` records an explicit bypass when generation continues past blocking critique findings
-- automatic `*-auto-review.md` artifacts are deterministic QA outputs, not visual-review guarantees
-- the default visual review path is `critique-rubric` → `submit-critique`
-- the legacy internal VLM critique loop is explicit opt-in only
+- Automatic `*-auto-review.md` artifacts are deterministic QA outputs, not visual-review guarantees
+- The default visual review path is `critique-rubric` → `submit-critique`
+- The legacy internal VLM critique loop is explicit opt-in only
 
-## Blackboard, run ledger, and plugin journal
+## Memory surfaces
 
-The runtime uses multiple memory surfaces with different jobs:
-
-- **Blackboard** — active brief, decisions, reference assignments, latest artifact pointers
-- **Run ledger** — append-only operational trace under `runs/<workflow_id>.jsonl`
-- **Iteration memory** — positive/negative examples and material-specific notes
-- **Plugin journal** — host-layer execution history, now preferring `runs/journal.jsonl` with legacy `brand.sqlite` compatibility when older data exists
-- **Learnings JSON** — plugin-layer distilled learnings in `learnings.json`
+| Surface | Job |
+|---------|-----|
+| **Blackboard** | Active brief, decisions, reference assignments, latest artifact pointers |
+| **Run ledger** | Append-only operational trace under `runs/<workflow_id>.jsonl` |
+| **Iteration memory** | Positive/negative examples and material-specific notes |
+| **Plugin journal** | Host-layer execution history in `runs/journal.jsonl` |
+| **Learnings JSON** | Plugin-layer distilled learnings in `learnings.json` |
 
 ## Branching and lineage
 
@@ -138,48 +199,21 @@ Important lineage fields:
 
 These show up in manifests, blackboard state, scratchpads, and run logs.
 
-## Route override telemetry
-
-Explicit route overrides record both what the runtime recommended and what actually ran.
-
-- `recommended_route`
-- `chosen_route`
-- `override_reason`
-- `override_actor`
-
-This is surfaced in `show-workflow-lineage` and counted in session summaries.
-
 ## Share-card path
 
-Share cards are now HTML-rendered, not Stitch-rendered.
-
-The path is:
-
-```text
+```
 source_url → card-data plugin → structured payload → HTML layout → Chrome PNG render
 ```
 
-Built-ins currently include:
-
-- platform-specific plugins (ships with a Sage Protocol example)
-- generic **Web** fallback plugin
-
-Additional platforms can be added through `mcp/card_plugins/`.
-
-## Host runtime markers
-
-Native host plugins write status markers to:
-
-- `.brand-gen/runtime-status/plugins/pi-brand-gen.json`
-- `.brand-gen/runtime-status/plugins/openclaw-brand-gen.json`
-
-These markers help the CLI/runtime report workspace alignment, active brand/session, and plugin health.
+Built-in plugins: platform-specific (ships with Sage Protocol example) and generic **Web** fallback. Additional platforms can be added through `brand_gen/card_plugins/`.
 
 ## Key commands
 
-- `pipeline` — default one-call generative flow
-- `show-session-summary` — fastest “what changed?” surface
-- `context-snapshot` — canonical machine-readable workspace context
-- `workspace-status` — current root + alignment warnings
-- `review-brand` / `critique-rubric` / `submit-critique` — modern review path
-- `plan-set` / `validate-set` / `generate-set` — coordinated multi-material workflows
+| Command | Purpose |
+|---------|---------|
+| `pipeline` | Default one-call generative flow |
+| `show-session-summary` | Fastest "what changed?" surface |
+| `context-snapshot` | Canonical machine-readable workspace context |
+| `workspace-status` | Current root + alignment warnings |
+| `review-brand` / `critique-rubric` / `submit-critique` | Modern review path |
+| `plan-set` / `validate-set` / `generate-set` | Coordinated multi-material workflows |

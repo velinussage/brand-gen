@@ -16,7 +16,7 @@ compatibility:
 
 Reference data for brand-gen — not workflow doctrine. Load individual reference files only when you need them.
 
-Preferred CLI: `bgen ...` or `python3 -m mcp.brand_iterate ...`
+Preferred CLI: `bgen ...` or `python3 -m brand_gen ...`
 
 ## Reference files
 

@@ -9,7 +9,7 @@ Finish the post-monolith cleanup so the new package architecture is the true sou
 - [x] Thin CLI shim in `mcp/brand_iterate.py`
 - [x] Package entrypoints (`python -m mcp.brand_iterate`, `brand-iterate`)
 - [x] Command modules introduced
-- [x] Compatibility shim preserved for `python3 mcp/brand_iterate.py ...`
+- [x] Compatibility shim preserved for `bgen ...`
 - [x] RuntimeContext added and dispatch path can pass `args + ctx`
 - [x] Internal tests migrated to package-first imports
 - [x] Thin-entrypoint / registry parity / package-entrypoint tests added
@@ -51,7 +51,7 @@ Finish the post-monolith cleanup so the new package architecture is the true sou
 - [x] Confirm official entrypoints:
   - `brand-iterate`
   - `python -m mcp.brand_iterate`
-- [x] Keep `python3 mcp/brand_iterate.py ...` as compatibility-only
+- [x] Keep `bgen ...` as compatibility-only
 - [x] Ensure `mcp/brand_iterate.py` only re-execs package mode when run as `__main__`
 - [x] Stop using `sys.path` mutation in the CLI entrypoint
 - [x] Introduce `legacy_api.py` as the transitional compatibility surface for internal helper imports
@@ -72,13 +72,13 @@ Finish the post-monolith cleanup so the new package architecture is the true sou
 # Phase 2 — Make `command_registry.py` the real CLI source of truth
 **Objective:** stop hand-maintaining parser structure separately.
 
-**Status:** 🟢 Largely complete — parser creation now flows through `CommandSpec`-attached CLI builder callbacks and the dedicated `mcp/cli_builders.py` adapter.
+**Status:** 🟢 Largely complete — parser creation now flows through `CommandSpec`-attached CLI builder callbacks and the dedicated `brand_gen/cli_builders.py` adapter.
 
 ## Tasks
 - [x] Expand `CommandSpec` to carry parser metadata, not just handler/help/aliases
 - [x] Add per-command argument-builder callbacks or declarative arg specs
 - [x] Refactor `build_parser()` to derive subcommands from `COMMAND_SPECS`
-- [x] Remove manual subparser duplication from `mcp/command_registry.py`
+- [x] Remove manual subparser duplication from `brand_gen/command_registry.py`
 - [x] Add `dispatch_command(args, ctx)` support so command handlers can adopt `RuntimeContext` gradually
 - [x] Convert the remaining giant argparse block into a CLI renderer instead of a second source of truth
 
@@ -95,8 +95,8 @@ Finish the post-monolith cleanup so the new package architecture is the true sou
   - giant argparse block plus registry side-by-side
 
 ## Update
-- `mcp/cli_builders.py` now owns per-command CLI builder callbacks plus the CLI adapter.
-- `mcp/command_registry.py` attaches `cli_builder` callbacks directly to each `CommandSpec`.
+- `brand_gen/cli_builders.py` now owns per-command CLI builder callbacks plus the CLI adapter.
+- `brand_gen/command_registry.py` attaches `cli_builder` callbacks directly to each `CommandSpec`.
 - `build_parser()` now delegates entirely to `build_cli_parser(COMMAND_SPECS, ...)`.
 - Tests now assert every command spec has a callable CLI builder and that named commands are covered by the CLI builder registry.
 
@@ -116,7 +116,7 @@ Finish the post-monolith cleanup so the new package architecture is the true sou
 - [x] Generate a first batch of MCP tool schemas from parser introspection for read-only tools
 - [x] Dispatch a first batch of MCP tools through generic argv assembly instead of hand-written branches
 - [x] Create a dedicated MCP adapter/renderer from the semantic registry
-- [x] Replace the remaining hand-maintained `TOOLS = [...]` bulk in `mcp/brand_iterate_mcp.py`
+- [x] Replace the remaining hand-maintained `TOOLS = [...]` bulk in `brand_gen/brand_iterate_mcp.py`
 - [x] Make `brand_iterate_mcp.py` a thin compatibility/server shim, similar in spirit to `brand_iterate.py`
 - [x] Keep any MCP-only special tools explicit if needed, but isolate them
 
@@ -130,8 +130,8 @@ Finish the post-monolith cleanup so the new package architecture is the true sou
 - Use shared semantic specs, not forced identical structures
 
 ## Update
-- `mcp/mcp_bridge_registry.py` now derives CLI-backed MCP tool specs from `COMMAND_SPECS`, parser introspection, and a small override table for tool-name compatibility, renamed MCP args, and schema/default tweaks.
-- `mcp/brand_iterate_mcp.py` shrank from ~1900 lines to ~330 lines.
+- `brand_gen/mcp_bridge_registry.py` now derives CLI-backed MCP tool specs from `COMMAND_SPECS`, parser introspection, and a small override table for tool-name compatibility, renamed MCP args, and schema/default tweaks.
+- `brand_gen/brand_iterate_mcp.py` shrank from ~1900 lines to ~330 lines.
 - Only `brand_inspire` and `brand_pipeline` remain custom MCP handlers because they are not pure CLI passthroughs.
 - MCP tests now cover renamed-arg bridging (`brand_create`), generic generation bridging (`brand_generate`), and the invariant that only the two custom tools sit outside the bridge registry.
 
@@ -312,7 +312,7 @@ If a helper doesn’t need `RuntimeContext`, it probably shouldn’t live in `ru
 - `python -m mcp.brand_iterate ...`
 
 ## Compatibility note
-- Mention `python3 mcp/brand_iterate.py ...` is legacy-compatible, not preferred
+- Mention `bgen ...` is legacy-compatible, not preferred
 
 ## Acceptance criteria
 - Docs no longer present file-path execution as the primary pattern

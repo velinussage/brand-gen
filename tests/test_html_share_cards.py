@@ -5,11 +5,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.cli_builders import build_pipeline_cli
-from mcp.html_share_cards import evaluate_html_layout_warnings, execute_html_share_card_scratchpad
-from mcp.pipeline_request import PIPELINE_MCP_PROPERTIES, PipelineRequest
-from mcp.card_engine import LayoutSpec, ShareCardPayload, _verify_render, default_layout_spec
-from mcp.card_builder import build_web_app_share_card_payload
+from brand_gen.cli_builders import build_pipeline_cli
+from brand_gen.html_share_cards import evaluate_html_layout_warnings, execute_html_share_card_scratchpad
+from brand_gen.pipeline_request import PIPELINE_MCP_PROPERTIES, PipelineRequest
+from brand_gen.card_engine import LayoutSpec, ShareCardPayload, _verify_render, default_layout_spec
+from brand_gen.card_builder import build_web_app_share_card_payload
 
 
 class PipelineRequestHtmlTests(unittest.TestCase):
@@ -40,10 +40,10 @@ class PipelineRequestHtmlTests(unittest.TestCase):
 
 
 class ShareCardPayloadTests(unittest.TestCase):
-    @patch("mcp.card_builder.resolve_brand_asset_paths")
-    @patch("mcp.card_builder.load_brand_memory")
-    @patch("mcp.card_builder.validate_brand_workspace_dir")
-    @patch("mcp.card_builder.fetch_card_page_data")
+    @patch("brand_gen.card_builder.resolve_brand_asset_paths")
+    @patch("brand_gen.card_builder.load_brand_memory")
+    @patch("brand_gen.card_builder.validate_brand_workspace_dir")
+    @patch("brand_gen.card_builder.fetch_card_page_data")
     def test_build_payload_prefers_literal_prompt_body_lines(
         self,
         mock_fetch_sage,
@@ -117,12 +117,12 @@ class ShareCardPayloadTests(unittest.TestCase):
 
 
 class ExecuteHtmlScratchpadTests(unittest.TestCase):
-    @patch("mcp.html_share_cards.write_pipeline_qa_report", return_value=("report", "/tmp/qa.md"))
-    @patch("mcp.html_share_cards.write_agent_visual_review_packet", return_value=({}, "/tmp/review.json"))
-    @patch("mcp.html_share_cards._verify_render", return_value={"passed": True})
-    @patch("mcp.html_share_cards.build_web_app_share_card_payload")
-    @patch("mcp.html_share_cards.render_html_to_png")
-    @patch("mcp.html_share_cards.validate_brand_workspace_dir")
+    @patch("brand_gen.html_share_cards.write_pipeline_qa_report", return_value=("report", "/tmp/qa.md"))
+    @patch("brand_gen.html_share_cards.write_agent_visual_review_packet", return_value=({}, "/tmp/review.json"))
+    @patch("brand_gen.html_share_cards._verify_render", return_value={"passed": True})
+    @patch("brand_gen.html_share_cards.build_web_app_share_card_payload")
+    @patch("brand_gen.html_share_cards.render_html_to_png")
+    @patch("brand_gen.html_share_cards.validate_brand_workspace_dir")
     def test_execute_html_share_card_scratchpad_updates_manifest(
         self,
         mock_validate,
@@ -194,7 +194,7 @@ class ExecuteHtmlScratchpadTests(unittest.TestCase):
             }
             vid = execute_html_share_card_scratchpad(payload, workflow_id="wf-test")
             self.assertEqual(vid, "v001")
-            manifest = __import__("mcp.runtime", fromlist=["load_manifest"]).load_manifest(brand_dir)
+            manifest = __import__("brand_gen.runtime", fromlist=["load_manifest"]).load_manifest(brand_dir)
             entry = manifest["versions"][vid]
             self.assertEqual(entry["render_backend"], "html")
             self.assertEqual(entry["render_source"], "html_browser")
@@ -345,12 +345,12 @@ class RenderVerificationTests(unittest.TestCase):
         """Integration: when render verification fails, visual_review_status is render_suspect."""
         with tempfile.TemporaryDirectory() as tmp:
             brand_dir = Path(tmp)
-            with patch("mcp.html_share_cards.write_pipeline_qa_report", return_value=("report", "/tmp/qa.md")):
-                with patch("mcp.html_share_cards.write_agent_visual_review_packet", return_value=({}, "/tmp/review.json")):
-                    with patch("mcp.html_share_cards._verify_render", return_value={"passed": False, "checks": {"min_size": False}}):
-                        with patch("mcp.html_share_cards.build_web_app_share_card_payload") as mock_card:
-                            with patch("mcp.html_share_cards.render_html_to_png") as mock_render:
-                                with patch("mcp.html_share_cards.validate_brand_workspace_dir", return_value=brand_dir):
+            with patch("brand_gen.html_share_cards.write_pipeline_qa_report", return_value=("report", "/tmp/qa.md")):
+                with patch("brand_gen.html_share_cards.write_agent_visual_review_packet", return_value=({}, "/tmp/review.json")):
+                    with patch("brand_gen.html_share_cards._verify_render", return_value={"passed": False, "checks": {"min_size": False}}):
+                        with patch("brand_gen.html_share_cards.build_web_app_share_card_payload") as mock_card:
+                            with patch("brand_gen.html_share_cards.render_html_to_png") as mock_render:
+                                with patch("brand_gen.html_share_cards.validate_brand_workspace_dir", return_value=brand_dir):
                                     mock_card.return_value = ShareCardPayload(
                                         material_type="social",
                                         surface="social share",
@@ -390,14 +390,14 @@ class RenderVerificationTests(unittest.TestCase):
                                         "selected_inspiration_ids": [],
                                     }
                                     vid = execute_html_share_card_scratchpad(payload, workflow_id="wf-suspect")
-                                    manifest = __import__("mcp.runtime", fromlist=["load_manifest"]).load_manifest(brand_dir)
+                                    manifest = __import__("brand_gen.runtime", fromlist=["load_manifest"]).load_manifest(brand_dir)
                                     entry = manifest["versions"][vid]
                                     self.assertEqual(entry["visual_review_status"], "render_suspect")
 
 
 class CardPluginTests(unittest.TestCase):
     def test_plugin_registry_ordering(self):
-        from mcp.card_plugins import get_plugins
+        from brand_gen.card_plugins import get_plugins
         plugins = get_plugins()
         self.assertGreaterEqual(len(plugins), 2)
         self.assertEqual(plugins[0].name, "sage")
@@ -406,19 +406,19 @@ class CardPluginTests(unittest.TestCase):
         self.assertEqual(plugins[1].priority, 100)
 
     def test_plugin_sage_can_handle(self):
-        from mcp.card_plugins.sage import SageCardPlugin
+        from brand_gen.card_plugins.sage import SageCardPlugin
         plugin = SageCardPlugin()
         self.assertTrue(plugin.can_handle("https://app.sageprotocol.io/prompts/test", "prompt"))
         self.assertFalse(plugin.can_handle("https://example.com/page", "prompt"))
 
     def test_plugin_web_fallback_always_handles(self):
-        from mcp.card_plugins.web import WebCardPlugin
+        from brand_gen.card_plugins.web import WebCardPlugin
         plugin = WebCardPlugin()
         self.assertTrue(plugin.can_handle("https://example.com", "prompt"))
         self.assertTrue(plugin.can_handle("https://app.sageprotocol.io/prompts/test", "skill"))
 
     def test_fetch_card_page_data_dispatches(self):
-        from mcp.card_plugins import fetch_card_page_data, clear_plugins, register_plugin, CardDataPlugin, get_plugins
+        from brand_gen.card_plugins import fetch_card_page_data, clear_plugins, register_plugin, CardDataPlugin, get_plugins
 
         class FakePlugin(CardDataPlugin):
             priority = 1
@@ -449,7 +449,7 @@ class CardPluginTests(unittest.TestCase):
                 register_plugin(p)
 
     def test_clear_plugins(self):
-        from mcp.card_plugins import clear_plugins, get_plugins, register_plugin
+        from brand_gen.card_plugins import clear_plugins, get_plugins, register_plugin
         saved = list(get_plugins())
         clear_plugins()
         try:

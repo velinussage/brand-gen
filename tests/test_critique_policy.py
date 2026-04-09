@@ -1,7 +1,7 @@
 import unittest
 
-from mcp.critique_policy import build_critique_policy, normalize_critique_policy
-from mcp.generation_flow import apply_generation_critique_policy
+from brand_gen.critique_policy import build_critique_policy, normalize_critique_policy
+from brand_gen.generation_flow import apply_generation_critique_policy
 
 
 class CritiquePolicyTests(unittest.TestCase):

@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp import generate
+from brand_gen import generate
 
 
 class _FakeResponse:
@@ -32,7 +32,7 @@ class GenerateTransportTests(unittest.TestCase):
             uploaded_paths.append(Path(file_path).suffix)
             return f"https://files.example/{len(uploaded_paths)}"
 
-        with patch("mcp.generate.upload_file_to_replicate", side_effect=fake_upload):
+        with patch("brand_gen.generate.upload_file_to_replicate", side_effect=fake_upload):
             replaced = generate._replace_data_uris_with_uploads(
                 "token",
                 {
@@ -71,7 +71,7 @@ class GenerateTransportTests(unittest.TestCase):
             return response
 
         with (
-            patch("mcp.generate.upload_file_to_replicate", return_value="https://files.example/uploaded.png"),
+            patch("brand_gen.generate.upload_file_to_replicate", return_value="https://files.example/uploaded.png"),
             patch("urllib.request.urlopen", side_effect=fake_urlopen),
         ):
             result = generate.create_prediction(

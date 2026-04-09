@@ -13,9 +13,9 @@ compatibility:
 
 # Brand Gen
 
-Preferred CLI: `bgen ...` or `python3 -m mcp.brand_iterate ...`
+Preferred CLI: `bgen ...` or `python3 -m brand_gen ...`
 
-Preferred MCP server: `python3 -m mcp.brand_iterate_mcp`
+Preferred MCP server: `python3 -m brand_gen.brand_iterate_mcp`
 
 Most CLI commands are also exposed as MCP tools with a `brand_` prefix. A few names are customized for host ergonomics (for example `list-brands` → `brand_list`, `review-brand` → `brand_review`, `pipeline` → `brand_pipeline`).
 
@@ -508,10 +508,10 @@ For models, surfaces, and file layout, load the companion skill:
 
 ## Nano-banana-2 creative pipeline (direct generation)
 
-For product-led material types (browser-illustration, announcement-card, product-banner, landing-hero, feature-illustration, carousel-slide, linkedin-feed, x-feed), one effective pattern is **nano-banana-2 with reference images** called directly via `python3 mcp/generate.py image`:
+For product-led material types (browser-illustration, announcement-card, product-banner, landing-hero, feature-illustration, carousel-slide, linkedin-feed, x-feed), one effective pattern is **nano-banana-2 with reference images** called directly via `bgen image`:
 
 ```bash
-python3 mcp/generate.py image \
+bgen image \
   -m nano-banana-2 \
   -p "<narrative prompt describing the composition>" \
   -i .brand-gen/brands/<active>/logo.png \

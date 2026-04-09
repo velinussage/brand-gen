@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from mcp import brand_iterate_mcp
+from brand_gen import brand_iterate_mcp
 
 
 class McpBridgeTests(unittest.TestCase):
@@ -24,7 +24,7 @@ class McpBridgeTests(unittest.TestCase):
         self.assertIn("brand_create", tools)
 
     def test_show_identity_uses_bridge_dispatch(self):
-        with patch("mcp.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
+        with patch("brand_gen.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
             output, is_error = brand_iterate_mcp.handle_tool_call(
                 "brand_show_identity",
                 {"profile": "/tmp/profile.json", "format": "json", "show_prelude": True},
@@ -39,7 +39,7 @@ class McpBridgeTests(unittest.TestCase):
         self.assertEqual(json.loads(output)["ok"], True)
 
     def test_diagnose_uses_bridge_for_positional_lists(self):
-        with patch("mcp.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
+        with patch("brand_gen.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
             brand_iterate_mcp.handle_tool_call(
                 "brand_diagnose",
                 {"versions": ["v1", "v2"], "format": "json"},
@@ -50,7 +50,7 @@ class McpBridgeTests(unittest.TestCase):
         self.assertIn("v2", argv)
 
     def test_generate_uses_registry_bridge_dispatch(self):
-        with patch("mcp.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
+        with patch("brand_gen.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
             brand_iterate_mcp.handle_tool_call(
                 "brand_generate",
                 {"scratchpad": "/tmp/run.json", "max_iterations": 2, "skip_vlm": True},
@@ -64,7 +64,7 @@ class McpBridgeTests(unittest.TestCase):
         self.assertIn("--skip-vlm", argv)
 
     def test_generate_bridge_supports_internal_vlm_opt_in(self):
-        with patch("mcp.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
+        with patch("brand_gen.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
             brand_iterate_mcp.handle_tool_call(
                 "brand_generate",
                 {"scratchpad": "/tmp/run.json", "internal_vlm_critique": True},
@@ -74,7 +74,7 @@ class McpBridgeTests(unittest.TestCase):
         self.assertIn("--internal-vlm-critique", argv)
 
     def test_create_brand_uses_renamed_registry_args(self):
-        with patch("mcp.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
+        with patch("brand_gen.brand_iterate_mcp.run_brand_iterate", return_value=('{"ok":true}', True)) as mocked:
             brand_iterate_mcp.handle_tool_call(
                 "brand_create",
                 {"name": "Acme", "value_props": ["Fast", "Trusted"]},

@@ -18,7 +18,7 @@ Native Pi extension for brand-gen. It wraps the Python MCP backend, injects work
 
 - a repo checkout of `brand-gen` (this package depends on local `../brand-gen-core`)
 - Node.js + npm for the extension package
-- Python 3 with access to brand-gen's MCP backend (`mcp/brand_iterate_mcp.py`)
+- Python 3 with access to brand-gen's MCP backend (`brand_gen/brand_iterate_mcp.py`)
 - a Pi host that supports local extensions
 
 ## Quickstart
@@ -93,7 +93,7 @@ Use this config:
 }
 ```
 
-`brandIterateMcpPath` is optional for a normal repo checkout or fork. When Pi points at `packages/pi-brand-gen/`, the extension auto-detects `<repo>/mcp/brand_iterate_mcp.py`. Only set `brandIterateMcpPath` if your checkout layout is unusual or you want to override the backend path manually.
+`brandIterateMcpPath` is optional for a normal repo checkout or fork. When Pi points at `packages/pi-brand-gen/`, the extension auto-detects `<repo>/brand_gen/brand_iterate_mcp.py`. Only set `brandIterateMcpPath` if your checkout layout is unusual or you want to override the backend path manually.
 
 ### 4. Verify the extension inside Pi
 
@@ -112,13 +112,13 @@ Run:
 This extension launches the backend by preferring the repo-local Python environment when it exists:
 
 ```text
-<repo>/.venv/bin/python <repo>/mcp/brand_iterate_mcp.py
+<repo>/.venv/bin/python <repo>/brand_gen/brand_iterate_mcp.py
 ```
 
 If that repo-local Python interpreter is not present, it falls back to:
 
 ```text
-python3 <repo>/mcp/brand_iterate_mcp.py
+python3 <repo>/brand_gen/brand_iterate_mcp.py
 ```
 
 So a normal fork/checkout can work without any absolute MCP-path config as long as you keep the standard repo layout. The repo `.env` is still read by the backend automatically. The safest path is to create the repo `.venv`; otherwise ensure the host `python3` visible to Pi has brand-gen's Python dependencies.
@@ -153,7 +153,7 @@ The Pi extension config schema is declared in `pi.extension.json`.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `brandGenDir` | `string` | no | host-specific / usually `~/.brand-gen` | Durable workspace root for brands, sessions, and runtime markers |
-| `brandIterateMcpPath` | `string` | no | auto-detected from the registered checkout | Optional override for the path to `mcp/brand_iterate_mcp.py` |
+| `brandIterateMcpPath` | `string` | no | auto-detected from the registered checkout | Optional override for the path to `brand_gen/brand_iterate_mcp.py` |
 | `approvalMode` | `"all" \| "output_only" \| "none"` | no | `"output_only"` | How much human approval is required between autonomous cycles |
 | `logLevel` | `"debug" \| "info" \| "warn" \| "error"` | no | `"info"` | Extension log verbosity |
 | `heartbeatIntervalMinutes` | `number` | no | `60` | Heartbeat timer interval |

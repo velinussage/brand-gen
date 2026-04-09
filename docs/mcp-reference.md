@@ -3,7 +3,7 @@
 Preferred MCP server entrypoint:
 
 ```bash
-python3 -m mcp.brand_iterate_mcp
+python3 -m brand_gen.brand_iterate_mcp
 ```
 
 ## Tool naming rules
@@ -121,5 +121,5 @@ Those host-layer tools are not part of the Python MCP server itself:
 Use your MCP host’s normal stdio-server registration flow and point it at:
 
 ```bash
-python3 -m mcp.brand_iterate_mcp
+python3 -m brand_gen.brand_iterate_mcp
 ```

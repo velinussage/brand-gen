@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from mcp.runtime_models import (
+from brand_gen.runtime_models import (
     COPY_BEARING_MATERIALS,
     MATERIAL_CONFIG,
     MODELS,

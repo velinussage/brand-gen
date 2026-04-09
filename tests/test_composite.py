@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from mcp.commands.composite import (
+from brand_gen.commands.composite import (
     ASPECT_RATIOS,
     BRAND_CHARCOAL,
     BRAND_CREAM,

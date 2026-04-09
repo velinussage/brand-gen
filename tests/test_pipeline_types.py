@@ -1,6 +1,6 @@
 import unittest
 
-from mcp.pipeline_types import (
+from brand_gen.pipeline_types import (
     CritiqueChecks,
     PipelineResult,
     PlanCritique,

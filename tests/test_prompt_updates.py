@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.commands.inspection import cmd_compare
-from mcp.generation_flow import execute_generation_scratchpad
-from mcp.material_planning import (
+from brand_gen.commands.inspection import cmd_compare
+from brand_gen.generation_flow import execute_generation_scratchpad
+from brand_gen.material_planning import (
     build_material_plan_from_args,
     build_role_pack_override_from_plan,
     build_effective_prompt,
@@ -16,9 +16,9 @@ from mcp.material_planning import (
     review_prompt_architecture,
     validate_material_plan_dict,
 )
-from mcp.media_board import build_agent_regeneration_prompt
-from mcp.runtime_brand import load_prompt_review_rules
-from mcp.session_summary import build_session_summary_payload
+from brand_gen.media_board import build_agent_regeneration_prompt
+from brand_gen.runtime_brand import load_prompt_review_rules
+from brand_gen.session_summary import build_session_summary_payload
 
 
 class PromptUpdateTests(unittest.TestCase):
@@ -145,7 +145,7 @@ class PromptUpdateTests(unittest.TestCase):
 
     def test_build_effective_prompt_preserves_token_block_fragments_for_debugging(self):
         with patch(
-            'mcp.prompt_assembly.load_inspiration_prompt_context',
+            'brand_gen.prompt_assembly.load_inspiration_prompt_context',
             return_value={
                 'doctrine': '',
                 'token_block': ':root {\n  --accent: #ff6600;\n}',
@@ -168,7 +168,7 @@ class PromptUpdateTests(unittest.TestCase):
 
     def test_build_effective_prompt_surfaces_selected_inspiration_translation(self):
         with patch(
-            'mcp.prompt_assembly.load_inspiration_prompt_context',
+            'brand_gen.prompt_assembly.load_inspiration_prompt_context',
             return_value={
                 'doctrine': 'Long merged doctrine that should remain available for inspection.',
                 'token_block': '',
@@ -190,7 +190,7 @@ class PromptUpdateTests(unittest.TestCase):
                 'mode': 'full',
             },
         ), patch(
-            'mcp.prompt_assembly.build_selected_inspiration_translation',
+            'brand_gen.prompt_assembly.build_selected_inspiration_translation',
             return_value={
                 'translation': 'Selected inspiration translation:\n- Ramotion: lead with one dominant product window.',
                 'mechanics': ['lead with one dominant product window'],
@@ -230,7 +230,7 @@ class PromptUpdateTests(unittest.TestCase):
 
     def test_build_effective_prompt_surfaces_inspiration_memory_seed_prompt(self):
         with patch(
-            'mcp.prompt_assembly.load_inspiration_prompt_context',
+            'brand_gen.prompt_assembly.load_inspiration_prompt_context',
             return_value={
                 'doctrine': '',
                 'token_block': '',
@@ -288,10 +288,10 @@ class PromptUpdateTests(unittest.TestCase):
 
     def test_create_material_plan_records_selected_inspiration_metadata(self):
         with tempfile.TemporaryDirectory() as tmpdir, \
-             patch('mcp.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
-             patch('mcp.plan_builder.resolve_context_brand_key', return_value='sage'), \
+             patch('brand_gen.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
+             patch('brand_gen.plan_builder.resolve_context_brand_key', return_value='sage'), \
              patch(
-                 'mcp.plan_builder.load_inspiration_prompt_context',
+                 'brand_gen.plan_builder.load_inspiration_prompt_context',
                  return_value={
                      'source_records': [
                          {
@@ -308,7 +308,7 @@ class PromptUpdateTests(unittest.TestCase):
                  },
              ), \
              patch(
-                 'mcp.plan_builder.build_selected_inspiration_translation',
+                 'brand_gen.plan_builder.build_selected_inspiration_translation',
                  return_value={
                      'translation': 'Selected inspiration translation:\n- Ramotion: one dominant product window.',
                      'mechanics': ['one dominant product window'],
@@ -340,10 +340,10 @@ class PromptUpdateTests(unittest.TestCase):
         """Regression: calling create_material_plan without accept_inspiration_recommendations
         should produce an 'unselected' mode with empty records, not silently break the pipeline."""
         with tempfile.TemporaryDirectory() as tmpdir, \
-             patch('mcp.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
-             patch('mcp.plan_builder.resolve_context_brand_key', return_value='sage'), \
+             patch('brand_gen.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
+             patch('brand_gen.plan_builder.resolve_context_brand_key', return_value='sage'), \
              patch(
-                 'mcp.plan_builder.load_inspiration_prompt_context',
+                 'brand_gen.plan_builder.load_inspiration_prompt_context',
                  return_value={
                      'source_records': [
                          {'source_key': 'ramotion', 'source_name': 'Ramotion', 'design_memory_path': '/tmp/ramotion'},
@@ -351,7 +351,7 @@ class PromptUpdateTests(unittest.TestCase):
                  },
              ), \
              patch(
-                 'mcp.plan_builder.build_selected_inspiration_translation',
+                 'brand_gen.plan_builder.build_selected_inspiration_translation',
                  return_value={'translation': '', 'mechanics': [], 'source_summaries': []},
              ):
             plan, _ = create_material_plan(
@@ -369,10 +369,10 @@ class PromptUpdateTests(unittest.TestCase):
 
     def test_create_material_plan_auto_synthesizes_system_mechanic_when_blank(self):
         with tempfile.TemporaryDirectory() as tmpdir, \
-             patch('mcp.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
-             patch('mcp.plan_builder.resolve_context_brand_key', return_value='sage'), \
+             patch('brand_gen.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
+             patch('brand_gen.plan_builder.resolve_context_brand_key', return_value='sage'), \
              patch(
-                 'mcp.plan_builder.load_inspiration_prompt_context',
+                 'brand_gen.plan_builder.load_inspiration_prompt_context',
                  return_value={
                      'source_records': [
                          {'source_key': 'ramotion', 'source_name': 'Ramotion', 'design_memory_path': '/tmp/ramotion'},
@@ -380,7 +380,7 @@ class PromptUpdateTests(unittest.TestCase):
                  },
              ), \
              patch(
-                 'mcp.plan_builder.build_selected_inspiration_translation',
+                 'brand_gen.plan_builder.build_selected_inspiration_translation',
                  return_value={
                      'translation': 'Selected inspiration translation.',
                      'mechanics': ['one dominant product window'],
@@ -410,10 +410,10 @@ class PromptUpdateTests(unittest.TestCase):
 
     def test_create_material_plan_relaxes_role_pack_gate_when_no_candidates_and_inspiration_exists(self):
         with tempfile.TemporaryDirectory() as tmpdir, \
-             patch('mcp.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
-             patch('mcp.plan_builder.resolve_context_brand_key', return_value='sage'), \
+             patch('brand_gen.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
+             patch('brand_gen.plan_builder.resolve_context_brand_key', return_value='sage'), \
              patch(
-                 'mcp.plan_builder.suggest_reference_role_pack',
+                 'brand_gen.plan_builder.suggest_reference_role_pack',
                  return_value={
                      'material_key': 'social',
                      'priority': ['composition', 'application'],
@@ -424,7 +424,7 @@ class PromptUpdateTests(unittest.TestCase):
                  },
              ), \
              patch(
-                 'mcp.plan_builder.load_inspiration_prompt_context',
+                 'brand_gen.plan_builder.load_inspiration_prompt_context',
                  return_value={
                      'source_records': [
                          {'source_key': 'ramotion', 'source_name': 'Ramotion', 'design_memory_path': '/tmp/ramotion'},
@@ -432,7 +432,7 @@ class PromptUpdateTests(unittest.TestCase):
                  },
              ), \
              patch(
-                 'mcp.plan_builder.build_selected_inspiration_translation',
+                 'brand_gen.plan_builder.build_selected_inspiration_translation',
                  return_value={
                      'translation': 'Selected inspiration translation.',
                      'mechanics': ['editorial pacing'],
@@ -469,11 +469,11 @@ class PromptUpdateTests(unittest.TestCase):
         and critique blocks generation."""
         import argparse
         with tempfile.TemporaryDirectory() as tmpdir, \
-             patch('mcp.plan_builder.load_brand_memory', return_value=(None, Path(tmpdir) / 'identity.json', {}, {})), \
-             patch('mcp.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
-             patch('mcp.plan_builder.resolve_context_brand_key', return_value='sage'), \
+             patch('brand_gen.plan_builder.load_brand_memory', return_value=(None, Path(tmpdir) / 'identity.json', {}, {})), \
+             patch('brand_gen.plan_builder.get_brand_gen_dir', return_value=Path('/tmp/brand-gen')), \
+             patch('brand_gen.plan_builder.resolve_context_brand_key', return_value='sage'), \
              patch(
-                 'mcp.plan_builder.load_inspiration_prompt_context',
+                 'brand_gen.plan_builder.load_inspiration_prompt_context',
                  return_value={
                      'source_records': [
                          {'source_key': 'ramotion', 'source_name': 'Ramotion', 'design_memory_path': '/tmp/ramotion'},
@@ -481,16 +481,16 @@ class PromptUpdateTests(unittest.TestCase):
                  },
              ), \
              patch(
-                 'mcp.plan_builder.build_selected_inspiration_translation',
+                 'brand_gen.plan_builder.build_selected_inspiration_translation',
                  return_value={
                      'translation': 'Selected inspiration translation.',
                      'mechanics': ['dominant window'],
                      'source_summaries': [],
                  },
              ), \
-             patch('mcp.plan_builder.save_plan_draft', return_value=Path(tmpdir) / 'draft.json'), \
-             patch('mcp.plan_builder.persist_plan_inspiration_board', return_value={}), \
-             patch('mcp.plan_builder.persist_inspiration_source_selection', return_value=([], '')):
+             patch('brand_gen.plan_builder.save_plan_draft', return_value=Path(tmpdir) / 'draft.json'), \
+             patch('brand_gen.plan_builder.persist_plan_inspiration_board', return_value={}), \
+             patch('brand_gen.plan_builder.persist_inspiration_source_selection', return_value=([], '')):
             args = argparse.Namespace(
                 material_type='social', mode='hybrid', mechanic='', pick=[],
                 preserve=[], push=[], ban=[], prompt_seed=None,
@@ -758,19 +758,19 @@ class PromptUpdateTests(unittest.TestCase):
                 'identity_path': '',
             }
 
-            with patch('mcp.runtime_brand.get_brand_dir', return_value=brand_dir), \
-                 patch('mcp.generation_flow.MODELS', {'image': {'mock-image-model': {'output_format': 'png'}}}), \
-                 patch('mcp.generation_flow.load_manifest', return_value={'versions': {}}), \
-                 patch('mcp.generation_flow.save_manifest'), \
-                 patch('mcp.generation_flow.next_version_num', return_value=1), \
-                 patch('mcp.generation_flow.subprocess.run', side_effect=lambda cmd, **kwargs: (Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n") and type('Result', (), {'returncode': 0, 'stdout': '', 'stderr': ''})())), \
-                 patch('mcp.generation_flow.stage_reference_assets', return_value=[]), \
-                 patch('mcp.generation_flow.write_agent_visual_review_packet', return_value=({}, brand_dir / 'reviews' / 'v001-agent-review.json')), \
-                 patch('mcp.generation_flow.run_auto_brand_review', return_value=('', False)), \
-                 patch('mcp.generation_flow.load_brand_memory', return_value=(None, None, {}, {})), \
-                 patch('mcp.generation_flow.persist_generated_asset_to_blackboard'), \
-                 patch('mcp.generation_flow.append_run_event'), \
-                 patch('mcp.generation_flow.build_env', return_value={}):
+            with patch('brand_gen.runtime_brand.get_brand_dir', return_value=brand_dir), \
+                 patch('brand_gen.generation_flow.MODELS', {'image': {'mock-image-model': {'output_format': 'png'}}}), \
+                 patch('brand_gen.generation_flow.load_manifest', return_value={'versions': {}}), \
+                 patch('brand_gen.generation_flow.save_manifest'), \
+                 patch('brand_gen.generation_flow.next_version_num', return_value=1), \
+                 patch('brand_gen.generation_flow.subprocess.run', side_effect=lambda cmd, **kwargs: (Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n") and type('Result', (), {'returncode': 0, 'stdout': '', 'stderr': ''})())), \
+                 patch('brand_gen.generation_flow.stage_reference_assets', return_value=[]), \
+                 patch('brand_gen.generation_flow.write_agent_visual_review_packet', return_value=({}, brand_dir / 'reviews' / 'v001-agent-review.json')), \
+                 patch('brand_gen.generation_flow.run_auto_brand_review', return_value=('', False)), \
+                 patch('brand_gen.generation_flow.load_brand_memory', return_value=(None, None, {}, {})), \
+                 patch('brand_gen.generation_flow.persist_generated_asset_to_blackboard'), \
+                 patch('brand_gen.generation_flow.append_run_event'), \
+                 patch('brand_gen.generation_flow.build_env', return_value={}):
                 version_id = execute_generation_scratchpad(payload, workflow_id='wf-123')
 
             sidecar = json.loads((brand_dir / f'{version_id}.prompts.json').read_text())
@@ -803,19 +803,19 @@ class PromptUpdateTests(unittest.TestCase):
                 'identity_path': '',
             }
 
-            with patch('mcp.runtime_brand.get_brand_dir', return_value=brand_dir), \
-                 patch('mcp.generation_flow.MODELS', {'image': {'mock-image-model': {'output_format': 'png'}}}), \
-                 patch('mcp.generation_flow.load_manifest', return_value={'versions': {}}) as load_manifest_mock, \
-                 patch('mcp.generation_flow.save_manifest') as save_manifest_mock, \
-                 patch('mcp.generation_flow.next_version_num', return_value=1) as next_version_num_mock, \
-                 patch('mcp.generation_flow.subprocess.run', side_effect=lambda cmd, **kwargs: (Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n") and type('Result', (), {'returncode': 0, 'stdout': '', 'stderr': ''})())), \
-                 patch('mcp.generation_flow.stage_reference_assets', return_value=[]), \
-                 patch('mcp.generation_flow.write_agent_visual_review_packet', return_value=({}, brand_dir / 'reviews' / 'v001-agent-review.json')), \
-                 patch('mcp.generation_flow.run_auto_brand_review', return_value=('', False)), \
-                 patch('mcp.generation_flow.load_brand_memory', return_value=(None, None, {}, {})), \
-                 patch('mcp.generation_flow.persist_generated_asset_to_blackboard'), \
-                 patch('mcp.generation_flow.append_run_event'), \
-                 patch('mcp.generation_flow.build_env', return_value={}):
+            with patch('brand_gen.runtime_brand.get_brand_dir', return_value=brand_dir), \
+                 patch('brand_gen.generation_flow.MODELS', {'image': {'mock-image-model': {'output_format': 'png'}}}), \
+                 patch('brand_gen.generation_flow.load_manifest', return_value={'versions': {}}) as load_manifest_mock, \
+                 patch('brand_gen.generation_flow.save_manifest') as save_manifest_mock, \
+                 patch('brand_gen.generation_flow.next_version_num', return_value=1) as next_version_num_mock, \
+                 patch('brand_gen.generation_flow.subprocess.run', side_effect=lambda cmd, **kwargs: (Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n") and type('Result', (), {'returncode': 0, 'stdout': '', 'stderr': ''})())), \
+                 patch('brand_gen.generation_flow.stage_reference_assets', return_value=[]), \
+                 patch('brand_gen.generation_flow.write_agent_visual_review_packet', return_value=({}, brand_dir / 'reviews' / 'v001-agent-review.json')), \
+                 patch('brand_gen.generation_flow.run_auto_brand_review', return_value=('', False)), \
+                 patch('brand_gen.generation_flow.load_brand_memory', return_value=(None, None, {}, {})), \
+                 patch('brand_gen.generation_flow.persist_generated_asset_to_blackboard'), \
+                 patch('brand_gen.generation_flow.append_run_event'), \
+                 patch('brand_gen.generation_flow.build_env', return_value={}):
                 execute_generation_scratchpad(payload, workflow_id='wf-123')
 
             self.assertEqual(load_manifest_mock.call_count, 4)
@@ -853,9 +853,9 @@ class PromptUpdateTests(unittest.TestCase):
                     },
                 }
             }
-            with patch('mcp.commands.inspection.load_manifest', return_value=manifest), \
-                 patch('mcp.commands.inspection.get_brand_dir', return_value=brand_dir), \
-                 patch('mcp.commands.inspection.sys.platform', 'linux'):
+            with patch('brand_gen.commands.inspection.load_manifest', return_value=manifest), \
+                 patch('brand_gen.commands.inspection.get_brand_dir', return_value=brand_dir), \
+                 patch('brand_gen.commands.inspection.sys.platform', 'linux'):
                 cmd_compare(argparse.Namespace(
                     versions=[],
                     favorites=False,
@@ -887,9 +887,9 @@ class PromptUpdateTests(unittest.TestCase):
                     },
                 }
             }
-            with patch('mcp.commands.inspection.load_manifest', return_value=manifest) as load_manifest_mock, \
-                 patch('mcp.commands.inspection.get_brand_dir', return_value=brand_dir), \
-                 patch('mcp.commands.inspection.sys.platform', 'linux'):
+            with patch('brand_gen.commands.inspection.load_manifest', return_value=manifest) as load_manifest_mock, \
+                 patch('brand_gen.commands.inspection.get_brand_dir', return_value=brand_dir), \
+                 patch('brand_gen.commands.inspection.sys.platform', 'linux'):
                 cmd_compare(argparse.Namespace(
                     versions=[],
                     favorites=False,
@@ -912,15 +912,15 @@ class PromptUpdateTests(unittest.TestCase):
                     'v1': {'timestamp': '2026-03-17T22:45:46', 'material_type': 'social', 'files': ['v1.png']},
                 }
             }
-            with patch('mcp.session_summary.load_manifest', return_value=manifest) as load_manifest_mock, \
-                 patch('mcp.session_summary.load_blackboard', return_value={'generated_assets': [], 'artifacts': {}, 'decisions': [], 'reference_analysis': {}}), \
-                 patch('mcp.session_summary.load_iteration_memory', return_value={}), \
-                 patch('mcp.session_summary.load_all_run_events', return_value=[]), \
-                 patch('mcp.session_summary.load_inspiration_board', return_value={}), \
-                 patch('mcp.session_summary.build_inspiration_board_summary', return_value={}), \
-                 patch('mcp.session_summary.get_brand_gen_dir', return_value=None), \
-                 patch('mcp.session_summary.infer_brand_key_from_path', return_value='sage'), \
-                 patch('mcp.session_summary.resolve_active_brand_key', return_value='sage'):
+            with patch('brand_gen.session_summary.load_manifest', return_value=manifest) as load_manifest_mock, \
+                 patch('brand_gen.session_summary.load_blackboard', return_value={'generated_assets': [], 'artifacts': {}, 'decisions': [], 'reference_analysis': {}}), \
+                 patch('brand_gen.session_summary.load_iteration_memory', return_value={}), \
+                 patch('brand_gen.session_summary.load_all_run_events', return_value=[]), \
+                 patch('brand_gen.session_summary.load_inspiration_board', return_value={}), \
+                 patch('brand_gen.session_summary.build_inspiration_board_summary', return_value={}), \
+                 patch('brand_gen.session_summary.get_brand_gen_dir', return_value=None), \
+                 patch('brand_gen.session_summary.infer_brand_key_from_path', return_value='sage'), \
+                 patch('brand_gen.session_summary.resolve_active_brand_key', return_value='sage'):
                 payload = build_session_summary_payload(brand_dir, {'brand_name': 'Sage'}, {'brand': {'name': 'Sage'}}, limit=2)
 
             load_manifest_mock.assert_called_once_with(brand_dir)
@@ -944,9 +944,9 @@ class ImprovementQuestionsTests(unittest.TestCase):
             "copy_notes": [],
         }
 
-    @patch('mcp.plan_builder.load_iteration_memory')
+    @patch('brand_gen.plan_builder.load_iteration_memory')
     def test_quality_question_is_actionable_when_feedback_not_captured(self, mock_mem):
-        from mcp.plan_builder import build_improvement_questions
+        from brand_gen.plan_builder import build_improvement_questions
         # 2 low-scored versions, but iteration memory has no negative examples for them
         mock_mem.return_value = self._make_memory()
         manifest = self._make_manifest({
@@ -959,9 +959,9 @@ class ImprovementQuestionsTests(unittest.TestCase):
         self.assertFalse(quality_qs[0].get("auto_resolved", False))
         self.assertIn("scored poorly", quality_qs[0]["question"])
 
-    @patch('mcp.plan_builder.load_iteration_memory')
+    @patch('brand_gen.plan_builder.load_iteration_memory')
     def test_quality_question_auto_resolved_when_feedback_already_captured(self, mock_mem):
-        from mcp.plan_builder import build_improvement_questions
+        from brand_gen.plan_builder import build_improvement_questions
         # 2 low-scored versions, and iteration memory already has negative examples for both
         mock_mem.return_value = self._make_memory(negative_examples=[
             {"version": "v01", "material_type": "social", "summary": "Auto-critic: too generic", "score": 1},
@@ -978,9 +978,9 @@ class ImprovementQuestionsTests(unittest.TestCase):
         self.assertIn("auto-captured", quality_qs[0]["question"].lower())
         self.assertEqual(quality_qs[0]["priority"], 2)
 
-    @patch('mcp.plan_builder.load_iteration_memory')
+    @patch('brand_gen.plan_builder.load_iteration_memory')
     def test_quality_question_actionable_when_partially_captured(self, mock_mem):
-        from mcp.plan_builder import build_improvement_questions
+        from brand_gen.plan_builder import build_improvement_questions
         # 2 low-scored but only 1 captured in memory
         mock_mem.return_value = self._make_memory(negative_examples=[
             {"version": "v01", "material_type": "social", "summary": "Auto-critic: too generic", "score": 1},

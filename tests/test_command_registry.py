@@ -4,9 +4,9 @@ from pathlib import Path
 import ast
 from unittest import mock
 
-from mcp import command_registry
-from mcp.command_registry import COMMAND_HANDLERS, COMMAND_SPECS, CommandSpec, build_parser
-from mcp.cli_builders import CLI_BUILDERS
+from brand_gen import command_registry
+from brand_gen.command_registry import COMMAND_HANDLERS, COMMAND_SPECS, CommandSpec, build_parser
+from brand_gen.cli_builders import CLI_BUILDERS
 
 
 class CommandRegistryTests(unittest.TestCase):
@@ -49,7 +49,7 @@ class CommandRegistryTests(unittest.TestCase):
             self.assertIs(spec.cli_builder, CLI_BUILDERS[spec.name])
 
     def test_command_modules_do_not_define_duplicate_cmd_handlers(self):
-        commands_dir = Path(__file__).resolve().parents[1] / "mcp" / "commands"
+        commands_dir = Path(__file__).resolve().parents[1] / "brand_gen" / "commands"
         handler_owners: dict[str, list[str]] = defaultdict(list)
         for path in sorted(commands_dir.glob("*.py")):
             module = ast.parse(path.read_text())

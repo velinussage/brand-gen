@@ -5,11 +5,11 @@ from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp import blackboard, route_predicates
-from mcp.pipeline_runner import PipelineRunner
-from mcp.reference_analysis import check_inspiration_pipeline_status, extract_reference_image_stats
-from mcp.pipeline_types import RoutingBrief
-from mcp.runtime_brand import load_brand_memory, load_workflow_router_rules
+from brand_gen import blackboard, route_predicates
+from brand_gen.pipeline_runner import PipelineRunner
+from brand_gen.reference_analysis import check_inspiration_pipeline_status, extract_reference_image_stats
+from brand_gen.pipeline_types import RoutingBrief
+from brand_gen.runtime_brand import load_brand_memory, load_workflow_router_rules
 
 
 class RuntimeFallbackTests(unittest.TestCase):
@@ -25,8 +25,8 @@ class RuntimeFallbackTests(unittest.TestCase):
 
     def test_route_predicates_warn_and_fallback_when_classifier_fails(self):
         stderr = io.StringIO()
-        with patch("mcp.route_predicates.classify_workflow_route_smart", side_effect=RuntimeError("boom")), \
-             patch("mcp.route_predicates.load_workflow_router_rules", return_value={"routes": []}), \
+        with patch("brand_gen.route_predicates.classify_workflow_route_smart", side_effect=RuntimeError("boom")), \
+             patch("brand_gen.route_predicates.load_workflow_router_rules", return_value={"routes": []}), \
              redirect_stderr(stderr):
             result = route_predicates.route_brief(RoutingBrief(material_type="social", material_key="unknown"))
         self.assertEqual(result["route_key"], "generative_explore")
@@ -74,8 +74,8 @@ class RuntimeFallbackTests(unittest.TestCase):
             session_dir = brand_gen_dir / "sessions" / "sage-session" / "brand-materials"
             session_dir.mkdir(parents=True)
 
-            with patch("mcp.runtime_brand.get_brand_gen_dir", return_value=brand_gen_dir), \
-                 patch("mcp.runtime_brand.resolve_context_brand_key", return_value="sage"):
+            with patch("brand_gen.runtime_brand.get_brand_gen_dir", return_value=brand_gen_dir), \
+                 patch("brand_gen.runtime_brand.resolve_context_brand_key", return_value="sage"):
                 profile_path, identity_path, profile, identity = load_brand_memory(session_dir)
 
             self.assertEqual(profile_path, (saved_brand_dir / "brand-profile.json").resolve())

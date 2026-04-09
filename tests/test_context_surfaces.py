@@ -4,14 +4,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.context_surfaces import (
+from brand_gen.context_surfaces import (
     build_capabilities_payload,
     build_context_snapshot_payload,
     build_workspace_status_payload,
     get_prompt_resource,
     list_prompt_resources,
 )
-from mcp.run_ledger import append_run_event
+from brand_gen.run_ledger import append_run_event
 
 
 class ContextSurfaceTests(unittest.TestCase):
@@ -69,7 +69,7 @@ class ContextSurfaceTests(unittest.TestCase):
             (brand_dir / "reviews" / "v001-review.md").write_text("# Review\n")
             append_run_event(brand_dir, "wf-123", stage="generate", output_version="v001", status="ok")
 
-            with patch("mcp.context_surfaces.REPO_ROOT", repo_root), patch("mcp.context_surfaces.get_brand_gen_dir", return_value=brand_gen_root):
+            with patch("brand_gen.context_surfaces.REPO_ROOT", repo_root), patch("brand_gen.context_surfaces.get_brand_gen_dir", return_value=brand_gen_root):
                 profile = {"brand_name": "Acme", "description": "Brand summary"}
                 identity = {"brand": {"name": "Acme", "summary": "Brand summary"}}
                 payload = build_context_snapshot_payload(brand_dir, profile, identity)
@@ -106,7 +106,7 @@ class ContextSurfaceTests(unittest.TestCase):
                 + "\n"
             )
 
-            with patch("mcp.context_surfaces.REPO_ROOT", repo_root), patch("mcp.context_surfaces.get_brand_gen_dir", return_value=brand_gen_root):
+            with patch("brand_gen.context_surfaces.REPO_ROOT", repo_root), patch("brand_gen.context_surfaces.get_brand_gen_dir", return_value=brand_gen_root):
                 payload = build_workspace_status_payload(brand_dir, {"brand_name": "Acme"}, {"brand": {"name": "Acme"}})
 
             self.assertFalse(payload["plugin_matches_python_root"])

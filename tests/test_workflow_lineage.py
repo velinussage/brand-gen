@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.blackboard import get_workflow_lineage, load_blackboard, save_blackboard
-from mcp.runtime_brand import collect_workflow_artifacts, resolve_workflow_id
+from brand_gen.blackboard import get_workflow_lineage, load_blackboard, save_blackboard
+from brand_gen.runtime_brand import collect_workflow_artifacts, resolve_workflow_id
 
 
 class WorkflowLineageTests(unittest.TestCase):

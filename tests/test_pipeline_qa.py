@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.pipeline_qa import build_pipeline_qa_report, write_pipeline_qa_report
+from brand_gen.pipeline_qa import build_pipeline_qa_report, write_pipeline_qa_report
 
 
 class PipelineQaTests(unittest.TestCase):
@@ -391,7 +391,7 @@ class PipelineQaTests(unittest.TestCase):
             scratchpad_path.write_text(json.dumps(scratchpad, indent=2) + "\n")
             self._write_manifest(brand_dir, scratchpad_path=scratchpad_path, material_type="landing-hero")
 
-            with unittest.mock.patch("mcp.pipeline_qa.load_brand_memory", return_value=(None, None, {"brand_assets": {}}, {})):
+            with unittest.mock.patch("brand_gen.pipeline_qa.load_brand_memory", return_value=(None, None, {"brand_assets": {}}, {})):
                 report, markdown = build_pipeline_qa_report(brand_dir, "v001")
 
             self.assertTrue(any("lacks a selected `product_truth` role" in item for item in report["policy_setup_risks"]))

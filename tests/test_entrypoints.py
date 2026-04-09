@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-BRAND_ITERATE = REPO_ROOT / "mcp" / "brand_iterate.py"
+BRAND_ITERATE = REPO_ROOT / "brand_gen" / "brand_iterate.py"
 
 
 class EntrypointTests(unittest.TestCase):
     def test_package_entrypoint_runs(self):
         result = subprocess.run(
-            [sys.executable, "-m", "mcp.brand_iterate", "types"],
+            [sys.executable, "-m", "brand_gen.brand_iterate", "types"],
             cwd=REPO_ROOT,
             check=True,
             capture_output=True,

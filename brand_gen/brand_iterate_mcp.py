@@ -93,7 +93,7 @@ def run_python(script: Path, args: list[str]):
 
 def run_brand_iterate(args: list[str]):
     env = build_env()
-    result = subprocess.run([sys.executable, "-m", "mcp.brand_iterate"] + args, env=env, capture_output=True, text=True, cwd=str(REPO_ROOT))
+    result = subprocess.run([sys.executable, "-m", "brand_gen.brand_iterate"] + args, env=env, capture_output=True, text=True, cwd=str(REPO_ROOT))
     output = result.stdout
     if result.stderr:
         output += ("\n" if output else "") + result.stderr

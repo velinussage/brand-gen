@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.commands.generation import cmd_generate
-from mcp.generation_flow import execute_generation_scratchpad
-from mcp.runtime_brand import ensure_path_within_root, validate_brand_workspace_dir
+from brand_gen.commands.generation import cmd_generate
+from brand_gen.generation_flow import execute_generation_scratchpad
+from brand_gen.runtime_brand import ensure_path_within_root, validate_brand_workspace_dir
 
 
 class WorkspaceSecurityTests(unittest.TestCase):
@@ -26,7 +26,7 @@ class WorkspaceSecurityTests(unittest.TestCase):
             active_brand_dir = root / ".brand-gen" / "brands" / "active"
             rogue_brand_dir = root / ".brand-gen" / "brands" / "other"
 
-            with patch("mcp.runtime_brand.get_brand_dir", return_value=active_brand_dir):
+            with patch("brand_gen.runtime_brand.get_brand_dir", return_value=active_brand_dir):
                 with self.assertRaises(SystemExit) as exc:
                     validate_brand_workspace_dir(rogue_brand_dir, label="scratchpad brand_dir")
 
@@ -49,8 +49,8 @@ class WorkspaceSecurityTests(unittest.TestCase):
                 vlm_critique=None,
             )
 
-            with patch("mcp.runtime_brand.get_brand_dir", return_value=active_brand_dir), \
-                 patch("mcp.commands.generation.execute_generation_scratchpad") as execute_mock:
+            with patch("brand_gen.runtime_brand.get_brand_dir", return_value=active_brand_dir), \
+                 patch("brand_gen.commands.generation.execute_generation_scratchpad") as execute_mock:
                 with self.assertRaises(SystemExit):
                     cmd_generate(args)
 
@@ -67,7 +67,7 @@ class WorkspaceSecurityTests(unittest.TestCase):
                 "checks": {"blocking": [], "warnings": []},
             }
 
-            with patch("mcp.runtime_brand.get_brand_dir", return_value=active_brand_dir):
+            with patch("brand_gen.runtime_brand.get_brand_dir", return_value=active_brand_dir):
                 with self.assertRaises(SystemExit) as exc:
                     execute_generation_scratchpad(payload)
 

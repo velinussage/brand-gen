@@ -8,7 +8,7 @@
     },
     "brandIterateMcpPath": {
       "label": "brand_iterate MCP Path",
-      "placeholder": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
+      "placeholder": "/absolute/path/to/brand-gen/brand_gen/brand_iterate_mcp.py",
       "help": "Path to brand-gen's Python MCP server entry point."
     },
     "approvalMode": {
@@ -17,7 +17,7 @@
     },
     "logoIterateMcpPath": {
       "label": "logo_iterate MCP Path",
-      "placeholder": "/absolute/path/to/brand-gen/mcp/logo_iterate_mcp.py",
+      "placeholder": "/absolute/path/to/brand-gen/brand_gen/logo_iterate_mcp.py",
       "help": "Path to the logo iteration Python MCP server. Auto-derived from brandIterateMcpPath if omitted."
     },
     "logLevel": {

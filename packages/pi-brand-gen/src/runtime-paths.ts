@@ -7,7 +7,7 @@ export function repoRootFromModuleUrl(moduleUrl: string): string {
 }
 
 export function defaultBrandIterateMcpPath(repoRoot: string): string {
-  return resolve(repoRoot, "mcp", "brand_iterate_mcp.py");
+  return resolve(repoRoot, "brand_gen", "brand_iterate_mcp.py");
 }
 
 export function preferredPythonForRepo(repoRoot: string): string {

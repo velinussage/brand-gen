@@ -1,6 +1,6 @@
 import unittest
 
-from mcp.card_engine import ShareCardPayload, compose_share_card_html
+from brand_gen.card_engine import ShareCardPayload, compose_share_card_html
 
 
 def _make_card(**overrides) -> ShareCardPayload:

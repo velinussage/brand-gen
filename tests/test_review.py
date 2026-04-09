@@ -5,8 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.agent_review import build_agent_visual_review_packet
-from mcp.commands.review import cmd_critique_rubric, cmd_submit_critique
+from brand_gen.agent_review import build_agent_visual_review_packet
+from brand_gen.commands.review import cmd_critique_rubric, cmd_submit_critique
 
 
 class CritiqueRubricTextFieldsTests(unittest.TestCase):
@@ -27,9 +27,9 @@ class CritiqueRubricTextFieldsTests(unittest.TestCase):
 
         args = argparse.Namespace(version="v001")
 
-        with patch("mcp.commands.review.get_brand_dir", return_value=brand_dir), \
-             patch("mcp.commands.review.load_manifest", return_value=manifest), \
-             patch("mcp.commands.review.load_blackboard", return_value={}):
+        with patch("brand_gen.commands.review.get_brand_dir", return_value=brand_dir), \
+             patch("brand_gen.commands.review.load_manifest", return_value=manifest), \
+             patch("brand_gen.commands.review.load_blackboard", return_value={}):
             import io
             from contextlib import redirect_stdout
             f = io.StringIO()
@@ -61,9 +61,9 @@ class CritiqueRubricTextFieldsTests(unittest.TestCase):
 
         args = argparse.Namespace(version="v001")
 
-        with patch("mcp.commands.review.get_brand_dir", return_value=brand_dir), \
-             patch("mcp.commands.review.load_manifest", return_value=manifest), \
-             patch("mcp.commands.review.load_blackboard", return_value={}):
+        with patch("brand_gen.commands.review.get_brand_dir", return_value=brand_dir), \
+             patch("brand_gen.commands.review.load_manifest", return_value=manifest), \
+             patch("brand_gen.commands.review.load_blackboard", return_value={}):
             import io
             from contextlib import redirect_stdout
             f = io.StringIO()
@@ -150,14 +150,14 @@ class SubmitCritiqueModelRecommendationTests(unittest.TestCase):
             critique_json=str(critique_path),
         )
 
-        with patch("mcp.commands.review.get_brand_dir", return_value=brand_dir), \
-             patch("mcp.commands.review.load_manifest", return_value=manifest), \
-             patch("mcp.commands.review.save_manifest"), \
-             patch("mcp.commands.review.load_brand_memory", return_value=(None, None, {}, {})), \
-             patch("mcp.commands.review.load_blackboard", return_value={}), \
-             patch("mcp.commands.review.append_blackboard_decision"), \
-             patch("mcp.commands.review.save_blackboard"), \
-             patch("mcp.commands.review.append_run_event"):
+        with patch("brand_gen.commands.review.get_brand_dir", return_value=brand_dir), \
+             patch("brand_gen.commands.review.load_manifest", return_value=manifest), \
+             patch("brand_gen.commands.review.save_manifest"), \
+             patch("brand_gen.commands.review.load_brand_memory", return_value=(None, None, {}, {})), \
+             patch("brand_gen.commands.review.load_blackboard", return_value={}), \
+             patch("brand_gen.commands.review.append_blackboard_decision"), \
+             patch("brand_gen.commands.review.save_blackboard"), \
+             patch("brand_gen.commands.review.append_run_event"):
             import io
             from contextlib import redirect_stdout
             f = io.StringIO()
@@ -201,14 +201,14 @@ class SubmitCritiqueModelRecommendationTests(unittest.TestCase):
             critique_json=str(critique_path),
         )
 
-        with patch("mcp.commands.review.get_brand_dir", return_value=brand_dir), \
-             patch("mcp.commands.review.load_manifest", return_value=manifest), \
-             patch("mcp.commands.review.save_manifest"), \
-             patch("mcp.commands.review.load_brand_memory", return_value=(None, None, {}, {})), \
-             patch("mcp.commands.review.load_blackboard", return_value={}), \
-             patch("mcp.commands.review.append_blackboard_decision"), \
-             patch("mcp.commands.review.save_blackboard"), \
-             patch("mcp.commands.review.append_run_event"):
+        with patch("brand_gen.commands.review.get_brand_dir", return_value=brand_dir), \
+             patch("brand_gen.commands.review.load_manifest", return_value=manifest), \
+             patch("brand_gen.commands.review.save_manifest"), \
+             patch("brand_gen.commands.review.load_brand_memory", return_value=(None, None, {}, {})), \
+             patch("brand_gen.commands.review.load_blackboard", return_value={}), \
+             patch("brand_gen.commands.review.append_blackboard_decision"), \
+             patch("brand_gen.commands.review.save_blackboard"), \
+             patch("brand_gen.commands.review.append_run_event"):
             import io
             from contextlib import redirect_stdout
             f = io.StringIO()

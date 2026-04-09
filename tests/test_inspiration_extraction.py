@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.inspiration_extraction import extract_inspiration_source
+from brand_gen.inspiration_extraction import extract_inspiration_source
 
 
 class InspirationExtractionTests(unittest.TestCase):
@@ -52,7 +52,7 @@ class InspirationExtractionTests(unittest.TestCase):
             "warnings": [],
         }
         with tempfile.TemporaryDirectory() as tmpdir, patch(
-            "mcp.inspiration_extraction.capture_web_snapshot", return_value=snapshot
+            "brand_gen.inspiration_extraction.capture_web_snapshot", return_value=snapshot
         ):
             result = extract_inspiration_source(self._source(), Path(tmpdir), timeout=5)
             self.assertEqual(result["status"], "complete")
@@ -76,7 +76,7 @@ class InspirationExtractionTests(unittest.TestCase):
 
     def test_extract_inspiration_source_falls_back_to_metadata_only(self):
         with tempfile.TemporaryDirectory() as tmpdir, patch(
-            "mcp.inspiration_extraction.capture_web_snapshot", side_effect=RuntimeError("offline")
+            "brand_gen.inspiration_extraction.capture_web_snapshot", side_effect=RuntimeError("offline")
         ):
             result = extract_inspiration_source(self._source(), Path(tmpdir), timeout=5)
             self.assertEqual(result["status"], "complete")

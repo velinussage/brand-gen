@@ -2,16 +2,16 @@ import argparse
 import unittest
 from pathlib import Path
 
-from mcp import brand_iterate_mcp
-from mcp.cli_builders import build_pipeline_cli
-from mcp.generation_flow import (
+from brand_gen import brand_iterate_mcp
+from brand_gen.cli_builders import build_pipeline_cli
+from brand_gen.generation_flow import (
     build_base_image_edit_policy,
     build_base_image_reference_role,
     ensure_base_image_reference_role,
     filter_reference_paths_for_base_image_edit,
 )
-from mcp.pipeline_request import PipelineRequest
-from mcp.runtime_models import MATERIAL_CONFIG, MATERIAL_PROMPT_SNIPPET_ALIASES
+from brand_gen.pipeline_request import PipelineRequest
+from brand_gen.runtime_models import MATERIAL_CONFIG, MATERIAL_PROMPT_SNIPPET_ALIASES
 
 
 class PipelineRequestTests(unittest.TestCase):

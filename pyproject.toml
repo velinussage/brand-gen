@@ -15,8 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-brand-iterate = "mcp.cli:main"
-bgen = "mcp.cli:main"
+bgen = "brand_gen.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -30,4 +29,4 @@ pythonpath = ["."]
 addopts = "-q"
 
 [tool.setuptools.packages.find]
-include = ["mcp*"]
+include = ["brand_gen*"]

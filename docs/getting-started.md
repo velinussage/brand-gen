@@ -168,8 +168,7 @@ bgen feedback v1 --score 4 --notes "Strong direction, simplify the copy"
 bgen evolve --format json
 ```
 
-Preferred CLI entrypoints are `bgen ...` and `python3 -m mcp.brand_iterate ...`.
-`brand-iterate ...` is a legacy alias, and `python3 mcp/brand_iterate.py ...` is compatibility-only.
+Preferred CLI entrypoints: `bgen ...` or `python3 -m brand_gen ...`.
 
 ## 11. Extend the session
 

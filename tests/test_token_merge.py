@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.inspiration_doctrine import load_token_fragments, merge_token_fragments
+from brand_gen.inspiration_doctrine import load_token_fragments, merge_token_fragments
 
 
 class TokenMergeTests(unittest.TestCase):

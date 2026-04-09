@@ -28,7 +28,7 @@ Use this instead of the main brand-gen skill when the artifact is primarily a lo
 
 Logo has its own CLI and MCP server, separate from `bgen`:
 
-- **CLI**: `python3 mcp/logo_iterate.py <command> [opts]`
+- **CLI**: `bgen <command> [opts]`
 - **MCP tools**: `logo_generate`, `logo_feedback`, `logo_show`, `logo_compare`, `logo_evolve`, `logo_bootstrap`, `logo_inspire`
 
 ## Core workflow
@@ -36,7 +36,7 @@ Logo has its own CLI and MCP server, separate from `bgen`:
 ### 1. Bootstrap (first use only)
 
 ```bash
-python3 mcp/logo_iterate.py bootstrap
+bgen bootstrap
 ```
 
 MCP: `logo_bootstrap()` — scans existing logo files into the manifest.
@@ -44,9 +44,9 @@ MCP: `logo_bootstrap()` — scans existing logo files into the manifest.
 ### 2. Gather inspiration
 
 ```bash
-python3 mcp/logo_iterate.py inspire symbol          # browse logosystem.co by category
-python3 mcp/logo_iterate.py inspire --url <url>     # custom inspiration URL
-python3 mcp/logo_iterate.py inspire symbol --list   # list saved inspiration
+bgen inspire symbol          # browse logosystem.co by category
+bgen inspire --url <url>     # custom inspiration URL
+bgen inspire symbol --list   # list saved inspiration
 ```
 
 MCP: `logo_inspire(category="symbol")` or `logo_inspire(url="<url>")`
@@ -62,7 +62,7 @@ Categories: `symbol`, `wordmark`, `symbol-text`, `brown`, `beige`, `black`, `all
 ### 4. Generate a batch
 
 ```bash
-python3 mcp/logo_iterate.py generate \
+bgen generate \
   -p "Geometric pillar mark, three flat vertical rectangles ascending left to right, warm copper on transparent, clean silhouette" \
   -m recraft-v4 \
   --aspect-ratio 1:1 \
@@ -86,9 +86,9 @@ Pass reference images with `--reference-images /path/to/ref.png` or `--reference
 ### 5. Review, score, and lock fragments
 
 ```bash
-python3 mcp/logo_iterate.py feedback v12 --score 4 --notes "Strong silhouette, simplify left column"
-python3 mcp/logo_iterate.py feedback v12 --status favorite
-python3 mcp/logo_iterate.py feedback v12 --lock "three ascending rectangles" "warm copper"
+bgen feedback v12 --score 4 --notes "Strong silhouette, simplify left column"
+bgen feedback v12 --status favorite
+bgen feedback v12 --lock "three ascending rectangles" "warm copper"
 ```
 
 MCP: `logo_feedback(version="v12", score=4, notes="...", lock_fragments=["three ascending rectangles"])`
@@ -98,9 +98,9 @@ MCP: `logo_feedback(version="v12", score=4, notes="...", lock_fragments=["three 
 ### 6. Compare versions
 
 ```bash
-python3 mcp/logo_iterate.py compare v10 v11 v12    # specific versions
-python3 mcp/logo_iterate.py compare --favorites     # all favorites
-python3 mcp/logo_iterate.py compare --top 5         # top 5 by score
+bgen compare v10 v11 v12    # specific versions
+bgen compare --favorites     # all favorites
+bgen compare --top 5         # top 5 by score
 ```
 
 MCP: `logo_compare(versions=["v10","v11","v12"])` or `logo_compare(favorites=true)`
@@ -108,7 +108,7 @@ MCP: `logo_compare(versions=["v10","v11","v12"])` or `logo_compare(favorites=tru
 ### 7. Evolve — learn from scored patterns
 
 ```bash
-python3 mcp/logo_iterate.py evolve
+bgen evolve
 ```
 
 MCP: `logo_evolve()` — analyzes prompt patterns across scored versions. Shows what works, what fails, locked fragments, and word frequency analysis.
@@ -116,10 +116,10 @@ MCP: `logo_evolve()` — analyzes prompt patterns across scored versions. Shows 
 ### 8. Show manifest
 
 ```bash
-python3 mcp/logo_iterate.py show              # full manifest
-python3 mcp/logo_iterate.py show v12          # specific version detail
-python3 mcp/logo_iterate.py show --favorites  # favorites only
-python3 mcp/logo_iterate.py show --top 5      # top 5
+bgen show              # full manifest
+bgen show v12          # specific version detail
+bgen show --favorites  # favorites only
+bgen show --top 5      # top 5
 ```
 
 MCP: `logo_show()` or `logo_show(version="v12")`

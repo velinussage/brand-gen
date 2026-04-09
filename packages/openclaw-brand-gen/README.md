@@ -26,7 +26,7 @@ All settings go in the host's plugin config under the `openclaw-brand-gen` key.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `brandGenDir` | `string` | no | `~/.brand-gen` | Root directory for brands, sessions, config, runtime markers, and plugin memory |
-| `brandIterateMcpPath` | `string` | **yes** | — | Absolute path to `mcp/brand_iterate_mcp.py` |
+| `brandIterateMcpPath` | `string` | **yes** | — | Absolute path to `brand_gen/brand_iterate_mcp.py` |
 | `logoIterateMcpPath` | `string` | no | auto-derived | Optional path to `logo_iterate_mcp.py` |
 | `approvalMode` | `"all" \| "output_only" \| "none"` | no | `"output_only"` | Controls human approval between autonomous cycles |
 | `logLevel` | `"debug" \| "info" \| "warn" \| "error"` | no | `"info"` | Plugin log verbosity |
@@ -39,7 +39,7 @@ Example:
 {
   "openclaw-brand-gen": {
     "brandGenDir": "~/.brand-gen",
-    "brandIterateMcpPath": "/home/user/brand-gen/mcp/brand_iterate_mcp.py",
+    "brandIterateMcpPath": "/home/user/brand-gen/brand_gen/brand_iterate_mcp.py",
     "approvalMode": "output_only",
     "heartbeatIntervalMinutes": 60,
     "autoHeartbeat": true

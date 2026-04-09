@@ -3,10 +3,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.blackboard import DEFAULT_BLACKBOARD, build_blackboard_learning_snippet, update_blackboard_learning_summary
-from mcp.learnings_memory import promote_blackboard_lessons_to_learnings
-from mcp.prompt_assembly import build_effective_prompt, evaluate_prompt_review_rules
-from mcp.session_summary import build_session_summary_payload
+from brand_gen.blackboard import DEFAULT_BLACKBOARD, build_blackboard_learning_snippet, update_blackboard_learning_summary
+from brand_gen.learnings_memory import promote_blackboard_lessons_to_learnings
+from brand_gen.prompt_assembly import build_effective_prompt, evaluate_prompt_review_rules
+from brand_gen.session_summary import build_session_summary_payload
 
 
 class LearningLoopTests(unittest.TestCase):

@@ -3,12 +3,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.iteration_memory import (
+from brand_gen.iteration_memory import (
     build_iteration_memory_snippet,
     normalize_iteration_memory,
     save_iteration_memory,
 )
-from mcp.material_planning import derive_copy_candidates
+from brand_gen.material_planning import derive_copy_candidates
 
 
 class MessagingMemoryTests(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 import unittest
 
-from mcp.material_planning import (
+from brand_gen.material_planning import (
     INTERFACE_MATERIAL_KEYS,
     NON_INTERFACE_DOCTRINE_CAP,
     NON_INTERFACE_PRELUDE_CAP,
@@ -12,7 +12,7 @@ from mcp.material_planning import (
     cap_text_at_sentence,
     review_prompt_architecture,
 )
-from mcp.runtime_models import NON_INTERFACE_MATERIAL_KEYS
+from brand_gen.runtime_models import NON_INTERFACE_MATERIAL_KEYS
 
 
 class TestCapTextAtSentence(unittest.TestCase):

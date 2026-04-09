@@ -8,7 +8,7 @@
     },
     "brandIterateMcpPath": {
       "label": "brand_iterate MCP Path",
-      "placeholder": "/absolute/path/to/brand-gen/mcp/brand_iterate_mcp.py",
+      "placeholder": "/absolute/path/to/brand-gen/brand_gen/brand_iterate_mcp.py",
       "help": "Optional override for brand-gen's Python MCP entry point. Usually auto-detected from the registered repo checkout."
     },
     "approvalMode": {

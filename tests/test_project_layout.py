@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 import ast
 
-from mcp import blackboard, iteration_memory, session
+from brand_gen import blackboard, iteration_memory, session
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,17 +18,17 @@ class ProjectLayoutTests(unittest.TestCase):
         pyproject = (REPO_ROOT / 'pyproject.toml').read_text()
         self.assertIn('requires-python = ">=3.11"', pyproject)
         self.assertIn('dataclasses-json', pyproject)
-        self.assertIn('brand-iterate = "mcp.cli:main"', pyproject)
+        self.assertIn('bgen = "brand_gen.cli:main"', pyproject)
 
     def test_runtime_no_longer_imports_shared_logic_from_scripts(self):
-        runtime = (REPO_ROOT / 'mcp' / 'runtime.py').read_text()
+        runtime = (REPO_ROOT / 'brand_gen' / 'runtime.py').read_text()
         self.assertNotIn('from scripts.brand_scaffold', runtime)
         self.assertNotIn('from scripts.load_inspiration_doctrine', runtime)
-        self.assertTrue((REPO_ROOT / 'mcp' / 'brand_scaffold.py').exists())
-        self.assertTrue((REPO_ROOT / 'mcp' / 'inspiration_doctrine.py').exists())
+        self.assertTrue((REPO_ROOT / 'brand_gen' / 'brand_scaffold.py').exists())
+        self.assertTrue((REPO_ROOT / 'brand_gen' / 'inspiration_doctrine.py').exists())
 
     def test_runtime_is_split_into_focused_modules(self):
-        runtime = (REPO_ROOT / 'mcp' / 'runtime.py').read_text()
+        runtime = (REPO_ROOT / 'brand_gen' / 'runtime.py').read_text()
         for module_name in [
             'runtime_paths',
             'runtime_io',
@@ -37,7 +37,7 @@ class ProjectLayoutTests(unittest.TestCase):
             'runtime_refs',
             'runtime_brand',
         ]:
-            self.assertTrue((REPO_ROOT / 'mcp' / f'{module_name}.py').exists(), module_name)
+            self.assertTrue((REPO_ROOT / 'brand_gen' / f'{module_name}.py').exists(), module_name)
             self.assertIn(f'from .{module_name} import *', runtime)
         self.assertLessEqual(len(runtime.splitlines()), 80)
         self.assertNotIn('def load_env_values(', runtime)
@@ -51,17 +51,17 @@ class ProjectLayoutTests(unittest.TestCase):
 
     def test_repo_no_longer_imports_legacy_api_internally(self):
         offenders: list[str] = []
-        for scope in [REPO_ROOT / 'mcp', REPO_ROOT / 'tests']:
+        for scope in [REPO_ROOT / 'brand_gen', REPO_ROOT / 'tests']:
             for path in scope.rglob('*.py'):
                 if path.name == 'legacy_api.py':
                     continue
                 module = ast.parse(path.read_text())
                 for node in ast.walk(module):
-                    if isinstance(node, ast.ImportFrom) and node.module == 'mcp.legacy_api':
+                    if isinstance(node, ast.ImportFrom) and node.module == 'brand_gen.legacy_api':
                         offenders.append(str(path.relative_to(REPO_ROOT)))
                     elif isinstance(node, ast.Import):
                         for alias in node.names:
-                            if alias.name == 'mcp.legacy_api':
+                            if alias.name == 'brand_gen.legacy_api':
                                 offenders.append(str(path.relative_to(REPO_ROOT)))
         self.assertEqual(offenders, [])
 
@@ -78,11 +78,11 @@ class ProjectLayoutTests(unittest.TestCase):
         for scope in [REPO_ROOT / 'docs', REPO_ROOT / 'skills']:
             for path in scope.rglob('*.md'):
                 rel = str(path.relative_to(REPO_ROOT))
-                if 'python3 mcp/brand_iterate.py' in path.read_text() and rel not in allowed:
+                if 'python3 brand_gen/brand_iterate.py' in path.read_text() and rel not in allowed:
                     offenders.append(rel)
         for rel in ['README.md', 'CONTRIBUTING.md']:
             path = REPO_ROOT / rel
-            if 'python3 mcp/brand_iterate.py' in path.read_text() and rel not in allowed:
+            if 'python3 brand_gen/brand_iterate.py' in path.read_text() and rel not in allowed:
                 offenders.append(rel)
         self.assertEqual(sorted(set(offenders)), [])
 

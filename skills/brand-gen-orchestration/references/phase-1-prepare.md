@@ -358,7 +358,7 @@ Resolve the logo path:
 1. Check `.brand-gen/brands/<active>/logo.png` (local workspace copy)
 2. Fall back to `brand_assets.icon` in `brand-identity.json`, resolved via `project_root`
 
-Store the resolved absolute path. When calling `python3 mcp/generate.py image` directly,
+Store the resolved absolute path. When calling `bgen image` directly,
 always include `-i <logo-path>` as one of the reference images.
 
 ---

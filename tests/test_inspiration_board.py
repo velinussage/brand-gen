@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mcp.inspiration_board import (
+from brand_gen.inspiration_board import (
     build_inspiration_board_summary,
     load_inspiration_board,
     persist_inspiration_source_selection,

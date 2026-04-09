@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mcp.inspiration_memory import (
+from brand_gen.inspiration_memory import (
     consolidate_inspiration_memory,
     inspiration_memory_paths,
     load_inspiration_memory,
@@ -46,7 +46,7 @@ class InspirationMemoryTests(unittest.TestCase):
                 },
             ]
 
-            with patch("mcp.inspiration_memory.run_vlm_json", side_effect=analyses):
+            with patch("brand_gen.inspiration_memory.run_vlm_json", side_effect=analyses):
                 payload = consolidate_inspiration_memory(brand_dir)
 
             self.assertEqual(payload["execution_mode"], "standalone_command")
