@@ -13,13 +13,75 @@ compatibility:
 
 # Brand Gen
 
-Preferred CLI: `bgen ...` or `python3 -m brand_gen ...`
+brand-gen is a **multi-agent system**. The intended entry point for any brand material work is the `brand-orchestrator` agent, which walks a planning-first pipeline through six phases with quality gates. `bgen pipeline` exists as a scripting/CI fallback; it skips the philosopher's WCAG gate, the inspiration-readiness preflight, the cinematographer's shot validation, and the critic's P1 pushback. Prefer the orchestrator path unless you know exactly what you're bypassing.
 
-Preferred MCP server: `python3 -m brand_gen.brand_iterate_mcp`
+## Preferred entry points (by host)
 
-Most CLI commands are also exposed as MCP tools with a `brand_` prefix. A few names are customized for host ergonomics (for example `list-brands` → `brand_list`, `review-brand` → `brand_review`, `pipeline` → `brand_pipeline`).
+Use the orchestrator agent if your harness supports subagents:
 
-Do **not** assume host-private local agents like `brand-orchestrator` exist unless the current checkout explicitly ships them and you are running in a Pi workspace that uses `.pi/agents/`. The public repo's default workflow is the `bgen` / MCP command surface itself. If a Pi workspace wraps that surface with local agents, those agents read machine-local config from `.brand-gen-local.json`.
+| Host | Invocation |
+|------|-----------|
+| **Claude Code** | `Agent` tool with `subagent_type="brand-orchestrator"` (definition in `.claude/agents/brand-orchestrator.md`, mirrored at `skills/brand-gen/claude-agents/`) |
+| **Pi / OpenClaw** | `/run brand-orchestrator "<task>"` (definition in `.pi/agents/brand-orchestrator.md`) |
+| **Cursor / Codex / other** | Read `.claude/agents/brand-orchestrator.md` into context and follow its Manual Flow Contract |
+| **MCP hosts** | Prefer the agent route if available. If the host only has plain MCP tools (no subagent support), walk the phases manually — see "Manual chain for hosts without subagents" below. |
+
+**If you're an agent reading this skill and the user asked for brand material work**: your first move is to read `.claude/agents/brand-orchestrator.md` (or `.pi/agents/` for Pi) and follow the Mandatory Generation Sequence in it. Do **not** jump straight to `bgen pipeline`. The sequence is the product; the CLI is the substrate.
+
+## Manual chain for hosts without subagents
+
+If your harness cannot spawn subagents, walk the chain manually in this order. Each step is a `bgen` command, run from the repo root with `source .venv/bin/activate &&` prefixed:
+
+```text
+1. Explorer         context-snapshot, show-blackboard, show (recent versions)
+2. Philosopher      check design-philosophy.md; export-design-tokens (WCAG gate);
+                    read custom-scratchpad.md; if route is hybrid or inspiration,
+                    inspiration-status and extract-inspiration + consolidate if pending
+3. Router           route-request
+4. Planner          suggest-role-pack, suggest-layout, plan-draft
+5. Critic           critique-plan, validate-brand-fit; stop if blocking issues
+6. Cinematographer  (video materials only) six-element prompt assembly +
+                    seven-rule validation from references/seedance-shot-design.md
+7. Generator        build-generation-scratchpad, generate
+8. Critic           critique-rubric, submit-critique, feedback
+9. Orchestrator     evolve
+```
+
+The MCP tool surface (`brand_*`) mirrors each `bgen` command one-to-one, so MCP hosts walk the same chain with tool calls instead of shell commands.
+
+## Preferred MCP server
+
+```bash
+python3 -m brand_gen.brand_iterate_mcp
+```
+
+Most CLI commands are exposed as MCP tools with a `brand_` prefix (`brand_pipeline`, `brand_list`, `brand_review`, etc.). Names are customized for host ergonomics in a few cases.
+
+## Agent bootstrap for your session
+
+Paste this into a fresh agent session before asking for any brand work. Pick the block that matches your host.
+
+**Claude Code:**
+```text
+For any brand material work in this session, use the Agent tool with
+subagent_type="brand-orchestrator". Do not call `bgen pipeline` directly.
+Start by reading .claude/agents/brand-orchestrator.md.
+```
+
+**Pi / OpenClaw:**
+```text
+Use /run brand-orchestrator "<task>" for all brand material requests.
+Manual chain fallback: /chain brand-explorer -> brand-philosopher -> brand-router -> brand-planner -> brand-critic -> brand-generator -> brand-critic
+```
+
+**CLI-only or MCP-only agents (no subagent support):**
+```text
+For all brand material work, walk the manual chain in skills/brand-gen/SKILL.md
+under "Manual chain for hosts without subagents". If you call `bgen pipeline`
+directly without the preflight chain, you will skip the philosopher WCAG gate,
+the inspiration-readiness check, and the cinematographer validation. The
+pipeline will emit a loud stderr warning when this happens.
+```
 
 ## Start every session here
 
@@ -258,12 +320,16 @@ bgen compare --top 6
 bgen improvement-questions --format json
 ```
 
-## Default workflow — single asset
+## Direct `bgen pipeline` (scripting and CI bypass)
 
-Use `pipeline` for most normal generation tasks.
+`bgen pipeline` runs the same underlying generation in-process but **skips the agent reasoning between phases**. Use it for scripts, CI, or debugging — not as the default path for interactive brand work. When invoked without orchestrator preflights, it emits a loud stderr warning and records the bypass to the run ledger.
+
+**What you lose by calling it directly:** the philosopher's WCAG gate on the brand's palette, the inspiration-readiness check (sources configured but not extracted will default to deterministic-only analysis unless the pipeline's hard-gates catch it), the cinematographer's seven-rule shot validation for video materials, and the critic's P1 pushback on the plan before generation.
 
 ```bash
+# Acknowledge the bypass explicitly to silence the advisory:
 bgen pipeline \
+  --bypass-orchestrator --reason "CI smoke test" \
   --material-type x-feed \
   --goal "Launch announcement" \
   --mode hybrid \
@@ -273,18 +339,21 @@ bgen pipeline \
 
 Helpful flags:
 
+- `--bypass-orchestrator --reason "<one-line>"` — acknowledge the skipped agent chain; records the bypass to the run ledger so later diagnosis knows why a run didn't see orchestrator context
 - `--source-version v012` — iterate from a prior version
 - `--route <route_key>` — override auto-routing
 - `--base-image /path/to/image` — edit/overlay mode
 - `--prompt-seed "..."` — inject a concise creative brief
 - `--mechanic "..."` — lock one dominant system move
-- `--allow-blocking` — continue past blocking critique findings only when explicitly justified
+- `--allow-blocking` — continue past blocking scratchpad findings only when explicitly justified
 - `--critique-mode advisory` — inspect issues without strict blocking
 
 Interpret the result:
 
 - `stopped_at == "complete"` → generation finished
 - `stopped_at == "critique"` → blocked before generation; inspect findings and fix the plan
+
+**Preferred path for interactive work is still the orchestrator agent** — see the "Preferred entry points" table at the top of this skill.
 
 ## Manual workflow — inspect every stage
 

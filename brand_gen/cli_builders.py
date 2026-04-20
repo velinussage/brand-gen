@@ -666,6 +666,8 @@ def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[st
     parser.add_argument("--skip-route", action="store_true", help="Skip the routing stage and start at plan-draft")
     parser.add_argument("--critique-mode", choices=["advisory", "strict"], default="strict", help="How blocking critique findings should be treated inside pipeline orchestration")
     parser.add_argument("--allow-blocking", action="store_true", help="Record an explicit bypass and continue even if critique or scratchpad blocking issues remain")
+    parser.add_argument("--bypass-orchestrator", action="store_true", help="Acknowledge that the agent orchestration chain was skipped (silences the advisory warning and records the bypass to the run ledger)")
+    parser.add_argument("--bypass-reason", default="", help="One-line reason for bypassing the orchestrator chain; required in practice when --bypass-orchestrator is set")
     parser.add_argument("--route", help="Agent-selected route key (skip automatic routing)")
     parser.add_argument("--source-version", help="Version ID to iterate from (e.g. v012); establishes branch lineage")
     parser.add_argument("--profile", help="Optional brand-profile.json path")
