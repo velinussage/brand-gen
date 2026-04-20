@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 
+from .blackboard import get_blackboard_learning_warnings
 from .critique_policy import build_critique_policy, normalize_critique_policy
 from .custom_scratchpad import resolve_model_override as _resolve_custom_scratchpad_model_override
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
@@ -335,23 +336,103 @@ def assemble_generation_scratchpad(
                 "Optional composition/application role refs are absent; generation can proceed, but framing guidance is narrower than usual."
             )
 
-    # --- Hole 5 fix: Check inspiration pipeline status ---
+    # --- Inspiration readiness: HARD BLOCK for hybrid/inspiration modes when
+    # sources are configured but not extracted, or when analysis is deterministic-only.
+    # The retrospective on v121/v123/v124 showed the system proceeded anyway with
+    # warnings that the critic did not enforce; pipeline-level blocking fixes that.
+    # Pass --allow-blocking to record an explicit bypass.
     inspiration_status = check_inspiration_pipeline_status(brand_gen_dir, active_brand, workflow_mode)
+    _inspiration_pending_unextracted = any(
+        "not extracted yet" in str(w).lower()
+        for w in (inspiration_status.get("warnings") or [])
+    )
     if not inspiration_status["ok"]:
-        for w in inspiration_status.get("warnings", []):
-            warnings.append(f"Inspiration: {w}")
-        for s in inspiration_status.get("suggestions", []):
-            warnings.append(f"  → {s}")
+        if workflow_mode in {"hybrid", "inspiration"} and _inspiration_pending_unextracted:
+            blocking_issues.append(
+                f"Inspiration-readiness block: {workflow_mode} mode requires extracted inspiration, "
+                f"but sources are configured and unextracted. "
+                f"Run `bgen extract-inspiration` and `bgen consolidate-inspiration` before planning, "
+                f"or pass --allow-blocking to record a bypass."
+            )
+            for w in inspiration_status.get("warnings", []):
+                blocking_issues.append(f"  inspiration: {w}")
+            for s in inspiration_status.get("suggestions", []):
+                blocking_issues.append(f"  → {s}")
+        else:
+            for w in inspiration_status.get("warnings", []):
+                warnings.append(f"Inspiration: {w}")
+            for s in inspiration_status.get("suggestions", []):
+                warnings.append(f"  → {s}")
     for warning in (reference_analysis.get("warnings") or []):
         warnings.append(f"Reference analysis: {warning}")
     for warning in (prompt_context.get("reference_role_assignment_warnings") or []):
         warnings.append(f"Reference-role assignment: {warning}")
     if reference_analysis_mode == "deterministic_only":
-        warnings.append(
-            f"Reference analysis is deterministic-only (confidence: {reference_analysis_confidence}); treat reference-role translation as approximate."
-        )
+        if workflow_mode in {"hybrid", "inspiration"} and prompt_context["material_prompt_key"] not in INTERFACE_MATERIAL_KEYS:
+            blocking_issues.append(
+                f"Reference-analysis block: analysis is deterministic-only "
+                f"(confidence: {reference_analysis_confidence}) in {workflow_mode} mode on "
+                f"non-interface material '{material_type}'. "
+                f"Run `bgen consolidate-inspiration` to get a richer analysis, "
+                f"or pass --allow-blocking to record a bypass."
+            )
+        else:
+            warnings.append(
+                f"Reference analysis is deterministic-only (confidence: {reference_analysis_confidence}); treat reference-role translation as approximate."
+            )
     elif reference_analysis_mode == "unavailable":
         warnings.append("Reference analysis is unavailable; treat reference-role guidance as low-confidence.")
+
+    # --- Self-referential composition drift: block when all composition refs come
+    # from prior internal versions (v\d+-*) AND external inspiration is configured
+    # but unextracted. Retrospective showed v123 built on v121 built on v016/v058
+    # created drift. Pipeline catches this before it compounds.
+    import re as _re_self_ref
+    _composition_role_refs = [
+        Path(str(item.get("path") or "")).name
+        for item in (prompt_context.get("reference_role_pack") or [])
+        if str(item.get("role") or "") in {"composition", "application"}
+    ]
+    _composition_role_refs = [name for name in _composition_role_refs if name]
+    if (
+        workflow_mode in {"hybrid", "inspiration"}
+        and _composition_role_refs
+        and all(_re_self_ref.match(r"^v\d+", name) for name in _composition_role_refs)
+        and _inspiration_pending_unextracted
+    ):
+        blocking_issues.append(
+            f"Self-referential composition drift: all composition/application refs are "
+            f"prior internal versions ({', '.join(_composition_role_refs[:4])}) but "
+            f"external inspiration sources are configured and unextracted. "
+            f"Extract inspiration and rebuild the plan, "
+            f"or pass --allow-blocking to record a bypass."
+        )
+
+    # --- Mode-underperforming and source-version-rejected: escalate the blackboard
+    # learning signals from advisory warnings to blocking issues. Retrospective
+    # showed the learning warnings were emitted but the run proceeded anyway.
+    _source_version_for_learn = getattr(args, "source_version", None) or plan.get("source_version") or ""
+    _learned_warnings = get_blackboard_learning_warnings(
+        brand_dir,
+        material_type,
+        proposed_mode=workflow_mode,
+        has_reference_roles=bool(prompt_context.get("reference_role_pack")),
+        source_version=_source_version_for_learn,
+    )
+    for _lw in _learned_warnings:
+        _lw_low = _lw.lower()
+        if "underperforming for this material recently" in _lw_low:
+            blocking_issues.append(
+                f"Learnings block: {_lw} Switch to the winning setup from learnings.json, "
+                f"or pass --allow-blocking to record a bypass."
+            )
+        elif "was recently rejected; avoid deriving" in _lw_low:
+            blocking_issues.append(
+                f"Source-lineage block: {_lw} Choose a different source_version, "
+                f"or pass --allow-blocking to record a bypass."
+            )
+        else:
+            warnings.append(f"Blackboard learning: {_lw}")
 
     # --- Source critique: auto-upgrade model on iteration when text issues found ---
     _source_critique_model_rec = None
