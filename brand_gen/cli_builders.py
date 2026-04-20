@@ -227,6 +227,12 @@ def build_extract_css_variables_cli(parser: argparse.ArgumentParser, *, inspire_
     parser.add_argument("--max-files", type=int, default=250, help="Maximum number of files to scan when the input is a directory")
 
 
+def build_inspiration_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_diff_design_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--before", required=True, help="Earlier .design-memory folder or project root containing one")
     parser.add_argument("--after", required=True, help="Later .design-memory folder or project root containing one")
@@ -796,6 +802,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'extract-css-variables': build_extract_css_variables_cli,
     'diff-design-memory': build_diff_design_memory_cli,
     'export-design-tokens': build_export_design_tokens_cli,
+    'inspiration-status': build_inspiration_status_cli,
     'extract-inspiration': build_extract_inspiration_cli,
     'consolidate-inspiration': build_consolidate_inspiration_cli,
     'inspiration-mode': build_inspiration_mode_cli,

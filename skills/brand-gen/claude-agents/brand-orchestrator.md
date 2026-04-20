@@ -62,6 +62,17 @@ Do not write the block back to a saved brand workspace unless the user explicitl
    source .venv/bin/activate && bgen show-blackboard --format json
    ```
 
+1b. **Check inspiration readiness (before any hybrid/inspiration route):**
+    ```bash
+    source .venv/bin/activate && bgen inspiration-status --format json
+    ```
+    Read `.pending_sources` and `.ready_for_hybrid` / `.ready_for_inspiration`. If the route will be `hybrid` or `inspiration` and `pending_sources` is non-empty, **stop planning** and run the recommended extraction first:
+    ```bash
+    source .venv/bin/activate && bgen extract-inspiration --source <key>
+    source .venv/bin/activate && bgen consolidate-inspiration --format json
+    ```
+    This closes the self-referential drift gap from the v121/v123/v124 retro: configured-but-unextracted sources caused the pipeline to fall back to "deterministic_only" analysis and reuse prior internal versions (v016, v058, v121, v048) as composition anchors. The scratchpad assembler now hard-blocks on this condition; running extraction here avoids the block.
+
 2. **Automatic vault sync (every 10 generations):**
    Check the manifest version count. If 10+ versions have been generated since the last vault sync (tracked in iteration memory), or if this is the first run:
    - Read vault paths from `.brand-gen-local.json` → `vault_paths`

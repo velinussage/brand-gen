@@ -27,13 +27,28 @@ Modes:
      any other approach that addresses text fidelity.
    - **"hybrid mode has been underperforming for this material recently"** → BLOCK if the
      plan still uses hybrid mode. Require switching to the winning mode from learnings.json.
+     The scratchpad assembler now enforces this as a pipeline-level block too; the
+     agent-level rule is a belt-and-braces check.
    - **"Iterating from vXXX: text issues found"** → BLOCK. Previous version already failed
      on text with the same setup. Require the planner to change something — model, mode,
      text strategy, or brief scope. Do not repeat a failing configuration.
    - **Missing required style anchor** → BLOCK. If learnings say a prior version must remain
      the style carrier to prevent drift, the plan is invalid without it.
-   - **Inspiration route with no real inspiration sources** → BLOCK unless the planner explicitly
-     rerouted and documented that decision.
+   - **Inspiration route with no real inspiration sources** → BLOCK unless the planner
+     explicitly rerouted and documented that decision.
+   - **"Inspiration sources are configured but not extracted yet"** → BLOCK when route is
+     `hybrid` or `inspiration`. Tell the planner to run `bgen extract-inspiration` +
+     `bgen consolidate-inspiration` before replanning. The scratchpad assembler enforces
+     this as a pipeline block; the critic should catch it earlier at plan critique time.
+   - **"Reference analysis is deterministic-only"** → BLOCK for `hybrid` or `inspiration`
+     mode on non-interface materials. Same fix path: extract + consolidate inspiration.
+   - **"Self-referential composition drift"** → BLOCK. Plan uses only prior internal
+     `vNNN` versions as composition/application refs while external inspiration sources
+     are configured and unextracted. This is the exact failure mode that produced
+     v121 → v123 → compounded drift. Require extraction + fresh external composition anchors.
+   - **"Source version vXXX was recently rejected; avoid deriving directly from it"** →
+     BLOCK. Cascade protection: deriving from a rejected parent inherits its flaws.
+     Require the planner to pick a different source_version or drop source-derivation.
 4. All other P3 warnings remain advisory (proceed but note them).
 5. If blocking: return specific description of WHAT is wrong. Do NOT prescribe HOW to fix it.
 6. Run the **Design Coherence Check** (see below) on the plan.

@@ -773,3 +773,108 @@ def cmd_update_iteration_memory(args):
         print(json.dumps({"json": str(json_path), "markdown": str(md_path), "memory": memory}, indent=2))
         return
     print(f"Updated iteration memory:\n- {json_path}\n- {md_path}")
+
+
+def cmd_inspiration_status(args):
+    """Phase 1 preflight: report which inspiration sources are configured, which are
+    extracted, and whether the brand is ready for hybrid/inspiration mode without
+    the self-referential drift the pipeline retro surfaced.
+    """
+    from ..reference_analysis import check_inspiration_pipeline_status
+    brand_gen_dir = get_brand_gen_dir()
+    brand_dir = get_brand_dir()
+    profile_path, identity_path, profile_data, identity_data = load_brand_memory(
+        brand_dir, getattr(args, "profile", None), getattr(args, "identity", None)
+    )
+    active_brand = resolve_context_brand_key(
+        brand_dir=brand_dir,
+        profile_path=profile_path,
+        identity_path=identity_path,
+        profile=profile_data,
+        identity=identity_data,
+        brand_gen_dir=brand_gen_dir,
+    )
+
+    inspirations_path = brand_dir / "inspirations.json"
+    configured: list[dict] = []
+    extracted: list[str] = []
+    pending: list[str] = []
+    if inspirations_path.exists():
+        try:
+            payload = json.loads(inspirations_path.read_text())
+        except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+            payload = {}
+        raw_sources = payload.get("sources") or []
+        if isinstance(raw_sources, dict):
+            sources = [
+                {"key": k, **(v if isinstance(v, dict) else {"source": v})}
+                for k, v in raw_sources.items()
+            ]
+        elif isinstance(raw_sources, list):
+            sources = [
+                item if isinstance(item, dict) else {"key": str(item), "source": str(item)}
+                for item in raw_sources
+            ]
+        else:
+            sources = []
+        for source in sources:
+            key = str(source.get("key") or source.get("source") or "").strip()
+            if not key:
+                continue
+            category = source.get("category") or ""
+            dm_dir = brand_gen_dir / "inspiration" / category / key / ".design-memory"
+            entry = {"key": key, "category": category, "design_memory_path": str(dm_dir)}
+            configured.append(entry)
+            if dm_dir.exists():
+                extracted.append(key)
+            else:
+                pending.append(key)
+
+    # Check each mode's readiness status
+    mode_readiness: dict[str, dict] = {}
+    for mode in ("reference", "hybrid", "inspiration"):
+        status = check_inspiration_pipeline_status(brand_gen_dir, active_brand, mode)
+        mode_readiness[mode] = {
+            "ok": status.get("ok", False),
+            "warnings": list(status.get("warnings") or []),
+            "suggestions": list(status.get("suggestions") or []),
+        }
+
+    recommended_next: list[str] = []
+    if pending:
+        recommended_next.append(
+            f"bgen extract-inspiration --source {pending[0]}"
+            + ("  # ... repeat for the rest" if len(pending) > 1 else "")
+        )
+        recommended_next.append("bgen consolidate-inspiration --format json")
+    if not configured:
+        recommended_next.append("bgen inspire --sources <source1,source2>  # configure sources first")
+
+    response = {
+        "active_brand": active_brand,
+        "inspirations_path": str(inspirations_path) if inspirations_path.exists() else "",
+        "configured_sources": configured,
+        "extracted_sources": extracted,
+        "pending_sources": pending,
+        "ready_for_hybrid": mode_readiness["hybrid"]["ok"] and not pending,
+        "ready_for_inspiration": mode_readiness["inspiration"]["ok"] and not pending,
+        "mode_readiness": mode_readiness,
+        "recommended_next_commands": recommended_next,
+    }
+
+    if args.format == "json":
+        print(json.dumps(response, indent=2))
+        return
+    print(f"Inspiration status for brand: {active_brand or 'n/a'}")
+    print(f"  configured: {len(configured)}  extracted: {len(extracted)}  pending: {len(pending)}")
+    if configured:
+        print("  sources:")
+        for s in configured:
+            mark = "✓" if s["key"] in extracted else "✗"
+            print(f"    {mark} {s['key']} (category: {s['category'] or 'n/a'})")
+    print(f"  ready for hybrid mode: {'yes' if response['ready_for_hybrid'] else 'no'}")
+    print(f"  ready for inspiration mode: {'yes' if response['ready_for_inspiration'] else 'no'}")
+    if recommended_next:
+        print("  next commands:")
+        for cmd in recommended_next:
+            print(f"    $ {cmd}")
