@@ -102,6 +102,10 @@ The pipeline is planning-first and quality-gated: **no freehand generation befor
 - An agent host with shell access (Claude Code, Pi, Cursor, Codex, or any MCP host)
 - ~500 MB disk for a working brand workspace
 
+**Optional (required only if you invoke the named skill):**
+
+- `GEMINI_API_KEY` - required when the agents invoke the `pbc-os/brand-identity` skill for Gemini-backed image generation (nano-banana path). Set in `.env`. brand-gen runs without it; the brand-identity skill refuses cleanly if missing.
+
 ## Install
 
 ```bash
