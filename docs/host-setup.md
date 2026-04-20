@@ -121,6 +121,8 @@ The extension prefers the repo-local venv when it exists:
 /brand-gen generate x-feed Launch announcement
 ```
 
+For the intended Pi subagent workflow, see the README's [Pi agent process spec](../README.md#pi-agent-process-spec). The short version: use `brand-orchestrator` as the entry point and keep the staged order `explorer -> router -> planner -> critic -> generator -> critic`.
+
 Creating brands is CLI-first today: `bgen create-brand ...` or `bgen start-testing ...`.
 
 ## OpenClaw

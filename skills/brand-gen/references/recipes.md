@@ -9,6 +9,8 @@ Multi-step workflows that need more guidance than the main skill provides.
 - [Carousel generation](#carousel-generation)
 - [Card composition rules](#card-composition-rules)
 - [When to capture vs. use inspiration](#when-to-capture-vs-use-inspiration)
+- [Import canon from an external vault](#import-canon-from-an-external-vault)
+- [Terminal / CLI material types](#terminal--cli-material-types)
 
 ---
 
@@ -228,3 +230,120 @@ Best default for product-sharing social cards:
 4. Keep copy deterministic and short
 
 If the user needs exact live app data preserved and image generations keep abstracting it, prefer a deterministic composed card over another freeform image-model pass.
+
+---
+
+## Import canon from an external vault
+
+Use this when the brand's truth lives outside the repo — an Obsidian vault, a docs monorepo, a sibling canon repo — and you want brand-gen to absorb it without duplicating files.
+
+### When to reach for it
+
+- a brand's approved messaging / forbidden claims / voice direction live in a markdown canon that other teams already maintain
+- product truth (screenshots, terminal recordings, UI chrome) updates in a repo you don't own
+- you want a **per-brand** fat skill that points at that canon instead of flattening it into `brand-profile.json`
+
+### Recipe
+
+1. **Point `BRAND_SOURCE_VAULT` at the canon directory**
+
+   ```bash
+   export BRAND_SOURCE_VAULT="$HOME/Dev/<their-canon-repo>/compiled"
+   ```
+
+   Pi agents: set `vault_paths` inside `.brand-gen-local.json` instead. Both mechanisms feed the same inspiration-doctrine loader.
+
+2. **Extract inspiration from the vault**
+
+   ```bash
+   bgen extract-inspiration --category messaging
+   bgen extract-inspiration --category symbol
+   bgen consolidate-inspiration --format json
+   bgen inspiration-mode on
+   ```
+
+3. **Seed a `messaging_canon` block on the brand identity**
+
+   The generic `messaging` schema accepts two claim lists any brand can use:
+
+   ```json
+   {
+     "messaging": {
+       "tagline": "...",
+       "elevator": "...",
+       "voice": { "description": "..." },
+       "approved_claims": [
+         "Bounded claim 1 that matches current reality",
+         "Bounded claim 2 that's safe to repeat in copy"
+       ],
+       "forbidden_claims": [
+         "phrase the critic should block",
+         "another phrase that overclaims"
+       ]
+     }
+   }
+   ```
+
+   `approved_claims` surface as subheadline candidates inside `bgen ideate-copy`. `forbidden_claims` are substring-checked during `critique-plan` and `build-generation-scratchpad` — a match becomes a blocking issue before generation.
+
+4. **Register any external assets (screenshots, recordings) as typed references**
+
+   Copy (don't symlink) evidence into `brands/<brand>/references/` so reference analysis sees a stable path. Keep one role per file:
+
+   ```
+   brands/<brand>/references/
+     <brand>-product-anchor.png
+     <brand>-cli-anchor.png
+     <brand>-voice-anchor.md
+   ```
+
+5. **Author a per-brand local skill file**
+
+   Keep brand-specific context in `brands/<brand>/SKILL.local.md` or `skills/brand-gen/SKILL.local.md` additions. Brand-gen core stays generic; the per-brand fat skill points at the canon, names the reference manifest, and lists the refresh recipe. Do not bake brand-specific canon into `data/*.json`.
+
+6. **Smoke the loop**
+
+   ```bash
+   bgen use <brand>
+   bgen pipeline --material-type <material> --mode hybrid --format json
+   ```
+
+   Watch the critique output for forbidden-claim blocks and warnings about missing references.
+
+### Rule
+
+Generic support lives in brand-gen. Brand-specific canon lives with the brand. A recipe in this file should work for any brand that maintains canon outside the repo — not just the first one that motivated it.
+
+---
+
+## Terminal / CLI material types
+
+`terminal-hero`, `cli-recording`, and `command-illustration` are for brands whose product is a command-line tool. Treat the terminal text as documentary truth — the same way product screenshots are treated elsewhere.
+
+### When each fits
+
+| Material | Surface | Fit |
+|---|---|---|
+| `terminal-hero` | docs hero, launch page | one complete CLI moment framed for size |
+| `cli-recording` | social launch, changelog | a single frame pulled from a real recording |
+| `command-illustration` | docs section, carousel | command + explanatory branded diagram |
+
+### Rules
+
+- the prompt, command, and output must stay verbatim — never let the image model rewrite shell text
+- capture a real frame first (VHS `.tape`, `asciinema`, or a manual screenshot) and pass it with `--image` or `--base-image`
+- keep the carrier quiet: one brand field, one mark anchor, no invented syntax highlighting or neon trails
+- `--render-backend native` by default; use `--render-backend html` only when you need pixel-perfect shell output
+
+### Example
+
+```bash
+bgen pipeline \
+  --material-type terminal-hero \
+  --mode hybrid \
+  --base-image /abs/path/to/terminal-recording-frame.png \
+  --prompt-seed "Real CLI moment framed as a docs hero: preserve the prompt, command, and output verbatim; compose a quiet brand field around it with the stored mark anchored at one junction. No invented syntax colors." \
+  --format json
+```
+
+If the recording file is a `.gif` or `.mp4`, export one frame to PNG first — the pipeline expects still images for reference analysis.

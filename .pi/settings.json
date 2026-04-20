@@ -1,5 +1,16 @@
 {
   "skills": [
     "skills/brand-gen"
-  ]
+  ],
+  "subagents": {
+    "agentOverrides": {
+      "brand-orchestrator": { "model": "anthropic/claude-opus-4-7", "thinking": "high" },
+      "brand-explorer":     { "model": "anthropic/claude-sonnet-4-6" },
+      "brand-router":       { "model": "anthropic/claude-sonnet-4-6" },
+      "brand-planner":      { "model": "anthropic/claude-opus-4-7" },
+      "brand-critic":       { "model": "anthropic/claude-opus-4-7", "thinking": "high" },
+      "brand-generator":    { "model": "anthropic/claude-sonnet-4-6" },
+      "brand-philosopher":  { "model": "anthropic/claude-opus-4-7", "thinking": "high" }
+    }
+  }
 }

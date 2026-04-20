@@ -116,6 +116,24 @@
     },
     "x_card": {
       "default": "X card: wide-format social impact in a 2:1 frame. Think Bloomberg Businessweek tweet card \u2014 one bold statement, brand-confident background, stops the scroll. Never generic social template."
+    },
+    "terminal_hero": {
+      "default": "Terminal hero: a real CLI moment captured as brand material. Show an authentic terminal session \u2014 monospaced prompt, visible command, structured output \u2014 framed inside a brand-disciplined carrier. Think Stripe docs terminal snippet or a Linear changelog terminal crop. Preserve the terminal's own grammar: dim prompt, highlighted command, readable output blocks, shell chrome intact. Never fake terminal output, never invent ascii art, never decorate into a retro CRT tracer unless the brand explicitly calls for it.",
+      "reference": "Terminal truth is documentary gospel. Borrow framing confidence, carrier shape, and background field from references only \u2014 the prompt, command, and output must remain verbatim. Treat the recording like a code snippet in a New York Times explainer: evidence first, design second.",
+      "inspiration": "Borrow staging polish \u2014 how the terminal sits in a branded field, how the margins breathe \u2014 but the CLI text itself stays real. Composition may widen; the shell chrome may not fictionalize. Never stylize into movie-hacker terminals or neon retrowave tropes.",
+      "hybrid": "One real terminal moment as truth, one branded gesture around it. Think Apple keynote code slide: the code is real, the staging is designed. Keep monospace discipline, keep the prompt recognizable, let the brand field and mark lead the composition."
+    },
+    "cli_recording": {
+      "default": "CLI recording still: one frame from an actual terminal recording, chosen because it carries a complete thought \u2014 a command plus its structured response. Think VHS-tape demo or asciinema still framed for a docs hero. Keep the shell prompt, cursor, and output verbatim; compose the surrounding canvas with brand palette, mark, and restrained copy. Never invent terminal text, never add fake syntax colors the recording did not emit, never collage multiple commands into one frame.",
+      "reference": "Treat the source recording as hard truth. Borrow crop discipline and carrier treatment from references only \u2014 the command, output, and shell chrome must match the actual frame. The recording is the subject; the design is the frame.",
+      "inspiration": "Let references teach pacing, negative space, and how a terminal sits inside a campaign field. The recording's content remains documentary. Never let inspiration tempt invented commands, fake emoji output, or cinematic terminal theatrics.",
+      "hybrid": "One real recording frame carries product truth; one branded move carries identity. Think a Linear launch post pairing a real CLI frame with a clean brand field \u2014 real software, designed surround, nothing fabricated in the shell."
+    },
+    "command_illustration": {
+      "default": "Command illustration: a specific CLI command presented like a feature illustration. Show the command in its natural monospace voice, then illustrate what it does with brand-palette shapes, arrows, or small diagrams \u2014 not invented screenshots. Think Stripe docs \u2018how a webhook works\u2019 diagram, but the starting point is a real command. Keep the command verbatim; let the illustration annotate, never substitute.",
+      "reference": "Command and flags stay verbatim. Borrow diagrammatic grammar \u2014 arrows, callouts, step ordering \u2014 from references only. Never repackage another tool's CLI as your own.",
+      "inspiration": "Illustration may stretch into editorial diagram territory, but the command text is never invented. Think a New Yorker explainer: the subject is real, the drawing clarifies it.",
+      "hybrid": "Pair one real command with one disciplined branded illustration. The command is the proof, the diagram is the teach. Keep both in the same breath visually \u2014 monospace block and illustrative arrows share the same grid."
     }
   }
 }

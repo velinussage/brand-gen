@@ -250,13 +250,41 @@
     "seedance": {
       "replicate_id": "bytedance/seedance-1-pro",
       "cost": "0.15/sec",
-      "best_for": "Best motion dynamics, first+last frame control",
+      "best_for": "Seedance v1: strong motion dynamics, first+last frame control. Alias — prefer seedance-2-pro for new work.",
       "output_format": "mp4",
       "defaults": {
         "duration": 5
       },
       "field_map": {
         "start_image": "first_frame"
+      }
+    },
+    "seedance-2-pro": {
+      "replicate_id": "bytedance/seedance-2.0",
+      "cost": "0.18/sec",
+      "best_for": "Seedance v2: improved motion coherence, better start-frame fidelity, audio-sync capable, strong for brand bumpers and launch reveals with a locked first frame. Max 720p, aspect ratios: 16:9, 4:3, 1:1, 3:4, 9:16, 21:9, 9:21, adaptive.",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 5,
+        "resolution": "720p",
+        "generate_audio": false
+      },
+      "field_map": {
+        "start_image": "image"
+      }
+    },
+    "seedance-2": {
+      "replicate_id": "bytedance/seedance-2.0",
+      "cost": "0.18/sec",
+      "best_for": "Alias for seedance-2-pro.",
+      "output_format": "mp4",
+      "defaults": {
+        "duration": 5,
+        "resolution": "720p",
+        "generate_audio": false
+      },
+      "field_map": {
+        "start_image": "image"
       }
     },
     "minimax": {

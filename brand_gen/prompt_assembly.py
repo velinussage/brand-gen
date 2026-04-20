@@ -19,6 +19,7 @@ import re
 from pathlib import Path
 
 from .blackboard import build_blackboard_learning_context, build_blackboard_learning_snippet
+from .custom_scratchpad import build_custom_scratchpad_snippet
 from .brand_policy import (
     get_base_brand_guardrail_prelude,
     load_inspiration_prompt_context,
@@ -148,6 +149,7 @@ def build_effective_prompt(
     brand_prelude = "" if disable_brand_guardrails else get_base_brand_guardrail_prelude(profile, identity, material_type)
     material_key, material_variant, material_snippet = ("", "", "") if disable_brand_guardrails else resolve_material_prompt_snippet(profile, identity, material_type, workflow_mode)
     iteration_memory_snippet = "" if disable_brand_guardrails or not brand_dir else build_iteration_memory_snippet(brand_dir, material_type)
+    custom_scratchpad_snippet = "" if disable_brand_guardrails or not brand_dir else build_custom_scratchpad_snippet(brand_dir, material_type)
     if role_pack_override is not None:
         role_pack = role_pack_override
     elif brand_dir and not disable_brand_guardrails:
@@ -313,6 +315,7 @@ def build_effective_prompt(
         selected_inspiration_translation = cap_text_at_sentence(selected_inspiration_translation, _ni("inspiration_translation_cap"))
         inspiration_memory_snippet = cap_text_at_sentence(inspiration_memory_snippet, _ni("inspiration_memory_cap"))
         blackboard_learning_snippet = cap_text_at_sentence(blackboard_learning_snippet, _ni("compact_memory_cap"))
+        custom_scratchpad_snippet = cap_text_at_sentence(custom_scratchpad_snippet, _ni("compact_memory_cap"))
         if len(token_block) > NON_INTERFACE_TOKEN_BLOCK_CAP:
             token_block = token_block[:NON_INTERFACE_TOKEN_BLOCK_CAP].rstrip() + "…"
     elif blackboard_learning_snippet:
@@ -325,6 +328,7 @@ def build_effective_prompt(
             messaging_snippet.strip(),
             copy_anchor_snippet.strip(),
             iteration_memory_snippet.strip(),
+            custom_scratchpad_snippet.strip(),
             blackboard_learning_snippet.strip(),
             material_snippet.strip(),
             role_pack_snippet.strip(),
@@ -344,6 +348,7 @@ def build_effective_prompt(
     return {
         "brand_prelude": brand_prelude,
         "iteration_memory_snippet": iteration_memory_snippet,
+        "custom_scratchpad_snippet": custom_scratchpad_snippet,
         "blackboard_learning_snippet": blackboard_learning_snippet,
         "blackboard_learning_summary": blackboard_learning_context.get("summary") or {},
         "blackboard_learning_recipes": blackboard_learning_context.get("recipes") or [],
@@ -965,6 +970,17 @@ def review_prompt_architecture(
     for warning in detect_prompt_execution_risks(raw_prompt, context, material_type=material_type):
         if warning not in recommendations:
             recommendations.append(warning)
+
+    messaging = (identity or {}).get("messaging") or {}
+    forbidden_claims = [str(item).strip() for item in (messaging.get("forbidden_claims") or []) if str(item).strip()]
+    if forbidden_claims and raw_prompt:
+        lowered = raw_prompt.lower()
+        for claim in forbidden_claims:
+            needle = claim.lower()
+            if needle and needle in lowered:
+                issue = f"Forbidden messaging claim in prompt: '{claim}'. Remove or rephrase before generating."
+                if issue not in issues:
+                    issues.append(issue)
 
     base_prelude = get_base_brand_guardrail_prelude(profile, identity, material_type)
     resolved_prompt = context.get("resolved_prompt") or ""
