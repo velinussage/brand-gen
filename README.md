@@ -11,11 +11,53 @@ brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of sev
 
 Works with any agent host that has shell access: Claude Code, Pi, OpenClaw, MCP hosts, Codex, Cursor.
 
-A launch card the seven-agent pipeline produced from a one-sentence brief:
+Two assets produced end-to-end by the seven-agent pipeline from one-sentence briefs:
 
-![A launch card generated end-to-end by the brand-gen agent pipeline](docs/assets/example-v118-x-feed.jpg)
+<p align="center">
+  <img src="docs/assets/example-v118-x-feed.jpg" width="48%" alt="A launch card generated end-to-end by the brand-gen agent pipeline" />
+  <img src="docs/assets/example-v031-brand-scene.jpg" width="48%" alt="A brand scene produced by the brand-gen agent pipeline" />
+</p>
 
 ## The agent pipeline
+
+```mermaid
+flowchart TD
+    User([You: Make a launch card for the product announcement])
+    User --> Orch[brand-orchestrator]
+
+    subgraph Prepare["Phase 1 · Prepare"]
+      Exp[brand-explorer<br/>workspace · blackboard · learnings]
+      Phi[brand-philosopher<br/>design-philosophy · motion grammar<br/>WCAG tokens audit · custom scratchpad]
+    end
+
+    subgraph Plan["Phase 2 · Plan"]
+      Rou[brand-router<br/>route selection]
+      Pla[brand-planner<br/>plan-draft · role-pack · layout]
+    end
+
+    subgraph Validate["Phase 3 · Validate"]
+      Cr1[brand-critic<br/>critique-plan · validate-brand-fit<br/>blocks on P1 issues]
+    end
+
+    subgraph Generate["Phase 4 · Generate"]
+      Cin[brand-cinematographer<br/>video only · 7-rule shot validation]
+      Gen[brand-generator<br/>build scratchpad · generate]
+    end
+
+    subgraph Critique["Phase 5 · Critique"]
+      Cr2[brand-critic<br/>score · WCAG audit · append bans]
+    end
+
+    subgraph Evolve["Phase 6 · Evolve"]
+      Ev[brand-orchestrator<br/>evolve · record learnings]
+    end
+
+    Orch --> Prepare --> Plan --> Validate --> Generate --> Critique --> Evolve
+    Evolve -.->|"Re-enter with --source-version; learnings auto-apply"| Orch
+```
+
+<details>
+<summary>Text diagram (for hosts that do not render Mermaid)</summary>
 
 ```text
 You → "Make a launch card for our product announcement"
@@ -26,14 +68,14 @@ brand-orchestrator
 │ Phase 1 - Prepare                                              │
 │   brand-explorer        workspace, blackboard, learnings       │
 │   brand-philosopher     design-philosophy.md, motion grammar   │
-│                         export-design-tokens + WCAG audit       │
+│                         export-design-tokens + WCAG audit      │
 │                         custom-scratchpad.md curation          │
 │ Phase 2 - Plan                                                 │
 │   brand-router          route selection                        │
 │   brand-planner         plan-draft with role-pack + layout     │
 │ Phase 3 - Validate                                             │
 │   brand-critic          critique-plan, validate-brand-fit      │
-│                         blocks on P1 issues                     │
+│                         blocks on P1 issues                    │
 │ Phase 4 - Generate                                             │
 │   brand-cinematographer (video only) 7-rule shot validation    │
 │   brand-generator       build scratchpad, generate → v1.png    │
@@ -41,13 +83,15 @@ brand-orchestrator
 │   brand-critic          score, WCAG audit on HTML renders,     │
 │                         append forbidden patterns, iterate     │
 │ Phase 6 - Evolve                                               │
-│   brand-orchestrator    evolve, record learnings                │
+│   brand-orchestrator    evolve, record learnings               │
 └────────────────────────────────────────────────────────────────┘
        ↓
 You → "Tighter hierarchy, keep the copy direction"
        ↓
 pipeline re-enters with --source-version, learnings auto-applied
 ```
+
+</details>
 
 The pipeline is planning-first and quality-gated: **no freehand generation before a plan is critiqued**. Agents communicate through shared files (plans, scratchpads, blackboard, iteration memory, custom scratchpad) rather than passing data in-memory.
 
@@ -71,7 +115,7 @@ python3 scripts/validate_setup.py
 
 ## Quick start - talk to your agent
 
-Agent-driven (the intended path):
+Paste this into any agent with shell access. The orchestrator will inspect the workspace, verify a design philosophy exists, plan the shot, critique the plan, generate, and critique the output - stopping for your input at critique and feedback.
 
 ```text
 Read skills/brand-gen/SKILL.md and .claude/agents/brand-orchestrator.md,
@@ -80,39 +124,11 @@ then run brand-orchestrator on this task:
   Create an x-feed launch announcement for <brand>.
 ```
 
-Your agent will run `brand-explorer` to inspect the workspace, `brand-philosopher` to ensure a design philosophy exists, audit WCAG contrast, plan the shot, critique the plan, generate, and critique the output - stopping for your input at the critique and feedback steps.
-
 If your host supports subagent tooling directly (Claude Code, Pi):
 
 ```text
 /run brand-orchestrator "x-feed launch announcement for <brand>"
 ```
-
-## Direct CLI (for power users and scripting)
-
-The `bgen` commands are what the agents call. You can call them too when you want to bypass the agent layer - useful for scripting, CI, or inspecting intermediate artifacts:
-
-```bash
-# Create a brand
-bgen create-brand \
-  --name "Acme" \
-  --description "Operational software for modern field teams" \
-  --tone "calm,technical,trustworthy" \
-  --palette "#1A6B6B,#C85A2A"
-
-# Run the pipeline in-process (skips agent layer, keeps planning gate)
-bgen pipeline \
-  --material-type x-feed \
-  --goal "Launch announcement" \
-  --mode hybrid \
-  --format json
-
-# Review and iterate
-bgen feedback v1 --score 4 --notes "Strong direction, simplify the copy"
-bgen pipeline --material-type x-feed --source-version v1 --format json
-```
-
-`bgen pipeline` runs the same planning-first gate as the agent orchestration, just without agent-level reasoning between phases. Prefer the agent path when you want the philosopher's WCAG fix, the critic's P1 push-back, or the cinematographer's shot-design validation. Use direct `bgen` calls when you already know the answers.
 
 ## Skills
 
@@ -127,19 +143,21 @@ brand-gen ships as skill files any agent can read. No host-specific plugin requi
 | `skills/brand-gen-logo/SKILL.md` | Logo and wordmark workflows |
 | `skills/brand-content-ideation/SKILL.md` | Messaging and copy ideation |
 
-## What the pipeline does
+## What you get
 
-These are the capabilities the agents coordinate through. Each maps to shared files agents read and write - not commands users run directly.
+Every capability is phrased as what you, the brand maker, actually get. The infrastructure that delivers it is linked out below.
 
-- **Planning-first gate**: the critic blocks generation until a plan is approved. No freehand prompts.
-- **Durable brand memory**: saved profiles, identity, blackboard, iteration memory, and learnings - agents read these every run and write back after feedback
-- **Review loop**: rubric-first critique, scoring, feedback, and evolution analysis; winning setups auto-promote into `learnings.json` and fire automatically on the next run
-- **Messaging system**: ideate, persist, and promote approved copy across sessions
-- **HTML share cards**: deterministic rendering with plugin-based data fetching; the generator consumes the brand's audited `design-tokens.css` when present
-- **Derivatives**: extend approved stills into mockups or short-form video
-- **Reference workflows**: capture product screenshots, consolidate inspiration, assign reference roles
+- **No freehand slop.** A critic blocks every generation until the plan passes rubric review, so you iterate on plans (seconds) not renders (minutes).
+- **Brand memory that compounds.** Every approved or rejected result teaches the next run; winning setups auto-promote and auto-apply, so by version 20 you are not re-tuning what already worked at version 5.
+- **A built-in quality bar.** Outputs are scored against a rubric the agent self-applies; feedback goes into learnings automatically so the same mistake stops happening.
+- **Copy that stays on-brand across sessions.** Approved taglines, headlines, and voice persist so every asset speaks with the same voice weeks apart.
+- **Accessible by default.** HTML share cards consume the brand's WCAG-audited design tokens, so launch graphics do not ship with body text below 4.5:1 contrast.
+- **One approved still becomes many assets.** Promote a winning design into mockups, short videos, or launch films without redrawing the core artwork.
+- **Product truth, not hallucination.** A capture + reference-role workflow puts real product screenshots into the brief so the model illustrates your actual UI, not a plausible-looking fake.
+- **Agents that teach each other.** The critic writes bans directly into a brand-level scratchpad; the next run auto-avoids them. Closed loop, no manual copy-paste.
+- **Cinematic video by default.** Video material types route through a cinematographer that applies a motion grammar you (and the philosopher) established once, then validated seven ways before generation fires.
 
-Three capabilities deserve their own section because they're how the new agent pipeline coordinates - via shared files.
+Three capabilities live in their own sections below because they are how the agents coordinate through shared files: the custom scratchpad, design tokens with WCAG audit, and the video pipeline.
 
 ### Custom scratchpad (how agents teach each other)
 
@@ -184,6 +202,47 @@ The cinematographer:
 4. Hands a shot-ready scratchpad to `brand-generator`.
 
 If the brand has no motion grammar, the cinematographer refuses to generate and delegates back to `brand-philosopher` to establish one. The `seedance-2-pro` model is registered in `brand_gen/models.json`. `bgen create-video` runs a brief-driven multi-shot launch film with xfade stitching and per-shot validation; every shot is gated before generation fires.
+
+## Why not just prompt a model directly?
+
+Single-prompt generation works fine for one-off assets. brand-gen exists for the opposite problem: you are going to make dozens of assets over months, and every one needs to feel like the same brand.
+
+What single-prompt generation loses:
+
+- **Brand memory.** Your last prompt does not remember the nine before it. brand-gen's iteration memory, blackboard, and learnings mean the system gets more fluent at your brand over time, not less.
+- **A design philosophy.** A named aesthetic movement that makes every asset coherent instead of stylistically drifty.
+- **A quality gate.** A critic that reads the plan and blocks it *before* generation when the setup is wrong, rather than spending tokens then throwing the output away.
+- **WCAG accessibility.** Auto-audited palettes that fail loudly when body text drops below AA contrast, instead of silently shipping broken assets.
+- **Self-improving loops.** Approved and rejected outputs auto-promote into forbidden patterns and winning setups, so the same mistake never lands twice.
+- **Multi-artifact coordination.** Launch films, share cards, social sets, and mockups that all reference the same approved stills, messaging, and tokens.
+
+If you are making one asset once, prompt a model. If you are building a brand, use a system that remembers.
+
+## Direct CLI (for power users and scripting)
+
+The `bgen` commands are what the agents call. You can call them too when you want to bypass the agent layer - useful for scripting, CI, or inspecting intermediate artifacts:
+
+```bash
+# Create a brand
+bgen create-brand \
+  --name "Acme" \
+  --description "Operational software for modern field teams" \
+  --tone "calm,technical,trustworthy" \
+  --palette "#1A6B6B,#C85A2A"
+
+# Run the pipeline in-process (skips agent layer, keeps planning gate)
+bgen pipeline \
+  --material-type x-feed \
+  --goal "Launch announcement" \
+  --mode hybrid \
+  --format json
+
+# Review and iterate
+bgen feedback v1 --score 4 --notes "Strong direction, simplify the copy"
+bgen pipeline --material-type x-feed --source-version v1 --format json
+```
+
+`bgen pipeline` runs the same planning-first gate as the agent orchestration, just without agent-level reasoning between phases. Prefer the agent path when you want the philosopher's WCAG fix, the critic's P1 push-back, or the cinematographer's shot-design validation. Use direct `bgen` calls when you already know the answers.
 
 ## Host integration
 
@@ -285,21 +344,18 @@ If the brand has no `## Motion grammar` section in its `custom-scratchpad.md`, t
 
 ## Documentation
 
+**For users (start here)**
 - [Getting Started](docs/getting-started.md) - clone to first asset
+- [Starter Prompts](docs/starter-prompts.md) - copy-paste agent prompts
+- [Concepts](docs/concepts.md) - workspace, brands, sessions, blackboard
+
+**For integrators**
 - [Architecture](docs/architecture.md) - runtime layers, state model, command registry
 - [CLI Reference](docs/cli-reference.md) - full command list
 - [MCP Reference](docs/mcp-reference.md) - tool naming and custom tools
 - [Host Setup](docs/host-setup.md) - Claude Code, Pi, OpenClaw integration
-- [Starter Prompts](docs/starter-prompts.md) - copy-paste agent prompts
-- [Concepts](docs/concepts.md) - workspace, brands, sessions, blackboard
 - [Skills](docs/skills.md) - loading order and skill details
 - [Limitations](docs/limitations.md)
-
-## Example output
-
-A brand scene the pipeline produced after the philosopher established a "rammed-earth reading room" visual language:
-
-![A brand scene produced by the brand-gen agent pipeline](docs/assets/example-v031-brand-scene.jpg)
 
 ## Getting help
 
