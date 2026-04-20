@@ -1,12 +1,12 @@
 # brand-gen
 
-> A multi-agent brand design system. You talk to your agent; it runs a team of specialists — philosopher, planner, critic, cinematographer, generator — through a planning-first pipeline with quality gates.
+> A multi-agent brand design system. You talk to your agent; it runs a team of specialists - philosopher, planner, critic, cinematographer, generator - through a planning-first pipeline with quality gates.
 
-brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of seven agents that share file-backed state (brand identity, design philosophy, custom scratchpad, iteration memory, learnings, design tokens) and call a local `bgen` runtime under the hood. The CLI exists, but it's the substrate the agents use — not the primary interface.
+brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of seven agents that share file-backed state (brand identity, design philosophy, custom scratchpad, iteration memory, learnings, design tokens) and call a local `bgen` runtime under the hood. The CLI exists, but it's the substrate the agents use - not the primary interface.
 
 Works with any agent host that has shell access: Claude Code, Pi, OpenClaw, MCP hosts, Codex, Cursor.
 
-![brand-gen generated storyboard](docs/assets/example-v14-storyboard.jpg)
+![brand-gen generated x-feed launch card (v118, favorite, score 5)](docs/assets/example-v118-x-feed.jpg)
 
 ## The agent pipeline
 
@@ -16,24 +16,24 @@ You → "Make a launch card for our product announcement"
 brand-orchestrator
        ↓
 ┌────────────────────────────────────────────────────────────────┐
-│ Phase 1 — Prepare                                              │
+│ Phase 1 - Prepare                                              │
 │   brand-explorer        workspace, blackboard, learnings       │
 │   brand-philosopher     design-philosophy.md, motion grammar   │
 │                         export-design-tokens + WCAG audit       │
 │                         custom-scratchpad.md curation          │
-│ Phase 2 — Plan                                                 │
+│ Phase 2 - Plan                                                 │
 │   brand-router          route selection                        │
 │   brand-planner         plan-draft with role-pack + layout     │
-│ Phase 3 — Validate                                             │
+│ Phase 3 - Validate                                             │
 │   brand-critic          critique-plan, validate-brand-fit      │
 │                         blocks on P1 issues                     │
-│ Phase 4 — Generate                                             │
+│ Phase 4 - Generate                                             │
 │   brand-cinematographer (video only) 7-rule shot validation    │
 │   brand-generator       build scratchpad, generate → v1.png    │
-│ Phase 5 — Critique                                             │
+│ Phase 5 - Critique                                             │
 │   brand-critic          score, WCAG audit on HTML renders,     │
 │                         append forbidden patterns, iterate     │
-│ Phase 6 — Evolve                                               │
+│ Phase 6 - Evolve                                               │
 │   brand-orchestrator    evolve, record learnings                │
 └────────────────────────────────────────────────────────────────┘
        ↓
@@ -57,7 +57,7 @@ python3 scripts/validate_setup.py
 
 **Requirements:** Python 3.11+ and a [Replicate API token](https://replicate.com/account/api-tokens).
 
-## Quick start — talk to your agent
+## Quick start - talk to your agent
 
 Agent-driven (the intended path):
 
@@ -68,7 +68,7 @@ then run brand-orchestrator on this task:
   Create an x-feed launch announcement for <brand>.
 ```
 
-Your agent will run `brand-explorer` to inspect the workspace, `brand-philosopher` to ensure a design philosophy exists, audit WCAG contrast, plan the shot, critique the plan, generate, and critique the output — stopping for your input at the critique and feedback steps.
+Your agent will run `brand-explorer` to inspect the workspace, `brand-philosopher` to ensure a design philosophy exists, audit WCAG contrast, plan the shot, critique the plan, generate, and critique the output - stopping for your input at the critique and feedback steps.
 
 If your host supports subagent tooling directly (Claude Code, Pi):
 
@@ -78,7 +78,7 @@ If your host supports subagent tooling directly (Claude Code, Pi):
 
 ## Direct CLI (for power users and scripting)
 
-The `bgen` commands are what the agents call. You can call them too when you want to bypass the agent layer — useful for scripting, CI, or inspecting intermediate artifacts:
+The `bgen` commands are what the agents call. You can call them too when you want to bypass the agent layer - useful for scripting, CI, or inspecting intermediate artifacts:
 
 ```bash
 # Create a brand
@@ -117,17 +117,17 @@ brand-gen ships as skill files any agent can read. No host-specific plugin requi
 
 ## What the pipeline does
 
-These are the capabilities the agents coordinate through. Each maps to shared files agents read and write — not commands users run directly.
+These are the capabilities the agents coordinate through. Each maps to shared files agents read and write - not commands users run directly.
 
 - **Planning-first gate**: the critic blocks generation until a plan is approved. No freehand prompts.
-- **Durable brand memory**: saved profiles, identity, blackboard, iteration memory, and learnings — agents read these every run and write back after feedback
+- **Durable brand memory**: saved profiles, identity, blackboard, iteration memory, and learnings - agents read these every run and write back after feedback
 - **Review loop**: rubric-first critique, scoring, feedback, and evolution analysis; winning setups auto-promote into `learnings.json` and fire automatically on the next run
 - **Messaging system**: ideate, persist, and promote approved copy across sessions
 - **HTML share cards**: deterministic rendering with plugin-based data fetching; the generator consumes the brand's audited `design-tokens.css` when present
 - **Derivatives**: extend approved stills into mockups or short-form video
 - **Reference workflows**: capture product screenshots, consolidate inspiration, assign reference roles
 
-Three capabilities deserve their own section because they're how the new agent pipeline coordinates — via shared files.
+Three capabilities deserve their own section because they're how the new agent pipeline coordinates - via shared files.
 
 ### Custom scratchpad (how agents teach each other)
 
@@ -151,7 +151,7 @@ The philosopher runs `bgen export-design-tokens` in Step 7b of its workflow to e
 
 The generator consumes the resulting `design-tokens.css` when rendering HTML materials. The critic re-runs the audit against what actually rendered.
 
-Coverage: 50–950 shade scales, math-derived type scale, base-4 spacing, elevation shadows keyed to the brand's neutral, radii, motion tokens, breakpoints, smart font-family fallback chains. Full reference at `skills/brand-gen/references/design-tokens.md` (distilled from dylanfeltus/design-tokens, pbc-os/brand-identity, and anthropics/brand-guidelines).
+Coverage: 50-950 shade scales, math-derived type scale, base-4 spacing, elevation shadows keyed to the brand's neutral, radii, motion tokens, breakpoints, smart font-family fallback chains. Full reference at `skills/brand-gen/references/design-tokens.md` (distilled from dylanfeltus/design-tokens, pbc-os/brand-identity, and anthropics/brand-guidelines).
 
 Direct CLI available for scripting:
 
@@ -200,37 +200,37 @@ See [docs/host-setup.md](docs/host-setup.md) for Claude Code, Pi, and OpenClaw s
 
 brand-gen ships agent definitions for two hosts, with identical bodies (only frontmatter differs). Other hosts can read the same files and emulate the chain manually.
 
-- **Claude Code** — `.claude/agents/brand-*.md` (mirrored to `skills/brand-gen/claude-agents/brand-*.md`). Invoke via the `Agent` tool with `subagent_type="brand-orchestrator"` or any specialist name.
-- **Pi** — `.pi/agents/brand-*.md`. Invoke via `/run brand-orchestrator <task>` or chain syntax.
+- **Claude Code** - `.claude/agents/brand-*.md` (mirrored to `skills/brand-gen/claude-agents/brand-*.md`). Invoke via the `Agent` tool with `subagent_type="brand-orchestrator"` or any specialist name.
+- **Pi** - `.pi/agents/brand-*.md`. Invoke via `/run brand-orchestrator <task>` or chain syntax.
 
 The intended entry point is always `brand-orchestrator`. Do not jump straight to `bgen generate` or treat `bgen pipeline` as a freehand shortcut.
 
 ### Specialist agents
 
-- `brand-orchestrator` — coordinates the full workflow; in Phase 1 runs `export-design-tokens` and delegates WCAG failures to the philosopher
-- `brand-explorer` — reads workspace state, blackboard, learnings, recent versions
-- `brand-router` — chooses the correct route before planning
-- `brand-planner` — creates the plan draft with learnings, layout, and role-pack context
-- `brand-critic` — blocks bad plans, scores outputs, runs WCAG contrast audits on HTML share cards, and appends forbidden patterns directly into `custom-scratchpad.json`
-- `brand-generator` — builds the scratchpad and runs generation from an approved plan; prefers the brand's `design-tokens.css` when rendering HTML
-- `brand-philosopher` — creates or refines `design-philosophy.md`, curates `custom-scratchpad.md` (style directives + motion grammar), and fixes WCAG failures by adjusting `brand-identity.json`
-- `brand-cinematographer` — video-prompt specialist; reads motion grammar and the seedance shot-design reference, assembles the six-element prompt, runs seven-rule validation before handoff to `brand-generator`
+- `brand-orchestrator` - coordinates the full workflow; in Phase 1 runs `export-design-tokens` and delegates WCAG failures to the philosopher
+- `brand-explorer` - reads workspace state, blackboard, learnings, recent versions
+- `brand-router` - chooses the correct route before planning
+- `brand-planner` - creates the plan draft with learnings, layout, and role-pack context
+- `brand-critic` - blocks bad plans, scores outputs, runs WCAG contrast audits on HTML share cards, and appends forbidden patterns directly into `custom-scratchpad.json`
+- `brand-generator` - builds the scratchpad and runs generation from an approved plan; prefers the brand's `design-tokens.css` when rendering HTML
+- `brand-philosopher` - creates or refines `design-philosophy.md`, curates `custom-scratchpad.md` (style directives + motion grammar), and fixes WCAG failures by adjusting `brand-identity.json`
+- `brand-cinematographer` - video-prompt specialist; reads motion grammar and the seedance shot-design reference, assembles the six-element prompt, runs seven-rule validation before handoff to `brand-generator`
 
 ### Mandatory generation sequence
 
 For any real generation request, the intended order is:
 
-1. **Explorer** — inspect workspace, blackboard, learnings, prior winners, references
-2. **Philosopher** — verify / cultivate design philosophy; Phase 1 tokens audit (WCAG AA gate)
-3. **Router** — choose the route (`reference_translate`, `generative_explore`, etc.)
-4. **Planner** — run preparation and produce `plan-draft`
-5. **Critic** — run `critique-plan` and `validate-brand-fit`; block if invalid
-6. **Cinematographer** (video only) — run seven-rule shot-design validation
-7. **Generator** — run `build-generation-scratchpad` and `generate` only after approval
-8. **Critic again** — run `critique-rubric` + WCAG audit on HTML renders; decide approve vs iterate; append bans to custom-scratchpad
-9. **Orchestrator** — record `feedback`, run `evolve`, and summarize
+1. **Explorer** - inspect workspace, blackboard, learnings, prior winners, references
+2. **Philosopher** - verify / cultivate design philosophy; Phase 1 tokens audit (WCAG AA gate)
+3. **Router** - choose the route (`reference_translate`, `generative_explore`, etc.)
+4. **Planner** - run preparation and produce `plan-draft`
+5. **Critic** - run `critique-plan` and `validate-brand-fit`; block if invalid
+6. **Cinematographer** (video only) - run seven-rule shot-design validation
+7. **Generator** - run `build-generation-scratchpad` and `generate` only after approval
+8. **Critic again** - run `critique-rubric` + WCAG audit on HTML renders; decide approve vs iterate; append bans to custom-scratchpad
+9. **Orchestrator** - record `feedback`, run `evolve`, and summarize
 
-If steps 1–5 are skipped, the workflow is invalid. No freehand generation before the plan is critiqued.
+If steps 1-5 are skipped, the workflow is invalid. No freehand generation before the plan is critiqued.
 
 ### How agents map to `bgen` commands
 
@@ -273,19 +273,19 @@ If the brand has no `## Motion grammar` section in its `custom-scratchpad.md`, t
 
 ## Documentation
 
-- [Getting Started](docs/getting-started.md) — clone to first asset
-- [Architecture](docs/architecture.md) — runtime layers, state model, command registry
-- [CLI Reference](docs/cli-reference.md) — full command list
-- [MCP Reference](docs/mcp-reference.md) — tool naming and custom tools
-- [Host Setup](docs/host-setup.md) — Claude Code, Pi, OpenClaw integration
-- [Starter Prompts](docs/starter-prompts.md) — copy-paste agent prompts
-- [Concepts](docs/concepts.md) — workspace, brands, sessions, blackboard
-- [Skills](docs/skills.md) — loading order and skill details
+- [Getting Started](docs/getting-started.md) - clone to first asset
+- [Architecture](docs/architecture.md) - runtime layers, state model, command registry
+- [CLI Reference](docs/cli-reference.md) - full command list
+- [MCP Reference](docs/mcp-reference.md) - tool naming and custom tools
+- [Host Setup](docs/host-setup.md) - Claude Code, Pi, OpenClaw integration
+- [Starter Prompts](docs/starter-prompts.md) - copy-paste agent prompts
+- [Concepts](docs/concepts.md) - workspace, brands, sessions, blackboard
+- [Skills](docs/skills.md) - loading order and skill details
 - [Limitations](docs/limitations.md)
 
 ## Example output
 
-![brand-gen generated brand scene](docs/assets/example-v028-brand-scene.jpg)
+![brand-gen generated brand scene (v031, score 5 - rammed-earth reading room)](docs/assets/example-v031-brand-scene.jpg)
 
 ## Contributing
 
