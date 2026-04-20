@@ -28,7 +28,7 @@ try:
         plan_draft_from_dict,
         scratchpad_from_dict,
     )
-    from .run_ledger import append_run_event
+    from .run_ledger import append_run_event, load_all_run_events
     from .generation_flow import (
         apply_generation_critique_policy,
         assemble_generation_scratchpad,
@@ -162,6 +162,11 @@ class PipelineRunner:
     def run(self, plan_args: argparse.Namespace) -> PipelineResult:
         self.pipeline_request = PipelineRequest.from_namespace(plan_args)
         plan_args = self.pipeline_request.to_namespace()
+        # Advisory: warn loudly when `bgen pipeline` is invoked without the
+        # orchestrator chain having fired recently. Retro v121-v124 showed
+        # that agents calling pipeline directly skip philosopher WCAG gates,
+        # inspiration-readiness checks, and critic pushback, producing drift.
+        self._emit_orchestrator_advisory(plan_args)
         result = PipelineResult(
             workflow_id=self.workflow_id,
             source_version=self.source_version,
@@ -736,6 +741,104 @@ class PipelineRunner:
                 self.on_stage_complete(stage, output)
             except Exception as exc:
                 warn(f"Pipeline stage callback failed for {stage}: {exc}")
+
+    # ------------------------------------------------------------------
+    # Orchestrator advisory
+    # ------------------------------------------------------------------
+
+    _ORCHESTRATOR_PREFLIGHT_STAGES = {
+        "route-request",
+        "route_request",
+        "plan-draft",
+        "plan_draft",
+        "critique-plan",
+        "critique_plan",
+        "inspiration-status",
+        "inspiration_status",
+        "export-design-tokens",
+        "export_design_tokens",
+        "validate-brand-fit",
+        "validate_brand_fit",
+    }
+    _ORCHESTRATOR_PREFLIGHT_WINDOW_SECONDS = 30 * 60  # 30 minutes
+
+    def _recent_orchestrator_preflight_seen(self) -> tuple[bool, list[str]]:
+        """Scan the run ledger for preflight stages fired in the last 30 minutes.
+        Returns (seen, stage_names_found) so callers can both decide whether to
+        warn and cite what they did see.
+        """
+        import datetime as _dt
+        try:
+            events = load_all_run_events(self.brand_dir, limit=200)
+        except Exception:
+            return (False, [])
+        now = _dt.datetime.now()
+        cutoff = now - _dt.timedelta(seconds=self._ORCHESTRATOR_PREFLIGHT_WINDOW_SECONDS)
+        seen: list[str] = []
+        for evt in events:
+            stage = str(evt.get("stage") or "").strip().lower()
+            event_type = str(evt.get("event_type") or "").strip().lower()
+            ts_raw = str(evt.get("timestamp") or "").strip()
+            if not ts_raw:
+                continue
+            try:
+                ts = _dt.datetime.strptime(ts_raw, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                continue
+            if ts < cutoff:
+                continue
+            if stage in self._ORCHESTRATOR_PREFLIGHT_STAGES or event_type in self._ORCHESTRATOR_PREFLIGHT_STAGES:
+                label = stage or event_type
+                if label and label not in seen:
+                    seen.append(label)
+        return (bool(seen), seen)
+
+    def _emit_orchestrator_advisory(self, plan_args: argparse.Namespace) -> None:
+        bypass = bool(getattr(plan_args, "bypass_orchestrator", False))
+        reason = str(getattr(plan_args, "bypass_reason", "") or "").strip()
+        seen, found = self._recent_orchestrator_preflight_seen()
+        if seen:
+            # Orchestrator preflight was active recently; pipeline is clearly
+            # running as part of the chain.
+            return
+        if bypass:
+            # Explicit bypass — record it to the ledger and keep going quietly.
+            try:
+                append_run_event(
+                    self.brand_dir,
+                    self.workflow_id,
+                    stage="pipeline",
+                    event_type="orchestrator_bypass",
+                    status="bypass",
+                    notes=reason or "no reason provided",
+                    override_reason=reason or "",
+                    override_actor="bgen-pipeline-cli",
+                )
+            except Exception:
+                pass
+            return
+        # Not bypassed, no orchestrator preflight seen — warn loudly on stderr.
+        import sys as _sys
+        _sys.stderr.write(
+            "\n"
+            "========================================================================\n"
+            "[brand-gen advisory] `bgen pipeline` invoked without the orchestrator\n"
+            "chain in the last 30 minutes. You are about to skip:\n"
+            "  - brand-philosopher WCAG palette audit (export-design-tokens)\n"
+            "  - inspiration-readiness preflight (inspiration-status)\n"
+            "  - brand-critic plan-level P1 pushback (critique-plan)\n"
+            "  - brand-cinematographer shot validation (for video materials)\n"
+            "This is the path that produced the v121-v124 drift documented in\n"
+            "skills/brand-gen/references/recipes.md.\n"
+            "\n"
+            "Recommended: read .claude/agents/brand-orchestrator.md (or .pi/ variant)\n"
+            "             and use the Agent tool / /run brand-orchestrator chain.\n"
+            "Scripting / CI / intentional bypass:\n"
+            "             bgen pipeline --bypass-orchestrator --bypass-reason \"<one-line>\" ...\n"
+            "========================================================================\n"
+            "\n"
+        )
+        _sys.stderr.flush()
 
     # ------------------------------------------------------------------
     # Pre-generation helpers
