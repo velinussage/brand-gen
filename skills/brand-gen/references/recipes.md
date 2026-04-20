@@ -11,6 +11,7 @@ Multi-step workflows that need more guidance than the main skill provides.
 - [When to capture vs. use inspiration](#when-to-capture-vs-use-inspiration)
 - [Import canon from an external vault](#import-canon-from-an-external-vault)
 - [Terminal / CLI material types](#terminal--cli-material-types)
+- [Retiring the artifact / share-card flow for a brand](#retiring-the-artifact--share-card-flow-for-a-brand)
 
 ---
 
@@ -347,3 +348,87 @@ bgen pipeline \
 ```
 
 If the recording file is a `.gif` or `.mp4`, export one frame to PNG first — the pipeline expects still images for reference analysis.
+
+---
+
+## Retiring the artifact / share-card flow for a brand
+
+The HTML share-card flow (`--render-backend html`, `--source-url`, `--proof-title`, `--proof-excerpt`, `--proof-row`, `--proof-crop-path`, `--skip-proof`, `--dark-mode`, `--layout-spec`) produces deterministic proof cards that show a headline plus a product-truth module plus an optional screenshot crop. For some brands this is the right move (launch announcements where the data is the story, doc heroes where the command is the story).
+
+For other brands it is the wrong move: it can box the brand into a templated card product instead of a brand. Symptoms include:
+
+- the screenshot / proof inset never actually earns its place in the composition
+- trust reads as UI chrome rather than as tone, typography, restraint, and composition
+- the brand starts to feel like "branded tweet cards" instead of a recognizable visual system
+- the pattern system and mark get relegated to decoration around a central "artifact" frame
+
+When a brand hits this point, retire the artifact flow for that brand without removing the code path for other brands. The mechanism:
+
+### 1. Mark the patterns as forbidden in the brand's custom scratchpad
+
+Add these to `.brand-gen/brands/<brand>/custom-scratchpad.json` via `append_forbidden_pattern` or by editing directly:
+
+- `floating proof panel`
+- `screenshot inset next to headline`
+- `card within card`
+- `source url display`
+- `prompt details text`
+- `proof module UI`
+- `real product crop as trust device`
+- `share-card chrome`
+- `artifact-UI mimicry`
+
+The pipeline auto-injects these into every prompt prelude and also auto-lists them in the critic's ban pass.
+
+### 2. Pin the brand to native generation (not HTML)
+
+In the same `custom-scratchpad.json`, set `model_overrides_by_material` for the brand's copy-bearing materials to a native model:
+
+```json
+"model_overrides_by_material": {
+  "x-feed": {"model": "nano-banana-2", "mode": "reference"},
+  "linkedin-card": {"model": "nano-banana-2", "mode": "reference"},
+  "social": {"model": "nano-banana-2", "mode": "reference"},
+  "announcement-card": {"model": "nano-banana-2", "mode": "reference"}
+}
+```
+
+The orchestrator's Phase 1 step 4b reads these before any learnings lookup, so the override fires automatically without a CLI flag.
+
+### 3. Write the new direction into `custom-scratchpad.md`
+
+State the working rule explicitly so the philosopher and planner have it in the prompt prelude:
+
+```markdown
+## Working rule
+
+Retire the artifact/share-card flow for this brand. Trust comes from tone,
+typography, restraint, and composition — not from a floating UI panel
+proving "this is a real product". If we show product later, it is
+intentional product art direction, not an inset screenshot.
+```
+
+And list the approved directions the brand does lean into, for example:
+
+- Typographic statement poster (headline + pattern atmosphere)
+- Pattern-led social composition (large crop of the brand pattern system)
+- Symbol + field (mark used once, pattern carries the rest)
+- Editorial brand frame without artifact UI (structured grid, no card-within-card)
+
+### 4. Leave the HTML share-card code alone
+
+The `brand_gen/html_share_cards.py` module, the `--render-backend html` flag, and all proof/share-card CLI arguments stay in place. Other brands may still use them. What changed is the brand's scratchpad, not brand-gen itself.
+
+### 5. Revalidate prior assumptions in iteration memory
+
+If the brand previously had winning scores on share-card outputs, those still count as positive examples for their specific composition, but the brand is no longer pursuing that direction. Optionally move those entries to a `legacy_positive_examples` bucket or append a note: "approved at the time under the artifact flow; flow retired YYYY-MM-DD — do not derive new work from these anchors".
+
+### When to revisit
+
+Re-open the artifact flow for the brand only when:
+
+- the brand needs a genuinely data-forward deliverable (launch announcement with concrete stats, changelog hero)
+- the user explicitly asks for an artifact/share-card treatment
+- a test pass shows the pattern-led or typographic directions cannot carry the specific message
+
+In all other cases, the retirement holds.
