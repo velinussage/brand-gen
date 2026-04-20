@@ -1,12 +1,19 @@
 # brand-gen
 
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Backend: Replicate](https://img.shields.io/badge/backend-Replicate-black.svg)](https://replicate.com)
+[![Agents: 7](https://img.shields.io/badge/agents-7%20specialists-orange.svg)](#agent-reference)
+
 > A multi-agent brand design system. You talk to your agent; it runs a team of specialists - philosopher, planner, critic, cinematographer, generator - through a planning-first pipeline with quality gates.
 
 brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of seven agents that share file-backed state (brand identity, design philosophy, custom scratchpad, iteration memory, learnings, design tokens) and call a local `bgen` runtime under the hood. The CLI exists, but it's the substrate the agents use - not the primary interface.
 
 Works with any agent host that has shell access: Claude Code, Pi, OpenClaw, MCP hosts, Codex, Cursor.
 
-![brand-gen generated x-feed launch card (v118, favorite, score 5)](docs/assets/example-v118-x-feed.jpg)
+A launch card the seven-agent pipeline produced from a one-sentence brief:
+
+![A launch card generated end-to-end by the brand-gen agent pipeline](docs/assets/example-v118-x-feed.jpg)
 
 ## The agent pipeline
 
@@ -44,6 +51,13 @@ pipeline re-enters with --source-version, learnings auto-applied
 
 The pipeline is planning-first and quality-gated: **no freehand generation before a plan is critiqued**. Agents communicate through shared files (plans, scratchpads, blackboard, iteration memory, custom scratchpad) rather than passing data in-memory.
 
+## Requirements
+
+- Python 3.11+
+- [Replicate API token](https://replicate.com/account/api-tokens) (image + video generation backend)
+- An agent host with shell access (Claude Code, Pi, Cursor, Codex, or any MCP host)
+- ~500 MB disk for a working brand workspace
+
 ## Install
 
 ```bash
@@ -54,8 +68,6 @@ python3 -m pip install -e .
 cp .env.example .env          # add your REPLICATE_API_TOKEN
 python3 scripts/validate_setup.py
 ```
-
-**Requirements:** Python 3.11+ and a [Replicate API token](https://replicate.com/account/api-tokens).
 
 ## Quick start - talk to your agent
 
@@ -285,12 +297,19 @@ If the brand has no `## Motion grammar` section in its `custom-scratchpad.md`, t
 
 ## Example output
 
-![brand-gen generated brand scene (v031, score 5 - rammed-earth reading room)](docs/assets/example-v031-brand-scene.jpg)
+A brand scene the pipeline produced after the philosopher established a "rammed-earth reading room" visual language:
+
+![A brand scene produced by the brand-gen agent pipeline](docs/assets/example-v031-brand-scene.jpg)
+
+## Getting help
+
+- Bug reports and feature requests: [github.com/velinussage/brand-gen/issues](https://github.com/velinussage/brand-gen/issues)
+- Security policy: [SECURITY.md](SECURITY.md)
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT
+[MIT](LICENSE) © brand-gen maintainers
