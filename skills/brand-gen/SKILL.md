@@ -524,6 +524,8 @@ Load these only when needed:
 - `references/design-philosophy-framework.md` — cultivating a design philosophy from source material
 - `references/design-tokens.md` — type scale math, palette scale math, WCAG algorithm, W3C DTCG file layout, smart font fallback pattern (fully self-contained, distilled from dylanfeltus/design-tokens + pbc-os/brand-identity + anthropics/brand-guidelines)
 - `references/seedance-shot-design.md` — English-only cinematography dictionary, director style library, 3-layer lighting, motion grammar, and seven-rule validation checklist (distilled from openclaw/seedance-shot-design)
+- `references/interview-protocol.md` — interview principles, seed capture format, coverage map, question format, elenchus technique, hard blocks (distilled from PeterSalvato/formwork + stympy/interview-me + wunki/amplify/interview). Used by brand-philosopher Step 3 and by the brand-interviewer agent.
+- `references/poetic-synthesis.md` — close reading, metaphor analysis, image/symbol extraction, sound and rhythm, silence, voice directive, metaphor-to-image bridge (distilled from majiayu000/poet-analyst + majiayu000/greek-philosopher). Used by brand-philosopher Step 2 (Synthesis) and Step 4 (Name the Movement).
 
 For models, surfaces, and file layout, load the companion skill:
 
