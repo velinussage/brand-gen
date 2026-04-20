@@ -165,3 +165,80 @@ def cmd_diff_design_memory(args):
     if args.output_json:
         cmd += ["--output-json", args.output_json]
     run_child_script(DESIGN_MEMORY_LITE_PY, cmd)
+
+
+def cmd_export_design_tokens(args):
+    """Generate design tokens from the active brand's identity and write them
+    in one of four formats: css, tailwind, json, or w3c.
+
+    Runs a WCAG audit before emitting and reports violations in the JSON
+    response. Errors abort the write unless --skip-audit is passed.
+    """
+    from ..design_tokens import build_tokens, wcag_audit, emit, EXPORTERS
+
+    brand_dir = get_brand_dir()
+    brand_dir.mkdir(parents=True, exist_ok=True)
+    profile_path, identity_path, profile, identity = load_brand_memory(
+        brand_dir, args.profile, args.identity
+    )
+
+    fmt = (args.output_format or "css").strip().lower()
+    if fmt not in EXPORTERS:
+        print(json.dumps({
+            "status": "error",
+            "error": f"unknown --output-format {fmt!r}; known: {sorted(EXPORTERS)}",
+        }, indent=2))
+        sys.exit(2)
+
+    tokens = build_tokens(identity or profile or {})
+    audit = wcag_audit(tokens)
+
+    if audit.errors and not getattr(args, "skip_audit", False):
+        print(json.dumps({
+            "status": "error",
+            "error": "WCAG audit failed — palette not shippable. Re-run with --skip-audit to override.",
+            "errors": audit.errors,
+            "warnings": audit.warnings,
+            "checks": audit.checks,
+        }, indent=2))
+        sys.exit(1)
+
+    output = emit(tokens, fmt)
+
+    default_ext = {"css": "css", "tailwind": "js", "json": "json", "w3c": "json"}[fmt]
+    default_name = f"design-tokens.{default_ext}"
+    out_path = Path(args.out).expanduser() if args.out else brand_dir / "design-tokens" / default_name
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(output)
+
+    response = {
+        "status": "ok" if audit.ok else "ok_with_warnings",
+        "format": fmt,
+        "output_path": str(out_path.resolve()),
+        "bytes_written": len(output),
+        "profile_path": str(profile_path) if profile_path else "",
+        "identity_path": str(identity_path) if identity_path else "",
+        "wcag": {
+            "ok": audit.ok,
+            "errors": audit.errors,
+            "warnings": audit.warnings,
+            "checks": audit.checks,
+        },
+        "tokens_summary": {
+            "palette_groups": [
+                k for k in (tokens.get("color") or {}).keys()
+                if k not in ("semantic", "semantic-dark")
+            ],
+            "font_size_steps": list((tokens.get("typography") or {}).get("fontSize", {}).keys()),
+            "spacing_steps": list((tokens.get("spacing") or {}).keys()),
+        },
+    }
+
+    if args.format == "json":
+        print(json.dumps(response, indent=2))
+    else:
+        print(f"Exported {fmt} design tokens → {out_path}")
+        print(f"  bytes: {len(output)}")
+        print(f"  wcag: {'pass' if audit.ok else 'warnings/errors'}")
+        for line in audit.report().splitlines():
+            print(f"  {line}")

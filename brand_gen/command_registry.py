@@ -7,11 +7,12 @@ from typing import Callable
 
 from .cli_builders import CliBuilder, build_cli_parser, get_cli_builder
 from .runtime import INSPIRE_URLS, RuntimeContext, list_material_types
-from .commands.generation import cmd_derive_mockup, cmd_derive_video, cmd_generate, cmd_generate_set, cmd_pipeline
+from .commands.generation import cmd_create_video, cmd_derive_mockup, cmd_derive_video, cmd_generate, cmd_generate_set, cmd_pipeline
 from .commands.generation import cmd_generate_once
 from .commands.identity import (
     cmd_build_identity,
     cmd_describe_brand,
+    cmd_export_design_tokens,
     cmd_extract_brand,
     cmd_extract_css_variables,
     cmd_diff_design_memory,
@@ -121,6 +122,7 @@ READ_ONLY_COMMANDS = {
     "parse-design-memory",
     "extract-css-variables",
     "diff-design-memory",
+    "export-design-tokens",
     "example-sources",
     "social-specs",
     "critique-rubric",
@@ -203,6 +205,7 @@ COMMAND_SPECS = [
     command_spec('parse-design-memory', cmd_parse_design_memory, 'Parse an existing .design-memory folder into a compact structured summary.'),
     command_spec('extract-css-variables', cmd_extract_css_variables, 'Extract CSS custom properties from .design-memory, CSS, HTML, or markdown files.'),
     command_spec('diff-design-memory', cmd_diff_design_memory, 'Compare two .design-memory folders to inspect token and doctrine drift.'),
+    command_spec('export-design-tokens', cmd_export_design_tokens, 'Export brand identity as production design tokens (css, tailwind, json, or w3c DTCG) with a WCAG audit.'),
     command_spec('extract-inspiration', cmd_extract_inspiration, 'Run built-in semantic extraction for curated inspiration sources.'),
     command_spec('consolidate-inspiration', cmd_consolidate_inspiration, 'Standalone inspiration-memory consolidation: remote per-image VLM analysis followed by local aggregation into reusable inspiration-memory artifacts.'),
     command_spec('inspiration-mode', cmd_inspiration_mode, 'Toggle whether inspiration tokens are injected in addition to principles.'),
@@ -238,6 +241,7 @@ COMMAND_SPECS = [
     command_spec('generate', cmd_generate, 'Generate a new brand material version from a generation scratchpad.', aliases=('gen','g')),
     command_spec('derive-mockup', cmd_derive_mockup, 'Derive a generated contextual mockup scene from an approved still version (not pixel-precise compositing).'),
     command_spec('derive-video', cmd_derive_video, 'Derive a short branded video from an approved still version.'),
+    command_spec('create-video', cmd_create_video, 'Create a long-form video end-to-end from a brief JSON: generates each shot via derive-video, stitches timeline segments into a single mp4, registers it in the manifest.'),
     command_spec('pipeline', cmd_pipeline, 'Run the generative pipeline in-process.', aliases=()),
     command_spec('feedback', cmd_feedback, 'Record feedback.', aliases=('fb','f')),
     command_spec('show', cmd_show, 'Show manifest.', aliases=('s',)),

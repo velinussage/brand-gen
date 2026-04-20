@@ -8,6 +8,26 @@ from ..run_ledger import append_run_event
 from ..session_summary import *
 from ..media_board import *
 from ..html_share_cards import execute_html_share_card_scratchpad
+from ..launch_producer import create_video as _launch_create_video
+
+
+def cmd_create_video(args):
+    """Create a full launch video end-to-end from a brief JSON.
+    The brief describes shots (source_version + motion prompt per shot) plus a
+    timeline (video_tag or image segments with durations). Borrows derive-video's
+    scratchpad infrastructure for each shot, then ffmpeg-stitches into one mp4.
+    """
+    brief_path = Path(getattr(args, "brief", "") or "").expanduser().resolve()
+    if not brief_path.exists():
+        raise SystemExit(f"brief not found: {brief_path}")
+    result = _launch_create_video(brief_path, verbose=True)
+    if getattr(args, "format", "text") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"\nLaunch video ready: {result['output_path']}")
+    print(f"  version_id: {result['version_id']}")
+    print(f"  duration:   ~{result['timeline_length']:.1f}s")
+    print(f"  shots:      {', '.join(result['shots'])}")
 
 def _build_derived_video_prompt(source_version: str, source_entry: dict, sidecar: dict, material_type: str) -> str:
     seed = (

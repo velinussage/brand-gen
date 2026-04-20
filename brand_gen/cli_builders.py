@@ -234,6 +234,27 @@ def build_diff_design_memory_cli(parser: argparse.ArgumentParser, *, inspire_url
     parser.add_argument("--output-json", help="Optional output path for the diff report")
 
 
+def build_export_design_tokens_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--output-format",
+        choices=["css", "tailwind", "json", "w3c"],
+        default="css",
+        help="Target format for the exported design tokens",
+    )
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument(
+        "--out",
+        help="Optional output file path (default: <brand-dir>/design-tokens/design-tokens.{ext})",
+    )
+    parser.add_argument(
+        "--skip-audit",
+        action="store_true",
+        help="Emit tokens even if the WCAG AA audit surfaces errors",
+    )
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_extract_inspiration_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--category", help="Filter by category key")
     parser.add_argument("--source", action="append", help="Specific inspiration source key; repeat as needed")
@@ -551,6 +572,11 @@ def build_generate_once_cli(parser: argparse.ArgumentParser, *, inspire_urls: di
     parser.add_argument("--open", action="store_true", help="Open the generated image after creation")
 
 
+def build_create_video_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brief", required=True, help="Path to launch-video brief JSON (shots + timeline)")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_derive_video_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--source-version", required=True, help="Approved still version to animate (e.g. v012)")
     parser.add_argument("--material-type", choices=["short-video", "feature-animation", "motion-loop"], default="short-video")
@@ -769,6 +795,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'parse-design-memory': build_parse_design_memory_cli,
     'extract-css-variables': build_extract_css_variables_cli,
     'diff-design-memory': build_diff_design_memory_cli,
+    'export-design-tokens': build_export_design_tokens_cli,
     'extract-inspiration': build_extract_inspiration_cli,
     'consolidate-inspiration': build_consolidate_inspiration_cli,
     'inspiration-mode': build_inspiration_mode_cli,
@@ -800,6 +827,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'generate': build_generate_cli,
     'derive-mockup': build_derive_mockup_cli,
     'derive-video': build_derive_video_cli,
+    'create-video': build_create_video_cli,
     'critique-rubric': build_critique_rubric_cli,
     'submit-critique': build_submit_critique_cli,
     'pipeline': build_pipeline_cli,

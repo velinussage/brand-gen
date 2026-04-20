@@ -102,9 +102,29 @@ or you are in a disposable testing session. Then continue with the rest of Phase
    - `modelPreferences` entries matching the requested material_type
    - `styleReferencePolicies` entries matching the requested material_type or adjacent family
 
+3b. **Read the custom scratchpad:**
+    ```bash
+    cat .brand-gen/brands/<active>/custom-scratchpad.md 2>/dev/null
+    cat .brand-gen/brands/<active>/custom-scratchpad.json 2>/dev/null
+    ```
+    The scratchpad is auto-injected into the prompt prelude and auto-applied to model selection by the pipeline itself — you do not need to pass these values through flags. But you should still surface them to downstream agents:
+    - `custom-scratchpad.json.model_overrides_by_material[<type>]` takes precedence over learnings for model + mode.
+    - `custom-scratchpad.json.forbidden_patterns[]` are hard bans — mirror them into your `--ban` flag so the planner sees them.
+    - `custom-scratchpad.md` holds motion grammar for video materials — if the target is a video material and no `## Motion grammar` section exists, delegate to `brand-philosopher` with mode=refine and direction hint `"establish motion grammar"` before proceeding.
+
    Apply winning setups (mode, model preferences). If a style-reference policy says a
    specific prior version is the mandatory style carrier, keep that version explicitly
    in the plan even when the concept changes.
+
+3c. **Audit design tokens and WCAG contrast:**
+    ```bash
+    source .venv/bin/activate && bgen export-design-tokens --format json --skip-audit
+    ```
+    This reads `brand-identity.json` and emits a W3C-compatible token export alongside a full WCAG audit under `.wcag.checks[]`. Read the response:
+    - If `.wcag.errors` is non-empty, the brand's color system fails AA on at least one critical combo (text on bg, text-muted on bg, primary-button-text on primary). **Stop and delegate to `brand-philosopher` with direction hint `"fix WCAG AA failures in identity.json"` before generating.** The philosopher owns adjusting the palette.
+    - If `.wcag.warnings` is non-empty (primary on white, border on bg), surface them in the Phase 2 plan handoff so the critic can weigh them against the design intent.
+    - The written tokens file at `.output_path` is used by the HTML share-card path and by any downstream theming. It's idempotent — safe to re-run every orchestration pass.
+    The full reference is at `skills/brand-gen/references/design-tokens.md` — load when you need to explain a WCAG failure to the philosopher or user.
 
 4. **Suggest role pack** (get composition references):
    ```bash

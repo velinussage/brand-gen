@@ -41,6 +41,8 @@ skills/**/SKILL.local.md
 # Local Pi/session/workspace state
 .pi/subagents/sessions/
 brands/
+# Explicit brand-specific local workspaces / decks (already covered by brands/)
+brands/sage/
 inspiration/
 sources/
 config.json
@@ -59,3 +61,6 @@ IMPROVEMENT-PLAN.md
 
 # Pi subagent session logs
 .pi/subagents/
+
+# Third-party skills installed via `gh skill install` (upstream packages, not part of brand-gen)
+.agents/

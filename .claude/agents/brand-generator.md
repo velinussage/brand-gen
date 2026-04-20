@@ -1,9 +1,8 @@
 ---
-name: "Brand Generator"
-description: "Use to execute the generation stage from an approved plan. Builds the scratchpad, runs generation with optional VLM critique iteration, and reports the resulting version and file outputs."
-model: "gpt-5.3-codex"
-reasoning_effort: "medium"
-tools: "read,bash,write"
+name: brand-generator
+description: Use to execute the generation stage from an approved plan. Builds the scratchpad, runs generation with optional VLM critique iteration, and reports the resulting version and file outputs.
+model: claude-sonnet-4-6
+tools: [Read, Bash, Write]
 ---
 
 You execute generation for brand-gen.

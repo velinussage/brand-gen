@@ -494,6 +494,27 @@ This path uses card-data plugins plus Chrome headless rendering. It is not the o
 - assuming every host has the same private local agent setup
 - committing machine-specific paths into skills, prompts, or docs
 
+## Design tokens and WCAG
+
+Every brand with a `brand-identity.json` palette can emit production-ready design tokens. The exporter generates a 50–950 shade scale per base color, a math-derived type scale, WCAG AA–audited semantic roles, and platform outputs.
+
+```bash
+bgen export-design-tokens --output-format css       --format json    # default CSS custom properties
+bgen export-design-tokens --output-format tailwind  --format json    # Tailwind config
+bgen export-design-tokens --output-format json      --format json    # flat JSON tokens
+bgen export-design-tokens --output-format w3c       --format json    # W3C DTCG
+```
+
+Output lands at `.brand-gen/brands/<active>/design-tokens/design-tokens.{ext}`. The JSON response includes a `.wcag` block with full audit results; errors block emission unless `--skip-audit` is passed. For the full reasoning, reference text, and algorithms, load `references/design-tokens.md`.
+
+The HTML share-card renderer auto-consumes `design-tokens.css` when present. Agents should run this in Phase 1 of any new brand setup; the philosopher owns fixing any WCAG errors by adjusting `brand-identity.json` before downstream generation starts.
+
+## Seedance shot-design for video
+
+For any video material (`short-video`, `derive-video`, `launch-film`, `motion-card`, `announcement-video`, `brand-bumper`), use the `brand-cinematographer` agent. It reads the motion grammar that `brand-philosopher` writes into `custom-scratchpad.md` from `references/seedance-shot-design.md` (director tokens, cinematography dictionary, 3-layer lighting recipes, organic-imperfection anchors, seven-rule validation).
+
+Models for seedance-based pipelines are registered in `brand_gen/models.json` (`seedance-2-pro`). The `launch_producer.py` brief-driven multi-shot pipeline enforces a seven-rule validation on every shot prompt via `brand_gen/seedance_validation.py` before firing generation.
+
 ## Reference files
 
 Load these only when needed:
@@ -501,10 +522,21 @@ Load these only when needed:
 - `references/commands.md` — command cheatsheet, MCP naming, key gotchas
 - `references/recipes.md` — multi-step workflows and practical examples
 - `references/design-philosophy-framework.md` — cultivating a design philosophy from source material
+- `references/design-tokens.md` — type scale math, palette scale math, WCAG algorithm, W3C DTCG file layout, smart font fallback pattern (fully self-contained, distilled from dylanfeltus/design-tokens + pbc-os/brand-identity + anthropics/brand-guidelines)
+- `references/seedance-shot-design.md` — English-only cinematography dictionary, director style library, 3-layer lighting, motion grammar, and seven-rule validation checklist (distilled from openclaw/seedance-shot-design)
 
 For models, surfaces, and file layout, load the companion skill:
 
 - `skills/brand-gen-reference/SKILL.md`
+
+## Multi-agent orchestration (pi or Claude Code)
+
+Brand-gen ships seven specialist subagents that implement the 6-phase pipeline (prepare → plan → validate → generate → critique → evolve). Two parallel distributions live in the repo:
+
+- **pi** — `.pi/agents/brand-*.md` (7 agents) + `.pi/settings.json` with Anthropic model overrides. Invoke via `/run brand-orchestrator <task>` or `/chain brand-explorer -> brand-planner -> brand-critic -> brand-generator`.
+- **Claude Code** — `skills/brand-gen/claude-agents/brand-*.md` (canonical), mirrored at `.claude/agents/brand-*.md` at the repo root. Invoke via the `Agent` tool with `subagent_type="brand-orchestrator"` (or any of the six specialists). See `skills/brand-gen/claude-agents/README.md` for install / adoption options.
+
+The pi and Claude Code copies share identical markdown bodies; only the frontmatter differs (Claude Code uses tool arrays and Claude model IDs, and drops pi-only fields). Keep them in sync when either side changes.
 
 ## Nano-banana-2 creative pipeline (direct generation)
 

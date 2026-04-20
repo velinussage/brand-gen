@@ -144,10 +144,13 @@ def summarize_identity(profile: dict, identity: dict) -> dict:
     guardrails = identity.get("generation_guardrails") or {}
     material_prompt_snippets = ((identity.get("generation_guardrails") or {}).get("material_prompt_snippets") or profile.get("material_prompt_snippets") or {})
     material_set_templates = identity.get("material_set_templates") or {}
+    messaging = identity.get("messaging") or {}
     return {
         "brand_name": brand.get("name") or profile.get("brand_name") or "",
         "summary": brand.get("summary") or profile.get("description") or "",
         "homepage_url": brand.get("homepage_url") or profile.get("homepage_url") or "",
+        "approved_claims": [str(item).strip() for item in (messaging.get("approved_claims") or []) if str(item).strip()],
+        "forbidden_claims": [str(item).strip() for item in (messaging.get("forbidden_claims") or []) if str(item).strip()],
         "tone_words": identity_core.get("tone_words") or profile.get("keywords") or [],
         "brand_anchors": identity_core.get("brand_anchors") or profile.get("logo_candidates") or [],
         "palette_direction": must_preserve.get("palette_direction") or profile.get("color_candidates") or [],
@@ -246,6 +249,11 @@ def derive_copy_candidates(profile: dict, identity: dict, material_type: str, go
     if copy_notes:
         messaging_context["copy_notes"] = copy_notes[-3:]
 
+    forbidden_claims = [str(item).strip() for item in (messaging.get("forbidden_claims") or []) if str(item).strip()]
+    approved_claims = [str(item).strip() for item in (messaging.get("approved_claims") or []) if str(item).strip()]
+    if approved_claims:
+        subheads = dedupe_keep_order(approved_claims + subheads)
+
     return {
         "brand_name": brand_name,
         "material_type": material_type,
@@ -254,9 +262,11 @@ def derive_copy_candidates(profile: dict, identity: dict, material_type: str, go
         "messaging": messaging_context,
         "headlines": hooks[:8],
         "slogans": slogans[:8],
-        "subheadlines": subheads[:6],
+        "subheadlines": subheads[:8],
         "cta_pairs": ctas,
         "visual_angles": visual_angles,
+        "approved_claims": approved_claims[:8],
+        "forbidden_claims": forbidden_claims[:8],
         "anti_patterns": list(_copy_defaults.get("anti_patterns", [
             "screenshot-only composition with no brand copy",
             "headline text invented by the image model",

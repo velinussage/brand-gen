@@ -8,6 +8,7 @@ import sys
 import time
 
 from .critique_policy import build_critique_policy, normalize_critique_policy
+from .custom_scratchpad import resolve_model_override as _resolve_custom_scratchpad_model_override
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
 from .iteration_memory import (
     add_iteration_note,
@@ -296,6 +297,16 @@ def assemble_generation_scratchpad(
 
     blocking_issues: list[str] = []
     warnings: list[str] = []
+    _identity_messaging = (identity_data or {}).get("messaging") or {}
+    _forbidden_claims = [str(item).strip() for item in (_identity_messaging.get("forbidden_claims") or []) if str(item).strip()]
+    if _forbidden_claims and raw_prompt:
+        _lowered_prompt = raw_prompt.lower()
+        for _claim in _forbidden_claims:
+            _needle = _claim.lower()
+            if _needle and _needle in _lowered_prompt:
+                blocking_issues.append(
+                    f"Prompt contains a forbidden messaging claim: '{_claim}'. Remove or rephrase before generating."
+                )
     if base_image_role_added:
         warnings.append("Base image auto-registered as a `product_truth` reference so reference analysis and QA can see the carrier proof.")
     if workflow_mode == "reference" and not reference_paths and not mode_requested_explicitly:
@@ -368,7 +379,14 @@ def assemble_generation_scratchpad(
 
     base_image = getattr(args, "base_image", None) or ""
     render_backend = "html" if str(getattr(args, "render_backend", None) or "").strip().lower() == "html" else "native"
-    model = _source_critique_model_rec or args.model or resolve_default_model(
+    _custom_override = _resolve_custom_scratchpad_model_override(brand_dir, material_type)
+    _custom_model = _custom_override.get("model") if not args.model else None
+    if _custom_override.get("mode") and not mode_requested_explicitly:
+        workflow_mode = resolve_workflow_mode(_custom_override["mode"], reference_paths)
+        warnings.append(
+            f"Custom scratchpad override: mode forced to '{_custom_override['mode']}' for material '{material_type}'."
+        )
+    model = _source_critique_model_rec or args.model or _custom_model or resolve_default_model(
         material_type,
         generation_mode,
         workflow_mode,
@@ -377,6 +395,10 @@ def assemble_generation_scratchpad(
         has_motion_reference=bool(motion_reference),
         has_base_image=bool(base_image),
     )
+    if _custom_model and model == _custom_model:
+        warnings.append(
+            f"Custom scratchpad override: model set to '{model}' for material '{material_type}'."
+        )
     model_config = MODELS.get(generation_mode, {}).get(model)
     if not model_config:
         blocking_issues.append(f"Model '{model}' is not available for {generation_mode} generation.")
