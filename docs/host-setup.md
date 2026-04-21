@@ -1,169 +1,125 @@
-# Host setup
+# Host setup — typed runtime across Claude Code, Pi, and OpenClaw
 
-brand-gen works with any agent that can run shell commands. Host-specific plugins add convenience (widgets, heartbeats, MCP bridges) but are not required.
+Phase 5 of the typed-agentic-runtime refactor consolidated all three hosts (Claude Code subagents, Pi plugin, OpenClaw plugin) onto the same ≤25-verb typed tool surface. This doc is the architecture reference.
 
-## Any agent (skill files only)
+## Architecture
 
-Tell your agent to read the skill files:
-
-```text
-Read these skill files and follow them for brand material work:
-- skills/brand-gen-setup/SKILL.md (first-time only)
-- skills/brand-gen/SKILL.md (workspace + workflow)
-- skills/brand-gen-orchestration/SKILL.md (generation pipeline)
-
-Start by running: bgen context-snapshot --format json
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Hosts (thin adapters, ≤150 LoC each)                           │
+│                                                                 │
+│  Claude Code subagent  │  Pi plugin        │  OpenClaw plugin   │
+│  (.claude/agents/*.md) │  (pi-brand-gen)   │  (openclaw-*)      │
+│                                                                 │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ same 25 typed tools
+┌──────────────────────┴──────────────────────────────────────────┐
+│                                                                 │
+│  Canonical tool registry                                        │
+│    packages/brand-gen-core/src/tool-registry.ts                 │
+│    → CANONICAL_TOOLS (25 entries: 7 orchestration, 9 mutation,  │
+│      7 inspection, 2 feedback)                                  │
+│                                                                 │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ callJsonTool dispatch via MCP stdio
+┌──────────────────────┴──────────────────────────────────────────┐
+│                                                                 │
+│  Python MCP bridge (brand_gen/)                                 │
+│    brand_gen/mcp_bridge_registry.py                             │
+│    → BRIDGE_BY_TOOL (same 25 tool_names + schemas)              │
+│                                                                 │
+│  Per-agent allowlist                                            │
+│    brand_gen/agent_specialization.py                            │
+│    → 9 agents × canonical-tool subsets                          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-This works on Claude Code, Codex, OpenClaw, Cursor, or any agent with shell access.
+All three hosts expose the same tool names. The Python bridge is the single execution path. The typed tool schema is the contract.
+
+## What each host does
+
+- **Claude Code subagent**: an `.md` file in `.claude/agents/` with `tools: [...]` frontmatter listing the agent's canonical allowlist. The agent calls tools; it does not run bash sequences. Claude Code auto-registers the MCP server declared in `.mcp.json` (or the session config).
+- **Pi plugin** (`packages/pi-brand-gen`): at plugin startup, `createCanonicalBrandTools(bridge, config)` registers all 25 canonical tools plus three compatibility shims (`brand_search`, `brand_execute`, `brand_status`). Context injection and heartbeat logic live in `packages/brand-gen-core`.
+- **OpenClaw plugin** (`packages/openclaw-brand-gen`): same canonical registration pattern; OpenClaw's tool execute signature is `(toolCallId, params) → result` vs Pi's `(args) → result`, so there's a small adapter but the tool name + schema identical.
+
+## Setting up a new host (≤100 lines of adapter code)
+
+Any agent host with shell access can plug in. The adapter must:
+
+1. Spawn the brand-gen MCP server: `python -m brand_gen.brand_iterate_mcp` (stdio transport).
+2. Call `generateHostTools(bridge, config)` from `packages/brand-gen-core/src/tool-registry.ts` at startup.
+3. Register each returned `HostToolDefinition` with the host's native tool-registration API.
+4. (Optional) Call `buildBrandGenContext(bridge, config)` to prepend workspace context to every agent prompt.
+5. (Optional) Schedule `runHeartbeatCycle` on the interval the host supports.
+
+That's the whole contract. No business logic in the adapter.
+
+## Claude Code agent markdown contract
+
+Every `.claude/agents/brand-*.md` file:
+
+- Has a `tools:` frontmatter field listing only canonical tool names from `brand_gen/agent_specialization.py::AGENT_SPECIALIZATIONS`.
+- Describes the agent's specialization + stop-reason handling in ≤80 lines.
+- Does **not** contain procedural `bgen` bash sequences. The tool surface IS the contract.
+- Does **not** instruct the agent to edit JSON or markdown files directly. Every mutation goes through a typed tool.
+
+Mirrors live at `.pi/agents/` (Pi-flavored frontmatter: `model: "gpt-5.3-codex"`) and `skills/brand-gen/claude-agents/` (distribution mirror). The orchestrator markdown is byte-equivalent across the `.claude/` and `skills/` mirrors; the Pi mirror differs only in frontmatter.
+
+## Per-agent tool allowlists
+
+Declared once in `brand_gen/agent_specialization.py`:
+
+| Agent | Tools granted |
+|---|---|
+| `brand-orchestrator` | Full 7 orchestration + inspection + critic mutations |
+| `brand-explorer` | 7 inspection verbs (read-only) |
+| `brand-router` | 7 inspection verbs (read-only) |
+| `brand-planner` | `brand_plan_run`, `brand_validate_run`, 7 inspection verbs |
+| `brand-critic` | `brand_validate_run`, `brand_review_run`, 7 inspection verbs, 5 critic mutations |
+| `brand-generator` | `brand_execute_run`, 4 inspection verbs |
+| `brand-philosopher` | 5 philosopher mutations + 7 inspection verbs |
+| `brand-cinematographer` | `brand_execute_run`, `brand_set_motion_grammar`, 4 inspection verbs |
+| `brand-interviewer` | 4 interview mutations + `brand_capabilities` |
+
+Adding a new tool to an agent: edit `AGENT_SPECIALIZATIONS` in `agent_specialization.py`, re-sync the three markdown mirrors, and run `tests/test_host_consistency.py`.
+
+## Adding a new tool to the canonical surface
+
+1. Add the CLI command in `brand_gen/commands/` with a typed response.
+2. Register the bridge in `brand_gen/mcp_bridge_registry.py`.
+3. Append to `CANONICAL_TOOLS` in `packages/brand-gen-core/src/tool-registry.ts`.
+4. If specific agents need it, add to their `canonical_tools` tuple in `agent_specialization.py`.
+5. Run `tests/test_mcp_schema_parity.py` + `tests/test_host_consistency.py` — both must pass.
+
+That's the whole surface-extension procedure. No per-host code changes needed.
+
+## Testing
+
+- `tests/test_mcp_schema_parity.py` — asserts TS canonical list ↔ Python bridges are in sync.
+- `tests/test_host_consistency.py` — asserts every agent specialization's tools are in the canonical list, every agent has a markdown file in all three mirrors, and the orchestrator contract is byte-equivalent between `.claude/agents/` and `skills/brand-gen/claude-agents/` (the Pi mirror differs only in frontmatter).
+
+## Rollback path
+
+If a new tool misbehaves on one host but not others, the blast radius is the tool's own CLI handler in `brand_gen/commands/` — the host adapters pass arguments verbatim. Revert the CLI change; all three hosts recover simultaneously.
+
+## Legacy bash-based usage
+
+Any agent with shell access can still fall back to raw `bgen` commands (the 82-command CLI surface remains available). Example:
+
+```text
+Read skills/brand-gen/SKILL.md and follow it for brand material work.
+Start by running: source .venv/bin/activate && bgen context-snapshot --format json
+```
+
+This works with older agent setups or when the MCP server can't be started. However, the preferred path for any new integration is the typed tool surface above — agents are more reliable when they navigate capabilities instead of scripting shell sequences.
 
 ## MCP server
 
-Run the MCP server as stdio:
+For hosts that want a direct tool surface over stdio:
 
 ```bash
 python3 -m brand_gen.brand_iterate_mcp
 ```
 
-Most tools are exposed with a `brand_` prefix:
-
-- `bgen show-session-summary` → `brand_show_session_summary`
-- `bgen plan-material` → `brand_plan_material`
-- `bgen feedback` → `brand_feedback`
-
-See [mcp-reference.md](mcp-reference.md) for naming rules and custom MCP-only tools.
-
-## Claude Code
-
-Copy skills into Claude's skill directory and register the MCP server:
-
-```bash
-cp -r skills/brand-gen-setup/ ~/.claude/skills/brand-gen-setup/
-cp -r skills/brand-gen/ ~/.claude/skills/brand-gen/
-cp -r skills/brand-gen-reference/ ~/.claude/skills/brand-gen-reference/
-cp -r skills/brand-gen-logo/ ~/.claude/skills/brand-gen-logo/
-cp -r skills/brand-content-ideation/ ~/.claude/skills/brand-content-ideation/
-cp -r skills/brand-gen-orchestration/ ~/.claude/skills/brand-gen-orchestration/
-
-claude mcp add brand-gen -- python3 -m brand_gen.brand_iterate_mcp
-```
-
-Or add the MCP server manually to Claude's config:
-
-```json
-{
-  "mcpServers": {
-    "brand-gen": {
-      "command": "python3",
-      "args": ["-m", "brand_gen.brand_iterate_mcp"],
-      "cwd": "/absolute/path/to/brand-gen"
-    }
-  }
-}
-```
-
-## Pi
-
-The tracked Pi integration lives in [`packages/pi-brand-gen/`](../packages/pi-brand-gen/README.md).
-
-### Install Pi
-
-Follow the [Pi quickstart](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/README.md):
-
-```bash
-npm install -g @mariozechner/pi-coding-agent
-export ANTHROPIC_API_KEY=sk-ant-...
-pi
-```
-
-### Build the extension
-
-```bash
-cd packages/pi-brand-gen
-npm install
-npm run typecheck
-```
-
-### Register and verify
-
-Point Pi at the local extension directory, then:
-
-```text
-/brand-gen status
-/brand-gen brands
-/brand-gen summary
-```
-
-Config example:
-
-```json
-{
-  "brandGenDir": "~/.brand-gen",
-  "approvalMode": "output_only",
-  "heartbeatIntervalMinutes": 60,
-  "autoHeartbeat": true
-}
-```
-
-`brandIterateMcpPath` is optional for a normal repo checkout. The extension auto-detects `<repo>/brand_gen/brand_iterate_mcp.py`. Only set it if your layout is unusual.
-
-The extension prefers the repo-local venv when it exists:
-
-```text
-<repo>/.venv/bin/python <repo>/brand_gen/brand_iterate_mcp.py
-```
-
-### Pi commands
-
-```text
-/brand-gen brands           # list saved brands
-/brand-gen switch <brand>   # activate a brand
-/brand-gen generate x-feed Launch announcement
-```
-
-For the intended Pi subagent workflow, see the README's [Pi agent process spec](../README.md#pi-agent-process-spec). The short version: use `brand-orchestrator` as the entry point and keep the staged order `explorer -> router -> planner -> critic -> generator -> critic`.
-
-Creating brands is CLI-first today: `bgen create-brand ...` or `bgen start-testing ...`.
-
-## OpenClaw
-
-The tracked OpenClaw integration lives in [`packages/openclaw-brand-gen/`](../packages/openclaw-brand-gen/README.md).
-
-```bash
-cd packages/openclaw-brand-gen
-npm install
-npm run typecheck
-```
-
-Then add the plugin to your OpenClaw config and point it at the brand-gen backend.
-
-**Skills-only (no plugin):**
-
-```yaml
-skills:
-  paths:
-    - /path/to/brand-gen/skills/brand-gen-setup
-    - /path/to/brand-gen/skills/brand-gen
-    - /path/to/brand-gen/skills/brand-gen-orchestration
-    - /path/to/brand-gen/skills/brand-gen-reference
-```
-
-## Environment and workspace notes
-
-- The repo-local `.env` is the preferred configuration source.
-- Set `BRAND_GEN_DIR` if you want durable state outside the repo checkout.
-- Pi and OpenClaw integrations use their own `brandGenDir` plugin config, typically a shared root such as `~/.brand-gen`.
-
-## Local configuration
-
-Pi agents need a `.brand-gen-local.json` file at the repo root for machine-specific paths. This file is created automatically during setup.
-
-```bash
-cp .brand-gen-local.json.example .brand-gen-local.json
-```
-
-Fields:
-- `repo_root` — absolute path to the brand-gen checkout (auto-detected)
-- `vault_paths` — optional Obsidian vault or brand docs folders
-
-This file is gitignored.
+Exposes all 82 bridged commands (for backward compatibility) plus the 25 canonical verbs as native MCP tools.
