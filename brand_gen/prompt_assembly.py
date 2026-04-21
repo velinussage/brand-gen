@@ -141,6 +141,15 @@ def build_effective_prompt(
     source_url: str | None = None,
     entity_type: str | None = None,
     selected_surface_strategy: str | None = None,
+    aesthetic_archetype: dict | None = None,
+    prompt_subject: str | None = None,
+    prompt_style_descriptors: str | None = None,
+    prompt_lighting: str | None = None,
+    prompt_camera: str | None = None,
+    prompt_composition: str | None = None,
+    prompt_details: str | None = None,
+    visual_density: int | str | None = None,
+    aesthetic_commitment: str | None = None,
 ) -> dict:
     reference_analysis = reference_analysis or {}
     analysis_mode = reference_analysis_mode(reference_analysis)
@@ -389,6 +398,16 @@ def build_effective_prompt(
         "selected_mechanic_labels": list(selected_mechanic_labels or []),
         "inspiration_selection_reason": resolved_inspiration_selection_reason,
         "inspiration_selection_mode": resolved_inspiration_selection_mode,
+        "aesthetic_archetype": aesthetic_archetype if isinstance(aesthetic_archetype, dict) else None,
+        "aesthetic_archetype_id": (aesthetic_archetype.get("id") if isinstance(aesthetic_archetype, dict) else ""),
+        "prompt_subject": (prompt_subject or "").strip(),
+        "prompt_style_descriptors": (prompt_style_descriptors or "").strip(),
+        "prompt_lighting": (prompt_lighting or "").strip(),
+        "prompt_camera": (prompt_camera or "").strip(),
+        "prompt_composition": (prompt_composition or "").strip(),
+        "prompt_details": (prompt_details or "").strip(),
+        "visual_density": visual_density if visual_density not in (None, "") else None,
+        "aesthetic_commitment": (aesthetic_commitment or "").strip(),
         "token_block": token_block,
         "token_block_fragments": inspiration.get("token_block_fragments", []),
         "resolved_prompt": resolved,
@@ -718,6 +737,129 @@ _OVERLAY_AXIS_PUSH_CLAUSES = {
 }
 
 
+def compact_execution_aesthetic_commitment(context: dict) -> str:
+    """Render the plan's aesthetic_commitment as a compositional directive.
+
+    The planner commits to ONE axis extreme (minimal, maximal,
+    editorial, brutalist, organic, industrial, retro_futurist,
+    playful, luxury). The prompt surfaces the commitment's grammar
+    so the model's aesthetic interpretation is anchored rather than
+    averaged across hedge-words.
+    """
+    from .plan_validation import aesthetic_commitment_grammar
+
+    commitment = context.get("aesthetic_commitment")
+    grammar = aesthetic_commitment_grammar(commitment)
+    if not grammar:
+        return ""
+    return f"Aesthetic commitment ({commitment}): {grammar}"
+
+
+def compact_execution_visual_density(context: dict) -> str:
+    """Render the plan's visual_density as a compositional directive.
+
+    visual_density is the SPATIAL dial (airy vs packed) — orthogonal to
+    complexity_tier (which caps named-element count). This helper emits
+    a short directive per band so the model has explicit spacing
+    language instead of inferring from prose mood words.
+
+    Returns empty string when density is absent or at the neutral
+    default, so the typical case adds no prompt-budget cost.
+    """
+    from .plan_validation import normalize_visual_density, visual_density_grammar
+
+    raw = context.get("visual_density")
+    if raw is None or raw == "":
+        return ""
+    density = normalize_visual_density(raw)
+    # Only surface the directive when the planner chose a non-default
+    # band — band 4 and 5 render the same "daily-app" grammar, so don't
+    # bloat the prompt unless the user explicitly pushed to an extreme.
+    if 4 <= density <= 5:
+        return ""
+    return f"Visual density (dial {density}/10): {visual_density_grammar(density)}"
+
+
+def compact_execution_five_slot_brief(context: dict) -> str:
+    """Render the 5-slot prompt template (Subject + Style + Lighting +
+    Composition + Details) from explicit plan fields when the planner
+    supplied them.
+
+    Rationale (from imagevideogen skill): image models respond to explicit,
+    concrete slots ("Kodak Portra 400 film grain", "golden hour backlight",
+    "85mm portrait lens") far better than to prose mood words ("warm",
+    "editorial", "premium"). When the planner declares these slots, render
+    them as a dedicated directive block in the execution prompt.
+
+    Returns empty string when none of the slots are populated. The plan
+    keeps these slots OPTIONAL (the archetype library already provides
+    good defaults) but when the planner fills them, they override.
+    """
+    subject = (context.get("prompt_subject") or "").strip()
+    style = (context.get("prompt_style_descriptors") or "").strip()
+    lighting = (context.get("prompt_lighting") or "").strip()
+    camera = (context.get("prompt_camera") or "").strip()
+    details = (context.get("prompt_details") or "").strip()
+    # Composition may be either an explicit string or inferred from the
+    # surface strategy. Prefer the explicit field when set.
+    composition = (context.get("prompt_composition") or context.get("selected_surface_strategy_prompt_directive") or "").strip()
+    parts: list[str] = []
+    if subject:
+        parts.append(f"Subject: {subject}")
+    if style:
+        parts.append(f"Style: {style}")
+    if lighting or camera:
+        lens_part = ", ".join(p for p in (lighting, camera) if p)
+        parts.append(f"Lighting + camera: {lens_part}")
+    if composition:
+        parts.append(f"Composition: {composition}")
+    if details:
+        parts.append(f"Details: {details}")
+    if not parts:
+        return ""
+    return "Five-slot brief — " + " | ".join(parts) + "."
+
+
+def compact_execution_aesthetic_archetype(
+    context: dict,
+    material_type: str | None,
+) -> str:
+    """Render the chosen aesthetic archetype as a compositional directive.
+
+    The planner selects an archetype per run (rotating through the material's
+    set — see brand_gen.aesthetic_archetypes.pick_rotating_archetype) and
+    persists the choice on the plan under `aesthetic_archetype` (either the
+    full dict or just the id). This helper materializes it into the prompt
+    so the model has concrete handholds (grammar + color + finish) instead
+    of the mood words that produced v181/v182-style generic output.
+
+    Returns empty string when no archetype is on the plan or the material
+    has no archetype library declared.
+    """
+    from .aesthetic_archetypes import (
+        get_archetype,
+        list_archetypes,
+        render_archetype_brief,
+    )
+
+    archetype = context.get("aesthetic_archetype")
+    archetype_id = context.get("aesthetic_archetype_id") or (
+        archetype.get("id") if isinstance(archetype, dict) else None
+    )
+    if isinstance(archetype, dict) and archetype.get("compositional_grammar"):
+        return render_archetype_brief(archetype)
+    if archetype_id:
+        found = get_archetype(material_type, archetype_id)
+        if found:
+            return render_archetype_brief(found)
+    # No explicit pick; fall back to the first archetype if the library has
+    # one for this material so the prompt is never completely unopinionated.
+    candidates = list_archetypes(material_type)
+    if candidates:
+        return render_archetype_brief(candidates[0])
+    return ""
+
+
 def compact_execution_rubric_overlay_push(material_type: str | None) -> str:
     """Emit a compact 'Prove axes:' clause for the material's v2 overlay axes.
 
@@ -781,6 +923,10 @@ def build_execution_prompt(
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
+        "aesthetic_commitment_block": compact_execution_aesthetic_commitment(context),
+        "five_slot_brief": compact_execution_five_slot_brief(context),
+        "visual_density_block": compact_execution_visual_density(context),
+        "aesthetic_archetype_block": compact_execution_aesthetic_archetype(context, material_type),
         "rubric_overlay_push": compact_execution_rubric_overlay_push(material_type),
         "critical_bans": compact_execution_critical_bans(context, material_key),
         "explicit_copy_rule": compact_execution_copy_rule(context),
@@ -793,6 +939,10 @@ def build_execution_prompt(
         sections["brand_anchor_rule"],
         sections["role_pack_block"],
         sections["selected_inspiration_block"],
+        sections["aesthetic_commitment_block"],
+        sections["five_slot_brief"],
+        sections["visual_density_block"],
+        sections["aesthetic_archetype_block"],
         sections["rubric_overlay_push"],
         sections["critical_bans"],
         sections["explicit_copy_rule"],

@@ -26,6 +26,11 @@ __all__ = [
     "plan_has_text_ban",
     "normalize_complexity_tier",
     "complexity_tier_enumeration_min_items",
+    "normalize_visual_density",
+    "visual_density_grammar",
+    "AESTHETIC_COMMITMENTS",
+    "normalize_aesthetic_commitment",
+    "aesthetic_commitment_grammar",
 ]
 
 # Complexity tier controls how many named elements the brief may carry.
@@ -74,6 +79,141 @@ def complexity_tier_enumeration_min_items(tier: str) -> int:
     detector tolerates longer lists.
     """
     return _COMPLEXITY_TIER_THRESHOLDS.get(tier, _COMPLEXITY_TIER_THRESHOLDS["moderate"])
+
+
+# Visual density controls the SPATIAL side of density (whitespace vs
+# information-packing), independently of complexity_tier which governs
+# named-element count. Low density = art gallery; high = pilot cockpit.
+# Defaults to 4 for concept-illustration + brand-scene (airy editorial),
+# 5 otherwise.
+_VISUAL_DENSITY_DEFAULT_BY_MATERIAL = {
+    "concept-illustration": 4,
+    "concept_illustration": 4,
+    "brand-scene": 4,
+    "brand_scene": 4,
+    "landing-hero": 4,
+    "landing_hero": 4,
+}
+
+
+def normalize_visual_density(requested: int | str | None, *, material_type: str | None = None) -> int:
+    """Resolve visual_density to a 1-10 integer.
+
+    Invalid values fall back to the per-material default (4 for airy
+    illustration-first materials, 5 otherwise). Caps to 1..10.
+    """
+    try:
+        if requested is not None and str(requested).strip() != "":
+            value = int(requested)
+            return max(1, min(10, value))
+    except (TypeError, ValueError):
+        pass
+    if material_type:
+        default = _VISUAL_DENSITY_DEFAULT_BY_MATERIAL.get(str(material_type).lower().strip())
+        if default:
+            return default
+    return 5
+
+
+# Aesthetic commitment — forces the plan to pick ONE axis extreme rather
+# than hedging with three mild adjectives ("warm editorial premium
+# restrained"). Per the design-taste-frontend skill: "Pick an extreme...
+# and execute it with precision. Bold maximalism and refined minimalism
+# both work — the key is intentionality, not intensity."
+AESTHETIC_COMMITMENTS = (
+    "minimal",
+    "maximal",
+    "editorial",
+    "brutalist",
+    "organic",
+    "industrial",
+    "retro_futurist",
+    "playful",
+    "luxury",
+)
+
+_COMMITMENT_GRAMMAR = {
+    "minimal": (
+        "Brutally minimal commitment: one element only, extreme negative space, "
+        "two-color palette maximum, zero decoration, zero gradient, zero ornament."
+    ),
+    "maximal": (
+        "Maximal commitment: layered composition, deliberately dense, embrace "
+        "visual overload with clear internal logic; every surface earns its place."
+    ),
+    "editorial": (
+        "Editorial commitment: magazine-tier refinement, considered typographic "
+        "hierarchy, restrained palette, treat the composition as a printed spread."
+    ),
+    "brutalist": (
+        "Brutalist commitment: raw, unfinished, high-contrast; visible structural "
+        "grid, unsoftened edges, utilitarian typography, concrete or paper textures."
+    ),
+    "organic": (
+        "Organic commitment: natural, hand-made, soft; botanical or specimen "
+        "references, ink-wash or watercolor finish, asymmetric growth patterns."
+    ),
+    "industrial": (
+        "Industrial commitment: utilitarian, functional, stark; exposed "
+        "material honesty, no decorative flourishes, workshop-photography feel."
+    ),
+    "retro_futurist": (
+        "Retro-futurist commitment: past-vision-of-future aesthetic — 1960s-70s "
+        "sci-fi optimism, chunky geometric forms, warm analog palettes, not digital-cold."
+    ),
+    "playful": (
+        "Playful commitment: toy-like, inviting, expressive; rounded forms, "
+        "bright confident accents, generous curves, approachable without being childish."
+    ),
+    "luxury": (
+        "Luxury commitment: refined, quiet wealth, material discipline; tonal "
+        "palette with subtle warmth, high-end finish, restraint through precision."
+    ),
+}
+
+
+def normalize_aesthetic_commitment(requested: str | None) -> str | None:
+    """Return a valid aesthetic_commitment enum value, or None when unset.
+
+    Unlike other dials, this has NO default — the planner must explicitly
+    commit. validate_material_plan_dict warns when it's missing.
+    """
+    if requested is None:
+        return None
+    key = str(requested).strip().lower().replace("-", "_")
+    if key in AESTHETIC_COMMITMENTS:
+        return key
+    return None
+
+
+def aesthetic_commitment_grammar(commitment: str | None) -> str:
+    """Render the commitment as a compositional directive for the prompt."""
+    if not commitment:
+        return ""
+    key = normalize_aesthetic_commitment(commitment) or ""
+    return _COMMITMENT_GRAMMAR.get(key, "")
+
+
+def visual_density_grammar(density: int) -> str:
+    """Render the density band as a short compositional directive for
+    the execution_prompt. Low = Art Gallery (airy), mid = Daily App,
+    high = Cockpit (packed).
+    """
+    if density <= 3:
+        return (
+            "Art-gallery density: huge negative space, one dominant gesture, "
+            "generous section gaps, the composition feels unhurried and expensive."
+        )
+    if density >= 8:
+        return (
+            "Cockpit density: tightly packed composition with mathematical rhythm, "
+            "1px separations rather than cards, numbers and labels read as a "
+            "dense monospace field — every pixel carrying information."
+        )
+    return (
+        "Daily-app density: normal editorial spacing, balanced negative space, "
+        "one to three supporting elements around the focal gesture."
+    )
 
 
 # Phrases that signal a "no text", "no labels", "no headlines" constraint.
@@ -290,6 +430,26 @@ def validate_material_plan_dict(plan: dict) -> dict:
     if any((item.get("direct_generation_risk") or "").lower() == "high" for item in translations):
         warnings.append("One or more selected references have high direct-generation risk; keep them translated rather than literal.")
     warnings.extend(str(item) for item in (role_pack.get("role_assignment_warnings") or []) if str(item).strip())
+
+    # Aesthetic commitment — the planner must pick one axis extreme.
+    # Missing or invalid = P2 warning so the planner can amend without
+    # blocking generation. (Hedging-detection via prompt-seed word count
+    # lives in a follow-up fix.)
+    commitment = plan.get("aesthetic_commitment")
+    if commitment:
+        normalized = normalize_aesthetic_commitment(commitment)
+        if not normalized:
+            warnings.append(
+                f"Plan's aesthetic_commitment '{commitment}' is not one of "
+                f"{', '.join(AESTHETIC_COMMITMENTS)}. Pick one extreme — hedging "
+                "with mild adjectives produces generic premium-AI-brand output."
+            )
+    else:
+        warnings.append(
+            "Plan has no aesthetic_commitment. Pick one extreme from "
+            f"{', '.join(AESTHETIC_COMMITMENTS)} — commitment (not intensity) is "
+            "what separates distinctive output from generic premium-AI-brand mood."
+        )
 
     # Enumerated-categories detector: catches the v062 / v163-168 / v176-178
     # failure pattern where the brief lists N named categories in parens and
