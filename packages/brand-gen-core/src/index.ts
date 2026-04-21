@@ -110,3 +110,15 @@ export {
   triggerHeartbeat,
   withTimeout,
 } from "./cycle.ts";
+
+// Canonical host-tool registry (Phase 3: replaces brand_search/brand_execute multiplexers)
+export {
+  CANONICAL_TOOLS,
+  CANONICAL_TOOL_NAMES,
+  canonicalToolDefinition,
+  canonicalToolsByCategory,
+  generateHostTools,
+  type CanonicalTool,
+  type HostToolDefinition,
+  type ToolCategory,
+} from "./tool-registry.ts";
