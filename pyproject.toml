@@ -7,7 +7,7 @@ name = "brand-gen"
 version = "0.1.0"
 description = "Agent-driven brand material generation and iteration toolkit"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = "MIT"
 dependencies = [
   "dataclasses-json>=0.6.7",
