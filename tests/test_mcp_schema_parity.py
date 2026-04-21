@@ -28,7 +28,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL_REGISTRY_PATH = REPO_ROOT / "packages" / "brand-gen-core" / "src" / "tool-registry.ts"
 
-_VALID_CATEGORIES = {"orchestration", "mutation", "inspection", "feedback"}
+_VALID_CATEGORIES = {"orchestration", "mutation", "inspection", "feedback", "policy"}
 
 _TOOL_ENTRY_RE = re.compile(
     r'name:\s*"(?P<name>[a-z_]+)"\s*,\s*category:\s*"(?P<category>[a-z]+)"',

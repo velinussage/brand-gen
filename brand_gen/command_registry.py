@@ -129,6 +129,12 @@ from .commands.state import (
     cmd_use,
 )
 from .commands.composite import cmd_composite_illustration
+from .commands.policy import (
+    cmd_approve_action,
+    cmd_get_policy,
+    cmd_reject_action,
+    cmd_set_policy,
+)
 
 
 @dataclass(frozen=True)
@@ -156,6 +162,7 @@ READ_ONLY_COMMANDS = {
     "get-version",
     "compare-versions",
     "get-pending-reviews",
+    "get-policy",
     "show-identity",
     "show-blackboard",
     "show-session-summary",
@@ -279,6 +286,10 @@ COMMAND_SPECS = [
     command_spec('compare-versions', cmd_compare_versions, 'Side-by-side diff of two version manifest entries.'),
     command_spec('switch-brand', cmd_switch_brand, 'Typed switch-active-brand verb (takes --brand-key).'),
     command_spec('get-pending-reviews', cmd_get_pending_reviews, 'List runs whose derived status is awaiting_review.'),
+    command_spec('get-policy', cmd_get_policy, 'Return the per-brand policy envelope (classes + pending_approvals + recent_decisions).'),
+    command_spec('set-policy', cmd_set_policy, 'Update the mode for a policy class (allow|require_approval|deny).'),
+    command_spec('approve-action', cmd_approve_action, 'Approve a pending action (by --pending-id) or pre-approve a tool call (--tool).'),
+    command_spec('reject-action', cmd_reject_action, 'Reject a pending action by --pending-id.'),
     command_spec('show-reference-analysis', cmd_show_reference_analysis, 'Show cached reference-analysis results for the current workspace.'),
     command_spec('prompts-list', cmd_prompts_list, 'List prompt/skill resources under prompts/ using stable prompt-relative names.'),
     command_spec('prompts-get', cmd_prompts_get, 'Read one prompt/skill resource by prompt-relative name.'),

@@ -31,12 +31,20 @@ export type ToolCategory =
   | "orchestration"
   | "mutation"
   | "inspection"
-  | "feedback";
+  | "feedback"
+  | "policy";
+
+export type ToolPolicyClass =
+  | "read_only"          // always allowed; read-only inspection.
+  | "local_mutation"     // writes brand-gen state; configurable per-brand.
+  | "costly_generation"  // paid image/video model call; hosts may require approval.
+  | "publish_external";  // pushes outside the local workspace; denied by default.
 
 export type CanonicalTool = {
   name: string; // Python MCP bridge tool_name, e.g. "brand_append_forbidden_pattern"
   category: ToolCategory;
   description: string;
+  policy_class?: ToolPolicyClass; // Phase D: policy-tag-first enforcement. Keep in sync with brand_gen/policy.py::POLICY_CLASSES_BY_TOOL.
 };
 
 // The canonical host-exposed tools (soft cap ~45). Each maps to exactly one
@@ -72,6 +80,7 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "orchestration",
     description:
       "Phase 4 — assemble the scratchpad and generate. Returns ExecuteRunResponse with version_id + image_paths + next_action.",
+    policy_class: "costly_generation",
   },
   {
     name: "brand_review_run",
@@ -90,6 +99,7 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "orchestration",
     description:
       "Convenience: run all six phases end-to-end until a blocking condition. Returns OrchestrateMaterialResponse with stages_completed + stop_reason + next_action + artifacts.",
+    policy_class: "costly_generation",
   },
 
   // Mutation (9) — typed state-change tools replacing direct JSON/markdown edits.
@@ -258,6 +268,38 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "inspection",
     description:
       "Enumerate available brand-gen tools, material types, and runtime capabilities.",
+  },
+
+  // Policy (4) — per-brand envelope that hosts (notably OpenClaw) read
+  // before dispatching. brand_get_policy is read-only; the other three
+  // are local_mutation.
+  {
+    name: "brand_get_policy",
+    category: "policy",
+    description:
+      "Return the per-brand policy envelope: classes (read_only/local_mutation/costly_generation/publish_external) + pending_approvals + recent_decisions.",
+    policy_class: "read_only",
+  },
+  {
+    name: "brand_set_policy",
+    category: "policy",
+    description:
+      "Update the mode (allow|require_approval|deny) for a policy class. Persists to <brand_dir>/.policy.json.",
+    policy_class: "local_mutation",
+  },
+  {
+    name: "brand_approve_action",
+    category: "policy",
+    description:
+      "Approve a pending_approval by pending_id, or pre-approve a tool call with --tool (mints + resolves a new pending_id).",
+    policy_class: "local_mutation",
+  },
+  {
+    name: "brand_reject_action",
+    category: "policy",
+    description:
+      "Reject a pending_approval by pending_id with an optional reason.",
+    policy_class: "local_mutation",
   },
 
   // Feedback + legacy review (2).

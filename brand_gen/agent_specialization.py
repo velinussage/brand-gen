@@ -66,6 +66,7 @@ _INSPECTION_TOOLS: tuple[str, ...] = (
     "brand_compare_versions",
     "brand_list_brands",
     "brand_get_pending_reviews",
+    "brand_get_policy",
 )
 
 
@@ -74,6 +75,19 @@ _INSPECTION_TOOLS: tuple[str, ...] = (
 # read-only agents).
 _ADMIN_MUTATIONS: tuple[str, ...] = (
     "brand_switch_brand",
+)
+
+
+# Phase D: policy verbs. brand_get_policy is read-only (safe to grant
+# broadly); set/approve/reject are operator-level mutations granted only
+# to the orchestrator.
+_POLICY_READ_TOOLS: tuple[str, ...] = (
+    "brand_get_policy",
+)
+_POLICY_MUTATIONS: tuple[str, ...] = (
+    "brand_set_policy",
+    "brand_approve_action",
+    "brand_reject_action",
 )
 
 
@@ -120,7 +134,8 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
         canonical_tools=_ORCHESTRATION_TOOLS
         + _INSPECTION_TOOLS
         + _CRITIC_MUTATIONS
-        + _ADMIN_MUTATIONS,
+        + _ADMIN_MUTATIONS
+        + _POLICY_MUTATIONS,
         may_call_orchestrator=False,
     ),
     AgentSpecialization(

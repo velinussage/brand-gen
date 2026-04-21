@@ -201,6 +201,39 @@ def build_get_pending_reviews_cli(parser: argparse.ArgumentParser, *, inspire_ur
     parser.add_argument("--format", choices=["json"], default="json")
 
 
+def build_get_policy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_set_policy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--policy-class",
+        required=True,
+        choices=["read_only", "local_mutation", "costly_generation", "publish_external"],
+    )
+    parser.add_argument(
+        "--mode",
+        required=True,
+        choices=["allow", "require_approval", "deny"],
+    )
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_approve_action_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--pending-id", help="Pending approval id to mark approved")
+    parser.add_argument("--tool", help="Tool name to pre-approve (mints + resolves a new pending_id)")
+    parser.add_argument("--args-summary", help="Short description of the args being pre-approved")
+    parser.add_argument("--requested-by", help="Who requested the approval (operator default)")
+    parser.add_argument("--reason", help="Free-text justification")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_reject_action_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--pending-id", required=True, help="Pending approval id to reject")
+    parser.add_argument("--reason", help="Why the action was rejected")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
 def build_show_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -1119,6 +1152,10 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'compare-versions': build_compare_versions_cli,
     'switch-brand': build_switch_brand_cli,
     'get-pending-reviews': build_get_pending_reviews_cli,
+    'get-policy': build_get_policy_cli,
+    'set-policy': build_set_policy_cli,
+    'approve-action': build_approve_action_cli,
+    'reject-action': build_reject_action_cli,
     'show-reference-analysis': build_show_reference_analysis_cli,
     'prompts-list': build_prompts_list_cli,
     'prompts-get': build_prompts_get_cli,
