@@ -616,6 +616,86 @@ def build_update_iteration_memory_cli(parser: argparse.ArgumentParser, *, inspir
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_append_forbidden_pattern_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--pattern", required=True, help="Pattern text to ban (for example: 'purple gradients')")
+    parser.add_argument("--reason", default="", help="Why this pattern should be banned")
+    parser.add_argument("--source-version", default="", help="Version id where this pattern was observed")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_promote_learning_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--bucket",
+        required=True,
+        choices=["modelPreferences", "colorInsights", "compositionPatterns", "failurePatterns", "messagingInsights", "audienceInsights"],
+        help="Learnings bucket to append to",
+    )
+    parser.add_argument("--text", required=True, help="Learning text to promote")
+    parser.add_argument("--material-type", default="", help="Optional material type context")
+    parser.add_argument("--evidence-version", action="append", help="Evidence version id; repeat as needed")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_append_custom_scratchpad_note_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--section", required=True, choices=["global", "motion", "typography", "composition"], help="Scratchpad section to append under")
+    parser.add_argument("--text", required=True, help="Bullet text to append")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_set_motion_grammar_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--director", required=True, help="Director token or motion grammar anchor")
+    parser.add_argument("--favored", action="append", help="Favored motion move; repeat as needed")
+    parser.add_argument("--banned", action="append", help="Banned motion move; repeat as needed")
+    parser.add_argument("--intensity", default="", help="Default motion intensity")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_promote_style_policy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", required=True, help="Material type this policy governs")
+    parser.add_argument("--anchor", action="append", required=True, help="Required style reference version; repeat as needed")
+    parser.add_argument("--apply-to", action="append", help="Material types this policy applies to; repeat as needed")
+    parser.add_argument("--reference-policy", choices=["single_style_anchor", "rotating_anchor_set"], default="single_style_anchor")
+    parser.add_argument("--style-anchor-role", default="style", help="Reference role name for the style anchor")
+    parser.add_argument("--text", help="Human-readable policy summary")
+    parser.add_argument("--evidence-version", action="append", help="Evidence version id; repeat as needed")
+    parser.add_argument("--must-carry-forward", action="append", help="Required carried-forward trait; repeat as needed")
+    parser.add_argument("--failure-mode-if-missing", default="", help="Failure mode when this policy is absent")
+    parser.add_argument("--model-behavior-note", default="", help="Behavior note explaining why the policy exists")
+    parser.add_argument("--correction-note", default="", help="How future planners should apply the policy")
+    parser.add_argument("--source", default="typed_mutation_tool", help="Policy provenance label")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_update_palette_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--role", required=True, help="Palette role to update (primary, secondary, neutral, accent, etc.)")
+    parser.add_argument("--hex", required=True, help="Hex color value (e.g. #B85C38)")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_update_typography_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--role", required=True, help="Typography role to update (display, body, mono, etc.)")
+    parser.add_argument("--family", required=True, help="Font family to assign")
+    parser.add_argument("--fallback", default="", help="Optional fallback chain note")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_update_devices_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--add", action="append", help="Approved graphic device to add; repeat as needed")
+    parser.add_argument("--remove", action="append", help="Approved graphic device to remove; repeat as needed")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
 def build_example_sources_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--category", help="Category key filter (e.g. saas-product-specialists)")
     parser.add_argument("--query", help="Search query across source names, notes, and tags")
@@ -718,8 +798,15 @@ def build_submit_critique_cli(parser: argparse.ArgumentParser, *, inspire_urls: 
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
-def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("--material-type", required=True, help="Material type to generate")
+def build_submit_review_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("version", help="Version ID (e.g. v12)")
+    parser.add_argument("--critique-json", required=True, help="Path to critique JSON file or inline JSON string")
+    parser.add_argument("--dry-run", action="store_true", help="Validate and preview without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def _add_pipeline_core_args(parser: argparse.ArgumentParser, *, require_material_type: bool = True) -> None:
+    parser.add_argument("--material-type", required=require_material_type, help="Material type to generate")
     parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid", help="Workflow mode for the plan")
     parser.add_argument("--tag", "-t", help="Short output tag for the generated asset/version")
     parser.add_argument("--mechanic", help="The one system mechanic or reveal move to emphasize")
@@ -761,23 +848,90 @@ def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[st
     parser.add_argument("--aesthetic-commitment", choices=["minimal", "maximal", "editorial", "brutalist", "organic", "industrial", "retro_futurist", "playful", "luxury"], default=None, help="Pick one axis extreme rather than hedging with mild adjectives. Required for distinctive output. Commitment (not intensity) separates specific aesthetics from generic premium-AI-brand mood.")
     parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
     parser.add_argument("--set-scope", action="store_true", help="Route as a set orchestration brief, even though generation remains single-material")
-    parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→VLM-critique→refine loops (1-3)")
-    parser.add_argument("--max-retries", type=int, default=1, help="Max quality-gate retries on very low scores (0-2)")
     parser.add_argument("--skip-proof", action="store_true", help="Skip the proof module in HTML share cards")
     parser.add_argument("--dark-mode", action="store_true", help="Use dark background variant for HTML share cards")
-    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique)")
-    parser.add_argument("--skip-vlm", action="store_true", help="Deprecated compatibility flag. Internal VLM critique is off by default unless --internal-vlm-critique is set.")
     parser.add_argument("--skip-route", action="store_true", help="Skip the routing stage and start at plan-draft")
     parser.add_argument("--critique-mode", choices=["advisory", "strict"], default="strict", help="How blocking critique findings should be treated inside pipeline orchestration")
     parser.add_argument("--allow-blocking", action="store_true", help="Record an explicit bypass and continue even if critique or scratchpad blocking issues remain")
-    parser.add_argument("--bypass-orchestrator", action="store_true", help="Acknowledge that the agent orchestration chain was skipped (silences the advisory warning and records the bypass to the run ledger)")
-    parser.add_argument("--bypass-reason", default="", help="One-line reason for bypassing the orchestrator chain; required in practice when --bypass-orchestrator is set")
     parser.add_argument("--route", help="Agent-selected route key (skip automatic routing)")
     parser.add_argument("--source-version", help="Version ID to iterate from (e.g. v012); establishes branch lineage")
     parser.add_argument("--profile", help="Optional brand-profile.json path")
     parser.add_argument("--identity", help="Optional brand-identity.json path")
+
+
+def _add_pipeline_generation_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→VLM-critique→refine loops (1-3)")
+    parser.add_argument("--max-retries", type=int, default=1, help="Max quality-gate retries on very low scores (0-2)")
+    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique)")
+    parser.add_argument("--skip-vlm", action="store_true", help="Deprecated compatibility flag. Internal VLM critique is off by default unless --internal-vlm-critique is set.")
+
+
+def _add_pipeline_output_args(parser: argparse.ArgumentParser, *, include_open: bool = False) -> None:
     parser.add_argument("--format", choices=["text", "json"], default="json")
-    parser.add_argument("--open", action="store_true", help="Open the generated image after pipeline completes")
+    if include_open:
+        parser.add_argument("--open", action="store_true", help="Open the generated image after pipeline completes")
+
+
+def build_prepare_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_pipeline_core_args(parser, require_material_type=True)
+    _add_pipeline_output_args(parser)
+
+
+def build_plan_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_pipeline_core_args(parser, require_material_type=True)
+    parser.add_argument("--workflow-id", help="Existing orchestration run id from prepare-run")
+    _add_pipeline_output_args(parser)
+
+
+def build_validate_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--plan-draft", required=True, help="Path to a plan draft JSON produced by plan-run")
+    parser.add_argument("--workflow-id", help="Existing orchestration run id")
+    parser.add_argument("--critique-mode", choices=["advisory", "strict"], default="strict")
+    parser.add_argument("--allow-blocking", action="store_true")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    _add_pipeline_output_args(parser)
+
+
+def build_execute_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--plan-draft", required=True, help="Path to a plan draft JSON produced by plan-run")
+    parser.add_argument("--critique-path", help="Optional critique JSON path from validate-run")
+    parser.add_argument("--workflow-id", help="Existing orchestration run id")
+    _add_pipeline_core_args(parser, require_material_type=False)
+    _add_pipeline_generation_args(parser)
+    _add_pipeline_output_args(parser)
+
+
+def build_review_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version-id", required=True, help="Generated version id to inspect")
+    parser.add_argument("--workflow-id", help="Existing orchestration run id")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    _add_pipeline_output_args(parser)
+
+
+def build_evolve_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version-id", required=True, help="Generated version id to evolve from")
+    parser.add_argument("--workflow-id", help="Existing orchestration run id")
+    parser.add_argument("--profile", help="Optional brand-profile.json path")
+    parser.add_argument("--identity", help="Optional brand-identity.json path")
+    _add_pipeline_output_args(parser)
+
+
+def build_orchestrate_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_pipeline_core_args(parser, require_material_type=True)
+    _add_pipeline_generation_args(parser)
+    parser.add_argument("--bypass-orchestrator", action="store_true", help="Acknowledge that the agent orchestration chain was skipped (silences the advisory warning and records the bypass to the run ledger)")
+    parser.add_argument("--bypass-reason", default="", help="One-line reason for bypassing the orchestrator chain; required in practice when --bypass-orchestrator is set")
+    _add_pipeline_output_args(parser)
+
+
+def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_pipeline_core_args(parser, require_material_type=True)
+    _add_pipeline_generation_args(parser)
+    parser.add_argument("--bypass-orchestrator", action="store_true", help="Acknowledge that the agent orchestration chain was skipped (silences the advisory warning and records the bypass to the run ledger)")
+    parser.add_argument("--bypass-reason", default="", help="One-line reason for bypassing the orchestrator chain; required in practice when --bypass-orchestrator is set")
+    _add_pipeline_output_args(parser, include_open=True)
 
 
 def build_feedback_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
@@ -937,9 +1091,24 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'update-messaging': build_update_messaging_cli,
     'show-iteration-memory': build_show_iteration_memory_cli,
     'update-iteration-memory': build_update_iteration_memory_cli,
+    'append-forbidden-pattern': build_append_forbidden_pattern_cli,
+    'promote-learning': build_promote_learning_cli,
+    'append-custom-scratchpad-note': build_append_custom_scratchpad_note_cli,
+    'set-motion-grammar': build_set_motion_grammar_cli,
+    'promote-style-policy': build_promote_style_policy_cli,
+    'update-palette': build_update_palette_cli,
+    'update-typography': build_update_typography_cli,
+    'update-devices': build_update_devices_cli,
     'example-sources': build_example_sources_cli,
     'collect-examples': build_collect_examples_cli,
     'social-specs': build_social_specs_cli,
+    'prepare-run': build_prepare_run_cli,
+    'plan-run': build_plan_run_cli,
+    'validate-run': build_validate_run_cli,
+    'execute-run': build_execute_run_cli,
+    'review-run': build_review_run_cli,
+    'evolve-run': build_evolve_run_cli,
+    'orchestrate-material': build_orchestrate_material_cli,
     'generate-once': build_generate_once_cli,
     'generate': build_generate_cli,
     'derive-mockup': build_derive_mockup_cli,
@@ -947,6 +1116,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'create-video': build_create_video_cli,
     'critique-rubric': build_critique_rubric_cli,
     'submit-critique': build_submit_critique_cli,
+    'submit-review': build_submit_review_cli,
     'pipeline': build_pipeline_cli,
     'feedback': build_feedback_cli,
     'show': build_show_cli,
