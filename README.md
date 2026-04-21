@@ -3,11 +3,12 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Backend: Replicate](https://img.shields.io/badge/backend-Replicate-black.svg)](https://replicate.com)
-[![Agents: 7](https://img.shields.io/badge/agents-7%20specialists-orange.svg)](#agent-reference)
+[![Agents: 9](https://img.shields.io/badge/agents-9%20specialists-orange.svg)](#agent-reference)
+[![Typed runtime: 40 verbs](https://img.shields.io/badge/typed%20runtime-40%20verbs-6366f1.svg)](#typed-runtime-the-40-verb-surface)
 
 > A multi-agent brand design system. You talk to your agent; it runs a team of specialists - philosopher, planner, critic, cinematographer, generator - through a planning-first pipeline with quality gates.
 
-brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of seven agents that share file-backed state (brand identity, design philosophy, custom scratchpad, iteration memory, learnings, design tokens) and call a local `bgen` runtime under the hood. The CLI exists, but it's the substrate the agents use - not the primary interface.
+brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of nine specialist agents that share durable state (run ledger, blackboard, iteration memory, learnings, design tokens, policy envelope) and navigate a typed **40-verb canonical runtime** under the hood. The CLI and Python module both exist, but the typed runtime is the contract — agents call verbs like `brand_orchestrate_material`, `brand_list_runs`, `brand_get_policy` instead of editing files or scripting shell.
 
 Works with any agent host that has shell access: Claude Code, Pi, OpenClaw, MCP hosts, Codex, Cursor.
 
@@ -93,7 +94,25 @@ pipeline re-enters with --source-version, learnings auto-applied
 
 </details>
 
-The pipeline is planning-first and quality-gated: **no freehand generation before a plan is critiqued**. Agents communicate through shared files (plans, scratchpads, blackboard, iteration memory, custom scratchpad) rather than passing data in-memory.
+The pipeline is planning-first and quality-gated: **no freehand generation before a plan is critiqued**. Agents coordinate through typed MCP verbs — the file substrate is an audit trail, not the transport layer.
+
+## Typed runtime (the 40-verb surface)
+
+Every agent call routes through one of 40 canonical verbs defined in `packages/brand-gen-core/src/tool-registry.ts` and bridged to Python via `brand_gen/mcp_bridge_registry.py`. Agents get a typed response with `next_action` pointing at the next call; they never need to parse bash output or guess at file paths.
+
+| Category | Count | Examples |
+|----------|-------|----------|
+| **Orchestration** (stage transitions) | 7 | `brand_prepare_run`, `brand_plan_run`, `brand_validate_run`, `brand_execute_run`, `brand_review_run`, `brand_evolve_run`, `brand_orchestrate_material` |
+| **Mutation** (typed state edits) | 10 | `brand_append_forbidden_pattern`, `brand_set_motion_grammar`, `brand_promote_learning`, `brand_update_palette`, `brand_submit_review`, `brand_switch_brand`, … |
+| **Inspection** (read-only discovery) | 15 | `brand_list_runs`, `brand_get_run`, `brand_get_plan`, `brand_get_critique`, `brand_get_scratchpad`, `brand_get_review_packet`, `brand_get_version`, `brand_compare_versions`, `brand_list_brands`, `brand_get_pending_reviews`, `brand_context_snapshot`, `brand_show_rubric`, `brand_show_disagreements`, … |
+| **Feedback** (agent ↔ user loop) | 2 | `brand_feedback`, `brand_critique_rubric` |
+| **Policy** (per-brand approval envelope) | 4 | `brand_get_policy`, `brand_set_policy`, `brand_approve_action`, `brand_reject_action` |
+
+Each tool has a `policy_class` (`read_only` / `local_mutation` / `costly_generation` / `publish_external`). Hosts flip `costly_generation` to `require_approval` in `<brand_dir>/.policy.json` when a worker (e.g. OpenClaw) should queue a human approval before spending generation tokens. `publish_external` is denied by default.
+
+**Persistent Run state.** Every `brand_*_run` call appends to an append-only JSONL ledger under `<brand_dir>/runs/`. The projection fold (`brand_get_run`) derives `status` (`in_progress | blocked | awaiting_review | completed`), `artifact_ids`, and `lineage` so an agent can resume a run from a cold start without scanning the filesystem.
+
+See [docs/host-setup.md](docs/host-setup.md) for the full registry and allowlist-per-agent table.
 
 ## Requirements
 
@@ -173,11 +192,11 @@ Every brand workspace carries an agent-editable scratchpad that auto-injects int
 └── custom-scratchpad.json   # {model_overrides_by_material, forbidden_patterns[]}
 ```
 
-- `brand-philosopher` writes style directives and motion grammar directly
-- `brand-critic` appends forbidden patterns after any P1 finding (closed loop: critique → ban → next run auto-bans)
-- `brand-orchestrator` reads both files in Phase 1 and applies model overrides before the learnings lookup
+- `brand-philosopher` writes style directives via `brand_append_custom_scratchpad_note` and motion grammar via `brand_set_motion_grammar`
+- `brand-critic` appends forbidden patterns via `brand_append_forbidden_pattern` after any P1 finding (closed loop: critique → typed ban → next run auto-bans)
+- `brand-orchestrator` reads both files in Phase 1 (via `brand_context_snapshot`) and applies model overrides before the learnings lookup
 
-The contents land in prompt assembly alongside iteration memory and blackboard learnings. No agent touches `bgen` for this; they edit the files directly.
+The contents land in prompt assembly alongside iteration memory and blackboard learnings. Every mutation flows through a typed verb — no agent edits JSON by hand.
 
 ### Design tokens + WCAG audit (how the philosopher gates palettes)
 
@@ -284,46 +303,58 @@ bgen pipeline --material-type x-feed --source-version v1 --format json
 
 ## Host integration
 
-Point your agent at the skill files and the right agent directory for its host:
+### Claude Code
 
-```text
-Read these skill files and follow them for brand material work:
-- skills/brand-gen-setup/SKILL.md (first-time only)
-- skills/brand-gen/SKILL.md (workspace + workflow)
-- skills/brand-gen-orchestration/SKILL.md (full pipeline)
+Agents live at `.claude/agents/brand-*.md`. Invoke via the `Agent` tool with `subagent_type="brand-orchestrator"` or any specialist name. No extra install — the MCP server bridges Python ↔ TS automatically.
 
-Then run the brand-orchestrator agent from .claude/agents/brand-orchestrator.md
-(or .pi/agents/brand-orchestrator.md for Pi). Start by running:
-  bgen context-snapshot --format json
-```
+### Pi
 
-For MCP hosts that prefer a direct tool surface over the agent layer:
+Install the Pi plugin once from the repo root:
 
 ```bash
-python3 -m brand_gen.brand_iterate_mcp    # stdio MCP server
+pi install ./packages/pi-brand-gen
 ```
 
-See [docs/host-setup.md](docs/host-setup.md) for Claude Code, Pi, and OpenClaw setup, and [docs/starter-prompts.md](docs/starter-prompts.md) for copy-paste prompts.
+This registers the plugin in `~/.pi/agent/settings.json::packages`, so every `pi` process — including spawned subagents — loads `brandGenPiExtension` and exposes the full 40-verb tool surface. Subagents defined under `.pi/agents/brand-*.md` read their `tools:` frontmatter against that registry; without the plugin install, the frontmatter names don't resolve and subagents fall back to `read`/`bash`/`write` built-ins.
+
+Smoke-test with `pi list` — the entry `../../Documents/brand-gen/packages/pi-brand-gen` (or similar) should appear.
+
+### OpenClaw
+
+Load `packages/openclaw-brand-gen` as a plugin per your OpenClaw install docs. The plugin autodetects the brand-gen repo and launches the MCP backend as `python -m brand_gen.brand_iterate_mcp` with `cwd=<repo>` — see `packages/brand-gen-core/src/mcp-invocation.ts` for the detection logic.
+
+### Any MCP host (manual)
+
+For hosts that prefer a direct tool surface, run the stdio MCP server from the repo root:
+
+```bash
+python3 -m brand_gen.brand_iterate_mcp    # stdio MCP server, exposes all 40 canonical verbs
+```
+
+Always launch via `-m` module syntax, not `python brand_gen/brand_iterate_mcp.py` — the latter breaks intra-package relative imports.
+
+See [docs/host-setup.md](docs/host-setup.md) for the full per-agent allowlist table and [docs/starter-prompts.md](docs/starter-prompts.md) for copy-paste prompts.
 
 ## Agent reference
 
-brand-gen ships agent definitions for two hosts, with identical bodies (only frontmatter differs). Other hosts can read the same files and emulate the chain manually.
+brand-gen ships nine agent definitions across three mirrors (Claude Code, Pi, skills distribution) with identical bodies — frontmatter differs only in the tool-list format (array vs comma-string) and model tag. Other hosts can read the same files and emulate the chain manually.
 
 - **Claude Code** - `.claude/agents/brand-*.md` (mirrored to `skills/brand-gen/claude-agents/brand-*.md`). Invoke via the `Agent` tool with `subagent_type="brand-orchestrator"` or any specialist name.
-- **Pi** - `.pi/agents/brand-*.md`. Invoke via `/run brand-orchestrator <task>` or chain syntax.
+- **Pi** - `.pi/agents/brand-*.md`. Invoke via `/run brand-orchestrator <task>` or chain syntax. Requires `pi install ./packages/pi-brand-gen` first so subagents see the 40 typed verbs.
 
-The intended entry point is always `brand-orchestrator`. Do not jump straight to `bgen generate` or treat `bgen pipeline` as a freehand shortcut.
+The intended entry point is always `brand-orchestrator`. It calls `brand_orchestrate_material` (one typed verb, 6-phase pipeline) and handles `stop_reason` by dispatching to mutation verbs or specialist agents — not by scripting `bgen`.
 
 ### Specialist agents
 
-- `brand-orchestrator` - coordinates the full workflow; in Phase 1 runs `export-design-tokens` and delegates WCAG failures to the philosopher
-- `brand-explorer` - reads workspace state, blackboard, learnings, recent versions
-- `brand-router` - chooses the correct route before planning
-- `brand-planner` - creates the plan draft with learnings, layout, and role-pack context
-- `brand-critic` - blocks bad plans, scores outputs, runs WCAG contrast audits on HTML share cards, and appends forbidden patterns directly into `custom-scratchpad.json`
-- `brand-generator` - builds the scratchpad and runs generation from an approved plan; prefers the brand's `design-tokens.css` when rendering HTML
-- `brand-philosopher` - creates or refines `design-philosophy.md`, curates `custom-scratchpad.md` (style directives + motion grammar), and fixes WCAG failures by adjusting `brand-identity.json`
+- `brand-orchestrator` - coordinates the full workflow via `brand_orchestrate_material`; in Phase 1 runs `export-design-tokens` and delegates WCAG failures to the philosopher
+- `brand-explorer` - read-only workspace inspection (`brand_list_runs`, `brand_get_run`, `brand_context_snapshot`, 12 other inspection verbs)
+- `brand-router` - chooses the correct route before planning (read-only over the same inspection pool as explorer)
+- `brand-planner` - creates the plan draft targeting v2 rubric axes; calls `brand_plan_run` + `brand_validate_run`
+- `brand-critic` - blocks bad plans via `brand_validate_run`, scores outputs via `brand_review_run`, runs WCAG contrast audits, and appends bans via typed mutation verbs (`brand_append_forbidden_pattern`, `brand_append_custom_scratchpad_note`)
+- `brand-generator` - builds the scratchpad and runs generation via `brand_execute_run`; prefers the brand's `design-tokens.css` when rendering HTML
+- `brand-philosopher` - owns identity palette/typography/devices (`brand_update_palette`, `brand_update_typography`, `brand_update_devices`), motion grammar (`brand_set_motion_grammar`), and custom scratchpad authoring
 - `brand-cinematographer` - video-prompt specialist; reads motion grammar and the seedance shot-design reference, assembles the six-element prompt, runs seven-rule validation before handoff to `brand-generator`
+- `brand-interviewer` - onboards a new brand by reverse-interview, writing identity seeds via typed update verbs; hands off to `brand-philosopher` for synthesis
 
 ### Mandatory generation sequence
 
@@ -341,26 +372,29 @@ For any real generation request, the intended order is:
 
 If steps 1-5 are skipped, the workflow is invalid. No freehand generation before the plan is critiqued.
 
-### How agents map to `bgen` commands
+### How agents map to typed verbs
 
-Agents wrap the normal command surface rather than replacing it:
+Agents call canonical MCP verbs. The `bgen` CLI is a debugging fallback for operators, not the primary contract.
 
-- `brand-explorer` → `context-snapshot`, `show-blackboard`, `show`, `capabilities`
-- `brand-router` → route selection from workspace state and router rules
-- `brand-planner` → `suggest-role-pack`, `suggest-layout`, `plan-draft`
-- `brand-critic` → `critique-plan`, `validate-brand-fit`, then `critique-rubric`, `submit-critique`, `feedback`; WCAG audit via `export-design-tokens`
-- `brand-generator` → `build-generation-scratchpad`, `generate` (consumes `design-tokens.css` for HTML renders)
-- `brand-philosopher` → direct edits to `design-philosophy.md`, `custom-scratchpad.md`, and (indirectly) `brand-identity.json` after WCAG failures
-- `brand-cinematographer` → `build-generation-scratchpad` for video materials using seedance shot-design discipline
-- `brand-orchestrator` → enforces the order, runs `export-design-tokens` in Phase 1, and runs `evolve` at the end
+- `brand-explorer` → `brand_list_runs`, `brand_get_run`, `brand_context_snapshot`, `brand_show_blackboard`, `brand_show_iteration_memory` (15 inspection verbs total)
+- `brand-router` → same inspection pool; emits a route decision from workspace state
+- `brand-planner` → `brand_plan_run` → `brand_validate_run`; consults the rubric via `brand_show_rubric`
+- `brand-critic` → `brand_validate_run` (plan gate), `brand_review_run` (v2 DSPy scorer), `brand_submit_review`, `brand_append_forbidden_pattern`, `brand_append_custom_scratchpad_note`, `brand_feedback`
+- `brand-generator` → `brand_execute_run` (assembles scratchpad + generates, returns `version_id` + `image_paths`)
+- `brand-philosopher` → `brand_update_palette`, `brand_update_typography`, `brand_update_devices`, `brand_set_motion_grammar`, `brand_append_custom_scratchpad_note`
+- `brand-cinematographer` → `brand_execute_run` for video materials after `brand_set_motion_grammar` validation
+- `brand-interviewer` → `brand_update_palette`, `brand_update_typography`, `brand_update_devices`, `brand_append_custom_scratchpad_note`
+- `brand-orchestrator` → `brand_orchestrate_material` (convenience wrapper over all 7 stage verbs) + admin verbs: `brand_switch_brand`, `brand_set_policy`, `brand_approve_action`
 
-So the real flow is:
+The real flow:
 
 ```text
-agents → inspect → route → plan → validate → generate → critique → evolve
-            ↓
-         bgen commands execute each stage, files on disk carry state between them
+agents → typed verbs (MCP) → Python runtime → append-only ledger (runs/*.jsonl)
+            ↓                       ↓
+       next_action hint        projection via brand_get_run
 ```
+
+The append-only ledger is the source of truth; the blackboard, iteration-memory, and scratchpad files are projections the agents read via typed verbs.
 
 ### Manual chain rule
 
