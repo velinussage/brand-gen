@@ -52,6 +52,51 @@ def normalize_material_type(material_type: str) -> str:
     return key
 
 
+def resolve_learned_model(
+    material_type: str,
+    brand_dir: Path | None,
+) -> str | None:
+    """Return the learned winning model for `material_type`, or None.
+
+    Reads the brand's `learnings.json` and matches the most recent
+    `modelPreferences` entry whose `material_type` aliases to the
+    requested type. "recraft-v4 + with refs" style text is parsed for
+    the model token; the first valid model id wins. Accepts both the
+    hyphen and underscore forms of material_type since legacy learnings
+    may use either.
+
+    This promotes learned winning setups into the default-model path so
+    callers that do NOT pass --model automatically benefit from the
+    brand's best-known model, rather than being stuck with the
+    static material_config default.
+    """
+    if not brand_dir:
+        return None
+    learnings_path = Path(brand_dir) / "learnings.json"
+    if not learnings_path.exists():
+        return None
+    try:
+        data = json.loads(learnings_path.read_text())
+    except Exception:
+        return None
+    prefs = data.get("modelPreferences") or []
+    if not prefs:
+        return None
+
+    target_keys = {material_type, material_type.replace("-", "_"), material_type.replace("_", "-")}
+    # Match the most recent preference for the requested material (entries are appended in order).
+    matched = [p for p in prefs if (p.get("material_type") or "") in target_keys]
+    if not matched:
+        return None
+    latest = matched[-1]
+    text = str(latest.get("text") or "")
+    # Extract the model name — stored as "Winning setup: <mode> + <model> + ..."
+    for token in text.replace(",", " ").split():
+        if token in MODELS.get("image", {}) or token in MODELS.get("video", {}):
+            return token
+    return None
+
+
 def resolve_generation_mode(material_type: str, requested_mode: str) -> str:
     if requested_mode != "auto":
         return requested_mode

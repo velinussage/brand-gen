@@ -29,7 +29,7 @@ from .capability_focus import build_capability_focus_context
 from .critique_policy import build_critique_policy
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
 from .learnings_memory import load_learnings_memory
-from .plan_validation import validate_material_plan_dict
+from .plan_validation import normalize_complexity_tier, validate_material_plan_dict
 from .reference_role_packs import (
     build_inspiration_translation_summary,
     build_selected_role_translation,
@@ -189,6 +189,7 @@ def create_material_plan(
     source_url: str | None = None,
     entity_type: str | None = None,
     design_variance: int | None = None,
+    complexity_tier: str | None = None,
     set_membership: dict | None = None,
     briefing: str | None = None,
     inspiration_picks: list[str] | None = None,
@@ -320,6 +321,7 @@ def create_material_plan(
     resolved_entity_type = str(entity_type or "").strip().lower()
     resolved_source_url = str(source_url or "").strip()
     resolved_design_variance = max(1, min(int(design_variance or 5), 10))
+    resolved_complexity_tier = normalize_complexity_tier(complexity_tier, material_type=material_type)
     strategy_context = recommend_surface_strategies(
         material_type=material_type,
         entity_type=resolved_entity_type,
@@ -386,6 +388,7 @@ def create_material_plan(
         "surface_strategy_candidates": list(strategy_context.get("surface_strategy_candidates") or []),
         "abstraction_level": policy.get("abstraction_level") or "",
         "design_variance": resolved_design_variance,
+        "complexity_tier": resolved_complexity_tier,
         "briefing": briefing or "",
         "brand_anchor_policy": policy,
         "system_mechanic": resolved_mechanic,
@@ -478,6 +481,7 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
         source_url=getattr(args, "source_url", None),
         entity_type=getattr(args, "entity_type", None),
         design_variance=getattr(args, "design_variance", None),
+        complexity_tier=getattr(args, "complexity_tier", None),
         briefing=getattr(args, "briefing", None),
         accept_inspiration_recommendations=True,
     )

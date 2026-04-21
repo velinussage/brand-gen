@@ -28,12 +28,12 @@ jobs:
 
       - name: Compile check
         run: |
-          python -m py_compile mcp/brand_iterate.py
-          python -m py_compile mcp/brand_iterate_mcp.py
-          python -m py_compile mcp/pipeline_runner.py
-          python -m py_compile mcp/pipeline_types.py
-          python -m py_compile mcp/route_predicates.py
-          python -m py_compile mcp/generate.py
+          python -m py_compile brand_gen/brand_iterate.py
+          python -m py_compile brand_gen/brand_iterate_mcp.py
+          python -m py_compile brand_gen/pipeline_runner.py
+          python -m py_compile brand_gen/pipeline_types.py
+          python -m py_compile brand_gen/route_predicates.py
+          python -m py_compile brand_gen/generate.py
 
       - name: Run tests
-        run: python -m pytest tests/ -v
+        run: python -m unittest discover -s tests -v

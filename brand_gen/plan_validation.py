@@ -11,6 +11,7 @@ Key functions:
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from .brand_policy import normalize_material_brand_policy, summarize_identity
@@ -21,7 +22,154 @@ __all__ = [
     "validate_material_plan_dict",
     "validate_set_manifest_dict",
     "validate_identity_summary",
+    "detect_enumerated_categories",
+    "plan_has_text_ban",
+    "normalize_complexity_tier",
+    "complexity_tier_enumeration_min_items",
 ]
+
+# Complexity tier controls how many named elements the brief may carry.
+# Simple: ≤2 named elements — one clear system mechanic only. This is the
+#   default for concept-illustration and brand-scene based on the user
+#   feedback around v180/v181 ("Wants a simpler Sage illus").
+# Moderate: ≤4 named elements — balanced scope for most editorial work.
+# Dense: unlimited — opt-in for storyboards and multi-scene films where
+#   enumerating capability flows is the point.
+_COMPLEXITY_TIERS = ("simple", "moderate", "dense")
+_COMPLEXITY_TIER_THRESHOLDS = {
+    "simple": 2,
+    "moderate": 4,
+    "dense": 99,  # effectively disabled
+}
+_DEFAULT_TIER_BY_MATERIAL = {
+    "concept-illustration": "simple",
+    "concept_illustration": "simple",
+    "brand-scene": "simple",
+    "brand_scene": "simple",
+}
+
+
+def normalize_complexity_tier(
+    requested: str | None,
+    *,
+    material_type: str | None = None,
+) -> str:
+    """Resolve a valid complexity tier string.
+
+    Precedence: explicit caller argument > per-material default > "moderate".
+    Invalid values fall back to the per-material default.
+    """
+    if requested and str(requested).lower().strip() in _COMPLEXITY_TIERS:
+        return str(requested).lower().strip()
+    if material_type:
+        default = _DEFAULT_TIER_BY_MATERIAL.get(str(material_type).lower().strip())
+        if default:
+            return default
+    return "moderate"
+
+
+def complexity_tier_enumeration_min_items(tier: str) -> int:
+    """Return the named-category threshold that triggers the enumerated-
+    categories warning for the given tier. A higher number means the
+    detector tolerates longer lists.
+    """
+    return _COMPLEXITY_TIER_THRESHOLDS.get(tier, _COMPLEXITY_TIER_THRESHOLDS["moderate"])
+
+
+# Phrases that signal a "no text", "no labels", "no headlines" constraint.
+# When one of these is present AND the prompt seed enumerates ≥4 named
+# categories, the plan is in the v062 / v163-168 / v176-178 failure zone:
+# the brief invites labels while the ban forbids them, and the image
+# model renders the labels anyway.
+_TEXT_BAN_PHRASES = (
+    "textless",
+    "no text",
+    "no invented text",
+    "no headline",
+    "no headlines",
+    "no labels",
+    "no label",
+    "no copy",
+    "no invented copy",
+    "no typographic overlays",
+    "no typography",
+    "no rendered text",
+    "no visible text",
+    "do not render text",
+    "avoid text",
+    "hard no-text",
+    "text-free",
+)
+
+# Matches parenthetical enumerations like "(A, B, C, D)" or "(A / B / C / D)".
+_PAREN_ENUM_RE = re.compile(r"\(([^()]{3,400})\)")
+
+# Breaks a parenthetical body into candidate items — commas, semicolons,
+# slashes, and the word "and".
+_ITEM_SPLIT_RE = re.compile(r"[;,]|\band\b|/", flags=re.IGNORECASE)
+
+
+def detect_enumerated_categories(
+    text: str,
+    *,
+    min_items: int = 4,
+) -> list[list[str]]:
+    """Return parenthetical enumerations with `min_items` or more items.
+
+    Each return element is the list of items parsed from a single
+    parenthetical group. The shape lets callers surface the offending
+    phrase in a warning.
+
+    Matches patterns like:
+      "six differentiated habitats (skills forge, prompt curation atelier,
+       library discovery stacks, provenance/review checkpoints, CLI/MCP
+       runtime relay, agent orchestration commons)"
+      → returns [["skills forge", "prompt curation atelier", ...]]
+
+    Skips enumerations that are mostly palette tokens or color names
+    (those are legitimate style direction, not category labels the
+    image model should render).
+    """
+    if not text or not isinstance(text, str):
+        return []
+    hits: list[list[str]] = []
+    _COLOR_TOKENS = {
+        "cream", "terracotta", "sage", "charcoal", "amber", "parchment",
+        "ember", "rust", "ivory", "bone", "oak", "stone", "ochre",
+        "olive", "moss", "brass", "copper", "walnut", "porcelain",
+    }
+    for match in _PAREN_ENUM_RE.finditer(text):
+        body = match.group(1).strip()
+        items = [i.strip(" .'\"") for i in _ITEM_SPLIT_RE.split(body) if i.strip()]
+        items = [i for i in items if len(i) > 1 and not i.isdigit()]
+        if len(items) < min_items:
+            continue
+        # Skip color-palette lists so "warm terracotta / sage / amber / parchment"
+        # doesn't falsely fire as a named-category enumeration.
+        word_tokens = [w.lower() for i in items for w in i.split()]
+        if word_tokens and sum(1 for w in word_tokens if w in _COLOR_TOKENS) / len(word_tokens) >= 0.5:
+            continue
+        hits.append(items)
+    return hits
+
+
+def plan_has_text_ban(plan: dict) -> bool:
+    """Return True when the plan's ban list, preserve list, or prompt_seed
+    carries a text/labels/headlines prohibition.
+    """
+    haystack_parts: list[str] = []
+    for field in ("prompt_seed", "system_mechanic", "purpose"):
+        v = plan.get(field)
+        if v:
+            haystack_parts.append(str(v))
+    for field in ("ban", "preserve", "push"):
+        v = plan.get(field) or []
+        if isinstance(v, list):
+            haystack_parts.extend(str(item) for item in v)
+        elif isinstance(v, str):
+            haystack_parts.append(v)
+    haystack = " ".join(haystack_parts).lower()
+    return any(phrase in haystack for phrase in _TEXT_BAN_PHRASES)
 
 
 def validate_material_plan_dict(plan: dict) -> dict:
@@ -142,6 +290,39 @@ def validate_material_plan_dict(plan: dict) -> dict:
     if any((item.get("direct_generation_risk") or "").lower() == "high" for item in translations):
         warnings.append("One or more selected references have high direct-generation risk; keep them translated rather than literal.")
     warnings.extend(str(item) for item in (role_pack.get("role_assignment_warnings") or []) if str(item).strip())
+
+    # Enumerated-categories detector: catches the v062 / v163-168 / v176-178
+    # failure pattern where the brief lists N named categories in parens and
+    # the image model renders them as text labels. When the plan also
+    # carries a text ban, promote to an error so generation is blocked.
+    # The threshold is tier-aware: simple=2, moderate=4, dense=99 (off).
+    tier = normalize_complexity_tier(plan.get("complexity_tier"), material_type=material_type)
+    min_items = complexity_tier_enumeration_min_items(tier)
+    enum_hits = detect_enumerated_categories(
+        str(plan.get("prompt_seed") or ""),
+        min_items=min_items,
+    )
+    if enum_hits:
+        preview_items = ", ".join(enum_hits[0][:6])
+        if plan_has_text_ban(plan):
+            errors.append(
+                "Prompt seed enumerates "
+                f"{len(enum_hits[0])} named categories ({preview_items}...) "
+                "while the plan carries a text ban. Image models reliably "
+                "render the enumerated names as labels despite the ban — "
+                "this is the v062/v163-168/v176-178 failure pattern. "
+                "Collapse the enumeration to a single compositional cue, "
+                "or drop the text ban, before generation."
+            )
+        else:
+            warnings.append(
+                f"Prompt seed enumerates {len(enum_hits[0])} named categories "
+                f"({preview_items}...) — exceeds the '{tier}' complexity tier "
+                f"cap ({min_items}). Enumerations tend to encourage the image "
+                "model to render the names as labels; consider collapsing to a "
+                f"single compositional cue or raising --complexity-tier."
+            )
+
     warnings = dedupe_keep_order(warnings)
 
     score = sum(1 for passed in checks.values() if passed)

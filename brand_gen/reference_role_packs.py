@@ -384,13 +384,41 @@ def select_inspiration_sources(
             score += 2.0
         best_for = " ".join(str(value).lower() for value in (item.get("best_for") or []))
         bucket_hints = set(str(value).strip().lower() for value in (item.get("bucket_hints") or []) if str(value).strip())
+        primary_bucket = str(item.get("primary_bucket") or "").strip().lower()
+        bucket_scores_raw = item.get("bucket_scores") or {}
+        bucket_scores: dict[str, float] = {
+            str(k).strip().lower(): float(v)
+            for k, v in (bucket_scores_raw or {}).items()
+            if str(k).strip()
+        }
         if illustration_first:
-            if "composition" in bucket_hints:
-                score += 1.2
-            if "narrative_system" in bucket_hints:
-                score += 1.0
-            if "rendering_style" in bucket_hints:
-                score += 0.8
+            # Prefer `bucket_scores` (explicit weights per bucket) when set,
+            # then `primary_bucket` (strong scalar hint), then fall back to
+            # the legacy `bucket_hints` set. This stops the "every source
+            # declares every bucket → idx=0 wins by default" failure mode.
+            if bucket_scores:
+                score += bucket_scores.get("composition", 0.0) * 1.2
+                score += bucket_scores.get("narrative_system", 0.0) * 1.0
+                score += bucket_scores.get("rendering_style", 0.0) * 0.8
+            elif primary_bucket:
+                # Strong bonus for the source's declared primary role
+                if primary_bucket == "composition":
+                    score += 1.8
+                elif primary_bucket == "narrative_system":
+                    score += 1.5
+                elif primary_bucket == "rendering_style":
+                    score += 1.2
+                # Still award a smaller bonus if the source tags other buckets
+                for bucket in bucket_hints - {primary_bucket}:
+                    if bucket in {"composition", "narrative_system", "rendering_style"}:
+                        score += 0.3
+            else:
+                if "composition" in bucket_hints:
+                    score += 1.2
+                if "narrative_system" in bucket_hints:
+                    score += 1.0
+                if "rendering_style" in bucket_hints:
+                    score += 0.8
             if any(term in best_for for term in ["composition", "campaign", "application", "reasoning"]):
                 score += 0.8
         if idx == 0:
@@ -401,15 +429,39 @@ def select_inspiration_sources(
         bucket_targets = ["composition", "narrative_system", "rendering_style"]
         picked = []
         seen_keys: set[str] = set()
+
+        def _source_buckets(item: dict) -> tuple[str, set[str]]:
+            primary = str(item.get("primary_bucket") or "").strip().lower()
+            hints = {
+                str(v).strip().lower()
+                for v in (item.get("bucket_hints") or [])
+                if str(v).strip()
+            }
+            return primary, hints
+
         for bucket in bucket_targets:
-            match = next(
-                (
-                    item for item in sorted_ranked
-                    if bucket in set(str(value).strip().lower() for value in (item.get("bucket_hints") or []) if str(value).strip())
-                    and normalize_inspiration_key(item.get("source_key") or item.get("source_name") or "") not in seen_keys
-                ),
-                None,
-            )
+            # First prefer sources whose PRIMARY bucket matches the slot we
+            # need. If none, fall back to sources that merely list the
+            # bucket in their hints. Avoids the "first-by-index always wins"
+            # failure when every source declares every bucket.
+            match = None
+            for candidate in sorted_ranked:
+                primary, _hints = _source_buckets(candidate)
+                src_key = normalize_inspiration_key(candidate.get("source_key") or candidate.get("source_name") or "")
+                if src_key in seen_keys:
+                    continue
+                if primary == bucket:
+                    match = candidate
+                    break
+            if match is None:
+                for candidate in sorted_ranked:
+                    _primary, hints = _source_buckets(candidate)
+                    src_key = normalize_inspiration_key(candidate.get("source_key") or candidate.get("source_name") or "")
+                    if src_key in seen_keys:
+                        continue
+                    if bucket in hints:
+                        match = candidate
+                        break
             if match is None:
                 continue
             source_key = normalize_inspiration_key(match.get("source_key") or match.get("source_name") or "")

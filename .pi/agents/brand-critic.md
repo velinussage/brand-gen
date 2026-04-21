@@ -49,6 +49,11 @@ Modes:
    - **"Source version vXXX was recently rejected; avoid deriving directly from it"** →
      BLOCK. Cascade protection: deriving from a rejected parent inherits its flaws.
      Require the planner to pick a different source_version or drop source-derivation.
+   - **"Prompt seed enumerates N named categories ... while the plan carries a text ban"**
+     → BLOCK. This is the v062/v163-168/v176-178 failure pattern: briefs that list
+     ≥4 named categories in parentheses while also banning text reliably produce
+     rendered labels. Require the planner to collapse the enumeration into a single
+     compositional cue OR drop the text ban, before generation.
 4. All other P3 warnings remain advisory (proceed but note them).
 5. If blocking: return specific description of WHAT is wrong. Do NOT prescribe HOW to fix it.
 6. Run the **Design Coherence Check** (see below) on the plan.
