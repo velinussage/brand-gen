@@ -467,7 +467,12 @@ def assemble_generation_scratchpad(
         warnings.append(
             f"Custom scratchpad override: mode forced to '{_custom_override['mode']}' for material '{material_type}'."
         )
-    model = _source_critique_model_rec or args.model or _custom_model or resolve_default_model(
+    _learned_model = (
+        resolve_learned_model(material_type, brand_dir)
+        if not (_source_critique_model_rec or args.model or _custom_model)
+        else None
+    )
+    model = _source_critique_model_rec or args.model or _custom_model or _learned_model or resolve_default_model(
         material_type,
         generation_mode,
         workflow_mode,
@@ -476,6 +481,11 @@ def assemble_generation_scratchpad(
         has_motion_reference=bool(motion_reference),
         has_base_image=bool(base_image),
     )
+    if _learned_model and model == _learned_model:
+        warnings.append(
+            f"Learnings override: modelPreferences promoted '{_learned_model}' "
+            f"for material '{material_type}' over material_config default."
+        )
     if _custom_model and model == _custom_model:
         warnings.append(
             f"Custom scratchpad override: model set to '{model}' for material '{material_type}'."
