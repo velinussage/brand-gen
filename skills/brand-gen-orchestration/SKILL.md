@@ -19,12 +19,107 @@ compatibility:
 
 # Brand-Gen Orchestration Pipeline
 
-This skill encodes a 6-phase generation pipeline that produces brand materials through
-structured preparation, planning, validation, generation, critique, and learning.
+This skill encodes the 6-phase generation pipeline that produces brand materials through structured preparation, planning, validation, generation, critique, and learning.
 
-Every phase exists for a reason. Preparation prevents repeating mistakes. Planning
-encodes creative intent. Validation catches contradictions cheaply. Critique enforces
-a quality bar. Evolution compounds learnings across runs.
+Every phase exists for a reason. Preparation prevents repeating mistakes. Planning encodes creative intent. Validation catches contradictions cheaply. Critique enforces a quality bar. Evolution compounds learnings across runs.
+
+## Typed runtime (2026-04+, preferred surface)
+
+After the typed-agentic-runtime refactor (Phases 1-6 of the 2026-04 plan), the entire 6-phase pipeline is exposed as **typed MCP/CLI tools with structured responses**. Pin to these verbs instead of scripting the legacy chain below — the legacy chain is the fallback for CI/scripting, not the primary path.
+
+### Orchestration (7 verbs — run the pipeline)
+
+```bash
+# Convenience: runs all six phases to a natural stop.
+bgen orchestrate-material \
+  --material-type concept-illustration \
+  --mode hybrid \
+  --source-version v018 \      # optional: iterate from a prior version
+  --format json
+# Returns: {run_id, stages_completed, stop_reason, next_action, artifacts}
+```
+
+`stop_reason` enum — branch on this, do not parse narrative phase outputs:
+
+| stop_reason | Meaning | What to do next |
+|---|---|---|
+| `approved` | Review accepted. | Report `version_id` + `image_paths`. Ask user for a score. |
+| `blocking_findings` | Validate raised blocking issues. | Read `artifacts.critique.checks.blocking`; fix with typed mutations below; re-run. |
+| `iterating` | Review returned `decision: iterate`. | Feed `before_after_diffs` rows into next run's mutations; re-run with `--source-version`. |
+| `max_retries` | Orchestrator hit its retry ceiling. | Fall through to per-stage tools to debug. |
+| `needs_user_input` | Ambiguity the orchestrator cannot resolve. | Surface `next_action` to the user. |
+
+Per-stage fall-through (6 tools) — use these only when `orchestrate-material` stops with `max_retries` or you need stage-level A/B testing:
+
+```bash
+bgen prepare-run   # Phase 1 → {brand_dna_summary, applicable_learnings, readiness_issues, route, next_action}
+bgen plan-run      # Phase 2 → {plan_id, plan_summary, next_action}
+bgen validate-run  # Phase 3 → {status: ok|blocked, blocking_issues, warnings, critique_id, next_action}
+bgen execute-run   # Phase 4 → {version_id, image_paths, stopped_at, scratchpad_path, next_action}
+bgen review-run    # Phase 5 → {axis_scores, decision, before_after_diffs, visual_review_status, next_action}
+bgen evolve-run    # Phase 6 → {learnings_promoted, disagreements_logged, improvement_questions, next_action}
+```
+
+Each response's `next_action` is a direct hint to the next tool. Follow it unless you're intentionally A/B-testing a stage.
+
+### v2 review decision rule (thresholds)
+
+When `review-run` (or `critique-rubric --dspy-scorer`) returns a packet with `rubric_version` present:
+
+1. `disqualifier_triggered == true` → **REJECT** (overall_score is forced to 1; skip axis arithmetic entirely).
+2. `overall_score < 3` → **ITERATE**.
+3. `overall_score >= 3` AND `disqualifier_triggered == false` → **APPROVE**.
+
+`overall_score` is min-biased: any axis <2 caps overall at ≤2.
+
+`before_after_diffs` is the actionable fix list on ITERATE. Each row is `{principle, before, after}` where `principle` is a rubric axis or slop-pattern name. Feed each row into the next iteration as either:
+
+- **Durable** (preferred) — `bgen append-forbidden-pattern` for `before` clauses + `bgen append-custom-scratchpad-note --section composition` for `after` clauses. Persists across runs.
+- **Ephemeral** — `--ban "<before>"` and `--push "<after>"` inline on the next `orchestrate-material` call. One-run only.
+
+Use durable when the `before` is a recurring slop tell. Use ephemeral when it's run-specific.
+
+### Mutation (9 typed verbs — replace every direct file edit)
+
+**Never manually edit `custom-scratchpad.json`, `custom-scratchpad.md`, `learnings.json`, `iteration-memory.json`, or `brand-identity.json`.** Call the typed verb. Every tool supports `--dry-run` returning the same response shape so you can preview.
+
+| Verb | Replaces | Typical use |
+|---|---|---|
+| `bgen append-forbidden-pattern --pattern "..." --reason "..."` | Hand-edits to `custom-scratchpad.json` forbidden_patterns | Ban a slop tell (e.g. "floating gradient orbs") |
+| `bgen append-custom-scratchpad-note --section {global,motion,typography,composition} --text "..."` | Hand-edits to `custom-scratchpad.md` sections | Add a composition directive or motion rule |
+| `bgen promote-learning --bucket {modelPreferences,failurePatterns,...} --text "..."` | Hand-edits to `learnings.json` | Promote a winning setup or failure pattern |
+| `bgen promote-style-policy --material-type --reference-policy rotating_anchor_set --anchor v1 --anchor v2 ...` | Hand-edits to `styleReferencePolicies` | Declare a rotating anchor set for a material |
+| `bgen update-palette --role {primary,secondary,accent,...} --hex "#..."` | Hand-edits to `brand-identity.json` `brand_colors` + WCAG re-audit | Change a palette role |
+| `bgen update-typography --role {display,body,mono} --family "..." --fallback "..."` | Hand-edits to `brand-identity.json` typography | Change a font role |
+| `bgen update-devices --add/--remove "<device>"` | Hand-edits to approved devices list | Promote or retire a brand device |
+| `bgen set-motion-grammar --director "..." --favored "..." --banned "..." --intensity {low,medium,high}` | Hand-edits to motion-grammar section | Author or revise motion grammar |
+| `bgen submit-review <version-id> --critique-json <path>` | Alias for `submit-critique` | Submit a v2 critique packet |
+
+### Inspection (7 read verbs)
+
+```bash
+bgen context-snapshot --format json        # canonical workspace snapshot — run at session start
+bgen show-blackboard --format json         # active brief + decisions
+bgen show-iteration-memory --format json   # positive/negative examples + rotation state
+bgen show-rubric --material-type <t> --format json  # scoring contract before planning/critiquing
+bgen show-disagreements --format json      # agent-vs-user disagreements (calibration)
+bgen scoring-status --format json          # weighted Cohen's kappa + agreement rate
+bgen capabilities --format json            # available tools + material types
+```
+
+### Rule: typed verb before file edit
+
+Every time this skill or an agent instructs "edit this JSON/markdown file", stop. Pick the typed verb from the mutation list above. If no typed verb exists, the skill is out of date — file that gap instead of hand-editing. Direct file edits bypass the run ledger, skip deprecation warnings, and corrupt disagreement capture.
+
+### When to fall through to the legacy chain below
+
+The sequential `plan-draft → critique-plan → build-generation-scratchpad → generate → feedback → pipeline → evolve` chain documented in the phases below remains supported for:
+
+- CI/scripting that needs a single blocking `bgen pipeline` call
+- Debugging individual stages when `orchestrate-material` stops with `max_retries`
+- Pre-2026-04 host adapters that haven't been upgraded
+
+For every other workflow — **especially agents reading this skill at runtime** — prefer the typed orchestration + mutation verbs above. The 6-phase documentation below is the lower-level substrate the typed verbs call through, kept here so phase-level debugging stays possible.
 
 ## Setup
 
@@ -467,6 +562,10 @@ Load these as needed for full procedural details. Each covers one pipeline phase
 ---
 
 ## What to Avoid
+
+0. **Never manually edit `custom-scratchpad.json`, `custom-scratchpad.md`, `learnings.json`, `iteration-memory.json`, or `brand-identity.json`** — use the typed mutation verbs from the "Typed runtime" section above (`bgen append-forbidden-pattern`, `bgen append-custom-scratchpad-note`, `bgen promote-learning`, `bgen promote-style-policy`, `bgen update-palette`, `bgen update-typography`, `bgen update-devices`, `bgen set-motion-grammar`, `bgen submit-review`). Direct edits bypass the run ledger and corrupt agent-vs-user disagreement capture.
+
+0b. **Never default to `bgen pipeline` when `bgen orchestrate-material` works.** Pipeline is a CI/scripting fallback; orchestrate-material is the primary path with typed `{stop_reason, next_action, artifacts}` response shape.
 
 1. **Never skip preparation.** Phase 1 prevents repeating known failures and ensures
    concept diversity. Skipping it wastes generation budget on problems already solved.
