@@ -243,25 +243,46 @@ strategy. The planner must address this before generation."
 
 ## AI Slop Check (Image Critique)
 
-After scoring on the 4 axes, scan for AI-generated design anti-patterns.
-Any match is an automatic P1 with a specific ban directive.
+After scoring on the 4 axes, scan for AI-generated design anti-patterns. Any match in the **auto-P1** lists is an automatic P1 with a specific ban directive. Matches in the **auto-P2** lists are warnings the iterate directives should address.
 
-### Visual Anti-Patterns (auto-P1)
-- **Purple/violet gradients** → ban: "purple gradients"
-- **Cyan-on-dark neon palette** → ban: "neon cyan accents on dark background"
-- **Glassmorphism/frosted glass** → ban: "glassmorphism, frosted glass panels"
-- **3-column icon grid** with colored circles → ban: "3-column icon grid with colored circles"
+### Color & light (auto-P1)
+- **Purple/violet gradients** — "The Lila Ban" → ban: "purple/violet gradients, Lila-style AI palette"
+- **Neon cyan on dark** → ban: "neon cyan accents on dark background"
+- **Pure black (`#000000`)** → ban: "pure black backgrounds; use Zinc-950, off-black, or charcoal instead"
+- **Oversaturated accents** (saturation >80%) → ban: "oversaturated accent color; desaturate to <70% for premium feel"
+- **Auto-glows / default box-shadow glow** → ban: "auto-glows; use inner borders or subtle tinted shadows instead"
+- **Gradient text on headings** → ban: "gradient text fills on headlines"
 - **Glossy 3D render** when brief requests flat → ban: "glossy 3D rendering"
-- **Gradient text** on headings → ban: "gradient text fills"
+- **Glassmorphism / frosted glass** panels → ban: "glassmorphism, frosted glass panels"
 
-### Typography Anti-Patterns (auto-P1)
+### Typography (auto-P1)
+- **Inter or Roboto defaults** → ban: "Inter, Roboto, system sans defaults; use Geist / Outfit / Cabinet Grotesk / Satoshi or brand's declared face"
+- **Oversized centered H1** that screams → push: "control hierarchy with weight and color, not just massive scale"
 - **Invented gibberish text** → ban: "all invented text and gibberish"
 - **Duplicate logos** → ban: "duplicate logo marks"
 - **Decorative unreadable text** → ban: "decorative unreadable text"
+- **Serif fonts on clean dashboards** → ban: "serif fonts on Dashboard/Software UIs; use Sans-Serif"
 
-### Composition Anti-Patterns (auto-P2)
-- **Centered everything** with uniform spacing → push: "asymmetric editorial layout"
+### Composition & materials (auto-P1)
+- **3-column icon grid** with colored circles → ban: "3-column icon grid with colored circles; use 2-column zig-zag, asymmetric grid, or horizontal scroll instead"
 - **Cards nested inside cards** → ban: "nested card containers"
+- **Centered-giant-headline over generic hero image** → push: "asymmetric split-column layout with text cleanly aligned to one edge"
+
+### Content slop (auto-P1)
+- **Generic placeholder names** (John Doe, Sarah Chan, Jack Su) → ban: "placeholder names; use realistic domain-specific names"
+- **Startup slop names** (Acme, Nexus, SmartFlow) → ban: "generic startup-naming clichés; invent contextual premium names"
+- **Fake-rounded numbers** (99.99%, 50%, 1234567) → ban: "round placeholder numbers; use organic values like 47.2% or +1 (312) 847-1928"
+- **Filler words** (Elevate, Seamless, Unleash, Next-Gen) → ban: "AI copywriting clichés (Elevate/Seamless/Unleash/Next-Gen); use concrete verbs"
+- **Generic Unsplash-shaped photography** (empty office, diverse-team-at-desk, Apple products in a beige room) → ban: "generic Unsplash photography clichés"
+- **Generic SVG 'egg' avatars or Lucide user icons** → ban: "default avatar placeholders; use believable domain-specific portraits or specific styling"
+
+### Composition anti-patterns (auto-P2)
+- **Centered everything** with uniform spacing → push: "asymmetric editorial layout, left- or right-aligned content with generous negative space on the other side"
+- **Floating orbs / cubes / glowing nodes** with no brand meaning → ban: "floating orbs, glowing cubes, gradient orbs, faceless figures in lit rooms"
+- **Faceless premium-tech figures** → ban: "faceless premium-AI-brand figures"
+
+### Rule summary
+> Anything that could belong to any premium AI brand is a slop tell. Specific beats tasteful. Distinctive beats polished. When in doubt, ask: "could this be the opening slide of any tech deck at SXSW?" If yes, fail it.
 
 ---
 
