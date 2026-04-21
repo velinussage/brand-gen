@@ -878,3 +878,73 @@ def cmd_inspiration_status(args):
         print("  next commands:")
         for cmd in recommended_next:
             print(f"    $ {cmd}")
+
+
+def cmd_show_rubric(args):
+    """Dump the scoring rubric registry.
+
+    Without --material-type: full registry (all universal axes + all materials
+    with their overlays + disqualifiers).
+    With --material-type <t>: focused view for that material.
+    """
+    from ..scoring import (
+        RUBRIC_VERSION,
+        UNIVERSAL_AXES,
+        MATERIAL_OVERLAYS,
+        axes_for,
+        disqualifier_for,
+        material_rubric_key,
+        to_json_dict,
+    )
+
+    material_type = getattr(args, "material_type", None)
+    payload = to_json_dict(material_type)
+
+    if args.format == "json":
+        print(json.dumps(payload, indent=2))
+        return
+
+    # Text rendering
+    print(f"Scoring rubric (version: {RUBRIC_VERSION})")
+    if material_type:
+        print(f"  material_type: {material_type}")
+        print(f"  material_rubric_key: {material_rubric_key(material_type) or '(no overlay — universal only)'}")
+        print()
+        print("Universal axes:")
+        for axis in UNIVERSAL_AXES:
+            print(f"  - {axis['name']}")
+            print(f"    {axis['definition']}")
+        overlay_axes = payload.get("overlay_axes", [])
+        if overlay_axes:
+            print()
+            print(f"Overlay axes (material-specific):")
+            for axis in overlay_axes:
+                print(f"  - {axis['name']}")
+                print(f"    {axis['definition']}")
+        else:
+            print()
+            print(f"No overlay axes for material '{material_type}' (universal axes only)")
+        dq = payload.get("disqualifier")
+        if dq:
+            print()
+            print(f"Disqualifier rule ({dq['rule_id']}):")
+            print(f"  {dq['description']}")
+        else:
+            print()
+            print(f"No disqualifier rule for material '{material_type}'")
+    else:
+        print(f"  universal_axes: {len(UNIVERSAL_AXES)}")
+        print(f"  materials with overlays: {len(MATERIAL_OVERLAYS)}")
+        print()
+        print("Universal axes:")
+        for axis in UNIVERSAL_AXES:
+            print(f"  - {axis['name']}")
+        print()
+        print("Materials with overlays:")
+        for key, overlay in MATERIAL_OVERLAYS.items():
+            dq = overlay.get("disqualifier")
+            axes_count = len(overlay.get("overlay_axes", []))
+            dq_label = dq["rule_id"] if dq else "(no disqualifier)"
+            print(f"  - {key}: {axes_count} overlay axes + {dq_label}")
+        print()
+        print("Run with --material-type <t> for the full overlay + disqualifier for one material.")
