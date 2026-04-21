@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "description": "Named aesthetic archetypes keyed by material type. The planner picks ONE archetype per run; prompt assembly injects that archetype's compositional grammar into the execution_prompt so the model has concrete handholds instead of generic mood words. Each archetype declares: reference_work (who/where the aesthetic lives), compositional_grammar (one sentence describing layout/framing), color_rule (one sentence on palette discipline), rendering_finish (one sentence on surface treatment), signature_moves (2-3 concrete do's), and example_bans (2-3 concrete don'ts). Rotation across a material's archetype set prevents every run from defaulting to the same paradigm.",
+  "archetypes_by_material": {
+    "concept-illustration": [
+      {
+        "id": "penguin-classics-paperback",
+        "name": "Penguin Classics paperback cover",
+        "reference_work": "Penguin Classics editions by Coralie Bickford-Smith and earlier series",
+        "compositional_grammar": "One symbolic motif occupying the center-upper third, framed by generous negative space with a subtle decorative border or geometric frame; typography (if any) treated as integral layout, not overlay.",
+        "color_rule": "Two-to-three ink colors from the brand palette on a warm paper-toned ground; one saturated accent against muted field.",
+        "rendering_finish": "Flat woodcut or linocut quality — visible carving texture, no gradients, no 3D shading, no photographic grain.",
+        "signature_moves": [
+          "central symbolic motif as the whole composition, not an icon-plus-text lockup",
+          "1-2mm decorative inner border with subtle pattern repeat",
+          "hand-set typographic feel when any text is present"
+        ],
+        "example_bans": [
+          "glossy 3D renders or realistic photographic shading",
+          "multiple icons arranged in a grid",
+          "digital gradient fills"
+        ]
+      },
+      {
+        "id": "charley-harper-minimal-realism",
+        "name": "Charley Harper minimal realism",
+        "reference_work": "Charley Harper's mid-century nature illustrations and Ford Times plates",
+        "compositional_grammar": "Subject reduced to geometric primitives (circle, rectangle, triangle) and placed with intentional asymmetry; silhouette over detail; the natural form reads clearly but is never rendered with anatomical fidelity.",
+        "color_rule": "4-6 flat colors total, carefully selected for contrast and rhythm; no gradients; black ink used sparingly for defining edges.",
+        "rendering_finish": "Pure flat vector with hand-drawn line quality; visible but intentional imperfection; silk-screen feel rather than digital-sharp.",
+        "signature_moves": [
+          "one subject, geometrically abstracted, positioned off-center",
+          "negative space as equal compositional partner, not leftover",
+          "limited palette that reads bold but never neon"
+        ],
+        "example_bans": [
+          "photorealistic rendering",
+          "drop shadows or ambient occlusion",
+          "textures or noise overlays"
+        ]
+      },
+      {
+        "id": "kyoto-garden-stillness",
+        "name": "Kyoto garden stillness (sumi-e)",
+        "reference_work": "Japanese sumi-e ink-wash paintings and Ryoan-ji rock-garden compositions",
+        "compositional_grammar": "Radical asymmetry anchored in Ma (間) negative space; one focal gesture placed against roughly 70% emptiness; the composition feels paused rather than staged.",
+        "color_rule": "Monochrome or near-monochrome — ink on paper — plus at most one muted accent from the brand palette.",
+        "rendering_finish": "Ink-wash bleed edges, visible brushstroke texture, paper grain underneath, no hard geometric edges.",
+        "signature_moves": [
+          "enormous negative space; the subject is small in frame",
+          "brushstroke energy and wetness visible in the mark",
+          "contemplative rhythm — calm, not empty"
+        ],
+        "example_bans": [
+          "vector-perfect edges",
+          "digital gradient fills",
+          "multiple competing focal elements"
+        ]
+      },
+      {
+        "id": "criterion-title-card",
+        "name": "Criterion Collection title card",
+        "reference_work": "Criterion Collection box art and opening title cards",
+        "compositional_grammar": "Title-card framing: typographic block + single resonant image, letterboxed with generous negative borders; the image carries the film's whole argument; typography is calm, authoritative, and visually integrated.",
+        "color_rule": "Restrained palette of 2-4 colors; image warmth + one bold type-hue (often cream, bone, or oxblood); no saturation above 70%.",
+        "rendering_finish": "Film-still clarity without photographic glare; painterly if illustration, archival-photograph-soft if photo-derived.",
+        "signature_moves": [
+          "letterbox bands as intentional composition frame",
+          "one dominant image anchors the meaning, not a collage",
+          "typography sits at the edge in a serif or geometric-sans with measured confidence"
+        ],
+        "example_bans": [
+          "sans-serif tech-brand voice for typography",
+          "centered-hero-over-dark-image defaults",
+          "busy multi-image lockups"
+        ]
+      },
+      {
+        "id": "noma-foraging-journal",
+        "name": "Noma foraging journal plate",
+        "reference_work": "René Redzepi's Noma foraging journals, field-guide botanical plates",
+        "compositional_grammar": "Specimen-on-paper: a single organic subject floats centered on an off-white field with hand-noted annotation space around it; the composition feels excerpted from a larger journal rather than designed-for-display.",
+        "color_rule": "Muted natural palette — sage, ochre, charcoal, bone — plus one ember accent; never synthetic-vivid.",
+        "rendering_finish": "Botanical-illustration precision with hand-inked edges and watercolor wash fills; paper grain visible; archival feel.",
+        "signature_moves": [
+          "one specimen, centered, isolated",
+          "hand-noted annotation or dated marginalia as texture",
+          "soft watercolor wash for fills, never flat CMYK"
+        ],
+        "example_bans": [
+          "infographic-style callouts or arrows",
+          "sans-serif labels over the subject",
+          "neon or synthetic palette colors"
+        ]
+      }
+    ],
+    "brand-scene": [
+      {
+        "id": "kogei-workshop-practice",
+        "name": "Japanese kogei (craft) workshop practice",
+        "reference_work": "Japanese kogei workshops documented in Monocle and Kinfolk",
+        "compositional_grammar": "Quiet workshop interior mid-practice: hands at work on a craft surface, daylight raking in from one side, tools arranged as evidence of process rather than styled; the room feels inhabited, not staged.",
+        "color_rule": "Wood tones + raw material (clay, textile, paper) + the brand palette as lighting tint; all neutrals are warm, no cold grays.",
+        "rendering_finish": "Documentary-photograph quality — soft natural grain, no high-key retouching, dust and imperfection visible.",
+        "signature_moves": [
+          "hands mid-action, tools in use or at rest from recent use",
+          "raking daylight from a single window or skylight",
+          "material textures (wood grain, clay, paper fiber) read clearly"
+        ],
+        "example_bans": [
+          "empty architectural mood with no activity",
+          "high-key fashion-editorial lighting",
+          "plastic or synthetic material finishes"
+        ]
+      },
+      {
+        "id": "aesop-apothecary-shelf",
+        "name": "Aesop apothecary shelf",
+        "reference_work": "Aesop retail interiors by Snøhetta, Studio Ko, March Studio",
+        "compositional_grammar": "Horizontal shelving as the governing grid; products arranged as a calm typology; one focal action (pick, pour, arrange) anchors the frame; the room's material language carries more weight than any single object.",
+        "color_rule": "Warm neutral with one amber-glass accent and the brand's darker tone as a shadow base; no cold whites, no synthetic blacks.",
+        "rendering_finish": "Softly-lit retail photography feel — diffused daylight, honest shadow, no product-catalog glare.",
+        "signature_moves": [
+          "horizontal shelf grid as primary structure",
+          "single product or gesture as focal, surrounded by repetition",
+          "material honesty — visible wood grain, stone veining, paper texture"
+        ],
+        "example_bans": [
+          "studio-lit product shots with hard falloff",
+          "stock photography of generic retail interiors",
+          "cold metal or glass-dominant materials"
+        ]
+      },
+      {
+        "id": "donald-judd-marfa-studio",
+        "name": "Donald Judd Marfa studio",
+        "reference_work": "Chinati Foundation installations and Donald Judd's Marfa working spaces",
+        "compositional_grammar": "Empty industrial volume with one deliberate gesture: a single work surface, stacked boxes, or assembly mid-arrangement; the room reads as serious practice rather than styled space; the scale feels big and the activity feels small.",
+        "color_rule": "Concrete, raw steel, desert daylight — the brand palette enters only through one applied surface (a panel, a chair, a fabric).",
+        "rendering_finish": "Architectural-photography clarity — deep focus, natural shadow, no fill flash.",
+        "signature_moves": [
+          "big empty volume, one small gesture inside it",
+          "industrial materials honest and unfinished",
+          "desert daylight or north-facing cool daylight"
+        ],
+        "example_bans": [
+          "cluttered shelving or multiple competing focal points",
+          "warm filtered interior-design lighting",
+          "decorative objects with no evidence of use"
+        ]
+      },
+      {
+        "id": "hermes-orange-atelier",
+        "name": "Hermès orange atelier",
+        "reference_work": "Hermès leather ateliers and Lanvin studio photography",
+        "compositional_grammar": "Craftsperson mid-task at a well-worn wooden bench, tools laid out with practiced rhythm, single piece in-progress as focal element; the craft discipline carries the composition.",
+        "color_rule": "Aged wood + leather tones + one bright atelier light tint; the brand palette enters through thread, fabric, or a signature accent color.",
+        "rendering_finish": "Magazine-quality craft documentation — warm raking light, shallow depth of field on the hands and piece, background honest and out-of-focus.",
+        "signature_moves": [
+          "hands and tools together in frame, mid-action",
+          "the in-progress piece is the hero, not a finished object",
+          "warm worn-wood palette as ground truth"
+        ],
+        "example_bans": [
+          "finished-product styled shots",
+          "any pose of hands without an active task",
+          "cold studio photography backdrop"
+        ]
+      }
+    ],
+    "landing-hero": [
+      {
+        "id": "stripe-spatial-gradient",
+        "name": "Stripe spatial-gradient hero",
+        "reference_work": "stripe.com hero treatments and Stripe Press covers",
+        "compositional_grammar": "Split composition: left column copy, right column spatial-gradient art; the gradient reads as product architecture rendered in color space, not decoration; headline sits at the optical top of the copy column.",
+        "color_rule": "Deep brand base with 1-2 accent hues in the gradient; the gradient's color choices should feel purposeful (map to product metaphor), not decorative.",
+        "rendering_finish": "Crisp digital; rendered in 3D or vector but feels dimensional; clean edge treatment, no noise overlay, subtle.",
+        "signature_moves": [
+          "left-copy / right-gradient composition",
+          "spatial-gradient shape implies product architecture",
+          "monospace or tight-grotesk headline voice"
+        ],
+        "example_bans": [
+          "centered-headline over generic dark hero image",
+          "purple/violet gradient defaults",
+          "stock-photo-hero compositions"
+        ]
+      },
+      {
+        "id": "linear-motion-diagram",
+        "name": "Linear motion-diagram hero",
+        "reference_work": "linear.app hero treatments and Arc browser announcements",
+        "compositional_grammar": "Full-bleed dark-mode surface with an illuminated node-edge diagram as the hero; the diagram is a literal product sketch, not decoration; copy sits inside the diagram's whitespace.",
+        "color_rule": "Dark-mode base (charcoal, not pure black), one accent glow hue tied to the brand, off-white edge lines for the diagram.",
+        "rendering_finish": "Technical-drawing precision — thin line weights, dimension-like labels, soft bloom on active nodes, no heavy textures.",
+        "signature_moves": [
+          "node + edge as primary composition language",
+          "one accent-hue glow on active nodes",
+          "copy flows through the diagram whitespace"
+        ],
+        "example_bans": [
+          "pure black background (#000)",
+          "isometric-cube stacks as decoration",
+          "neon-cyan-on-black accents"
+        ]
+      },
+      {
+        "id": "vercel-monochrome-poster",
+        "name": "Vercel monochrome poster hero",
+        "reference_work": "vercel.com product pages and Vercel Ship keynote design",
+        "compositional_grammar": "Type-led poster: massive display typography as the visual subject with a single geometric support element (triangle, arrow, monogram); no art — the type IS the art.",
+        "color_rule": "Strict two-color: off-white + off-black, OR brand base + single accent; no third color allowed.",
+        "rendering_finish": "Print-poster precision — tight letter-spacing, generous line leading, high contrast, offset-print texture minimal.",
+        "signature_moves": [
+          "display type at 10x the scale of body copy",
+          "one geometric support mark, never more",
+          "poster-print tactility — visible but quiet grain"
+        ],
+        "example_bans": [
+          "photographic hero imagery",
+          "three or more colors in the composition",
+          "decorative illustrations alongside the type"
+        ]
+      },
+      {
+        "id": "criterion-film-still",
+        "name": "Criterion Collection film-still hero",
+        "reference_work": "Criterion Collection DVD/Blu-ray covers, Janus Films title cards",
+        "compositional_grammar": "Letterboxed cinematic framing: the hero image is a single resonant film-still composition (whether photographic, illustrated, or 3D); title typography sits at the edge or bottom band with studied restraint.",
+        "color_rule": "Film-stock palette (warm 1970s Kodachrome OR cool monochrome) with one bold type-hue; saturation disciplined below 70%.",
+        "rendering_finish": "Archival-photography softness or hand-painted illustration — never sharp-digital; subtle grain; film-letterbox proportion.",
+        "signature_moves": [
+          "16:9 letterbox with intentional top/bottom negative bands",
+          "one resonant image holds the whole meaning",
+          "title-card typography near-edge, never centered-giant"
+        ],
+        "example_bans": [
+          "centered-giant headline over the image",
+          "sharp-digital rendering with no softness",
+          "multiple hero images tiled"
+        ]
+      },
+      {
+        "id": "swiss-graphic-1975",
+        "name": "Swiss graphic agency 1975",
+        "reference_work": "Josef Müller-Brockmann posters, Otl Aicher's Lufthansa system, Grapus",
+        "compositional_grammar": "Strict underlying 12-column grid visible as quiet rule, single-color accent placed with mathematical intention, headline typography dominates, no decorative elements — every mark is structural.",
+        "color_rule": "Off-white or pale ground + one primary accent (red, blue, or yellow) + black typography; the accent is never background, always mark.",
+        "rendering_finish": "Offset-print matte, crisp edges, disciplined negative space, no gradients, no noise.",
+        "signature_moves": [
+          "grid visible as underlying structure",
+          "one primary-hue accent placed with intention",
+          "headline typography carries the voice, not imagery"
+        ],
+        "example_bans": [
+          "decorative illustrations",
+          "gradient fills",
+          "sans-serif faces newer than 1980"
+        ]
+      }
+    ],
+    "campaign-poster": [
+      {
+        "id": "pentagram-poster-house-print",
+        "name": "Pentagram poster-house print",
+        "reference_work": "Pentagram posters by Paula Scher, Domenic Lippa, Harry Pearce",
+        "compositional_grammar": "Typographic dominance: headline/declaration occupies 50-70% of the frame, supporting image or mark anchors a corner; modular print-grid discipline underneath; the poster reads loud at 10ft, readable at 1ft.",
+        "color_rule": "Two colors max, both saturated, deliberately chosen; the color pairing carries the poster's whole voice.",
+        "rendering_finish": "Offset-print tactility — visible print texture, quiet registration imperfection, confident saturation without neon.",
+        "signature_moves": [
+          "typography at declarative scale (not timid)",
+          "two-color print discipline",
+          "supporting mark or photo anchors a single corner"
+        ],
+        "example_bans": [
+          "three-or-more-color palettes",
+          "centered-all-elements compositions",
+          "decorative illustration competing with the type"
+        ]
+      },
+      {
+        "id": "paul-rand-ibm",
+        "name": "Paul Rand IBM-era poster",
+        "reference_work": "Paul Rand's IBM eye-bee-M, Westinghouse, and UPS work",
+        "compositional_grammar": "One dominant playful symbol, plain single-tone background, minimal supporting mark — the poster communicates one idea with one symbol and nothing else.",
+        "color_rule": "Primary-color palette (red, blue, yellow) on pale or black ground; 2 colors max; confident without being neon.",
+        "rendering_finish": "Flat poster color with visible offset-print grain, crisp geometric edges.",
+        "signature_moves": [
+          "one symbol holds the whole meaning",
+          "primary-color palette with confident restraint",
+          "negative space treated as intentional sculpt"
+        ],
+        "example_bans": [
+          "realistic rendering or photographic texture",
+          "decorative ornaments around the symbol",
+          "gradients of any kind"
+        ]
+      },
+      {
+        "id": "saul-bass-title-design",
+        "name": "Saul Bass title-design poster",
+        "reference_work": "Saul Bass posters and title sequences (Anatomy of a Murder, Vertigo, The Man with the Golden Arm)",
+        "compositional_grammar": "Reductive iconography — the subject distilled to its most elemental silhouette or geometric gesture; typography as integral graphic element, often cut or torn-edge; the composition reads as a narrative moment, not a product shot.",
+        "color_rule": "Two or three colors, at least one bold and one restrained; off-white/off-black plus one hue carries most work.",
+        "rendering_finish": "Hand-cut collage texture — torn edges, visible paper grain, imperfect registration; not digital-sharp.",
+        "signature_moves": [
+          "one silhouette as the whole subject",
+          "typography integrated with the silhouette, not laid over it",
+          "hand-cut paper-collage energy"
+        ],
+        "example_bans": [
+          "photographic imagery",
+          "digital-sharp vector edges with no texture",
+          "more than 3 colors in the composition"
+        ]
+      },
+      {
+        "id": "neville-brody-face-magazine",
+        "name": "Neville Brody Face-magazine editorial",
+        "reference_work": "Neville Brody's The Face covers and early FUSE issues",
+        "compositional_grammar": "Layered typographic collage, custom-cut letterforms, graphic distortion and masked-off passages; the composition reads as sampled from a cultural moment, not designed for a brand deck.",
+        "color_rule": "Punchy editorial palette — saturated hues used in 2-3 bold blocks, black typography tension throughout.",
+        "rendering_finish": "Hand-cut and photocopied feel — visible paper, tape seams, distortion, intentional imperfection.",
+        "signature_moves": [
+          "custom-cut or layered typography as primary subject",
+          "saturated color blocks carry mood",
+          "collage seams and distortion visible"
+        ],
+        "example_bans": [
+          "clean digital sans-serif typography",
+          "pristine vector edges",
+          "restrained editorial whitespace"
+        ]
+      },
+      {
+        "id": "swiss-graphic-declaration",
+        "name": "Swiss graphic declaration poster",
+        "reference_work": "Josef Müller-Brockmann music-festival posters, Jan Tschichold constructivist posters",
+        "compositional_grammar": "12-column underlying grid, headline sized to break out of the grid with confident overflow, one geometric mark (circle, diagonal, bar) as visual anchor, rest is negative space.",
+        "color_rule": "Pale or black ground + one primary-hue accent (red/blue/yellow) + black typography; the accent is never decorative.",
+        "rendering_finish": "Offset-print matte; crisp geometric edges; disciplined whitespace; no gradients.",
+        "signature_moves": [
+          "headline overflows the grid at massive scale",
+          "one geometric mark as compositional anchor",
+          "primary-hue accent used once, precisely"
+        ],
+        "example_bans": [
+          "multiple decorative illustrations",
+          "centered compositions",
+          "gradients or drop shadows"
+        ]
+      }
+    ]
+  }
+}

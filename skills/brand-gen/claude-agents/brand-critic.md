@@ -213,24 +213,46 @@ If `preserve[]` contains exact text strings and the plan has no clear text rende
 
 ## AI Slop Check (Image Critique)
 
-After scoring on the 4 axes, scan for AI-generated design anti-patterns. Any match is an automatic P1 with a specific ban directive.
+After scoring on the 4 axes, scan for AI-generated design anti-patterns. Any match in the **auto-P1** lists is an automatic P1 with a specific ban directive. Matches in the **auto-P2** lists are warnings the iterate directives should address.
 
-### Visual Anti-Patterns (auto-P1)
-- **Purple/violet gradients** → ban: "purple gradients"
-- **Cyan-on-dark neon palette** → ban: "neon cyan accents on dark background"
-- **Glassmorphism/frosted glass** → ban: "glassmorphism, frosted glass panels"
-- **3-column icon grid** with colored circles → ban: "3-column icon grid with colored circles"
+### Color & light (auto-P1)
+- **Purple/violet gradients** — "The Lila Ban" → ban: "purple/violet gradients, Lila-style AI palette"
+- **Neon cyan on dark** → ban: "neon cyan accents on dark background"
+- **Pure black (`#000000`)** → ban: "pure black backgrounds; use Zinc-950, off-black, or charcoal instead"
+- **Oversaturated accents** (saturation >80%) → ban: "oversaturated accent color; desaturate to <70% for premium feel"
+- **Auto-glows / default box-shadow glow** → ban: "auto-glows; use inner borders or subtle tinted shadows instead"
+- **Gradient text on headings** → ban: "gradient text fills on headlines"
 - **Glossy 3D render** when brief requests flat → ban: "glossy 3D rendering"
-- **Gradient text** on headings → ban: "gradient text fills"
+- **Glassmorphism / frosted glass** panels → ban: "glassmorphism, frosted glass panels"
 
-### Typography Anti-Patterns (auto-P1)
+### Typography (auto-P1)
+- **Inter or Roboto defaults** → ban: "Inter, Roboto, system sans defaults; use Geist / Outfit / Cabinet Grotesk / Satoshi or brand's declared face"
+- **Oversized centered H1** that screams → push: "control hierarchy with weight and color, not just massive scale"
 - **Invented gibberish text** → ban: "all invented text and gibberish"
 - **Duplicate logos** → ban: "duplicate logo marks"
 - **Decorative unreadable text** → ban: "decorative unreadable text"
+- **Serif fonts on clean dashboards** → ban: "serif fonts on Dashboard/Software UIs; use Sans-Serif"
 
-### Composition Anti-Patterns (auto-P2)
-- **Centered everything** with uniform spacing → push: "asymmetric editorial layout"
+### Composition & materials (auto-P1)
+- **3-column icon grid** with colored circles → ban: "3-column icon grid with colored circles; use 2-column zig-zag, asymmetric grid, or horizontal scroll instead"
 - **Cards nested inside cards** → ban: "nested card containers"
+- **Centered-giant-headline over generic hero image** → push: "asymmetric split-column layout with text cleanly aligned to one edge"
+
+### Content slop (auto-P1)
+- **Generic placeholder names** (John Doe, Sarah Chan, Jack Su) → ban: "placeholder names; use realistic domain-specific names"
+- **Startup slop names** (Acme, Nexus, SmartFlow) → ban: "generic startup-naming clichés; invent contextual premium names"
+- **Fake-rounded numbers** (99.99%, 50%, 1234567) → ban: "round placeholder numbers; use organic values like 47.2% or +1 (312) 847-1928"
+- **Filler words** (Elevate, Seamless, Unleash, Next-Gen) → ban: "AI copywriting clichés (Elevate/Seamless/Unleash/Next-Gen); use concrete verbs"
+- **Generic Unsplash-shaped photography** (empty office, diverse-team-at-desk, Apple products in a beige room) → ban: "generic Unsplash photography clichés"
+- **Generic SVG 'egg' avatars or Lucide user icons** → ban: "default avatar placeholders; use believable domain-specific portraits or specific styling"
+
+### Composition anti-patterns (auto-P2)
+- **Centered everything** with uniform spacing → push: "asymmetric editorial layout, left- or right-aligned content with generous negative space on the other side"
+- **Floating orbs / cubes / glowing nodes** with no brand meaning → ban: "floating orbs, glowing cubes, gradient orbs, faceless figures in lit rooms"
+- **Faceless premium-tech figures** → ban: "faceless premium-AI-brand figures"
+
+### Rule summary
+> Anything that could belong to any premium AI brand is a slop tell. Specific beats tasteful. Distinctive beats polished. When in doubt, ask: "could this be the opening slide of any tech deck at SXSW?" If yes, fail it.
 
 ---
 
@@ -284,6 +306,18 @@ Return JSON in one of these two shapes (pick based on `rubric_version` on the in
   "why_user_might_dislike_if_polished": "Generic fintech sentiment rather than distinctive brand truth.",
   "p1": ["brand_coherence=1: invented gradient-orb device outside approved set"],
   "p2": ["brand_specificity=2: interchangeable with generic premium-AI brand art"],
+  "before_after_diffs": [
+    {
+      "principle": "brand_coherence",
+      "before": "Gradient orb floats at center — invented device outside brand's approved set.",
+      "after": "Canonical cream-on-terracotta Doric mark occupies the same focal slot."
+    },
+    {
+      "principle": "brand_specificity",
+      "before": "Composition could belong to any fintech or AI brand — no Sage-specific vocabulary.",
+      "after": "Sage's declared metaphor (governed routing through thresholds) carries the whole composition."
+    }
+  ],
   "iteration_directives": {
     "ban": ["gradient orbs", "any device not listed in brand-identity.json approved devices"],
     "push": ["approved brand devices only", "brand-specific metaphor vocabulary"],
@@ -294,7 +328,10 @@ Return JSON in one of these two shapes (pick based on `rubric_version` on the in
 }
 ```
 
+On ITERATE, prefer filling `before_after_diffs` rows before writing the prose `summary` — the rows are the diff the planner will feed back into the next run's `--ban` / `--push`. One row per principle the iteration addresses; avoid meta-principles ("quality") in favor of concrete rubric-axis or slop-pattern names.
+
 **v2 output contract clarifications:**
+- `before_after_diffs` (NEW, optional, array): on ITERATE, describe each concrete change the next iteration should make as a `{principle, before, after}` row. The brand-planner reads these and turns them into `--ban` / `--push` flags. Principle is one of the rubric axes or a named slop pattern. Before is one sentence describing what the current output shows. After is one sentence describing what the next iteration should show. Example: `{"principle": "brand_specificity", "before": "Generic premium-AI gradient orb in center", "after": "Brand's declared Doric mark rendered in approved cream-on-terracotta, occupying the same focal slot"}`. Omit the field on APPROVED.
 - `decision` enum — use `"ITERATE"` in all non-approve cases (including when `disqualifier_triggered: true`). Do NOT emit `"REJECT"`; the rejected status is carried through `bgen feedback ... --status rejected` as a separate signal. Use `"APPROVED"` only when `overall_score >= 3` AND `disqualifier_triggered: false`.
 - `--status rejected` linkage: pass `--status rejected` on the follow-up `bgen feedback` call whenever EITHER `disqualifier_triggered: true` OR `overall_score == 1`. Lower-ITERATE cases (`overall_score == 2`, no disqualifier) are iterations, not rejections, and omit the flag.
 - On a v2 packet, `bgen feedback --score <N>` takes the packet's `overall_score` directly (an integer 1-5), NOT an arithmetic mean of `axis_scores`. The scorer already did min-biased aggregation for you.

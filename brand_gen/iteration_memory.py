@@ -16,6 +16,7 @@ DEFAULT_ITERATION_MEMORY = {
     "material_notes": {},
     "last_style_anchor_by_material": {},
     "recent_style_anchors_by_material": {},
+    "recent_archetypes_by_material": {},
 }
 
 def iteration_memory_paths(brand_dir: Path) -> tuple[Path, Path]:
@@ -35,6 +36,9 @@ def normalize_iteration_memory(payload: dict | None) -> dict:
     out["last_style_anchor_by_material"] = dict(out.get("last_style_anchor_by_material") or {})
     out["recent_style_anchors_by_material"] = {
         k: list(v) for k, v in (out.get("recent_style_anchors_by_material") or {}).items()
+    }
+    out["recent_archetypes_by_material"] = {
+        k: list(v) for k, v in (out.get("recent_archetypes_by_material") or {}).items()
     }
     return out
 

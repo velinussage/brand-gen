@@ -64,3 +64,6 @@ IMPROVEMENT-PLAN.md
 
 # Third-party skills installed via `gh skill install` (upstream packages, not part of brand-gen)
 .agents/
+
+# Sage-synced skill tree (downloaded, not source)
+.claude/skills/
