@@ -157,6 +157,40 @@ def build_get_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def _add_run_or_path_args(parser: argparse.ArgumentParser, *, path_help: str) -> None:
+    parser.add_argument("--run-id", help="Workflow id (aka run_id); fetches the most recent matching artifact")
+    parser.add_argument("--path", help=path_help)
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_get_plan_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_run_or_path_args(parser, path_help="Explicit plan-draft JSON path (overrides --run-id)")
+
+
+def build_get_critique_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_run_or_path_args(parser, path_help="Explicit plan-critique JSON path (overrides --run-id)")
+
+
+def build_get_scratchpad_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_run_or_path_args(parser, path_help="Explicit generation-scratchpad JSON path (overrides --run-id)")
+
+
+def build_get_review_packet_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version-id", required=True, help="Version id (e.g., v7)")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_get_version_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version-id", required=True, help="Version id (e.g., v7)")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_compare_versions_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--a", required=True, help="First version id")
+    parser.add_argument("--b", required=True, help="Second version id")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
 def build_show_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -1067,6 +1101,12 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-workflow-lineage': build_show_workflow_lineage_cli,
     'list-runs': build_list_runs_cli,
     'get-run': build_get_run_cli,
+    'get-plan': build_get_plan_cli,
+    'get-critique': build_get_critique_cli,
+    'get-scratchpad': build_get_scratchpad_cli,
+    'get-review-packet': build_get_review_packet_cli,
+    'get-version': build_get_version_cli,
+    'compare-versions': build_compare_versions_cli,
     'show-reference-analysis': build_show_reference_analysis_cli,
     'prompts-list': build_prompts_list_cli,
     'prompts-get': build_prompts_get_cli,

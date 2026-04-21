@@ -148,7 +148,9 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       "Submit a v2 critique packet for a version (alias for submit-critique). Supports --dry-run.",
   },
 
-  // Inspection (9) — read-only queries over durable state (Phase A added brand_list_runs + brand_get_run).
+  // Inspection (15) — read-only queries over durable state.
+  //   Phase A added brand_list_runs + brand_get_run (run projection).
+  //   Phase B added 6 artifact inspection verbs (plan/critique/scratchpad/review_packet/version/compare).
   {
     name: "brand_list_runs",
     category: "inspection",
@@ -160,6 +162,42 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "inspection",
     description:
       "Fetch the projected Run object for a run_id — derived over the append-only run ledger events. Returns status + artifact_ids an agent can use to resume or inspect.",
+  },
+  {
+    name: "brand_get_plan",
+    category: "inspection",
+    description:
+      "Fetch a plan-draft artifact by run_id (most recent match) or by explicit path. Returns the typed plan JSON an agent can revise.",
+  },
+  {
+    name: "brand_get_critique",
+    category: "inspection",
+    description:
+      "Fetch a plan-critique artifact by run_id or path. Returns blocking_issues + warnings the critic found.",
+  },
+  {
+    name: "brand_get_scratchpad",
+    category: "inspection",
+    description:
+      "Fetch a generation-scratchpad artifact by run_id or path. Shows the execution_prompt, reference assignments, and execution params used for generation.",
+  },
+  {
+    name: "brand_get_review_packet",
+    category: "inspection",
+    description:
+      "Fetch the agent or auto review packet for a generated version (prefers agent-review.json over auto-review.json).",
+  },
+  {
+    name: "brand_get_version",
+    category: "inspection",
+    description:
+      "Fetch the manifest entry + on-disk files for a version.",
+  },
+  {
+    name: "brand_compare_versions",
+    category: "inspection",
+    description:
+      "Side-by-side diff of two version manifest entries (material_type, model, score, mode, reference_count, etc.).",
   },
   {
     name: "brand_context_snapshot",

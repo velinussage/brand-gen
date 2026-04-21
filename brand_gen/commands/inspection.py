@@ -16,6 +16,14 @@ from ..generation_flow import *
 from ..reference_analysis import reference_analysis_confidence, reference_analysis_mode
 from ..run_ledger import load_run_events
 from ..run_state import Run, get_run as project_run_by_id, list_all_runs
+from ..artifact_inspection import (
+    compare_versions as artifact_compare_versions,
+    fetch_critique,
+    fetch_plan,
+    fetch_review_packet,
+    fetch_scratchpad,
+    fetch_version,
+)
 from ..runtime_support import html_escape, version_sort_key as _version_sort_key
 from ..session_summary import *
 from ..media_board import *
@@ -1246,3 +1254,58 @@ def cmd_get_run(args):
         print("  artifacts:")
         for k, v in run.artifact_ids.items():
             print(f"    {k}: {v}")
+
+
+def _resolve_run_or_path(args) -> tuple[str | None, str | None]:
+    run_id = str(getattr(args, "run_id", "") or "").strip() or None
+    path = str(getattr(args, "path", "") or "").strip() or None
+    return run_id, path
+
+
+def cmd_get_plan(args):
+    brand_dir = get_brand_dir()
+    run_id, path = _resolve_run_or_path(args)
+    result = fetch_plan(brand_dir, run_id=run_id, path=path)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_get_critique(args):
+    brand_dir = get_brand_dir()
+    run_id, path = _resolve_run_or_path(args)
+    result = fetch_critique(brand_dir, run_id=run_id, path=path)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_get_scratchpad(args):
+    brand_dir = get_brand_dir()
+    run_id, path = _resolve_run_or_path(args)
+    result = fetch_scratchpad(brand_dir, run_id=run_id, path=path)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_get_review_packet(args):
+    brand_dir = get_brand_dir()
+    version_id = str(getattr(args, "version_id", "") or "").strip()
+    if not version_id:
+        raise SystemExit("--version-id is required")
+    result = fetch_review_packet(brand_dir, version_id=version_id)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_get_version(args):
+    brand_dir = get_brand_dir()
+    version_id = str(getattr(args, "version_id", "") or "").strip()
+    if not version_id:
+        raise SystemExit("--version-id is required")
+    result = fetch_version(brand_dir, version_id=version_id)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_compare_versions(args):
+    brand_dir = get_brand_dir()
+    version_a = str(getattr(args, "a", "") or "").strip()
+    version_b = str(getattr(args, "b", "") or "").strip()
+    if not version_a or not version_b:
+        raise SystemExit("--a and --b are required")
+    result = artifact_compare_versions(brand_dir, version_a=version_a, version_b=version_b)
+    print(json.dumps(result, indent=2))
