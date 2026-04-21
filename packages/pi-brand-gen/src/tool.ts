@@ -6,7 +6,12 @@ import {
   CANONICAL_TOOLS,
   executeAction,
   generateHostTools,
+  getJournalStats,
+  getPendingOutputReviews,
+  getRecentEntries,
   getStatusSnapshot,
+  loadLearnings,
+  resolveActiveWorkspace,
   toToolResult,
   type BridgeLike,
   type HeartbeatState,
@@ -44,7 +49,7 @@ export function createCanonicalBrandTools(
  * continue to work. New code should call the canonical tool directly, e.g.
  * `brand_context_snapshot`.
  */
-export function createBrandSearchTool(bridge: BridgeLike, _config: PluginConfig): ToolDefinition {
+export function createBrandSearchTool(bridge: BridgeLike, config: PluginConfig): ToolDefinition {
   const actionMap: Record<string, string> = {
     list_tools: "",
     get_context: "brand_context_snapshot",
@@ -65,26 +70,86 @@ export function createBrandSearchTool(bridge: BridgeLike, _config: PluginConfig)
       params: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
     }),
     execute: async ({ action, params }: { action: string; params?: Record<string, unknown> }) => {
+      const state = resolveActiveWorkspace(config.brandGenDir);
+      const p = params ?? {};
       const tool = actionMap[action];
-      if (tool === undefined) {
+      if (tool !== undefined) {
+        if (tool === "") {
+          const tools = bridge.isReady() ? await bridge.listTools() : [];
+          return toToolResult({ tools, canonical: CANONICAL_TOOLS });
+        }
+        const payload = await callJsonTool(bridge, tool, {
+          format: "json",
+          ...(params ?? {}),
+        });
+        if (action === "list_brands") {
+          return toToolResult({ brands: payload ?? [] });
+        }
+        if (action === "get_session_summary") {
+          return toToolResult({ summary: payload ?? null });
+        }
+        if (action === "get_blackboard") {
+          return toToolResult({ blackboard: payload ?? null });
+        }
+        if (action === "get_iteration_memory") {
+          return toToolResult({ iterationMemory: payload ?? null });
+        }
+        if (action === "get_workspace_status") {
+          return toToolResult({ workspaceStatus: payload ?? null });
+        }
+        if (action === "get_capabilities") {
+          return toToolResult({ capabilities: payload ?? null });
+        }
+        if (action === "get_improvement_questions") {
+          return toToolResult({ questions: payload ?? null });
+        }
+        if (action === "get_context") {
+          return toToolResult({ context: payload ?? null });
+        }
+        return toToolResult(payload ?? { status: "ok" });
+      }
+
+      if (action === "get_learnings") {
         return toToolResult({
-          error: `Unknown brand_search action '${action}'. Use canonical tools instead: ${Object.values(
-            actionMap,
-          )
-            .filter(Boolean)
-            .join(", ")}.`,
+          learnings:
+            (state.workspaceDir ? loadLearnings(state.workspaceDir) : null) ??
+            (state.savedBrandDir && state.savedBrandDir !== state.workspaceDir
+              ? loadLearnings(state.savedBrandDir)
+              : null),
         });
       }
-      if (tool === "") {
-        // list_tools: return the canonical registry snapshot.
-        const tools = bridge.isReady() ? await bridge.listTools() : [];
-        return toToolResult({ tools, canonical: CANONICAL_TOOLS });
+      if (action === "get_recent_entries") {
+        return toToolResult({
+          entries:
+            state.workspaceDir && state.activeBrand
+              ? getRecentEntries(state.workspaceDir, state.activeBrand, Number(p.limit ?? 10))
+              : [],
+        });
       }
-      const payload = await callJsonTool(bridge, tool, {
-        format: "json",
-        ...(params ?? {}),
+      if (action === "get_journal_stats") {
+        return toToolResult({
+          stats:
+            state.workspaceDir && state.activeBrand
+              ? getJournalStats(state.workspaceDir, state.activeBrand)
+              : null,
+        });
+      }
+      if (action === "get_pending_reviews") {
+        return toToolResult({
+          entries:
+            state.workspaceDir && state.activeBrand
+              ? getPendingOutputReviews(getRecentEntries(state.workspaceDir, state.activeBrand, 25))
+              : [],
+        });
+      }
+
+      return toToolResult({
+        error: `Unknown brand_search action '${action}'. Use canonical tools instead: ${Object.values(
+          actionMap,
+        )
+          .filter(Boolean)
+          .join(", ")}.`,
       });
-      return toToolResult(payload ?? { status: "ok" });
     },
   };
 }
