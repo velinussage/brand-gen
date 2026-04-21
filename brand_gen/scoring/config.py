@@ -44,29 +44,59 @@ from typing import Any
 import dspy
 
 
-DEFAULT_JUDGE_MODEL = "anthropic/claude-sonnet-4-5-20250929"
-DEFAULT_REFLECTION_MODEL = "anthropic/claude-opus-4-5-20250930"  # placeholder; v2
+# Default routes through OpenRouter (one key, many models). The DEFAULT
+# judge is Haiku 4.5 — ~3x cheaper than Sonnet 4.5, still vision-capable
+# and strong enough for rubric scoring work. Upgrade to Sonnet 4.5 if
+# kappa against user scores plateaus and cheaper-model failure modes
+# show up in disagreement logs. GEPA reflection LM in v2 stays on Sonnet
+# 4.5 or higher (reflection quality matters more than critic quality).
+#
+# Cost tier comparison (OpenRouter, approximate early 2026 pricing):
+#   openrouter/google/gemini-2.5-flash            ~$0.30 / $2.50 per M     (cheapest; good vision)
+#   openrouter/openai/gpt-4.1-mini                ~$0.15 / $0.60 per M     (even cheaper; smaller vision)
+#   openrouter/anthropic/claude-haiku-4.5         ~$1.00 / $5.00 per M     (DEFAULT; balanced)
+#   openrouter/anthropic/claude-sonnet-4.5        ~$3.00 / $15.00 per M    (upgrade if Haiku plateaus)
+#   openrouter/anthropic/claude-opus-4.5          ~$5.00 / $25.00 per M    (reserve for reflection LM)
+#
+# Per-critique cost @ 9 calls with caching adapter:
+#   Haiku 4.5:      ~$0.003 per critique
+#   Sonnet 4.5:     ~$0.015 per critique
+#   Gemini 2.5 Flash: ~$0.001 per critique (if caching works via OpenRouter)
+#
+# Override via BRAND_GEN_SCORER_MODEL env var or configure_judge_lm(model=...).
+# Direct Anthropic routing also supported (use anthropic/claude-...-date format).
+DEFAULT_JUDGE_MODEL = "openrouter/anthropic/claude-haiku-4.5"
+DEFAULT_REFLECTION_MODEL = "openrouter/anthropic/claude-sonnet-4.5"  # v2 GEPA; quality > cost here
 
 
 def configure_judge_lm(model: str | None = None) -> dspy.LM:
     """Configure the scoring judge LM.
 
-    Call this once at the start of any scoring run. Honors DSPy's global
-    `configure(lm=...)` so downstream Signatures pick it up automatically.
+    Defaults to OpenRouter routing (OPENROUTER_API_KEY required). Override
+    via `model=` arg or BRAND_GEN_SCORER_MODEL env var. Honors DSPy's
+    global `configure(lm=...)` so downstream Signatures pick it up.
+
+    For direct Anthropic routing instead of OpenRouter:
+        configure_judge_lm("anthropic/claude-sonnet-4-5-20250929")
+    (requires ANTHROPIC_API_KEY env var)
     """
     model = model or os.environ.get("BRAND_GEN_SCORER_MODEL") or DEFAULT_JUDGE_MODEL
+
+    # OpenRouter exposes Anthropic's prompt-caching beta transparently.
+    # When routing directly through the Anthropic adapter, we still need
+    # the beta header; when routing through OpenRouter, the header is a
+    # no-op but LiteLLM forwards it harmlessly.
+    extra_headers = {"anthropic-beta": "prompt-caching-2024-07-31"}
+
     judge = dspy.LM(
         model,
         temperature=0,
         max_tokens=2000,
-        extra_headers={
-            # Enables prompt caching on Sonnet 4.x.
-            "anthropic-beta": "prompt-caching-2024-07-31",
-        },
+        extra_headers=extra_headers,
     )
-    # Disable DSPy's local response cache — we want Anthropic's prompt
-    # cache to be the source of any repeated-call savings, not a
-    # process-local memoization that hides actual behavior in tests.
+    # Disable DSPy's local response cache — Anthropic's prompt cache
+    # (via OpenRouter or direct) is the real win; process-local
+    # memoization hides behavior in tests.
     dspy.configure(lm=judge, cache=False)
     return judge
 
