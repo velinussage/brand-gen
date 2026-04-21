@@ -3,8 +3,8 @@
 // This module is the single source of truth for the tools host adapters
 // (Pi, OpenClaw, Claude Code MCP client) expose to agents. It replaces the
 // generic `brand_search(action, params)` / `brand_execute(action, params)`
-// multiplexers with a curated list of ≤25 verb-specific tools matching the
-// Python MCP bridge registry in `brand_gen/mcp_bridge_registry.py`.
+// multiplexers with a curated list of verb-specific tools (soft cap ~45)
+// matching the Python MCP bridge registry in `brand_gen/mcp_bridge_registry.py`.
 //
 // Per Anthropic 2026 tool-design guidance: semantically-narrow verb-first
 // tools (≤20-40 cap) are discoverable without long markdown contracts.
@@ -31,15 +31,23 @@ export type ToolCategory =
   | "orchestration"
   | "mutation"
   | "inspection"
-  | "feedback";
+  | "feedback"
+  | "policy";
+
+export type ToolPolicyClass =
+  | "read_only"          // always allowed; read-only inspection.
+  | "local_mutation"     // writes brand-gen state; configurable per-brand.
+  | "costly_generation"  // paid image/video model call; hosts may require approval.
+  | "publish_external";  // pushes outside the local workspace; denied by default.
 
 export type CanonicalTool = {
   name: string; // Python MCP bridge tool_name, e.g. "brand_append_forbidden_pattern"
   category: ToolCategory;
   description: string;
+  policy_class?: ToolPolicyClass; // Phase D: policy-tag-first enforcement. Keep in sync with brand_gen/policy.py::POLICY_CLASSES_BY_TOOL.
 };
 
-// The canonical ≤25 host-exposed tools. Each maps to exactly one
+// The canonical host-exposed tools (soft cap ~45). Each maps to exactly one
 // brand_gen.mcp_bridge_registry CLI bridge. When adding a tool:
 //
 //   1. add the verb to this list, and
@@ -72,6 +80,7 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "orchestration",
     description:
       "Phase 4 — assemble the scratchpad and generate. Returns ExecuteRunResponse with version_id + image_paths + next_action.",
+    policy_class: "costly_generation",
   },
   {
     name: "brand_review_run",
@@ -90,6 +99,7 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "orchestration",
     description:
       "Convenience: run all six phases end-to-end until a blocking condition. Returns OrchestrateMaterialResponse with stages_completed + stop_reason + next_action + artifacts.",
+    policy_class: "costly_generation",
   },
 
   // Mutation (9) — typed state-change tools replacing direct JSON/markdown edits.
@@ -148,7 +158,75 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       "Submit a v2 critique packet for a version (alias for submit-critique). Supports --dry-run.",
   },
 
-  // Inspection (7) — read-only queries over durable state.
+  // Inspection (15) — read-only queries over durable state.
+  //   Phase A added brand_list_runs + brand_get_run (run projection).
+  //   Phase B added 6 artifact inspection verbs (plan/critique/scratchpad/review_packet/version/compare).
+  {
+    name: "brand_list_runs",
+    category: "inspection",
+    description:
+      "List projected Run objects (run_id, current_stage, status, artifact_ids, lineage) from the run ledger. Filter by status (in_progress|blocked|awaiting_review|completed) or material_type. Default format json.",
+  },
+  {
+    name: "brand_get_run",
+    category: "inspection",
+    description:
+      "Fetch the projected Run object for a run_id — derived over the append-only run ledger events. Returns status + artifact_ids an agent can use to resume or inspect.",
+  },
+  {
+    name: "brand_get_plan",
+    category: "inspection",
+    description:
+      "Fetch a plan-draft artifact by run_id (most recent match) or by explicit path. Returns the typed plan JSON an agent can revise.",
+  },
+  {
+    name: "brand_get_critique",
+    category: "inspection",
+    description:
+      "Fetch a plan-critique artifact by run_id or path. Returns blocking_issues + warnings the critic found.",
+  },
+  {
+    name: "brand_get_scratchpad",
+    category: "inspection",
+    description:
+      "Fetch a generation-scratchpad artifact by run_id or path. Shows the execution_prompt, reference assignments, and execution params used for generation.",
+  },
+  {
+    name: "brand_get_review_packet",
+    category: "inspection",
+    description:
+      "Fetch the agent or auto review packet for a generated version (prefers agent-review.json over auto-review.json).",
+  },
+  {
+    name: "brand_get_version",
+    category: "inspection",
+    description:
+      "Fetch the manifest entry + on-disk files for a version.",
+  },
+  {
+    name: "brand_compare_versions",
+    category: "inspection",
+    description:
+      "Side-by-side diff of two version manifest entries (material_type, model, score, mode, reference_count, etc.).",
+  },
+  {
+    name: "brand_list_brands",
+    category: "inspection",
+    description:
+      "List brands under .brand-gen/brands with profile/identity presence, validation score, warnings, and active marker.",
+  },
+  {
+    name: "brand_switch_brand",
+    category: "mutation",
+    description:
+      "Activate a different brand by slug. Writes activeBrand to .brand-gen/config.json. Takes --brand-key. Administrative mutation granted only to the orchestrator.",
+  },
+  {
+    name: "brand_get_pending_reviews",
+    category: "inspection",
+    description:
+      "List runs whose derived status is awaiting_review — the single source of truth for 'what needs a human'.",
+  },
   {
     name: "brand_context_snapshot",
     category: "inspection",
@@ -190,6 +268,38 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "inspection",
     description:
       "Enumerate available brand-gen tools, material types, and runtime capabilities.",
+  },
+
+  // Policy (4) — per-brand envelope that hosts (notably OpenClaw) read
+  // before dispatching. brand_get_policy is read-only; the other three
+  // are local_mutation.
+  {
+    name: "brand_get_policy",
+    category: "policy",
+    description:
+      "Return the per-brand policy envelope: classes (read_only/local_mutation/costly_generation/publish_external) + pending_approvals + recent_decisions.",
+    policy_class: "read_only",
+  },
+  {
+    name: "brand_set_policy",
+    category: "policy",
+    description:
+      "Update the mode (allow|require_approval|deny) for a policy class. Persists to <brand_dir>/.policy.json.",
+    policy_class: "local_mutation",
+  },
+  {
+    name: "brand_approve_action",
+    category: "policy",
+    description:
+      "Approve a pending_approval by pending_id, or pre-approve a tool call with --tool (mints + resolves a new pending_id).",
+    policy_class: "local_mutation",
+  },
+  {
+    name: "brand_reject_action",
+    category: "policy",
+    description:
+      "Reject a pending_approval by pending_id with an optional reason.",
+    policy_class: "local_mutation",
   },
 
   // Feedback + legacy review (2).

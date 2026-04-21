@@ -56,6 +56,38 @@ _INSPECTION_TOOLS: tuple[str, ...] = (
     "brand_show_disagreements",
     "brand_scoring_status",
     "brand_capabilities",
+    "brand_list_runs",
+    "brand_get_run",
+    "brand_get_plan",
+    "brand_get_critique",
+    "brand_get_scratchpad",
+    "brand_get_review_packet",
+    "brand_get_version",
+    "brand_compare_versions",
+    "brand_list_brands",
+    "brand_get_pending_reviews",
+    "brand_get_policy",
+)
+
+
+# Administrative mutation: activates a brand, writes activeBrand to
+# .brand-gen/config.json. Granted only to the orchestrator (not to
+# read-only agents).
+_ADMIN_MUTATIONS: tuple[str, ...] = (
+    "brand_switch_brand",
+)
+
+
+# Phase D: policy verbs. brand_get_policy is read-only (safe to grant
+# broadly); set/approve/reject are operator-level mutations granted only
+# to the orchestrator.
+_POLICY_READ_TOOLS: tuple[str, ...] = (
+    "brand_get_policy",
+)
+_POLICY_MUTATIONS: tuple[str, ...] = (
+    "brand_set_policy",
+    "brand_approve_action",
+    "brand_reject_action",
 )
 
 
@@ -99,7 +131,11 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
             "the full 6-phase pipeline; handles stop_reason by dispatching "
             "to mutation tools or to specialist agents."
         ),
-        canonical_tools=_ORCHESTRATION_TOOLS + _INSPECTION_TOOLS + _CRITIC_MUTATIONS,
+        canonical_tools=_ORCHESTRATION_TOOLS
+        + _INSPECTION_TOOLS
+        + _CRITIC_MUTATIONS
+        + _ADMIN_MUTATIONS
+        + _POLICY_MUTATIONS,
         may_call_orchestrator=False,
     ),
     AgentSpecialization(

@@ -141,6 +141,99 @@ def build_show_workflow_lineage_cli(parser: argparse.ArgumentParser, *, inspire_
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_list_runs_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--status",
+        choices=["in_progress", "blocked", "awaiting_review", "completed"],
+        help="Filter by derived run status",
+    )
+    parser.add_argument("--material-type", help="Filter by material type")
+    parser.add_argument("--limit", type=int, default=20, help="Max runs to return (default 20)")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_get_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--run-id", required=True, help="Workflow id (aka run_id) to project")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def _add_run_or_path_args(parser: argparse.ArgumentParser, *, path_help: str) -> None:
+    parser.add_argument("--run-id", help="Workflow id (aka run_id); fetches the most recent matching artifact")
+    parser.add_argument("--path", help=path_help)
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_get_plan_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_run_or_path_args(parser, path_help="Explicit plan-draft JSON path (overrides --run-id)")
+
+
+def build_get_critique_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_run_or_path_args(parser, path_help="Explicit plan-critique JSON path (overrides --run-id)")
+
+
+def build_get_scratchpad_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    _add_run_or_path_args(parser, path_help="Explicit generation-scratchpad JSON path (overrides --run-id)")
+
+
+def build_get_review_packet_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version-id", required=True, help="Version id (e.g., v7)")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_get_version_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--version-id", required=True, help="Version id (e.g., v7)")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_compare_versions_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--a", required=True, help="First version id")
+    parser.add_argument("--b", required=True, help="Second version id")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_switch_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand-key", required=True, help="Brand key slug to activate")
+    parser.add_argument("--format", choices=["json", "text"], default="json")
+
+
+def build_get_pending_reviews_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--limit", type=int, default=20, help="Max pending reviews to return (default 20)")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_get_policy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_set_policy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--policy-class",
+        required=True,
+        choices=["read_only", "local_mutation", "costly_generation", "publish_external"],
+    )
+    parser.add_argument(
+        "--mode",
+        required=True,
+        choices=["allow", "require_approval", "deny"],
+    )
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_approve_action_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--pending-id", help="Pending approval id to mark approved")
+    parser.add_argument("--tool", help="Tool name to pre-approve (mints + resolves a new pending_id)")
+    parser.add_argument("--args-summary", help="Short description of the args being pre-approved")
+    parser.add_argument("--requested-by", help="Who requested the approval (operator default)")
+    parser.add_argument("--reason", help="Free-text justification")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
+def build_reject_action_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--pending-id", required=True, help="Pending approval id to reject")
+    parser.add_argument("--reason", help="Why the action was rejected")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
 def build_show_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -1049,6 +1142,20 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'workspace-status': build_workspace_status_cli,
     'improvement-questions': build_improvement_questions_cli,
     'show-workflow-lineage': build_show_workflow_lineage_cli,
+    'list-runs': build_list_runs_cli,
+    'get-run': build_get_run_cli,
+    'get-plan': build_get_plan_cli,
+    'get-critique': build_get_critique_cli,
+    'get-scratchpad': build_get_scratchpad_cli,
+    'get-review-packet': build_get_review_packet_cli,
+    'get-version': build_get_version_cli,
+    'compare-versions': build_compare_versions_cli,
+    'switch-brand': build_switch_brand_cli,
+    'get-pending-reviews': build_get_pending_reviews_cli,
+    'get-policy': build_get_policy_cli,
+    'set-policy': build_set_policy_cli,
+    'approve-action': build_approve_action_cli,
+    'reject-action': build_reject_action_cli,
     'show-reference-analysis': build_show_reference_analysis_cli,
     'prompts-list': build_prompts_list_cli,
     'prompts-get': build_prompts_get_cli,

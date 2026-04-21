@@ -185,6 +185,32 @@ def cmd_start_testing(args):
     print(f"- Reverse interview into: {REPO_ROOT / 'prompts' / 'start-brand-testing.md'}")
     print("- Then route-request -> plan-draft -> critique-plan -> build-generation-scratchpad -> generate --scratchpad")
 
+def cmd_switch_brand(args):
+    """Typed verb variant of cmd_use — takes --brand-key as a named flag for MCP ergonomics."""
+    class _Adapted:
+        brand = str(getattr(args, "brand_key", "") or "").strip()
+        list_only = False
+        format = str(getattr(args, "format", "json") or "json")
+    if not _Adapted.brand:
+        raise SystemExit("--brand-key is required")
+    return cmd_use(_Adapted)
+
+
+def cmd_get_pending_reviews(args):
+    """List runs whose derived status is awaiting_review."""
+    from ..run_state import list_pending_reviews as _list_pending
+
+    brand_dir = get_brand_dir()
+    limit = getattr(args, "limit", None)
+    runs = _list_pending(brand_dir, limit=limit if isinstance(limit, int) and limit > 0 else None)
+    payload = {
+        "brand_dir": str(brand_dir),
+        "count": len(runs),
+        "runs": [run.to_dict() for run in runs],
+    }
+    print(json.dumps(payload, indent=2))
+
+
 def cmd_use(args):
     brand_gen_dir = get_brand_gen_dir() or (REPO_ROOT / ".brand-gen")
     brand_dirs = list_brand_dirs(brand_gen_dir)
