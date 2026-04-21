@@ -1,6 +1,6 @@
 # brand-gen
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Backend: Replicate](https://img.shields.io/badge/backend-Replicate-black.svg)](https://replicate.com)
 [![Agents: 7](https://img.shields.io/badge/agents-7%20specialists-orange.svg)](#agent-reference)
@@ -97,7 +97,7 @@ The pipeline is planning-first and quality-gated: **no freehand generation befor
 
 ## Requirements
 
-- Python 3.11+
+- Python 3.12+ (the codebase uses PEP 701 f-string features introduced in 3.12)
 - [Replicate API token](https://replicate.com/account/api-tokens) (image + video generation backend)
 - An agent host with shell access (Claude Code, Pi, Cursor, Codex, or any MCP host)
 - ~500 MB disk for a working brand workspace
