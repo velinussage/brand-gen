@@ -241,6 +241,26 @@ def build_show_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_show_disagreements_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--limit", type=int, default=10, help="Max records to return (default 10)")
+    parser.add_argument("--material-type", help="Filter by material type")
+    parser.add_argument(
+        "--bucket",
+        choices=["strong_agreement", "mild_disagreement", "strong_disagreement", "calibration_failure"],
+        help="Filter by agreement bucket",
+    )
+    parser.add_argument(
+        "--partition-tag",
+        choices=["scorer_training", "iteration_memory"],
+        help="Filter by partition tag (GEPA training set or iteration-memory side)",
+    )
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_scoring_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_diff_design_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--before", required=True, help="Earlier .design-memory folder or project root containing one")
     parser.add_argument("--after", required=True, help="Later .design-memory folder or project root containing one")
@@ -814,6 +834,8 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'export-design-tokens': build_export_design_tokens_cli,
     'inspiration-status': build_inspiration_status_cli,
     'show-rubric': build_show_rubric_cli,
+    'show-disagreements': build_show_disagreements_cli,
+    'scoring-status': build_scoring_status_cli,
     'extract-inspiration': build_extract_inspiration_cli,
     'consolidate-inspiration': build_consolidate_inspiration_cli,
     'inspiration-mode': build_inspiration_mode_cli,

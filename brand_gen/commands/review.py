@@ -197,9 +197,110 @@ def cmd_feedback(args):
     )
     save_blackboard(brand_dir, bb)
     promote_blackboard_lessons_to_learnings(brand_dir, board=bb, material_type=entry.get("material_type") or "")
+    # M3: disagreement logging — if there's both an agent score and a user
+    # score, compute delta + bucket, partition, and append to the
+    # disagreement dataset. Failures are non-fatal — feedback is the user-
+    # facing operation and must complete even if scoring plumbing breaks.
+    try:
+        _maybe_log_disagreement(brand_dir, vid, entry, args)
+    except Exception as exc:
+        # Never fail the user's feedback because of a scoring-side bug
+        print(f"disagreement_log_warning: {exc}", file=sys.stderr)
     star = "★" * (entry.get("score") or 0) + "☆" * (5 - (entry.get("score") or 0))
     status_icon = {"favorite": "♥", "rejected": "✗"}.get(entry.get("status"), "")
     print(f"{vid} {star} {status_icon} - updated")
+
+
+def _maybe_log_disagreement(brand_dir: Path, vid: str, entry: dict, args) -> None:
+    """Append to the disagreement dataset if both agent and user scores exist.
+
+    Extracts the agent score from the most recent v2 critique if present
+    (rubric_version field), otherwise falls through to the v1 4-axis
+    rubric mean if that's what was submitted. v1 critiques don't carry
+    a clean integer "overall" score — this function skips v1 records
+    rather than invent one.
+    """
+    user_score = entry.get("score")
+    if user_score is None:
+        return
+    vlm_critique = entry.get("vlm_critique") or {}
+    agent_score = _extract_agent_score(brand_dir, vid, vlm_critique)
+    if agent_score is None:
+        return
+    from ..scoring.dataset import (
+        append_disagreement,
+        compute_partition,
+        agreement_bucket as _bucket,
+    )
+    delta = abs(int(agent_score) - int(user_score))
+    partition_tag = compute_partition(vid)
+    record = {
+        "version_id": vid,
+        "material_type": entry.get("material_type") or "",
+        "mode": entry.get("mode") or "",
+        "model": entry.get("model") or "",
+        "agent_score": int(agent_score),
+        "user_score": int(user_score),
+        "delta": delta,
+        "agreement_bucket": _bucket(delta),
+        "partition_tag": partition_tag,
+        "user_status": entry.get("status") or "",
+        "user_notes": args.notes or "",
+        "rubric_version": vlm_critique.get("rubric_version") or "",
+        "scorer_version": vlm_critique.get("scorer_version") or "",
+        "vlm_provider": vlm_critique.get("provider") or vlm_critique.get("vlm_provider") or "",
+    }
+    append_disagreement(brand_dir, record)
+    append_run_event(
+        brand_dir,
+        entry.get("workflow_id") or "",
+        stage="scoring",
+        event_type="scorer_disagreement",
+        attempt_id=vid,
+        material_type=entry.get("material_type") or "",
+        mode=entry.get("mode") or "",
+        output_version=vid,
+        status=record["agreement_bucket"],
+        notes=f"delta={delta} agent={agent_score} user={user_score}",
+        data={
+            "agent_score": record["agent_score"],
+            "user_score": record["user_score"],
+            "delta": delta,
+            "agreement_bucket": record["agreement_bucket"],
+            "partition_tag": partition_tag,
+        },
+    )
+
+
+def _extract_agent_score(brand_dir: Path, vid: str, vlm_critique: dict) -> int | None:
+    """Extract an integer 1-5 agent score from a critique payload.
+
+    v2 packets carry an explicit overall decision encoded as an int.
+    v1 packets use the 4-axis mean — we skip those (no clean integer;
+    a simulated mean would distort kappa calculations).
+    """
+    if not isinstance(vlm_critique, dict) or not vlm_critique:
+        return None
+    # v2 packet: explicit overall score if present
+    overall = vlm_critique.get("overall_score") or vlm_critique.get("agent_overall_score")
+    if overall is not None:
+        try:
+            value = int(overall)
+            if 1 <= value <= 5:
+                return value
+        except (TypeError, ValueError):
+            return None
+    # v2 packet with min-biased aggregation: compute from axis_scores
+    axis_scores = vlm_critique.get("axis_scores") or {}
+    if isinstance(axis_scores, dict) and axis_scores:
+        try:
+            min_score = min(int(v) for v in axis_scores.values())
+            if 1 <= min_score <= 5:
+                return min_score
+        except (TypeError, ValueError):
+            pass
+    # v1 packets — no clean integer; skip
+    return None
 
 def _load_version_prompt(vid: str, version: dict, brand_dir: Path) -> str:
     """Load prompt text from sidecar file, falling back to manifest entry."""

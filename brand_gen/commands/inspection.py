@@ -880,6 +880,125 @@ def cmd_inspiration_status(args):
             print(f"    $ {cmd}")
 
 
+def cmd_show_disagreements(args):
+    """List recent agent-vs-user disagreement records.
+
+    Filters by --material-type, --bucket, --partition-tag. Defaults to
+    the 10 most recent records across all materials.
+    """
+    from ..scoring.dataset import load_disagreements
+
+    brand_dir = get_brand_dir()
+    records = load_disagreements(
+        brand_dir,
+        partition_tag=getattr(args, "partition_tag", None) or None,
+        material_type=getattr(args, "material_type", None) or None,
+        bucket=getattr(args, "bucket", None) or None,
+        limit=int(getattr(args, "limit", 10) or 10),
+    )
+
+    if args.format == "json":
+        print(json.dumps({"n": len(records), "records": records}, indent=2, default=str))
+        return
+
+    if not records:
+        print("No disagreement records found.")
+        print(f"  brand_dir: {brand_dir}")
+        print("  (nothing will appear until bgen feedback lands a user score on a v2-scored version)")
+        return
+
+    print(f"Disagreement records ({len(records)} most recent):")
+    for r in records:
+        vid = r.get("version_id") or "?"
+        mat = r.get("material_type") or "?"
+        agent = r.get("agent_score")
+        user = r.get("user_score")
+        delta = r.get("delta")
+        bucket = r.get("agreement_bucket") or "?"
+        partition = r.get("partition_tag") or "?"
+        notes = (r.get("user_notes") or "").strip().replace("\n", " / ")
+        if len(notes) > 60:
+            notes = notes[:57] + "..."
+        print(f"  {vid:8s} {mat:22s} agent={agent} user={user} delta={delta} {bucket:22s} [{partition}]")
+        if notes:
+            print(f"           notes: {notes}")
+
+
+def cmd_scoring_status(args):
+    """Report current scoring calibration state for the active brand.
+
+    Returns aggregate weighted Cohen's kappa (quadratic weights) + raw
+    agreement %, plus per-bucket and per-material counts. Raw agreement
+    alongside kappa is intentional: when kappa is near 0 but raw
+    agreement is high, you're hitting the kappa paradox (approve-heavy
+    outcomes + class imbalance). Reporting both keeps the paradox visible.
+    """
+    from ..scoring.dataset import (
+        disagreement_dataset_path,
+        load_disagreements,
+        partition_split_observed,
+    )
+    from ..scoring.calibration import compute_agreement_stats
+
+    brand_dir = get_brand_dir()
+    path = disagreement_dataset_path(brand_dir)
+    records = load_disagreements(brand_dir, limit=None)  # all records
+    stats = compute_agreement_stats(records)
+    split = partition_split_observed(records)
+
+    response = {
+        "dataset_path": str(path),
+        "dataset_exists": path.exists(),
+        "n_total": stats["n_total"],
+        "n_scored": stats["n_scored"],
+        "raw_agreement": stats["raw_agreement"],
+        "weighted_kappa": stats["weighted_kappa"],
+        "n_per_bucket": stats["n_per_bucket"],
+        "n_per_material": stats["n_per_material"],
+        "partition_split_observed": split,
+        "metrics_note": (
+            "Raw agreement reported alongside weighted kappa to surface the "
+            "approve-heavy kappa paradox. If raw_agreement is high (>0.8) "
+            "but weighted_kappa is low (<0.3), outcomes are imbalanced and "
+            "kappa understates actual signal. Full Gwet's AC1 / PABAK "
+            "instrumentation lands in v2."
+        ),
+    }
+
+    if args.format == "json":
+        print(json.dumps(response, indent=2, default=str))
+        return
+
+    print(f"Scoring status for brand workspace: {brand_dir}")
+    print(f"  dataset: {path}")
+    print(f"  records: {stats['n_total']} total, {stats['n_scored']} with both scores")
+    print()
+    print(f"  raw agreement:   {stats['raw_agreement']:.1%}")
+    print(f"  weighted kappa:  {stats['weighted_kappa']:.3f}   (quadratic weights, 1-5 ordinal)")
+    print()
+    if stats["n_per_bucket"]:
+        print("  buckets:")
+        for name in ("strong_agreement", "mild_disagreement", "strong_disagreement", "calibration_failure"):
+            count = stats["n_per_bucket"].get(name, 0)
+            print(f"    {name:24s} {count}")
+    if stats["n_per_material"]:
+        print()
+        print("  per material:")
+        for mat, count in sorted(stats["n_per_material"].items(), key=lambda x: -x[1]):
+            flag = "  (insufficient data)" if count < 10 else ""
+            print(f"    {mat:28s} {count}{flag}")
+    print()
+    print(f"  partition split (scorer_training / iteration_memory):")
+    print(f"    scorer_training:    {split['scorer_training']}")
+    print(f"    iteration_memory:   {split['iteration_memory']}")
+    if split.get("unknown"):
+        print(f"    unknown:            {split['unknown']}  (records pre-partition; expected for backfill)")
+
+    if stats["n_total"] == 0:
+        print()
+        print("  No records yet. bgen feedback on a v2-scored version will populate this.")
+
+
 def cmd_show_rubric(args):
     """Dump the scoring rubric registry.
 
