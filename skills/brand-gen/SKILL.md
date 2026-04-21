@@ -15,6 +15,98 @@ compatibility:
 
 brand-gen is a **multi-agent system**. The intended entry point for any brand material work is the `brand-orchestrator` agent, which walks a planning-first pipeline through six phases with quality gates. `bgen pipeline` exists as a scripting/CI fallback; it skips the philosopher's WCAG gate, the inspiration-readiness preflight, the cinematographer's shot validation, and the critic's P1 pushback. Prefer the orchestrator path unless you know exactly what you're bypassing.
 
+## Typed runtime (2026-04+, preferred surface)
+
+After the typed-agentic-runtime refactor, brand-gen exposes a **25-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
+
+### Orchestration (7 verbs)
+
+One-shot convenience + six per-stage tools. Each returns a typed response with `{run_id, next_action, artifacts}`.
+
+```bash
+bgen orchestrate-material --material-type concept-illustration --mode hybrid --source-version v018 --format json
+# Returns {stages_completed, stop_reason, next_action, artifacts}.
+# stop_reason ∈ {approved, blocking_findings, iterating, max_retries, needs_user_input}
+
+# Per-stage fall-through for exception handling:
+bgen prepare-run   # → {brand_dna_summary, applicable_learnings, readiness_issues}
+bgen plan-run      # → {plan_id, plan_summary}
+bgen validate-run  # → {status, blocking_issues, warnings, critique_id}
+bgen execute-run   # → {version_id, image_paths, scratchpad_path}
+bgen review-run    # → {axis_scores, decision, before_after_diffs}
+bgen evolve-run    # → {learnings_promoted, improvement_questions, recommendation}
+```
+
+Each response's `next_action` is a direct hint to the tool to call next. Follow it unless you're A/B-testing a stage.
+
+### Mutation (9 typed verbs — replace all direct file edits)
+
+**Never manually edit `custom-scratchpad.json`, `custom-scratchpad.md`, `learnings.json`, `iteration-memory.json`, or `brand-identity.json`.** Call the typed verb instead. Every mutation tool supports `--dry-run` returning the same response shape, so you can preview before committing.
+
+```bash
+# Forbidden patterns / scratchpad notes (formerly: edit custom-scratchpad.json)
+bgen append-forbidden-pattern --pattern "floating gradient orbs" --reason "Generic premium-AI slop" --dry-run --format json
+bgen append-custom-scratchpad-note --section composition --text "No icon-worship centerpieces." --format json
+
+# Learnings promotion (formerly: edit learnings.json)
+bgen promote-learning --bucket modelPreferences --material-type concept-illustration --text "..." --format json
+bgen promote-style-policy --material-type concept-illustration --reference-policy rotating_anchor_set \
+  --anchor v012 --anchor v021 --anchor v088 --anchor v156 --anchor v018 --format json
+
+# Identity mutations (formerly: edit brand-identity.json)
+bgen update-palette --role primary --hex "#1A6B6B" --format json
+bgen update-typography --role display --family "Inter" --fallback "sans-serif" --format json
+bgen update-devices --add "doric-column-mark" --format json
+
+# Motion grammar (formerly: free-write a section in custom-scratchpad.md)
+bgen set-motion-grammar --director "..." --favored "..." --banned "..." --intensity medium --format json
+
+# Review submission (alias for submit-critique)
+bgen submit-review <version-id> --critique-json <path> --format json
+```
+
+### Inspection (7 read verbs)
+
+```bash
+bgen context-snapshot --format json       # canonical workspace snapshot — run at every session start
+bgen show-blackboard --format json        # active brief + decisions
+bgen show-iteration-memory --format json  # positive/negative examples + rotation state
+bgen show-rubric --material-type <type> --format json  # scoring contract before planning/critiquing
+bgen show-disagreements --format json     # agent-vs-user score disagreements (calibration)
+bgen scoring-status --format json         # weighted Cohen's kappa + agreement rate
+bgen capabilities --format json           # available tools + material types
+```
+
+### v2 review decision rule (thresholds)
+
+When `critique-rubric --dspy-scorer` (or `review-run`) returns a packet with `rubric_version` present:
+
+1. If `disqualifier_triggered == true` → **REJECT** (overall_score is 1; bypass axis arithmetic).
+2. If `overall_score < 3` → **ITERATE**.
+3. If `overall_score >= 3` AND `disqualifier_triggered == false` → **APPROVE**.
+
+`overall_score` is min-biased: any axis <2 caps overall at ≤2. `before_after_diffs` on the review packet is the honest fix list — each `{principle, before, after}` row feeds into the next iteration. You have two ways to apply those rows:
+
+- **Durable (preferred)** — record them as typed mutations with `bgen append-forbidden-pattern` (for `before` clauses) and `bgen append-custom-scratchpad-note --section composition` (for `after` clauses). These persist across runs and drive the auto-ban pipeline.
+- **Ephemeral (one-run override)** — pass `--ban "<before-clause>"` and `--push "<after-clause>"` inline on the next `bgen orchestrate-material` (or legacy `bgen pipeline`) call. These apply to a single run and do not persist.
+
+Use durable when the `before` is a recurring slop pattern. Use ephemeral when the `before` is run-specific.
+
+When `rubric_version` is absent → legacy v1 packet; score 4 axes manually and compute the mean.
+
+### Rule: typed verb before file edit
+
+Every time this skill or an agent instructs "edit this JSON file" or "append to this markdown section", stop. Pick the typed verb from the mutation list above. If no typed verb exists for the mutation you need, the skill is out of date — file that gap instead of hand-editing. Direct file edits bypass the run ledger, skip deprecation warnings, and corrupt agent-vs-user disagreement capture.
+
+### When to use the legacy CLI chain below
+
+The 82-command CLI surface (`route-request`, `plan-draft`, `critique-plan`, `build-generation-scratchpad`, `generate`, `submit-critique`, `feedback`, `evolve`, `pipeline`, etc.) remains supported for:
+- CI/scripting that needs a single blocking `bgen pipeline` call
+- Debugging individual stages when `orchestrate-material` stops with `max_retries`
+- Pre-2026-04 host adapters that haven't been upgraded
+
+For every other workflow, prefer the typed orchestration + mutation verbs above. The documentation below still applies — it's the lower-level substrate the typed verbs call through.
+
 ## Preferred entry points (by host)
 
 Use the orchestrator agent if your harness supports subagents:
@@ -615,6 +707,8 @@ This path uses card-data plugins plus Chrome headless rendering. It is not the o
 - treating HTML share cards as the default output path
 - assuming every host has the same private local agent setup
 - committing machine-specific paths into skills, prompts, or docs
+- **manually editing `custom-scratchpad.json`, `custom-scratchpad.md`, `learnings.json`, `iteration-memory.json`, or `brand-identity.json`** — always use the typed mutation verbs from the "Typed runtime" section (`bgen append-forbidden-pattern`, `bgen append-custom-scratchpad-note`, `bgen promote-learning`, `bgen promote-style-policy`, `bgen set-motion-grammar`, `bgen update-palette`, `bgen update-typography`, `bgen update-devices`, `bgen submit-review`). Direct edits bypass the run ledger and corrupt disagreement capture
+- defaulting to `bgen pipeline` when `bgen orchestrate-material` would work — pipeline is the CI/scripting fallback, not the primary path
 
 ## Design tokens and WCAG
 
