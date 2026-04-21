@@ -142,6 +142,12 @@ def build_effective_prompt(
     entity_type: str | None = None,
     selected_surface_strategy: str | None = None,
     aesthetic_archetype: dict | None = None,
+    prompt_subject: str | None = None,
+    prompt_style_descriptors: str | None = None,
+    prompt_lighting: str | None = None,
+    prompt_camera: str | None = None,
+    prompt_composition: str | None = None,
+    prompt_details: str | None = None,
 ) -> dict:
     reference_analysis = reference_analysis or {}
     analysis_mode = reference_analysis_mode(reference_analysis)
@@ -392,6 +398,12 @@ def build_effective_prompt(
         "inspiration_selection_mode": resolved_inspiration_selection_mode,
         "aesthetic_archetype": aesthetic_archetype if isinstance(aesthetic_archetype, dict) else None,
         "aesthetic_archetype_id": (aesthetic_archetype.get("id") if isinstance(aesthetic_archetype, dict) else ""),
+        "prompt_subject": (prompt_subject or "").strip(),
+        "prompt_style_descriptors": (prompt_style_descriptors or "").strip(),
+        "prompt_lighting": (prompt_lighting or "").strip(),
+        "prompt_camera": (prompt_camera or "").strip(),
+        "prompt_composition": (prompt_composition or "").strip(),
+        "prompt_details": (prompt_details or "").strip(),
         "token_block": token_block,
         "token_block_fragments": inspiration.get("token_block_fragments", []),
         "resolved_prompt": resolved,
@@ -721,6 +733,46 @@ _OVERLAY_AXIS_PUSH_CLAUSES = {
 }
 
 
+def compact_execution_five_slot_brief(context: dict) -> str:
+    """Render the 5-slot prompt template (Subject + Style + Lighting +
+    Composition + Details) from explicit plan fields when the planner
+    supplied them.
+
+    Rationale (from imagevideogen skill): image models respond to explicit,
+    concrete slots ("Kodak Portra 400 film grain", "golden hour backlight",
+    "85mm portrait lens") far better than to prose mood words ("warm",
+    "editorial", "premium"). When the planner declares these slots, render
+    them as a dedicated directive block in the execution prompt.
+
+    Returns empty string when none of the slots are populated. The plan
+    keeps these slots OPTIONAL (the archetype library already provides
+    good defaults) but when the planner fills them, they override.
+    """
+    subject = (context.get("prompt_subject") or "").strip()
+    style = (context.get("prompt_style_descriptors") or "").strip()
+    lighting = (context.get("prompt_lighting") or "").strip()
+    camera = (context.get("prompt_camera") or "").strip()
+    details = (context.get("prompt_details") or "").strip()
+    # Composition may be either an explicit string or inferred from the
+    # surface strategy. Prefer the explicit field when set.
+    composition = (context.get("prompt_composition") or context.get("selected_surface_strategy_prompt_directive") or "").strip()
+    parts: list[str] = []
+    if subject:
+        parts.append(f"Subject: {subject}")
+    if style:
+        parts.append(f"Style: {style}")
+    if lighting or camera:
+        lens_part = ", ".join(p for p in (lighting, camera) if p)
+        parts.append(f"Lighting + camera: {lens_part}")
+    if composition:
+        parts.append(f"Composition: {composition}")
+    if details:
+        parts.append(f"Details: {details}")
+    if not parts:
+        return ""
+    return "Five-slot brief — " + " | ".join(parts) + "."
+
+
 def compact_execution_aesthetic_archetype(
     context: dict,
     material_type: str | None,
@@ -824,6 +876,7 @@ def build_execution_prompt(
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
+        "five_slot_brief": compact_execution_five_slot_brief(context),
         "aesthetic_archetype_block": compact_execution_aesthetic_archetype(context, material_type),
         "rubric_overlay_push": compact_execution_rubric_overlay_push(material_type),
         "critical_bans": compact_execution_critical_bans(context, material_key),
@@ -837,6 +890,7 @@ def build_execution_prompt(
         sections["brand_anchor_rule"],
         sections["role_pack_block"],
         sections["selected_inspiration_block"],
+        sections["five_slot_brief"],
         sections["aesthetic_archetype_block"],
         sections["rubric_overlay_push"],
         sections["critical_bans"],
