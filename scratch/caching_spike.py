@@ -92,8 +92,10 @@ def main() -> int:
         model,
         temperature=0,
         max_tokens=128,
+        cache=False,  # disable DSPy's local cache so we measure Anthropic cache
         extra_headers={"anthropic-beta": "prompt-caching-2024-07-31"},
     )
+    dspy.configure(lm=lm, cache=False)
 
     print("Call 1 (cold) …")
     try:
@@ -131,32 +133,44 @@ def main() -> int:
         h2 = lm.history[-1]
         usage2 = h2.get("usage") or {}
         print(f"  usage: {usage2}")
-        c2 = usage2.get("cache_creation_input_tokens", 0)
-        rd2 = usage2.get("cache_read_input_tokens", 0)
-        print(f"  cache_creation_input_tokens: {c2}")
-        print(f"  cache_read_input_tokens: {rd2}")
+        # LiteLLM normalizes Anthropic cache fields into prompt_tokens_details.
+        # Names differ across providers — we check the union.
+        details2 = usage2.get("prompt_tokens_details") or {}
+        if hasattr(details2, "__dict__"):
+            details2 = details2.__dict__
+        cached2 = (
+            usage2.get("cache_read_input_tokens", 0)  # native Anthropic key
+            or (details2.get("cached_tokens") if isinstance(details2, dict) else 0)
+            or 0
+        )
+        writes2 = (
+            usage2.get("cache_creation_input_tokens", 0)
+            or (details2.get("cache_write_tokens") if isinstance(details2, dict) else 0)
+            or 0
+        )
+        print(f"  cache_write_tokens: {writes2}")
+        print(f"  cached_tokens (read): {cached2}")
 
         print()
-        if rd2 > 0:
+        if cached2 > 0:
             print("=" * 60)
-            print("PASS: cache_read_input_tokens > 0 on second call.")
-            print("DSPy 3.1.3 -> LiteLLM preserves cache_control passthrough.")
-            print("M2 can proceed with a ~40-line caching adapter.")
+            print("PASS: cached_tokens > 0 on second call.")
+            print("DSPy 3.1.3 -> LiteLLM -> (OpenRouter|Anthropic) preserves")
+            print("cache_control passthrough. The caching adapter works.")
             print("=" * 60)
             return 0
-        elif c2 > 0 and rd2 == 0:
+        elif writes2 > 0 and cached2 == 0:
             print("=" * 60)
             print("PARTIAL: cache was created but not read on the second call.")
             print("This may mean the cache breakpoint is being preserved but")
-            print("LiteLLM or something in the chain is subtly altering the")
-            print("system block between calls. Likely fixable, investigate.")
+            print("the system block subtly differs between calls. Investigate.")
             print("=" * 60)
             return 3
         else:
             print("=" * 60)
             print("FAIL: no cache activity on either call.")
             print("LiteLLM is probably stripping cache_control.")
-            print("M2 must budget +1 day for AnthropicDirectLM subclass.")
+            print("Consider a custom dspy.LM subclass that bypasses LiteLLM.")
             print("=" * 60)
             return 4
     else:

@@ -62,16 +62,45 @@ Do not write the block back to a saved brand workspace unless the user explicitl
    source .venv/bin/activate && bgen show-blackboard --format json
    ```
 
-1b. **Check inspiration readiness (before any hybrid/inspiration route):**
+1b. **Check inspiration readiness (for every non-motion run, not just hybrid/inspiration):**
     ```bash
     source .venv/bin/activate && bgen inspiration-status --format json
     ```
-    Read `.pending_sources` and `.ready_for_hybrid` / `.ready_for_inspiration`. If the route will be `hybrid` or `inspiration` and `pending_sources` is non-empty, **stop planning** and run the recommended extraction first:
-    ```bash
-    source .venv/bin/activate && bgen extract-inspiration --source <key>
-    source .venv/bin/activate && bgen consolidate-inspiration --format json
-    ```
+    Read `.pending_sources` and `.ready_for_hybrid` / `.ready_for_inspiration`.
+
+    - If the route will be `hybrid` or `inspiration` and `pending_sources` is non-empty, **stop planning** and run the recommended extraction first:
+      ```bash
+      source .venv/bin/activate && bgen extract-inspiration --source <key>
+      source .venv/bin/activate && bgen consolidate-inspiration --format json
+      ```
+    - Even if the route ends up `reference`, you must still inspect inspiration readiness for illustration-first work. Do not skip inspiration just because the final generation mode is reference.
+
     This closes the self-referential drift gap from the v121/v123/v124 retro: configured-but-unextracted sources caused the pipeline to fall back to "deterministic_only" analysis and reuse prior internal versions (v016, v058, v121, v048) as composition anchors. The scratchpad assembler now hard-blocks on this condition; running extraction here avoids the block.
+
+1c. **Standalone illustration override + inspiration-set pass:**
+   If the request says any of these:
+   - "just the illustration"
+   - "not the full landing page"
+   - "right-side artwork"
+   - "standalone illustration"
+   - "not the page itself"
+
+   then treat it as an **illustration-only artifact**.
+
+   Rules:
+   - Do **not** choose strict page-scaffold materials (`landing-hero`, `browser-illustration`, `product-banner`) unless the user explicitly asks for the page or UI chrome itself.
+   - `feature-illustration` is allowed for illustration-only work **only** if the plan treats it as standalone artwork rather than a full landing page, hero comp, browser mockup, or screenshot-proof panel.
+   - Prefer a standalone illustration material such as `concept-illustration` (or `brand-scene` if environmental process is the point), but do not ban `feature-illustration` outright when it is the best artifact fit.
+   - Do **not** pass a screenshot as `--base-image` just because the illustration will later live beside copy on a landing page. For illustration-only work, screenshots are semantic truth anchors, not page scaffolding.
+   - Before planning, inspect the inspiration set and be able to name what each source contributes.
+
+   Minimum inspiration requirement for illustration-only runs:
+   - at least **3 inspiration sources** total
+   - at least **1 composition / spatial ref**
+   - at least **1 narrative-system ref**
+   - at least **1 rendering / finish ref**
+
+   If you cannot assemble that set from configured/extracted inspiration, **stop** and report the gap instead of proceeding into planning with weak or empty inspiration.
 
 2. **Automatic vault sync (every 10 generations):**
    Check the manifest version count. If 10+ versions have been generated since the last vault sync (tracked in iteration memory), or if this is the first run:
@@ -147,12 +176,20 @@ Do not write the block back to a saved brand workspace unless the user explicitl
     - `--base-image` is **MANDATORY** for these material types
     - Without a real screenshot, the image model will invent a fake UI that scores 1-2/5
 
+    **Exception:** if the user explicitly asked for **illustration-only** artwork that will later sit on a landing page, do **not** use an interface material just to justify `--base-image`. Re-route to a standalone illustration material, or use `feature-illustration` only with explicit standalone-art constraints. Treat screenshots as truth-source references, not as page-layout scaffolding.
+
 11. **Resolve brand logo path (always):**
     Check `brands/<active>/logo.png` first. Store as `$BRAND_LOGO_PATH` for generation commands.
 
 ### Phase 2: Plan
 
 Build the plan using preparation context. **Enrich the prompt seed with philosophy** — weave material metaphors, composition rules, and craftsmanship boosters in. Do NOT paste the philosophy verbatim.
+
+For illustration-only requests:
+- explicitly state in the planning memo that the artifact scope is **illustration only**
+- explicitly say it is **not** a full landing page, hero comp, browser mockup, or screenshot-proof panel
+- record the inspiration set as three buckets: **composition**, **narrative/system**, **rendering/style**
+- if the selected material is page-adjacent/interface, stop and re-pick before generating
 
 ```bash
 source .venv/bin/activate && bgen plan-draft \
@@ -199,13 +236,18 @@ For interface materials: verify the scratchpad contains a non-empty `base_image`
 
 1. View the image.
 2. `bgen critique-rubric <version-id> --format json`
-3. Score 1-5 on: `composition`, `material_truth`, `brand_coherence`, `restraint`, `philosophy_fit`
-4. Calibrate against `creative_context.quality_benchmarks` and the design philosophy
-5. Submit critique + record feedback
+   - **Prefer** `bgen critique-rubric <version-id> --dspy-scorer --format json` when scoring extras are installed (`pip install -e '.[scoring]'` + `OPENROUTER_API_KEY` in `.env`). This returns a v2 packet with axis scores, rationales, disqualifier check, and `why_user_might_dislike_if_polished` pre-populated by the DSPy vision scorer.
+3. Check `rubric_version` on the returned packet:
+   - **v2 packet (`rubric_version` present)**: review the pre-populated `axis_scores` (universal 5 + material overlay axes) against the image. Respect `disqualifier_triggered` — if true, the material auto-fails. Use `overall_score` (min-biased) for the decision.
+   - **v1 packet (`rubric_version` absent)**: score 1-5 on `composition`, `material_truth`, `brand_coherence`, `restraint`, `philosophy_fit` from scratch.
+4. Calibrate against `creative_context.quality_benchmarks` and the design philosophy.
+5. Submit critique + record feedback.
 6. Decide:
-   - Mean < 3 → ITERATE: `bgen feedback <v> --score <N> --status rejected --notes "..."` then re-pipeline with `--source-version <v> --ban "..." --push "..."`. Max 2 retry cycles.
-   - Mean ≥ 3 → ACCEPT: `bgen feedback <v> --score <N> --notes "..."`
-7. **Always ask the user for their score.** User score overrides agent score. Record any specific feedback as negative/positive examples.
+   - **v2**: `disqualifier_triggered == true` or `overall_score < 3` → ITERATE. Otherwise ACCEPT. Surface `why_user_might_dislike_if_polished` in the iterate notes.
+   - **v1**: mean < 3 → ITERATE, mean ≥ 3 → ACCEPT.
+   - ITERATE: `bgen feedback <v> --score <N> --status rejected --notes "..."` then re-pipeline with `--source-version <v> --ban "..." --push "..."`. Max 2 retry cycles.
+   - ACCEPT: `bgen feedback <v> --score <N> --notes "..."`.
+7. **Always ask the user for their score.** User score overrides agent score. Record any specific feedback as negative/positive examples. When agent and user scores diverge by ≥2, the disagreement is auto-logged to `<brand-dir>/scoring/disagreements.jsonl` for later calibration.
 
 ### Phase 6: Evolve
 

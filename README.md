@@ -153,7 +153,7 @@ Every capability is phrased as what you, the brand maker, actually get. The infr
 
 - **No freehand slop.** A critic blocks every generation until the plan passes rubric review, so you iterate on plans (seconds) not renders (minutes).
 - **Brand memory that compounds.** Every approved or rejected result teaches the next run; winning setups auto-promote and auto-apply, so by version 20 you are not re-tuning what already worked at version 5.
-- **A built-in quality bar.** Outputs are scored against a rubric the agent self-applies; feedback goes into learnings automatically so the same mistake stops happening.
+- **A built-in quality bar.** Outputs are scored against a material-aware v2 rubric (universal axes + per-material overlays + hard disqualifiers) that the agent self-applies; the same contract drives an optional DSPy vision scorer that fills in axis scores, rationales, and a *why-a-user-might-dislike-this* field before the critic even reads the output. Feedback and agent-vs-user disagreements go into learnings automatically so the same mistake stops happening.
 - **Copy that stays on-brand across sessions.** Approved taglines, headlines, and voice persist so every asset speaks with the same voice weeks apart.
 - **Accessible by default.** HTML share cards consume the brand's WCAG-audited design tokens, so launch graphics do not ship with body text below 4.5:1 contrast.
 - **One approved still becomes many assets.** Promote a winning design into mockups, short videos, or launch films without redrawing the core artwork.
@@ -206,6 +206,40 @@ The cinematographer:
 4. Hands a shot-ready scratchpad to `brand-generator`.
 
 If the brand has no motion grammar, the cinematographer refuses to generate and delegates back to `brand-philosopher` to establish one. The `seedance-2-pro` model is registered in `brand_gen/models.json`. `bgen create-video` runs a brief-driven multi-shot launch film with xfade stitching and per-shot validation; every shot is gated before generation fires.
+
+### Scoring rubric v2 + optional DSPy scorer
+
+The v1 critic rubric (composition / material_truth / brand_coherence / restraint) overweighted craft and underweighted *did the asset actually communicate anything Sage-specific*. v2 fixes that. The rubric now lives in code at `brand_gen/scoring/rubric_registry.py` and is surfaced to every agent via `bgen show-rubric --material-type <type> --format json`, so planners, generators, and critics score against the same contract.
+
+Universal axes (always scored 1-5): `composition`, `brand_coherence`, `restraint`, `story_fidelity`, `meaning_clarity`. `meaning_clarity` is the honest test — can a new visitor decode the image in 2-3 seconds, or is it tasteful-but-meaningless?
+
+Per-material overlay axes + disqualifier rules add on top:
+
+| Material | Overlay axes | Disqualifier (auto-fail) |
+|----------|-------------|--------------------------|
+| landing-hero | surface_fit, meaning_at_glance | no product category readable in 3s |
+| concept-illustration | system_logic_visible, brand_specificity | generic abstract metaphor (floating cubes, glowing nodes, faceless figures) |
+| brand-scene | process_implied, brand_specificity | pure architectural mood with no evidence of process |
+
+Aggregation is min-biased: any axis <2 caps `overall_score` <=2, and a triggered disqualifier hard-fails with `overall_score=1`.
+
+Optionally the critic can delegate scoring to a DSPy vision scorer that runs 5-7 axis calls + a describe + synthesize over OpenRouter (default judge: Haiku 4.5; ~$0.003 per critique with Anthropic prompt caching). Enable it with:
+
+```bash
+pip install -e '.[scoring]'
+echo "OPENROUTER_API_KEY=sk-or-v1-..." >> .env
+bgen critique-rubric v12 --dspy-scorer --format json
+```
+
+The scorer emits a v2 packet with `axis_scores`, `axis_rationales`, `overall_score`, `decision`, `disqualifier_triggered`, and `why_user_might_dislike_if_polished` — the field that names the failure in plain language. The critic agent still reviews the output and can override. Agent-vs-user disagreements ≥2 points auto-log to `<brand-dir>/scoring/disagreements.jsonl` and feed the calibration commands:
+
+```bash
+bgen show-rubric --material-type concept-illustration --format json
+bgen show-disagreements --bucket calibration_failure --limit 20 --format json
+bgen scoring-status --format json
+```
+
+Full rubric text is embedded verbatim in the three critic-agent files (`.claude/agents/brand-critic.md`, `.pi/agents/brand-critic.md`, `skills/brand-gen/claude-agents/brand-critic.md`) so the critic reads the same contract the scorer uses.
 
 ## Why not just prompt a model directly?
 

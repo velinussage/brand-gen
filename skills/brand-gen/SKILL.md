@@ -384,11 +384,17 @@ bgen critique-rubric v12 --format json
 bgen submit-critique v12 --critique-json /abs/path/to/critique.json --format json
 ```
 
+When the optional DSPy scorer is installed (`pip install -e '.[scoring]'` + `OPENROUTER_API_KEY` in `.env`), prefer the scored path — it pre-populates axis scores, rationales, and the failure-reason synthesis via a vision LM:
+
+```bash
+bgen critique-rubric v12 --dspy-scorer --format json
+```
+
 Workflow:
 
-1. run `critique-rubric`
+1. run `critique-rubric` (optionally with `--dspy-scorer`)
 2. inspect the image yourself
-3. evaluate against the returned rubric
+3. evaluate against the returned rubric (see v2 axes below)
 4. save critique JSON
 5. submit it with `submit-critique`
 
@@ -407,13 +413,42 @@ Use `review-brand` when you want a richer review packet and a proposed score bef
 bgen review-brand v12 --format json
 ```
 
-Judge outputs on:
+### v2 scoring rubric
 
-- clarity of composition
-- material truth
-- brand coherence
-- restraint
-- whether the asset does the job it was made for
+The canonical rubric lives in `brand_gen/scoring/rubric_registry.py` and is surfaced to agents via `bgen show-rubric --material-type <type> --format json`. Use it as the scoring contract — the DSPy scorer, the critic agent, and any planner building toward a quality target all read the same source of truth.
+
+Universal axes (always scored, 1-5 each):
+
+- `composition` — layout hierarchy, focal point, whitespace balance, one dominant gesture
+- `brand_coherence` — palette, approved devices, mark usage, declared typography
+- `restraint` — absence of generic premium-AI decoration (no glassmorphism, purple gradients, neon-on-dark, icon-grid clichés, invented text)
+- `story_fidelity` — does the composition serve the stated brief and surface, not just look nice
+- `meaning_clarity` — would a new visitor understand what this is about in 2-3 seconds; rejects "tasteful but meaningless" outputs
+
+Material-specific overlay axes (add on top of the universal 5):
+
+- **landing-hero** — `surface_fit`, `meaning_at_glance` · disqualifier: no product category legible within 3s
+- **concept-illustration** — `system_logic_visible`, `brand_specificity` · disqualifier: generic abstract metaphor (floating cubes, glowing nodes, etc.) with no brand-specific vocabulary
+- **brand-scene** — `process_implied`, `brand_specificity` · disqualifier: pure architectural mood with no evidence of process
+
+Aggregation is min-biased: any axis <2 caps overall <=2, and any triggered disqualifier hard-fails the material. Plan and generate toward the overlay axes for your material type — `meaning_clarity`, `story_fidelity`, and `brand_specificity` are where generic "premium AI brand" outputs fail most often.
+
+### v2 packet contract
+
+- **`rubric_version` present (v2 packet)**: `axis_scores` + `axis_rationales` populated per axis, `overall_score` (min-biased), `decision` (`approve` / `iterate` / `reject`), `disqualifier_triggered` (bool), `why_user_might_dislike_if_polished` (the honest failure signal). Critic reviews and may override.
+- **`rubric_version` absent (v1 packet)**: legacy 4-axis narrative (composition, material_truth, brand_coherence, restraint); critic scores from scratch.
+
+### Scoring inspection commands (read-only)
+
+```bash
+bgen show-rubric --material-type concept-illustration --format json
+bgen show-disagreements --bucket calibration_failure --limit 20 --format json
+bgen scoring-status --format json
+```
+
+- `show-rubric` — dump the axis definitions + overlay + disqualifier rule for any material type
+- `show-disagreements` — list recorded agent-vs-user disagreements from the brand's `scoring/disagreements.jsonl`
+- `scoring-status` — summary of disagreement bucket counts, partition split, and weighted Cohen's kappa when enough data is present
 
 ## Feedback and iteration
 

@@ -1,6 +1,6 @@
 ---
 name: brand-planner
-description: Use to create or refine a brand-gen generation plan. Runs preparation steps (learnings check, role pack, layout suggestion), then planning commands, reviews the plan JSON, and returns the best plan path plus a concise creative-direction summary.
+description: Use to create or refine a brand-gen generation plan. Runs preparation steps (learnings check, role pack, layout suggestion, v2 rubric target) so the plan targets the axes the critic will score against, then runs planning commands, reviews the plan JSON, and returns the best plan path plus a concise creative-direction summary.
 model: claude-opus-4-7
 tools: [Read, Grep, Glob, LS, Bash]
 ---
@@ -23,6 +23,7 @@ Workflow:
    Note any winning setups and any mandatory style anchors.
 3. Run `source .venv/bin/activate && bgen suggest-role-pack --material-type <type> --format json` for composition references.
 4. Run `source .venv/bin/activate && bgen suggest-layout --material-type <type> --format json` for layout candidates.
+5. Run `source .venv/bin/activate && bgen show-rubric --material-type <type> --format json` to see which v2 axes the output will be scored on. For `landing-hero`, `concept-illustration`, and `brand-scene` the overlay axes (surface_fit, meaning_at_glance, system_logic_visible, brand_specificity, process_implied) and disqualifier rule dominate. Plan toward those explicitly — the scorer caps `overall_score` at 1 if the material's disqualifier fires. If prior runs for this material show low `meaning_clarity` or `brand_specificity` in `scoring/disagreements.jsonl`, treat those as the defects to fix in this plan.
 
 **Step 2: Plan Draft**
 Use insights from preparation to build a better plan:
@@ -73,3 +74,4 @@ Rules:
 - When style-lock learnings exist, treat them as hard constraints.
 - Prefer a clean, defensible plan over a clever but noisy one.
 - Keep the returned creative_direction concrete, not generic.
+- **Plan toward the v2 rubric, not just craft.** "Polished but meaningless" is the exact failure mode the scorer is built to catch (`meaning_clarity`, `story_fidelity`, `brand_specificity`). A plan that scores high on composition and restraint but can't answer "what does a new visitor understand in 2-3 seconds?" will auto-iterate. For landing-hero / concept-illustration / brand-scene, make the overlay axes and disqualifier rule the north star of the creative direction.

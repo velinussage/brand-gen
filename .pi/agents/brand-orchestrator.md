@@ -67,16 +67,45 @@ or you are in a disposable testing session. Then continue with the rest of Phase
    source .venv/bin/activate && bgen show-blackboard --format json
    ```
 
-1b. **Check inspiration readiness (before any hybrid/inspiration route):**
+1b. **Check inspiration readiness (for every non-motion run, not just hybrid/inspiration):**
     ```bash
     source .venv/bin/activate && bgen inspiration-status --format json
     ```
-    Read `.pending_sources` and `.ready_for_hybrid` / `.ready_for_inspiration`. If the route will be `hybrid` or `inspiration` and `pending_sources` is non-empty, **stop planning** and run the recommended extraction first:
-    ```bash
-    source .venv/bin/activate && bgen extract-inspiration --source <key>
-    source .venv/bin/activate && bgen consolidate-inspiration --format json
-    ```
+    Read `.pending_sources` and `.ready_for_hybrid` / `.ready_for_inspiration`.
+
+    - If the route will be `hybrid` or `inspiration` and `pending_sources` is non-empty, **stop planning** and run the recommended extraction first:
+      ```bash
+      source .venv/bin/activate && bgen extract-inspiration --source <key>
+      source .venv/bin/activate && bgen consolidate-inspiration --format json
+      ```
+    - Even if the route ends up `reference`, you must still inspect inspiration readiness for illustration-first work. Do not skip inspiration just because the final generation mode is reference.
+
     This closes the self-referential drift gap from the v121/v123/v124 retro: configured-but-unextracted sources caused the pipeline to fall back to "deterministic_only" analysis and reuse prior internal versions (v016, v058, v121, v048) as composition anchors. The scratchpad assembler now hard-blocks on this condition; running extraction here avoids the block.
+
+1c. **Standalone illustration override + inspiration-set pass:**
+   If the request says any of these:
+   - "just the illustration"
+   - "not the full landing page"
+   - "right-side artwork"
+   - "standalone illustration"
+   - "not the page itself"
+
+   then treat it as an **illustration-only artifact**.
+
+   Rules:
+   - Do **not** choose strict page-scaffold materials (`landing-hero`, `browser-illustration`, `product-banner`) unless the user explicitly asks for the page or UI chrome itself.
+   - `feature-illustration` is allowed for illustration-only work **only** if the plan treats it as standalone artwork rather than a full landing page, hero comp, browser mockup, or screenshot-proof panel.
+   - Prefer a standalone illustration material such as `concept-illustration` (or `brand-scene` if environmental process is the point), but do not ban `feature-illustration` outright when it is the best artifact fit.
+   - Do **not** pass a screenshot as `--base-image` just because the illustration will later live beside copy on a landing page. For illustration-only work, screenshots are semantic truth anchors, not page scaffolding.
+   - Before planning, inspect the inspiration set and be able to name what each source contributes.
+
+   Minimum inspiration requirement for illustration-only runs:
+   - at least **3 inspiration sources** total
+   - at least **1 composition / spatial ref**
+   - at least **1 narrative-system ref**
+   - at least **1 rendering / finish ref**
+
+   If you cannot assemble that set from configured/extracted inspiration, **stop** and report the gap instead of proceeding into planning with weak or empty inspiration.
 
 2. **Automatic vault sync (every 10 generations):**
    Check the manifest version count. If 10+ versions have been generated since the last vault sync (tracked in iteration memory), or if this is the first run:
@@ -178,6 +207,8 @@ or you are in a disposable testing session. Then continue with the rest of Phase
    - Without a real screenshot, the image model will invent a fake UI that scores 1-2/5 every time
    - Store the selected screenshot path for use in Phase 2 (plan-draft) and Phase 4 (generate)
 
+   **Exception:** if the user explicitly asked for **illustration-only** artwork that will later sit on a landing page, do **not** use an interface material just to justify `--base-image`. Re-route to a standalone illustration material, or use `feature-illustration` only with explicit standalone-art constraints. Treat screenshots as truth-source references, not as page-layout scaffolding.
+
 10. **Resolve brand logo path (always):**
    Resolve the active brand logo path for generation flows that rely on mark continuity:
    - Check `.brand-gen/brands/<active>/logo.png` first (local workspace copy)
@@ -200,6 +231,12 @@ Build the plan using preparation context:
 - Use material words from the philosophy as texture/quality references in the prompt
 - Apply composition rules as structural guidance (e.g., "one dominant gesture plus one support system")
 - End with craftsmanship boosters from the philosophy
+
+For illustration-only requests:
+- explicitly state in the planning memo that the artifact scope is **illustration only**
+- explicitly say it is **not** a full landing page, hero comp, browser mockup, or screenshot-proof panel
+- record the inspiration set as three buckets: **composition**, **narrative/system**, **rendering/style**
+- if the selected material is page-adjacent/interface, stop and re-pick before generating
 
 ```bash
 source .venv/bin/activate && bgen plan-draft \
@@ -290,8 +327,13 @@ After generation, apply the quality gate:
    ```bash
    source .venv/bin/activate && bgen critique-rubric <version-id> --format json
    ```
+   **Prefer** `bgen critique-rubric <version-id> --dspy-scorer --format json` when the scoring extras are installed (`pip install -e '.[scoring]'` + `OPENROUTER_API_KEY` in `.env`). This returns a v2 packet with axis scores, rationales, disqualifier check, and `why_user_might_dislike_if_polished` pre-populated by a DSPy vision scorer.
 
-3. **Score the output** on these axes (1-5):
+3. **Score the output.** Branch on `rubric_version`:
+
+   **v2 packet (`rubric_version` present):** review the pre-populated `axis_scores` — universal 5 (`composition`, `brand_coherence`, `restraint`, `story_fidelity`, `meaning_clarity`) plus the material's overlay axes. Respect `disqualifier_triggered` — if true, the material auto-fails per the rubric's disqualifier rule regardless of axis scores. Use `overall_score` (min-biased aggregation) for the decision.
+
+   **v1 packet (`rubric_version` absent):** score from scratch 1-5 on:
    - `composition`: Layout hierarchy, focal point, whitespace
    - `material_truth`: Does it serve the material type's purpose?
    - `brand_coherence`: Palette, mark usage, approved motifs
@@ -301,11 +343,15 @@ After generation, apply the quality gate:
 4. **Calibrate** against the aspirational bar from `brand-profile.json` → `creative_context.quality_benchmarks`. Also test against the design philosophy — does the output embody the named movement?
 
 5. **Submit critique and record feedback.**
-   If the output drifted away from a required style anchor, say so explicitly and feed that into iteration/evolve.
+   If the output drifted away from a required style anchor, say so explicitly and feed that into iteration/evolve. Surface `why_user_might_dislike_if_polished` (v2 packets) directly in the iterate notes — it is the honest failure signal.
 
 6. **Decision:**
 
-   **If mean score < 3 → ITERATE:**
+   **v2 packet:** `disqualifier_triggered == true` OR `overall_score < 3` → ITERATE. Otherwise ACCEPT.
+
+   **v1 packet:** mean of the 4-5 axis scores < 3 → ITERATE. Mean >= 3 → ACCEPT.
+
+   **If ITERATE:**
    - Record rejection:
      ```bash
      source .venv/bin/activate && bgen feedback <version-id> --score <N> --notes "<specific issues>" --status rejected
@@ -317,7 +363,7 @@ After generation, apply the quality gate:
      ```
    - Max 2 retry cycles.
 
-   **If mean score >= 3 → ACCEPT:**
+   **If ACCEPT:**
    - Record feedback:
      ```bash
      source .venv/bin/activate && bgen feedback <version-id> --score <N> --notes "<summary>"
@@ -332,7 +378,7 @@ After generation, apply the quality gate:
    ```bash
    source .venv/bin/activate && bgen feedback <version-id> --score <user-score> --notes "<user feedback>"
    ```
-   The user's score ALWAYS overrides the agent's score. Record any specific feedback they give as negative/positive examples in iteration memory.
+   The user's score ALWAYS overrides the agent's score. Record any specific feedback they give as negative/positive examples in iteration memory. When agent and user scores diverge by ≥2, the disagreement auto-logs to `<brand-dir>/scoring/disagreements.jsonl` for later calibration (inspect with `bgen show-disagreements --format json`).
 
 ### Phase 6: Evolve (Pattern Analysis for Next Run)
 

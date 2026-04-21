@@ -109,19 +109,23 @@ def build_cached_messages(
     cache_system: bool = True,
     cache_image: bool = True,
 ) -> list[dict[str, Any]]:
-    """Construct Anthropic-shaped messages with explicit cache_control
+    """Construct OpenAI-compatible messages with explicit cache_control
     breakpoints.
 
-    Shape matches Anthropic's content-block format. LiteLLM's Anthropic
-    adapter preserves this structure when routed through
-    `dspy.LM.__call__(messages=[...])` (spike is the definitive answer;
-    this is the shape that works in all known cases).
+    LiteLLM validates incoming messages against OpenAI's chat-completion
+    schema before routing to providers (Anthropic direct, OpenRouter, etc).
+    So we emit OpenAI-compatible content blocks (`image_url` with a
+    data-URL), and LiteLLM's Anthropic adapter translates to Anthropic's
+    source-based format on the way out. `cache_control` is preserved
+    through the adapter regardless.
 
     Args:
         system_prompt: the full system-level context (rubric + instructions).
-        image_source: Anthropic image source block, e.g.
-            {"type": "base64", "media_type": "image/png", "data": "..."}
-            or {"type": "url", "url": "..."}
+        image_source: dict describing the image. Accepts:
+          - Anthropic base64 format: {"type": "base64", "media_type": "image/png", "data": "..."}
+          - Anthropic url format:    {"type": "url", "url": "..."}
+          - OpenAI data-url format:  {"type": "image_url", "image_url": {"url": "..."}}
+          The first two are normalized to OpenAI format here.
         user_text: the specific question / axis definition for this call.
         cache_system: place a cache_control breakpoint on the system block.
         cache_image: place a cache_control breakpoint on the image block.
@@ -130,7 +134,7 @@ def build_cached_messages(
     if cache_system:
         system_block["cache_control"] = {"type": "ephemeral"}
 
-    image_block: dict[str, Any] = {"type": "image", "source": dict(image_source)}
+    image_block = _normalize_image_block(image_source)
     if cache_image:
         image_block["cache_control"] = {"type": "ephemeral"}
 
@@ -144,6 +148,26 @@ def build_cached_messages(
             ],
         },
     ]
+
+
+def _normalize_image_block(image_source: dict[str, Any]) -> dict[str, Any]:
+    """Convert any of the accepted image_source shapes to an OpenAI
+    image_url content block.
+
+    OpenAI format: {"type": "image_url", "image_url": {"url": "<data-url or https URL>"}}
+    """
+    if image_source.get("type") == "image_url":
+        # Already in OpenAI shape
+        return dict(image_source)
+    if image_source.get("type") == "url" and image_source.get("url"):
+        return {"type": "image_url", "image_url": {"url": image_source["url"]}}
+    if image_source.get("type") == "base64":
+        media_type = image_source.get("media_type") or "image/png"
+        data = image_source.get("data") or ""
+        data_url = f"data:{media_type};base64,{data}"
+        return {"type": "image_url", "image_url": {"url": data_url}}
+    # Unknown shape — best effort passthrough
+    return dict(image_source)
 
 
 def image_source_from_path(image_path: str | Path) -> dict[str, Any]:

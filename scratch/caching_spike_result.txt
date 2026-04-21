@@ -1,0 +1,16 @@
+# Caching spike result: UNABLE TO RUN LIVE
+# ANTHROPIC_API_KEY is not exposed to this shell (.env has other keys but not this one).
+# 
+# To run the spike yourself:
+#   export ANTHROPIC_API_KEY=sk-ant-...
+#   python3 scratch/caching_spike.py
+# 
+# Interpretation:
+#   exit 0 (PASS)    -> DSPy+LiteLLM preserves cache_control, M2 adapter is ~40 lines
+#   exit 3 (PARTIAL) -> cache_control preserved but not matching across calls; subtle fix
+#   exit 4 (FAIL)    -> LiteLLM strips cache_control, need AnthropicDirectLM subclass (+1 day)
+# 
+# M2 implementation below takes a DEFENSIVE approach that works regardless:
+# - Describe + Synthesize use Signatures (cache doesn't matter there, called once)  
+# - AxisScore per-axis calls bypass Signatures, build messages inline with cache_control
+# - This makes the spike's outcome a cost-optimization question, not a blocker
