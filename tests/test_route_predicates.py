@@ -32,6 +32,18 @@ class RoutePredicateTests(unittest.TestCase):
         self.assertIn('generative_explore', result['score_vector'])
         self.assertNotIn('deterministic_compose', result['score_vector'])
 
+    def test_illustration_only_request_avoids_reference_translate_for_page_adjacent_materials(self):
+        result = route_brief(
+            RoutingBrief(
+                material_type='feature-illustration',
+                material_key='feature_illustration',
+                goal='Need just the illustration for the landing page, not the full landing page',
+                request='standalone illustration only, no nav or page chrome',
+            )
+        )
+        self.assertEqual(result['route_key'], 'generative_explore')
+        self.assertEqual(result['method'], 'predicate')
+
 
 if __name__ == '__main__':
     unittest.main()

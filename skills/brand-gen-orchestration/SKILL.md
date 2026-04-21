@@ -168,11 +168,19 @@ Critical steps (do not skip):
    Convert these into explicit preserve / push / ban / mode / reference decisions.
    Do not continue with only a generic paraphrase.
 
-6. **Concept diversity** — Read `creative_context.concept_categories`. Check recent
+6. **Inspiration-set pass (mandatory for illustration-first work)** — Run `bgen inspiration-status --format json` on every non-motion run, not just hybrid/inspiration. For standalone illustration requests ("just the illustration", "not the full landing page", "right-side artwork", "standalone illustration"), you must inspect and name an inspiration set before planning:
+   - at least 3 inspiration sources total
+   - at least 1 composition / spatial ref
+   - at least 1 narrative-system ref
+   - at least 1 rendering / finish ref
+
+   If that set is missing or weak, stop and report the gap instead of proceeding with generic planning.
+
+7. **Concept diversity** — Read `creative_context.concept_categories`. Check recent
    generations. Auto-select the least illustrated concept if the caller did not
    specify one.
 
-7. **Role pack and layout suggestions** — Run `bgen suggest-role-pack` and
+8. **Role pack and layout suggestions** — Run `bgen suggest-role-pack` and
    `bgen suggest-layout` for the material type. These provide composition references
    and surface strategy.
 
@@ -196,9 +204,16 @@ Critical steps:
    - explicitly reroute to a prior-winner / brand-memory driven plan, or
    - stop and report that inspiration setup is missing.
 
+   For illustration-only requests, do **not** route into strict page-scaffold patterns just because the artwork will later sit on a landing page. Bias toward a standalone illustration material and note that the user asked for artwork, not the full page. `feature-illustration` can still be valid, but only when explicitly constrained as standalone artwork rather than a page comp.
+
 2. **Enrich the prompt seed** with philosophy metaphors — use material words as
    texture references, apply composition rules as structural guidance, end with
    craftsmanship boosters. Do NOT paste philosophy verbatim.
+
+   For illustration-only requests, the planning memo must explicitly say:
+   - artifact scope = illustration only
+   - not a landing page / hero comp / browser mockup / screenshot-proof inset
+   - which inspiration sources are serving composition, narrative/system, and rendering/style
 
 3. **Enrich with blackboard and prior winners** — The prompt seed and flags must reflect:
    - blackboard success patterns
@@ -274,6 +289,8 @@ source .venv/bin/activate && bgen generate --scratchpad <scratchpad-path> --max-
 For interface materials (browser-illustration, landing-hero, product-banner,
 feature-illustration): ALWAYS pass `--base-image <screenshot-path>`. Without a real
 screenshot, the model invents fake UI that scores 1-2 every time.
+
+**Exception:** if the user explicitly asked for illustration-only artwork that will later live on a landing page, do **not** choose an interface material just to justify `--base-image`. Re-route to a standalone illustration material, or use `feature-illustration` only with explicit standalone-art constraints, and use screenshots only as semantic truth anchors.
 
 If the scratchpad has blocking issues, stop and report clearly. Do not generate
 from a broken scratchpad.

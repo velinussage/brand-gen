@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .inspiration_sources import load_configured_source_records
 from .runtime import *
 from .runtime_brand import load_prompt_fragments
 
@@ -300,42 +301,13 @@ def load_inspiration_prompt_context(
         return default_payload
 
     config = load_brand_gen_config(brand_gen_dir=resolved, repo_root=REPO_ROOT)
-    inspiration_config = load_inspirations_config(brand_key, resolved)
-    index = load_inspiration_index(resolved).get("sources", {})
-    available_paths: list[Path] = []
-    used_sources: list[str] = []
-    source_records: list[dict[str, str]] = []
-    skipped: list[dict[str, str]] = []
-    for key in inspiration_config.get("sources", []):
-        item = index.get(key)
-        if not item:
-            skipped.append({"source": key, "reason": "not indexed"})
-            continue
-        status = item.get("status")
-        if status != "complete":
-            skipped.append({"source": key, "reason": f"status={status or 'unknown'}"})
-            continue
-        design_path = item.get("designMemoryPath")
-        if not design_path:
-            skipped.append({"source": key, "reason": "missing designMemoryPath"})
-            continue
-        path = Path(design_path).expanduser()
-        if not path.is_absolute():
-            path = (resolved / design_path).resolve()
-        if not path.exists():
-            skipped.append({"source": key, "reason": "design memory path missing"})
-            continue
-        available_paths.append(path)
-        used_sources.append(key)
-        source_records.append(
-            {
-                "source_key": key,
-                "source_name": str(item.get("name") or key),
-                "source_url": str(item.get("url") or item.get("sourceUrl") or ""),
-                "design_memory_path": str(path),
-                "selection_mode": "configured_inspiration",
-            }
-        )
+    source_records, skipped = load_configured_source_records(
+        brand_dir=Path(brand_dir).expanduser().resolve() if brand_dir else (resolved / "brands" / brand_key),
+        brand_gen_dir=resolved,
+        active_brand=brand_key,
+    )
+    available_paths: list[Path] = [Path(str(item.get("design_memory_path") or "")).expanduser().resolve() for item in source_records]
+    used_sources: list[str] = [str(item.get("source_key") or "").strip() for item in source_records if str(item.get("source_key") or "").strip()]
 
     doctrine = merge_inspiration_doctrine(available_paths, material_type=material_type) if available_paths else ""
     token_fragments = []

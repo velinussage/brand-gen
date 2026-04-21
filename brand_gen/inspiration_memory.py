@@ -18,6 +18,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
+from .inspiration_sources import load_configured_source_records
 from .runtime_brand import load_system_prompt
 from .runtime_io import load_json_file
 from .runtime_models import SUPPORTED_IMAGE_EXTS
@@ -127,6 +128,25 @@ def resolve_inspiration_images(brand_dir: Path, images: list[str] | None = None)
     return [path for path in candidates if path.is_file() and path.suffix.lower() in SUPPORTED_IMAGE_EXTS]
 
 
+def resolve_design_memory_sources(brand_dir: Path) -> list[dict]:
+    try:
+        from .session import get_brand_gen_dir
+    except ImportError:  # pragma: no cover
+        get_brand_gen_dir = None
+    brand_gen_dir = get_brand_gen_dir(repo_root=Path(__file__).resolve().parent.parent) if get_brand_gen_dir else None
+    if not brand_gen_dir:
+        return []
+    try:
+        source_records, _ = load_configured_source_records(
+            brand_dir=brand_dir,
+            brand_gen_dir=brand_gen_dir,
+            active_brand=brand_dir.name,
+        )
+    except Exception:
+        return []
+    return source_records
+
+
 def _normalize_hexes(items: list[str]) -> list[str]:
     values: list[str] = []
     for item in items:
@@ -208,53 +228,115 @@ def build_inspiration_seed_prompt(payload: dict) -> str:
 
 def consolidate_inspiration_memory(brand_dir: Path, *, images: list[str] | None = None, env: dict | None = None) -> dict:
     image_paths = resolve_inspiration_images(brand_dir, images)
-    if not image_paths:
+    now = time.strftime("%Y-%m-%dT%H:%M:%S")
+    if image_paths:
+        analyses = [analyze_inspiration_image(path, env=env) for path in image_paths]
+        if not any(item.get("vlm_available") for item in analyses):
+            raise SystemExit("No VLM provider available for inspiration consolidation. Set ANTHROPIC_API_KEY or OPENAI_API_KEY.")
+
+        payload = normalize_inspiration_memory(
+            {
+                "created_at": now,
+                "updated_at": now,
+                "storage_scope": "brand_materials_state",
+                "execution_mode": "standalone_command",
+                "analysis_strategy": "per_image_remote_vlm_then_local_reduce",
+                "providers_used": dedupe_keep_order([str(item.get("vlm_provider") or "").strip() for item in analyses if str(item.get("vlm_provider") or "").strip()]),
+                "sources": [
+                    {
+                        "path": item["path"],
+                        "vlm_provider": item.get("vlm_provider") or "",
+                        "confidence_notes": item.get("confidence_notes") or "",
+                    }
+                    for item in analyses
+                ],
+                "summary": " ".join(
+                    part
+                    for part in [
+                        f"Recurring composition cues: {', '.join(_rank_terms(analyses, 'composition_archetypes', limit=2))}."
+                        if _rank_terms(analyses, "composition_archetypes", limit=2)
+                        else "",
+                        f"Typography cues lean toward {', '.join(_rank_terms(analyses, 'typography_cues', limit=2))}."
+                        if _rank_terms(analyses, "typography_cues", limit=2)
+                        else "",
+                        f"Surface finish tends toward {', '.join(_rank_terms(analyses, 'surface_finishes', limit=2))}."
+                        if _rank_terms(analyses, "surface_finishes", limit=2)
+                        else "",
+                    ]
+                    if part
+                ).strip(),
+                "palette_direction": _normalize_hexes([item for analysis in analyses for item in (analysis.get("palette_hexes") or [])])[:8],
+                "typography_cues": _rank_terms(analyses, "typography_cues", limit=6),
+                "composition_archetypes": _rank_terms(analyses, "composition_archetypes", limit=6),
+                "surface_finishes": _rank_terms(analyses, "surface_finishes", limit=6),
+                "motion_cues": _rank_terms(analyses, "motion_cues", limit=6),
+                "negative_cues": _rank_terms(analyses, "negative_cues", limit=6),
+                "confidence_notes": f"Summarized from {len(image_paths)} inspiration images; VLM coverage on {sum(1 for item in analyses if item.get('vlm_available'))}/{len(analyses)} images.",
+                "analyses": analyses,
+            }
+        )
+        payload["seed_prompt"] = build_inspiration_seed_prompt(payload)
+        return payload
+
+    source_records = resolve_design_memory_sources(brand_dir)
+    if not source_records:
         raise SystemExit(f"No inspiration images found. Add files under {brand_dir / 'inspiration'} or pass --image.")
 
-    analyses = [analyze_inspiration_image(path, env=env) for path in image_paths]
-    if not any(item.get("vlm_available") for item in analyses):
-        raise SystemExit("No VLM provider available for inspiration consolidation. Set ANTHROPIC_API_KEY or OPENAI_API_KEY.")
+    analyses = []
+    for record in source_records:
+        analyses.append(
+            {
+                "path": str(record.get("design_memory_path") or ""),
+                "summary": str(record.get("summary") or "").strip(),
+                "palette_hexes": _normalize_hexes(list(record.get("palette_lines") or [])),
+                "typography_cues": _normalize_terms(list(record.get("typography_lines") or []) + list(record.get("tags") or []))[:4],
+                "composition_archetypes": _normalize_terms(list(record.get("borrow_mechanics") or []) + list(record.get("layout_cues") or []))[:4],
+                "surface_finishes": _normalize_terms(list(record.get("palette_lines") or []) + list(record.get("notes") and [record.get("notes")] or []))[:4],
+                "motion_cues": _normalize_terms(list(record.get("motion_cues") or []))[:4],
+                "negative_cues": _normalize_terms(list(record.get("avoid_literal") or []))[:4],
+                "confidence_notes": "Derived from extracted design-memory/source-summary records.",
+                "vlm_available": False,
+                "vlm_provider": "design-memory",
+            }
+        )
 
     payload = normalize_inspiration_memory(
         {
-            "created_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-            "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "created_at": now,
+            "updated_at": now,
             "storage_scope": "brand_materials_state",
-            "execution_mode": "standalone_command",
-            "analysis_strategy": "per_image_remote_vlm_then_local_reduce",
-            "providers_used": dedupe_keep_order([str(item.get("vlm_provider") or "").strip() for item in analyses if str(item.get("vlm_provider") or "").strip()]),
+            "execution_mode": "configured_source_reduce",
+            "analysis_strategy": "design_memory_summary_reduce",
+            "providers_used": ["design-memory"],
             "sources": [
                 {
-                    "path": item["path"],
-                    "vlm_provider": item.get("vlm_provider") or "",
-                    "confidence_notes": item.get("confidence_notes") or "",
+                    "source": record.get("source_key") or record.get("source_name") or "",
+                    "path": str(record.get("design_memory_path") or ""),
+                    "confidence_notes": f"Buckets: {', '.join(record.get('bucket_hints') or []) or 'n/a'}",
                 }
-                for item in analyses
+                for record in source_records
             ],
             "summary": " ".join(
                 part
                 for part in [
-                    f"Recurring composition cues: {', '.join(_rank_terms(analyses, 'composition_archetypes', limit=2))}."
-                    if _rank_terms(analyses, "composition_archetypes", limit=2)
+                    f"Configured inspiration sources agree on composition cues such as {', '.join(_rank_terms(analyses, 'composition_archetypes', limit=2))}."
+                    if _rank_terms(analyses, 'composition_archetypes', limit=2)
                     else "",
-                    f"Typography cues lean toward {', '.join(_rank_terms(analyses, 'typography_cues', limit=2))}."
-                    if _rank_terms(analyses, "typography_cues", limit=2)
-                    else "",
-                    f"Surface finish tends toward {', '.join(_rank_terms(analyses, 'surface_finishes', limit=2))}."
-                    if _rank_terms(analyses, "surface_finishes", limit=2)
+                    f"Typography/rendering cues lean toward {', '.join(_rank_terms(analyses, 'typography_cues', limit=2))}."
+                    if _rank_terms(analyses, 'typography_cues', limit=2)
                     else "",
                 ]
                 if part
             ).strip(),
-            "palette_direction": _normalize_hexes([item for analysis in analyses for item in (analysis.get("palette_hexes") or [])])[:8],
-            "typography_cues": _rank_terms(analyses, "typography_cues", limit=6),
-            "composition_archetypes": _rank_terms(analyses, "composition_archetypes", limit=6),
-            "surface_finishes": _rank_terms(analyses, "surface_finishes", limit=6),
-            "motion_cues": _rank_terms(analyses, "motion_cues", limit=6),
-            "negative_cues": _rank_terms(analyses, "negative_cues", limit=6),
-            "confidence_notes": f"Summarized from {len(image_paths)} inspiration images; VLM coverage on {sum(1 for item in analyses if item.get('vlm_available'))}/{len(analyses)} images.",
+            "palette_direction": _normalize_hexes([item for analysis in analyses for item in (analysis.get('palette_hexes') or [])])[:8],
+            "typography_cues": _rank_terms(analyses, 'typography_cues', limit=6),
+            "composition_archetypes": _rank_terms(analyses, 'composition_archetypes', limit=6),
+            "surface_finishes": _rank_terms(analyses, 'surface_finishes', limit=6),
+            "motion_cues": _rank_terms(analyses, 'motion_cues', limit=6),
+            "negative_cues": _rank_terms(analyses, 'negative_cues', limit=6),
+            "confidence_notes": f"Summarized from {len(source_records)} extracted design-memory sources because no local inspiration image files were present.",
             "analyses": analyses,
         }
     )
-    payload["seed_prompt"] = build_inspiration_seed_prompt(payload)
+    payload['seed_prompt'] = build_inspiration_seed_prompt(payload)
     return payload

@@ -125,6 +125,70 @@
         "buck-playgrounds-in-motion"
       ]
     },
+    "concept_illustration": {
+      "priority": [
+        "motif",
+        "composition",
+        "application"
+      ],
+      "required_roles": [
+        "motif",
+        "composition"
+      ],
+      "selection_note": "Choose refs that solve standalone illustration structure and visual system logic. Avoid homepage heroes, dashboards, or any full-page framing that can leak page chrome into the artwork.",
+      "composition": [
+        "gretel-work",
+        "koto-work",
+        "mother-design-home"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work",
+        "pentagram-the-wing"
+      ],
+      "application": [
+        "gretel-work",
+        "mother-design-home",
+        "pentagram-poster-house"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ],
+      "prefer_unique_sources": false
+    },
+    "brand_scene": {
+      "priority": [
+        "application",
+        "composition",
+        "motif"
+      ],
+      "required_roles": [
+        "application",
+        "composition"
+      ],
+      "selection_note": "Choose refs that imply process and environment rather than page layout. Brand scenes should borrow atmosphere and working posture, not browser chrome or headline blocks.",
+      "composition": [
+        "gretel-work",
+        "mother-design-home",
+        "clay"
+      ],
+      "motif": [
+        "koto-work",
+        "gretel-work",
+        "pentagram-the-wing"
+      ],
+      "application": [
+        "mother-design-home",
+        "gretel-work",
+        "metalab"
+      ],
+      "motion": [
+        "buck-playgrounds-in-motion",
+        "buck-zapier-motion-library"
+      ],
+      "prefer_unique_sources": false
+    },
     "social": {
       "priority": [
         "composition",

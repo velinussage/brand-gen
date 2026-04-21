@@ -14,6 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .brand_policy import normalize_material_brand_policy, summarize_identity
+from .request_intent import requires_standalone_illustration_material
 from .runtime import *
 
 __all__ = [
@@ -57,6 +58,15 @@ def validate_material_plan_dict(plan: dict) -> dict:
     checks["inspiration_translation"] = bool(translations) or not required_roles
     checks["prompt_seed"] = bool(plan.get("prompt_seed"))
 
+    artifact_scope = str(plan.get("artifact_scope") or "").strip().lower()
+    selected_inspiration_sources = list(plan.get("selected_inspiration_sources") or [])
+    selected_inspiration_keys = [
+        str(item.get("source_key") or item.get("source_name") or "").strip()
+        for item in selected_inspiration_sources
+        if str(item.get("source_key") or item.get("source_name") or "").strip()
+    ]
+    inspiration_requirements = plan.get("inspiration_requirements") or {}
+
     # Map plan field names to their CLI flag equivalents
     _FIELD_TO_FLAG: dict[str, str] = {
         "purpose": "--purpose",
@@ -88,6 +98,15 @@ def validate_material_plan_dict(plan: dict) -> dict:
     if material_key in {"landing_hero", "browser_illustration", "product_banner", "feature_illustration", "social", "feature_animation"} and not plan.get("product_truth_expression"):
         errors.append("Product-led material is missing product truth expression.")
 
+    if requires_standalone_illustration_material(material_key, illustration_only=artifact_scope == "illustration_only"):
+        errors.append(
+            f"Illustration-only request is using interface material '{material_type}', which tends to produce full-page or page-adjacent chrome. Use a standalone illustration material instead."
+        )
+    elif artifact_scope == "illustration_only" and material_key == "feature_illustration":
+        warnings.append(
+            "Illustration-only request is using feature-illustration. This is allowed, but the plan must treat it as standalone artwork rather than a full landing page, hero comp, or browser-framed UI surface."
+        )
+
     # Interface materials MUST have a base_image or source screenshot
     INTERFACE_MATERIAL_TYPES = {"browser_illustration", "landing_hero", "product_banner", "feature_illustration"}
     if material_key in INTERFACE_MATERIAL_TYPES and not plan.get("base_image"):
@@ -95,6 +114,20 @@ def validate_material_plan_dict(plan: dict) -> dict:
             "Interface material is missing base_image (real product screenshot). "
             "Run: bgen capture-product --url <app-url> --out-dir brands/<brand>/product-shots, "
             "then pass --base-image <path> to the pipeline command."
+        )
+
+    required_inspiration = bool(inspiration_requirements.get("required"))
+    min_selected_sources = int(inspiration_requirements.get("min_selected_sources") or 0)
+    if required_inspiration and len(selected_inspiration_keys) < max(1, min_selected_sources):
+        errors.append(
+            f"Material plan requires an explicit inspiration set ({max(1, min_selected_sources)} selected source{'s' if max(1, min_selected_sources) != 1 else ''} minimum), but only {len(selected_inspiration_keys)} selected inspiration source(s) are attached."
+        )
+    elif not selected_inspiration_keys and material_key in {"concept_illustration", "brand_scene"}:
+        warnings.append("Non-interface illustration plan has no selected inspiration sources; the pipeline may drift into posters, diagrams, or generic abstract brand art.")
+
+    if artifact_scope == "illustration_only" and plan.get("base_image") and material_key not in INTERFACE_MATERIAL_TYPES:
+        warnings.append(
+            "Standalone illustration plan carries a base_image even though the material is non-interface; direct screenshot scaffolding can drag page text and box geometry into the illustration."
         )
 
     if required_roles and not role_pack.get("selected_roles"):
