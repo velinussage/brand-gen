@@ -257,6 +257,25 @@ def build_show_disagreements_cli(parser: argparse.ArgumentParser, *, inspire_url
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_rebucket_inspiration_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--source", required=True, help="Source key (as stored in inspiration-memory.json)")
+    parser.add_argument(
+        "--primary",
+        choices=["composition", "narrative_system", "rendering_style"],
+        help="Primary bucket this source should be assigned to. Sources with a primary_bucket set get a strong scoring bonus during role-pack selection.",
+    )
+    parser.add_argument(
+        "--scores",
+        help='Per-bucket weights as JSON, e.g. \'{"composition": 1.0, "narrative_system": 0.3, "rendering_style": 0.0}\'. Overrides --primary when both are set.',
+    )
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Clear primary_bucket and bucket_scores on the source (revert to legacy bucket_hints ranking).",
+    )
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_scoring_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
@@ -400,6 +419,7 @@ def build_plan_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: di
     parser.add_argument("--source-url", help="Real product/app URL to plan against")
     parser.add_argument("--entity-type", help="Entity type for governed share-card planning")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10) used when selecting a surface strategy")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
     parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
     parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
     parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
@@ -423,6 +443,7 @@ def build_plan_draft_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[
     parser.add_argument("--source-url", help="Real product/app URL to plan against")
     parser.add_argument("--entity-type", help="Entity type for governed share-card planning")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10) used when selecting a surface strategy")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
     parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
     parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
     parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
@@ -500,6 +521,7 @@ def build_build_generation_scratchpad_cli(parser: argparse.ArgumentParser, *, in
     parser.add_argument("--proof-meta", action="append", help="Proof metadata row/chip for HTML share cards; repeat as needed")
     parser.add_argument("--proof-crop-path", help="Screenshot crop or product image path used as supporting texture inside the proof module")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10): 1-3 clean centered, 4-7 editorial asymmetry, 8-10 strong asymmetry")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
     parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
     parser.add_argument("--skip-extraction", action="store_true", help="Skip cached reference analysis during scratchpad assembly")
     parser.add_argument("--refresh-reference-analysis", action="store_true", help="Recompute cached reference analysis even if a cache entry exists")
@@ -704,6 +726,7 @@ def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[st
     parser.add_argument("--proof-meta", action="append", help="Proof metadata row/chip for HTML share cards; repeat as needed")
     parser.add_argument("--proof-crop-path", help="Screenshot crop or product image path used as supporting texture inside the proof module")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10): 1-3 clean centered, 4-7 editorial asymmetry, 8-10 strong asymmetry")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
     parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
     parser.add_argument("--set-scope", action="store_true", help="Route as a set orchestration brief, even though generation remains single-material")
     parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→VLM-critique→refine loops (1-3)")
@@ -857,6 +880,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-rubric': build_show_rubric_cli,
     'show-disagreements': build_show_disagreements_cli,
     'scoring-status': build_scoring_status_cli,
+    'rebucket-inspiration': build_rebucket_inspiration_cli,
     'extract-inspiration': build_extract_inspiration_cli,
     'consolidate-inspiration': build_consolidate_inspiration_cli,
     'inspiration-mode': build_inspiration_mode_cli,

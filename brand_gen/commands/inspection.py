@@ -1067,3 +1067,99 @@ def cmd_show_rubric(args):
             print(f"  - {key}: {axes_count} overlay axes + {dq_label}")
         print()
         print("Run with --material-type <t> for the full overlay + disqualifier for one material.")
+
+
+def cmd_rebucket_inspiration(args):
+    """Rewrite per-source bucket assignments in the brand's inspiration-memory.json.
+
+    When every inspiration source declares every bucket (composition,
+    narrative_system, rendering_style), role-pack selection degenerates
+    into first-by-index. This command lets a brand pin a PRIMARY bucket
+    per source so the ranker stops returning the same source for every
+    role slot.
+
+    Modes:
+      --primary <bucket>           — set primary_bucket on the source
+      --scores '<json weights>'    — set full bucket_scores dict
+      --clear                      — remove both primary_bucket and bucket_scores
+
+    The brand's inspiration-memory.json is updated in place; no other
+    files change.
+    """
+    brand_dir = get_brand_dir()
+    im_path = brand_dir / "inspiration-memory.json"
+    if not im_path.exists():
+        msg = f"inspiration-memory.json not found at {im_path}"
+        if args.format == "json":
+            print(json.dumps({"status": "error", "error": msg}))
+            sys.exit(1)
+        print(msg)
+        sys.exit(1)
+
+    data = json.loads(im_path.read_text())
+    source_key = str(getattr(args, "source", "")).strip()
+    sources = data.get("sources") or []
+    target = next((s for s in sources if str(s.get("source") or "").strip() == source_key), None)
+    if not target:
+        available = ", ".join(sorted(str(s.get("source") or "") for s in sources if s.get("source")))
+        msg = f"Source '{source_key}' not found. Available: {available or '(none)'}"
+        if args.format == "json":
+            print(json.dumps({"status": "error", "error": msg}))
+            sys.exit(1)
+        print(msg)
+        sys.exit(1)
+
+    changes: list[str] = []
+
+    if getattr(args, "clear", False):
+        for key in ("primary_bucket", "bucket_scores"):
+            if key in target:
+                del target[key]
+                changes.append(f"cleared {key}")
+    if getattr(args, "scores", None):
+        try:
+            weights = json.loads(args.scores)
+        except json.JSONDecodeError as exc:
+            msg = f"--scores is not valid JSON: {exc}"
+            if args.format == "json":
+                print(json.dumps({"status": "error", "error": msg}))
+                sys.exit(1)
+            print(msg)
+            sys.exit(1)
+        if not isinstance(weights, dict):
+            msg = "--scores must be a JSON object of {bucket: weight}"
+            if args.format == "json":
+                print(json.dumps({"status": "error", "error": msg}))
+                sys.exit(1)
+            print(msg)
+            sys.exit(1)
+        target["bucket_scores"] = {k: float(v) for k, v in weights.items()}
+        changes.append(f"bucket_scores={target['bucket_scores']}")
+    if getattr(args, "primary", None):
+        target["primary_bucket"] = args.primary
+        changes.append(f"primary_bucket={args.primary}")
+
+    if not changes:
+        msg = "No changes requested (pass --primary, --scores, or --clear)."
+        if args.format == "json":
+            print(json.dumps({"status": "noop", "message": msg}))
+            return
+        print(msg)
+        return
+
+    im_path.write_text(json.dumps(data, indent=2) + "\n")
+
+    result = {
+        "status": "ok",
+        "source": source_key,
+        "brand_dir": str(brand_dir),
+        "changes": changes,
+        "primary_bucket": target.get("primary_bucket"),
+        "bucket_scores": target.get("bucket_scores"),
+    }
+    if args.format == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"Updated {source_key} in {im_path}")
+    for ch in changes:
+        print(f"  - {ch}")

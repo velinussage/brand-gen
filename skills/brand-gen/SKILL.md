@@ -512,6 +512,24 @@ bgen collect-examples --help
 
 `consolidate-inspiration` is a standalone state update, not a pipeline stage.
 
+#### Pinning primary buckets with `rebucket-inspiration`
+
+When every inspiration source declares every bucket (composition, narrative_system, rendering_style), role-pack ranking degenerates into first-by-index and the same source ends up filling every role slot. Fix it per source:
+
+```bash
+bgen rebucket-inspiration --source pentagram-poster-house --primary composition --format json
+bgen rebucket-inspiration --source pentagram-jigsaw --primary narrative_system --format json
+bgen rebucket-inspiration --source koto-pairpoint --primary rendering_style --format json
+
+# Fine-grained weights instead of a single primary bucket:
+bgen rebucket-inspiration --source gretel-work --scores '{"composition": 0.6, "narrative_system": 0.4, "rendering_style": 0.3}' --format json
+
+# Revert to legacy bucket_hints-only ranking for a source:
+bgen rebucket-inspiration --source some-source --clear --format json
+```
+
+Sources with `primary_bucket` set receive a strong ranking bonus for their declared bucket, so `suggest-role-pack` picks a different source for each role slot instead of defaulting to the first-in-list. Sources with `bucket_scores` get fine-grained weights applied to the existing score formula.
+
 ### Product capture
 
 ```bash
