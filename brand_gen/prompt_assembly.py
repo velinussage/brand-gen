@@ -148,6 +148,7 @@ def build_effective_prompt(
     prompt_camera: str | None = None,
     prompt_composition: str | None = None,
     prompt_details: str | None = None,
+    visual_density: int | str | None = None,
 ) -> dict:
     reference_analysis = reference_analysis or {}
     analysis_mode = reference_analysis_mode(reference_analysis)
@@ -404,6 +405,7 @@ def build_effective_prompt(
         "prompt_camera": (prompt_camera or "").strip(),
         "prompt_composition": (prompt_composition or "").strip(),
         "prompt_details": (prompt_details or "").strip(),
+        "visual_density": visual_density if visual_density not in (None, "") else None,
         "token_block": token_block,
         "token_block_fragments": inspiration.get("token_block_fragments", []),
         "resolved_prompt": resolved,
@@ -733,6 +735,31 @@ _OVERLAY_AXIS_PUSH_CLAUSES = {
 }
 
 
+def compact_execution_visual_density(context: dict) -> str:
+    """Render the plan's visual_density as a compositional directive.
+
+    visual_density is the SPATIAL dial (airy vs packed) — orthogonal to
+    complexity_tier (which caps named-element count). This helper emits
+    a short directive per band so the model has explicit spacing
+    language instead of inferring from prose mood words.
+
+    Returns empty string when density is absent or at the neutral
+    default, so the typical case adds no prompt-budget cost.
+    """
+    from .plan_validation import normalize_visual_density, visual_density_grammar
+
+    raw = context.get("visual_density")
+    if raw is None or raw == "":
+        return ""
+    density = normalize_visual_density(raw)
+    # Only surface the directive when the planner chose a non-default
+    # band — band 4 and 5 render the same "daily-app" grammar, so don't
+    # bloat the prompt unless the user explicitly pushed to an extreme.
+    if 4 <= density <= 5:
+        return ""
+    return f"Visual density (dial {density}/10): {visual_density_grammar(density)}"
+
+
 def compact_execution_five_slot_brief(context: dict) -> str:
     """Render the 5-slot prompt template (Subject + Style + Lighting +
     Composition + Details) from explicit plan fields when the planner
@@ -877,6 +904,7 @@ def build_execution_prompt(
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
         "five_slot_brief": compact_execution_five_slot_brief(context),
+        "visual_density_block": compact_execution_visual_density(context),
         "aesthetic_archetype_block": compact_execution_aesthetic_archetype(context, material_type),
         "rubric_overlay_push": compact_execution_rubric_overlay_push(material_type),
         "critical_bans": compact_execution_critical_bans(context, material_key),
@@ -891,6 +919,7 @@ def build_execution_prompt(
         sections["role_pack_block"],
         sections["selected_inspiration_block"],
         sections["five_slot_brief"],
+        sections["visual_density_block"],
         sections["aesthetic_archetype_block"],
         sections["rubric_overlay_push"],
         sections["critical_bans"],

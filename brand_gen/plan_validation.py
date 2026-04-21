@@ -26,6 +26,8 @@ __all__ = [
     "plan_has_text_ban",
     "normalize_complexity_tier",
     "complexity_tier_enumeration_min_items",
+    "normalize_visual_density",
+    "visual_density_grammar",
 ]
 
 # Complexity tier controls how many named elements the brief may carry.
@@ -74,6 +76,62 @@ def complexity_tier_enumeration_min_items(tier: str) -> int:
     detector tolerates longer lists.
     """
     return _COMPLEXITY_TIER_THRESHOLDS.get(tier, _COMPLEXITY_TIER_THRESHOLDS["moderate"])
+
+
+# Visual density controls the SPATIAL side of density (whitespace vs
+# information-packing), independently of complexity_tier which governs
+# named-element count. Low density = art gallery; high = pilot cockpit.
+# Defaults to 4 for concept-illustration + brand-scene (airy editorial),
+# 5 otherwise.
+_VISUAL_DENSITY_DEFAULT_BY_MATERIAL = {
+    "concept-illustration": 4,
+    "concept_illustration": 4,
+    "brand-scene": 4,
+    "brand_scene": 4,
+    "landing-hero": 4,
+    "landing_hero": 4,
+}
+
+
+def normalize_visual_density(requested: int | str | None, *, material_type: str | None = None) -> int:
+    """Resolve visual_density to a 1-10 integer.
+
+    Invalid values fall back to the per-material default (4 for airy
+    illustration-first materials, 5 otherwise). Caps to 1..10.
+    """
+    try:
+        if requested is not None and str(requested).strip() != "":
+            value = int(requested)
+            return max(1, min(10, value))
+    except (TypeError, ValueError):
+        pass
+    if material_type:
+        default = _VISUAL_DENSITY_DEFAULT_BY_MATERIAL.get(str(material_type).lower().strip())
+        if default:
+            return default
+    return 5
+
+
+def visual_density_grammar(density: int) -> str:
+    """Render the density band as a short compositional directive for
+    the execution_prompt. Low = Art Gallery (airy), mid = Daily App,
+    high = Cockpit (packed).
+    """
+    if density <= 3:
+        return (
+            "Art-gallery density: huge negative space, one dominant gesture, "
+            "generous section gaps, the composition feels unhurried and expensive."
+        )
+    if density >= 8:
+        return (
+            "Cockpit density: tightly packed composition with mathematical rhythm, "
+            "1px separations rather than cards, numbers and labels read as a "
+            "dense monospace field — every pixel carrying information."
+        )
+    return (
+        "Daily-app density: normal editorial spacing, balanced negative space, "
+        "one to three supporting elements around the focal gesture."
+    )
 
 
 # Phrases that signal a "no text", "no labels", "no headlines" constraint.
