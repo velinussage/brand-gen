@@ -16,7 +16,7 @@ class ProjectLayoutTests(unittest.TestCase):
 
     def test_pyproject_exists_and_declares_python_requirement(self):
         pyproject = (REPO_ROOT / 'pyproject.toml').read_text()
-        self.assertIn('requires-python = ">=3.11"', pyproject)
+        self.assertIn('requires-python = ">=3.12"', pyproject)
         self.assertIn('dataclasses-json', pyproject)
         self.assertIn('bgen = "brand_gen.cli:main"', pyproject)
 
