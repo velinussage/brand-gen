@@ -5,6 +5,7 @@ import {
   executeAction,
   isHeartbeatPrompt,
   parsePluginConfig,
+  resolveMcpInvocation,
   scheduleHeartbeat,
   stopHeartbeat,
   summarizeContext,
@@ -72,13 +73,12 @@ export default async function brandGenPiExtension(pi: any) {
   // Launch the MCP backend as a Python module (`-m brand_gen.brand_iterate_mcp`)
   // with cwd=repoRoot so intra-package relative imports resolve. Running the
   // .py file as a script breaks `from .cli_builders import ...` inside
-  // brand_gen/command_registry.py.
-  const bridge = new McpBridge(
-    runtime.pythonCommand,
-    ["-m", "brand_gen.brand_iterate_mcp"],
-    env,
-    { cwd: runtime.repoRoot },
-  );
+  // brand_gen/command_registry.py. resolveMcpInvocation detects the
+  // brand_gen package layout and builds the right command+args+cwd.
+  const invocation = resolveMcpInvocation(runtime.mcpPath, { python: runtime.pythonCommand });
+  const bridge = new McpBridge(invocation.command, invocation.args, env, {
+    cwd: invocation.cwd,
+  });
   const heartbeat = createHeartbeatState();
   const widget = new BrandGenWidget(bridge, config, heartbeat);
 

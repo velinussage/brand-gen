@@ -2,6 +2,7 @@
 
 // MCP bridge
 export { McpBridge, type McpToolDef } from "./mcp-bridge.ts";
+export { resolveMcpInvocation, type McpInvocation } from "./mcp-invocation.ts";
 
 // Types & constants
 export type {

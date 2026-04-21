@@ -21,6 +21,7 @@ import {
   mapGenerateParams,
   parsePluginConfig,
   resolveActiveWorkspace,
+  resolveMcpInvocation,
   runHeartbeatCycle,
   scheduleHeartbeat,
   stopHeartbeat,
@@ -414,17 +415,25 @@ const plugin = {
       if (process.env[key]) brandEnv[key] = process.env[key] as string;
     }
 
-    brandBridge = new McpBridge("python3", [cfg.brandIterateMcpPath], brandEnv, {
+    // Resolve the launch command so brand_gen/*.py files run via
+    // `python -m brand_gen.<module>` with cwd=repoRoot (relative imports
+    // need the package context; see mcp-invocation.ts). Anything else
+    // falls back to direct script invocation.
+    const brandInvocation = resolveMcpInvocation(cfg.brandIterateMcpPath);
+    brandBridge = new McpBridge(brandInvocation.command, brandInvocation.args, brandEnv, {
       clientName: "openclaw-brand-gen",
       clientVersion: PKG_VERSION,
+      cwd: brandInvocation.cwd,
     });
     brandBridge.on("log", (line: string) => api.logger.info(`[brand-gen-mcp] ${line}`));
     brandBridge.on("error", (err: Error) => api.logger.error(`[brand-gen-mcp] ${err.message}`));
 
     if (cfg.logoIterateMcpPath) {
-      logoBridge = new McpBridge("python3", [cfg.logoIterateMcpPath], brandEnv, {
+      const logoInvocation = resolveMcpInvocation(cfg.logoIterateMcpPath);
+      logoBridge = new McpBridge(logoInvocation.command, logoInvocation.args, brandEnv, {
         clientName: "openclaw-logo",
         clientVersion: PKG_VERSION,
+        cwd: logoInvocation.cwd,
       });
       logoBridge.on("log", (line: string) => api.logger.info(`[logo-mcp] ${line}`));
       logoBridge.on("error", (err: Error) => api.logger.error(`[logo-mcp] ${err.message}`));
