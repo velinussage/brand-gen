@@ -149,6 +149,7 @@ def build_effective_prompt(
     prompt_composition: str | None = None,
     prompt_details: str | None = None,
     visual_density: int | str | None = None,
+    aesthetic_commitment: str | None = None,
 ) -> dict:
     reference_analysis = reference_analysis or {}
     analysis_mode = reference_analysis_mode(reference_analysis)
@@ -406,6 +407,7 @@ def build_effective_prompt(
         "prompt_composition": (prompt_composition or "").strip(),
         "prompt_details": (prompt_details or "").strip(),
         "visual_density": visual_density if visual_density not in (None, "") else None,
+        "aesthetic_commitment": (aesthetic_commitment or "").strip(),
         "token_block": token_block,
         "token_block_fragments": inspiration.get("token_block_fragments", []),
         "resolved_prompt": resolved,
@@ -735,6 +737,24 @@ _OVERLAY_AXIS_PUSH_CLAUSES = {
 }
 
 
+def compact_execution_aesthetic_commitment(context: dict) -> str:
+    """Render the plan's aesthetic_commitment as a compositional directive.
+
+    The planner commits to ONE axis extreme (minimal, maximal,
+    editorial, brutalist, organic, industrial, retro_futurist,
+    playful, luxury). The prompt surfaces the commitment's grammar
+    so the model's aesthetic interpretation is anchored rather than
+    averaged across hedge-words.
+    """
+    from .plan_validation import aesthetic_commitment_grammar
+
+    commitment = context.get("aesthetic_commitment")
+    grammar = aesthetic_commitment_grammar(commitment)
+    if not grammar:
+        return ""
+    return f"Aesthetic commitment ({commitment}): {grammar}"
+
+
 def compact_execution_visual_density(context: dict) -> str:
     """Render the plan's visual_density as a compositional directive.
 
@@ -903,6 +923,7 @@ def build_execution_prompt(
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
+        "aesthetic_commitment_block": compact_execution_aesthetic_commitment(context),
         "five_slot_brief": compact_execution_five_slot_brief(context),
         "visual_density_block": compact_execution_visual_density(context),
         "aesthetic_archetype_block": compact_execution_aesthetic_archetype(context, material_type),
@@ -918,6 +939,7 @@ def build_execution_prompt(
         sections["brand_anchor_rule"],
         sections["role_pack_block"],
         sections["selected_inspiration_block"],
+        sections["aesthetic_commitment_block"],
         sections["five_slot_brief"],
         sections["visual_density_block"],
         sections["aesthetic_archetype_block"],

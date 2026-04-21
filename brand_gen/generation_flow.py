@@ -270,6 +270,7 @@ def assemble_generation_scratchpad(
         prompt_composition=str(plan.get("prompt_composition") or ""),
         prompt_details=str(plan.get("prompt_details") or ""),
         visual_density=plan.get("visual_density"),
+        aesthetic_commitment=plan.get("aesthetic_commitment") or "",
     )
     prompt_context["reference_analysis_mode"] = reference_analysis_mode
     prompt_context["reference_analysis_confidence"] = reference_analysis_confidence

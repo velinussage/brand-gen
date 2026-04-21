@@ -31,6 +31,7 @@ from .inspiration_board import persist_inspiration_source_selection, persist_pla
 from .learnings_memory import load_learnings_memory
 from .aesthetic_archetypes import list_archetypes, pick_rotating_archetype
 from .plan_validation import (
+    normalize_aesthetic_commitment,
     normalize_complexity_tier,
     normalize_visual_density,
     validate_material_plan_dict,
@@ -196,6 +197,7 @@ def create_material_plan(
     design_variance: int | None = None,
     complexity_tier: str | None = None,
     visual_density: int | str | None = None,
+    aesthetic_commitment: str | None = None,
     prompt_subject: str | None = None,
     prompt_style_descriptors: str | None = None,
     prompt_lighting: str | None = None,
@@ -335,6 +337,7 @@ def create_material_plan(
     resolved_design_variance = max(1, min(int(design_variance or 5), 10))
     resolved_complexity_tier = normalize_complexity_tier(complexity_tier, material_type=material_type)
     resolved_visual_density = normalize_visual_density(visual_density, material_type=material_type)
+    resolved_aesthetic_commitment = normalize_aesthetic_commitment(aesthetic_commitment)
     # Aesthetic archetype: rotate across the material's archetype library so
     # no single paradigm fossilizes (addresses v181/v182 "same mood prose"
     # defaults). Read rotation window from iteration memory.
@@ -408,6 +411,7 @@ def create_material_plan(
         "design_variance": resolved_design_variance,
         "complexity_tier": resolved_complexity_tier,
         "visual_density": resolved_visual_density,
+        "aesthetic_commitment": resolved_aesthetic_commitment or "",
         "aesthetic_archetype": _resolved_archetype or None,
         "aesthetic_archetype_id": (_resolved_archetype or {}).get("id") or "",
         "prompt_subject": (prompt_subject or "").strip(),
@@ -510,6 +514,7 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
         design_variance=getattr(args, "design_variance", None),
         complexity_tier=getattr(args, "complexity_tier", None),
         visual_density=getattr(args, "visual_density", None),
+        aesthetic_commitment=getattr(args, "aesthetic_commitment", None),
         prompt_subject=getattr(args, "prompt_subject", None),
         prompt_style_descriptors=getattr(args, "prompt_style_descriptors", None),
         prompt_lighting=getattr(args, "prompt_lighting", None),
