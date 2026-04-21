@@ -89,7 +89,7 @@ class TestBuildCachedMessages(unittest.TestCase):
             user_text="u",
         )
         user_content = msgs[1]["content"]
-        image_block = [c for c in user_content if c.get("type") == "image"][0]
+        image_block = [c for c in user_content if c.get("type") == "image_url"][0]
         self.assertIn("cache_control", image_block)
 
     def test_cache_control_opt_out(self):
@@ -101,18 +101,21 @@ class TestBuildCachedMessages(unittest.TestCase):
             cache_image=False,
         )
         self.assertNotIn("cache_control", msgs[0]["content"][0])
-        user_image = [c for c in msgs[1]["content"] if c.get("type") == "image"][0]
+        user_image = [c for c in msgs[1]["content"] if c.get("type") == "image_url"][0]
         self.assertNotIn("cache_control", user_image)
 
-    def test_image_block_has_source(self):
+    def test_image_block_has_data_url(self):
+        """OpenAI-compatible image_url format — data-URL encoded base64."""
         src = self._sample_image_source()
         msgs = build_cached_messages(
             system_prompt="sys",
             image_source=src,
             user_text="u",
         )
-        user_image = [c for c in msgs[1]["content"] if c.get("type") == "image"][0]
-        self.assertEqual(user_image["source"], src)
+        user_image = [c for c in msgs[1]["content"] if c.get("type") == "image_url"][0]
+        url = user_image["image_url"]["url"]
+        self.assertTrue(url.startswith("data:image/png;base64,"))
+        self.assertIn(src["data"], url)
 
     def test_user_text_block_present(self):
         msgs = build_cached_messages(

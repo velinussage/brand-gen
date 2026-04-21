@@ -112,7 +112,10 @@ bgen pipeline \
 
 - **CLI**: `bgen critique-rubric v12 --format json`
 - **MCP**: `brand_critique_rubric(version="v12")`
-- **Returns**: image path + critique rubric
+- **Returns**: image path + critique rubric (v1 packet by default; v2 packet when `--dspy-scorer`)
+- **Useful flags**:
+  - `--dspy-scorer` — run the DSPy vision scorer inline and embed axis scores, rationales, overall decision, disqualifier check, and `why_user_might_dislike_if_polished`. Requires `pip install -e '.[scoring]'` + `OPENROUTER_API_KEY`.
+  - `--scorer-model <model>` — override the judge LM (default: `openrouter/anthropic/claude-haiku-4.5`; also supports `openrouter/anthropic/claude-sonnet-4.5`, direct `anthropic/...` routing, etc.)
 
 ### `submit-critique`
 
@@ -184,6 +187,9 @@ bgen pipeline \
 - `show-workflow-lineage --workflow-id <id> --format json`
 - `show-reference-analysis --format json`
 - `show-iteration-memory --format json`
+- `show-rubric --material-type <type> --format json` — dump the v2 rubric axes + material overlay + disqualifier rule from `brand_gen/scoring/rubric_registry.py`
+- `show-disagreements [--bucket <bucket>] [--material-type <type>] [--partition-tag holdout_a|holdout_b] [--limit N] --format json` — list scored agent-vs-user disagreements from the brand's `scoring/disagreements.jsonl`
+- `scoring-status --format json` — disagreement-bucket counts, partition split, and weighted Cohen's kappa (quadratic weights) + raw agreement rate when enough data is present
 
 ## Inspiration, product capture, and design memory
 

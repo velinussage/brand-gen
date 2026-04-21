@@ -12,7 +12,14 @@ from ..session_summary import *
 from ..media_board import *
 
 def cmd_critique_rubric(args):
-    """Return the critique rubric + image path for the calling agent to evaluate."""
+    """Return the critique rubric + image path for the calling agent to evaluate.
+
+    With --dspy-scorer, also runs the v2 DSPy scorer inline and embeds
+    axis_scores / rationales / disqualifier / rubric_version / scorer_version
+    into the returned packet so the agent reviews structured output instead
+    of scoring from scratch. Without the flag, the v1 path returns the 4-axis
+    narrative rubric unchanged and the agent scores by hand.
+    """
     brand_dir = get_brand_dir()
     manifest = load_manifest()
     version_id = args.version
@@ -21,7 +28,151 @@ def cmd_critique_rubric(args):
     except SystemExit as exc:
         print(json.dumps({"error": str(exc)}))
         sys.exit(1)
+
+    if getattr(args, "dspy_scorer", False):
+        try:
+            rubric = _augment_packet_with_dspy_scorer(
+                rubric,
+                brand_dir=brand_dir,
+                manifest=manifest,
+                version_id=version_id,
+                model=getattr(args, "scorer_model", None),
+            )
+        except Exception as exc:
+            # Never fail the critique packet because of scorer plumbing —
+            # return the v1 packet with an advisory field so the agent
+            # knows the v2 path was attempted but could not complete.
+            rubric["dspy_scorer_error"] = f"{type(exc).__name__}: {exc}"
+
     print(json.dumps(rubric, indent=2))
+
+
+def _augment_packet_with_dspy_scorer(
+    rubric: dict,
+    *,
+    brand_dir: Path,
+    manifest: dict,
+    version_id: str,
+    model: str | None,
+) -> dict:
+    """Run the DSPy scorer and merge the v2 fields into the v1 packet.
+
+    The resulting packet is back-compat: agents that read only v1 fields
+    still work; agents that check rubric_version see v2 fields too.
+    """
+    try:
+        import dspy  # noqa: F401
+    except ImportError as exc:
+        raise RuntimeError(
+            "DSPy is not installed. Run: pip install -e '.[scoring]'"
+        ) from exc
+
+    from ..scoring.config import configure_judge_lm
+    from ..scoring.program import BrandScorer
+    from ..scoring.rubric_registry import RUBRIC_VERSION
+
+    # Resolve version + image path
+    entry = manifest.get("versions", {}).get(version_id) or {}
+    files = entry.get("files") or []
+    if not files:
+        raise RuntimeError(f"version {version_id} has no image file to score")
+    image_path = brand_dir / files[0]
+    if not image_path.exists():
+        raise RuntimeError(f"image not found: {image_path}")
+
+    material_type = str(entry.get("material_type") or rubric.get("material_type") or "")
+    brand_dna = _summarize_brand_dna_for_scorer(rubric)
+    story_objective = _summarize_story_objective_for_scorer(rubric)
+
+    # Configure LM (defaults to OpenRouter Haiku 4.5)
+    lm = configure_judge_lm(model)
+
+    # Build a minimal dspy.Image input
+    import dspy as _dspy
+    image = _dspy.Image.from_file(str(image_path))
+
+    scorer = BrandScorer()
+    prediction = scorer.forward(
+        image=image,
+        material_type=material_type,
+        brand_dna=brand_dna,
+        story_objective=story_objective,
+        lm=lm,
+    )
+
+    # Merge v2 fields into the packet. Preserve v1 fields for back-compat.
+    rubric["rubric_version"] = RUBRIC_VERSION
+    rubric["scorer_version"] = prediction.scorer_version
+    rubric["material_rubric_key"] = prediction.material_rubric_key
+    rubric["axis_scores"] = prediction.axis_scores
+    rubric["axis_rationales"] = prediction.axis_rationales
+    rubric["axis_evidence"] = prediction.axis_evidence
+    rubric["disqualifier_triggered"] = prediction.disqualifier_triggered
+    rubric["disqualifier_rule_id"] = prediction.disqualifier_rule_id
+    rubric["decision"] = prediction.decision
+    rubric["top_failure_reasons"] = prediction.top_failure_reasons
+    rubric["recommended_next_change"] = prediction.recommended_next_change
+    rubric["why_user_might_dislike_if_polished"] = prediction.why_user_might_dislike_if_polished
+    # Scorer-computed min-biased overall for the calibration layer.
+    if prediction.disqualifier_triggered:
+        rubric["overall_score"] = 1
+    elif prediction.axis_scores:
+        rubric["overall_score"] = min(int(v) for v in prediction.axis_scores.values())
+    return rubric
+
+
+def _summarize_brand_dna_for_scorer(rubric: dict) -> str:
+    """Compact brand DNA block for the axis scorer prompt."""
+    bd = rubric.get("brand_dna") or {}
+    parts = []
+    palette = bd.get("palette") or []
+    if palette:
+        parts.append(f"palette: {', '.join(str(c) for c in palette[:8])}")
+    approved = bd.get("approved_devices") or bd.get("approved_graphic_devices") or []
+    if approved:
+        parts.append(f"approved devices: {', '.join(str(c) for c in approved[:6])}")
+    forbidden = bd.get("forbidden_elements") or []
+    if forbidden:
+        parts.append(f"forbidden: {', '.join(str(c) for c in forbidden[:6])}")
+    tone = bd.get("tone_words") or bd.get("tone") or []
+    if tone:
+        parts.append(f"tone: {', '.join(str(c) for c in tone[:6])}")
+    return " | ".join(parts) or "(brand DNA not available in packet)"
+
+
+def _summarize_story_objective_for_scorer(rubric: dict) -> str:
+    """Compact story-objective block for the axis scorer prompt.
+
+    agent_review.py emits `brief` as a pre-formatted multi-line string and
+    also exposes `intent_summary`, `target_surface`, etc. as top-level
+    fields. Handle both shapes defensively.
+    """
+    # Prefer the structured top-level fields when present
+    parts = []
+    intent = rubric.get("intent_summary") or rubric.get("intent")
+    if intent:
+        parts.append(f"intent: {intent}")
+    surface = rubric.get("target_surface")
+    if surface:
+        parts.append(f"surface: {surface}")
+    product_truth = rubric.get("product_truth_expression") or rubric.get("product_truth")
+    if product_truth:
+        parts.append(f"product truth: {product_truth}")
+    if parts:
+        return " | ".join(parts)
+    # Fall back to the pre-formatted brief string if that's all we have
+    brief = rubric.get("brief")
+    if isinstance(brief, str) and brief.strip():
+        # Truncate to keep the scorer system prompt compact
+        return brief.strip()[:600]
+    if isinstance(brief, dict):
+        for key in ("intent", "target_surface", "product_truth"):
+            v = brief.get(key)
+            if v:
+                parts.append(f"{key}: {v}")
+        if parts:
+            return " | ".join(parts)
+    return "(not specified)"
 
 
 def cmd_submit_critique(args):
@@ -64,6 +215,13 @@ def cmd_submit_critique(args):
         "logo_visible": vlm_result.get("logo_visible", False),
         "text_accuracy": vlm_result.get("text_accuracy", 1.0),
         "text_issues": list(vlm_result.get("text_issues") or []),
+        "rubric_version": vlm_result.get("rubric_version") or "",
+        "scorer_version": vlm_result.get("scorer_version") or "",
+        "overall_score": vlm_result.get("overall_score"),
+        "agent_overall_score": vlm_result.get("overall_score"),
+        "axis_scores": dict(vlm_result.get("axis_scores") or {}),
+        "decision": vlm_result.get("decision") or "",
+        "why_user_might_dislike_if_polished": vlm_result.get("why_user_might_dislike_if_polished") or "",
         "vlm_available": True,
         "provider": vlm_result.get("vlm_provider", "agent"),
     }

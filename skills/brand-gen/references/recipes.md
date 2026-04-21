@@ -432,3 +432,85 @@ Re-open the artifact flow for the brand only when:
 - a test pass shows the pattern-led or typographic directions cannot carry the specific message
 
 In all other cases, the retirement holds.
+
+---
+
+## DSPy-scored critique (v2 rubric)
+
+Use when you want structured axis scores + rationales pre-populated before the critic reviews, or when a critic agent is running headless and needs machine-readable evidence.
+
+### 1. One-time install
+
+```bash
+pip install -e '.[scoring]'
+echo "OPENROUTER_API_KEY=sk-or-v1-..." >> .env   # .env is gitignored
+```
+
+Default judge LM is `openrouter/anthropic/claude-haiku-4.5` (~$0.003 per critique with prompt caching). Override with `BRAND_GEN_SCORER_MODEL` or `--scorer-model` when cost-modeling.
+
+### 2. Score a generated version
+
+```bash
+bgen critique-rubric v12 --dspy-scorer --format json
+```
+
+The v2 packet includes:
+
+- `axis_scores` — universal 5 + material overlay axes (`surface_fit`, `system_logic_visible`, etc.)
+- `axis_rationales` — 1-2 sentence explanation per axis
+- `overall_score` — min-biased aggregation
+- `decision` — `approve` / `iterate` / `reject`
+- `disqualifier_triggered` + `disqualifier_rule` — auto-fail guard per material
+- `why_user_might_dislike_if_polished` — the honest failure signal in plain language
+- `scorer_version`, `rubric_version` — for reproducibility
+
+### 3. Inspect the contract before scoring
+
+```bash
+bgen show-rubric --material-type concept-illustration --format json
+```
+
+Returns axis definitions + overlay axes + disqualifier rule. Use this when planning to see the scoring target explicitly.
+
+### 4. Audit agent vs user agreement
+
+When a user score diverges from the agent score by ≥2, the delta auto-logs to `<brand-dir>/scoring/disagreements.jsonl`. Inspect:
+
+```bash
+bgen show-disagreements --bucket calibration_failure --limit 20 --format json
+bgen scoring-status --format json
+```
+
+`scoring-status` returns bucket counts, partition split (`holdout_a` / `holdout_b`), weighted Cohen's kappa (quadratic weights), and raw agreement rate when enough records exist.
+
+### 5. Override the judge model
+
+```bash
+bgen critique-rubric v12 \
+  --dspy-scorer \
+  --scorer-model openrouter/anthropic/claude-sonnet-4.5 \
+  --format json
+```
+
+Use Sonnet 4.5 when Haiku plateaus on calibration (rising `calibration_failure` bucket in scoring-status). Reserve Opus-class models for the reflection LM in v2 GEPA, not for routine scoring.
+
+### Notes
+
+- The scorer bypasses DSPy Signature formatting for the per-axis calls and builds OpenAI-compatible messages inline so Anthropic `cache_control` breakpoints survive through LiteLLM and OpenRouter. Expect ~75% cost reduction after the first call in a critique batch from prompt-cache hits.
+- All three critic-agent files (`.claude/agents/`, `.pi/agents/`, `skills/brand-gen/claude-agents/`) embed the rubric markdown verbatim via `rubric_registry.to_markdown()`. When axes change in `brand_gen/scoring/rubric_registry.py`, regenerate with:
+  ```bash
+  python3 -c "
+  from brand_gen.scoring import to_markdown
+  import re
+  canonical = to_markdown().strip()
+  for path in ['.claude/agents/brand-critic.md', '.pi/agents/brand-critic.md', 'skills/brand-gen/claude-agents/brand-critic.md']:
+      content = open(path).read()
+      new = re.sub(
+          r'(<!-- BEGIN rubric_registry\.to_markdown\(\).*?-->)(.*?)(<!-- END rubric_registry\.to_markdown\(\) -->)',
+          lambda m: f'{m.group(1)}\n\n{canonical}\n\n{m.group(3)}',
+          content, flags=re.DOTALL,
+      )
+      open(path, 'w').write(new)
+  "
+  ```
+

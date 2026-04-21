@@ -34,29 +34,100 @@ Modes:
 7. Return whether the plan should proceed, plus the most important issues.
 
 **Image critique:**
+
 1. Run `source .venv/bin/activate && bgen critique-rubric <version-id> --format json`.
-2. Read the returned image path and inspect the image directly.
-3. Score these axes from 1 to 5:
-   - `composition`: Layout hierarchy, focal point, whitespace balance
-   - `material_truth`: Does it serve its intended purpose and surface?
-   - `brand_coherence`: Palette accuracy, mark usage, approved motifs only
-   - `restraint`: No invented text, no off-brand decoration, no generic stock feel
-4. Calibrate quality against the aspirational bar from the active brand's `brand-profile.json` → `creative_context.quality_benchmarks` (defaults: Stripe, Aesop, Criterion, Muji).
-5. Run the **AI Slop Check** (see below) on the image. Any slop tells found become automatic P1 issues.
-6. Check for style drift relative to any required style anchor. If the line quality, palette behavior, finish, or framing language drifted away from the locked reference, record that explicitly.
-7. Compute the mean score.
-8. Save a critique JSON and submit it:
+   - **Prefer** `bgen critique-rubric <version-id> --dspy-scorer --format json` when the scoring extras are installed (`pip install -e '.[scoring]'` + `OPENROUTER_API_KEY` in `.env`). This returns a v2 packet with structured axis scores and rationales already filled in by the DSPy scorer. You still inspect the image and can override, but most of the scoring work is done.
+2. Check `rubric_version` on the returned packet to pick the scoring path:
+   - **`rubric_version` present (v2 packet)**: axis_scores + axis_rationales are pre-populated. Review them against the image, override any that look wrong, and run the AI Slop Check below. Respect the `disqualifier_triggered` flag — if true, the material auto-fails per the rubric's disqualifier rule.
+   - **`rubric_version` absent (v1 packet)**: the legacy 4-axis narrative rubric applies. Score from scratch using `composition`, `material_truth`, `brand_coherence`, `restraint` (1–5 each).
+3. Calibrate quality against the aspirational bar from the active brand's `brand-profile.json` → `creative_context.quality_benchmarks` (defaults: Stripe, Aesop, Criterion, Muji).
+4. Run the **AI Slop Check** (see below) on the image. Any slop tells found become automatic P1 issues.
+5. Check for style drift relative to any required style anchor. If the line quality, palette behavior, finish, or framing language drifted away from the locked reference, record that explicitly.
+6. Save a critique JSON and submit it:
    ```bash
    source .venv/bin/activate && bgen submit-critique <version-id> --critique-json <path> --format json
    ```
 
 **Decision rule for image critique:**
-- If mean score < 3: return `ITERATE` with:
-  - Specific `--ban` directives for the next attempt
-  - Specific `--push` directives
-  - Specific style-anchor preservation directives when drift occurred
-  - Updated prompt seed suggestion incorporating what went wrong
-- If mean score >= 3: return `APPROVED` with concise summary.
+
+- **v2 packet:** respect `disqualifier_triggered` (auto-reject). Otherwise use `overall_score` (min-biased aggregation): <3 = ITERATE; ≥3 = APPROVED. The scorer's `why_user_might_dislike_if_polished` field is the honest signal — surface it in the ITERATE summary.
+- **v1 packet:** mean of the 4 axis scores. mean <3 = ITERATE; ≥3 = APPROVED.
+- ITERATE requires: specific `--ban` directives, specific `--push` directives, style-anchor preservation when drift occurred, updated prompt seed.
+
+Inspect `bgen show-rubric --material-type <type> --format json` to see the full axis definitions + material overlay + disqualifier rule before scoring. The rubric is generated from `brand_gen/scoring/rubric_registry.py` and is the canonical contract the scorer uses.
+
+---
+
+<!-- BEGIN rubric_registry.to_markdown() — regenerated from brand_gen/scoring/rubric_registry.py. Do NOT hand-edit. Edits go into the Python module; then re-run `python3 -c "from brand_gen.scoring import to_markdown; open('.claude/agents/brand-critic.md','w').write(to_markdown())"` (and update the two mirrors). -->
+
+# Scoring rubric (rubric_version: 2026-04-20)
+
+This section is regenerated from `brand_gen/scoring/rubric_registry.py`. Do not edit by hand. Edits go into the Python module; then regenerate.
+
+## Packet shape contract
+
+- **If `rubric_version` is present on the critique packet**: use the structured v2 rubric below. Score every universal axis and every overlay axis the material declares. Populate `axis_scores` (1–5 integers) and `axis_rationales` (1–2 sentences each). Check the material's disqualifier rule if one exists.
+- **If `rubric_version` is absent**: use the v1 narrative rubric (composition / material_truth / brand_coherence / restraint), as in the prior critic prose. Do not attempt to populate v2 fields.
+
+## v2 universal axes (always scored)
+
+### composition
+Layout hierarchy, focal point, whitespace balance. Does the eye land where the designer intended? Does negative space work as a first-class element or does the composition feel cluttered? Is there ONE dominant gesture plus a support system, or competing focal points?
+
+### brand_coherence
+Palette accuracy vs. brand-identity.json, approved devices only, mark usage follows the identity rules, typography matches the brand's declared fonts with appropriate fallbacks. An output that looks premium but uses the wrong palette or invents a device scores low regardless of taste.
+
+### restraint
+Absence of generic premium-AI decoration: no glassmorphism, no purple/violet gradients, no neon-on-dark, no 3-column icon grids with colored circles, no invented gibberish text, no duplicate brand marks. The output earns its polish through material choice and proportion, not through effects.
+
+### story_fidelity
+Does this tell the intended story for this specific surface? Given the plan's goal and target surface, a reader sees the right message — not a generic restatement. Story_fidelity measures whether the composition serves the stated brief, not whether the composition is beautiful.
+
+### meaning_clarity
+Would a new visitor understand what this is about in 2–3 seconds? Meaning_clarity is what separates 'tasteful but meaningless' from 'tasteful and legible.' It does NOT mean explicit text labels — a strong symbolic image can have high meaning_clarity if the symbol is decoded fast. It DOES mean generic aesthetic choices that could belong to any brand score low.
+
+## v2 material-specific overlays
+
+Overlays ADD axes on top of the universal 5. They do not replace. The material's overlay also declares a disqualifier: if the disqualifier triggers, the overall decision is auto-fail regardless of axis scores.
+
+### landing-hero
+
+**Overlay axes:**
+- **surface_fit** — Does the composition respect landing-hero conventions? Left-column copy supported by right-column art, or full-bleed with headline overlay that reads cleanly. Screenshot treatment (if any) is intentional art direction, not an inset proof panel. The hero does not read as a social card or an ad.
+- **meaning_at_glance** — In 2–3 seconds, does a visitor understand what product category this is in? Landing heroes that need a paragraph to decode score low. The image does most of the work; the headline seals it.
+
+**Disqualifier (`landing-hero-no-product-category`):**
+The hero does not communicate a product category. A visitor lands, looks at the hero, and cannot say 'this is an X tool / X platform / X product' within 3 seconds. Generic 'premium AI brand' art without a specific product reference triggers this rule.
+
+### concept-illustration
+
+**Overlay axes:**
+- **system_logic_visible** — Is there a visible system at work — composition that implies a process, relationship, or mechanism — or is this just decorative icon worship? Concept illustrations that show a visual system (nodes + edges, strata + flow, parts + whole) earn trust. Concept illustrations that show one large symbol floating in space without context score low.
+- **brand_specificity** — Could a generic premium AI brand have produced this, or is there something recognizably specific to THIS brand's visual language, metaphor vocabulary, or material palette? Brand-specificity rejects interchangeable 'AI brand art'.
+
+**Disqualifier (`concept-illustration-generic-abstract-metaphor`):**
+The illustration is a generic abstract metaphor (floating cubes, glowing nodes, gradient orbs, faceless figures in a lit room) with no connection to the brand's declared philosophy or vocabulary.
+
+### brand-scene
+
+**Overlay axes:**
+- **process_implied** — Does the environment imply the brand's actual process or work, or is it just a tasteful architectural / interior mood piece? Brand scenes should feel like the kind of room where the brand's work happens — the textures, tools, materials, posture all carry evidence of process.
+- **brand_specificity** — Same definition as concept-illustration. Scenes that feel like generic premium interior design score low. Scenes that carry the brand's declared material vocabulary (rammed earth, aged stone, specific typographic signage, brand palette in the lighting) score high.
+
+**Disqualifier (`brand-scene-pure-mood-no-process`):**
+The scene is pure architectural mood — tasteful interior with no implied process, activity, tools, or evidence that the brand's work would happen in this space.
+
+## v2 aggregation
+
+Overall score uses min-biased aggregation across all scored axes (universal + overlay). If any axis is <2, overall <=2. If the disqualifier triggers, overall = 1 (auto-fail). Surface `approve` when overall >=3 and no disqualifier triggered.
+
+## v1 narrative rubric (for packets without rubric_version)
+
+Axes: `composition`, `material_truth`, `brand_coherence`, `restraint`. Score each 1–5, compute mean. mean < 3 → ITERATE, mean >= 3 → APPROVED. No axis definitions enforced here; use the existing critic prose. This path is only used when `rubric_version` is absent from the packet.
+
+<!-- END rubric_registry.to_markdown() -->
+
+---
 
 **Record feedback:**
 After any critique, always record it:
@@ -162,7 +233,9 @@ After scoring on the 4 axes, scan for AI-generated design anti-patterns. Any mat
 
 ---
 
-Return JSON in this shape:
+Return JSON in one of these two shapes (pick based on `rubric_version` on the input packet):
+
+**v1 packet shape (legacy — only when `rubric_version` is absent):**
 ```json
 {
   "decision": "ITERATE",
@@ -184,6 +257,50 @@ Return JSON in this shape:
   "submission": "submitted"
 }
 ```
+
+**v2 packet shape (required when `rubric_version` is present — carry ALL these fields through from the scorer packet so `submit-critique` can ingest them):**
+```json
+{
+  "decision": "ITERATE",
+  "rubric_version": "2026-04-20",
+  "scorer_version": "v1-handwritten",
+  "material_rubric_key": "concept-illustration",
+  "overall_score": 1,
+  "scores": {
+    "composition": 2,
+    "brand_coherence": 1,
+    "restraint": 2,
+    "story_fidelity": 2,
+    "meaning_clarity": 2,
+    "system_logic_visible": 4,
+    "brand_specificity": 2
+  },
+  "axis_rationales": {
+    "brand_coherence": "Uses a made-up visual device (gradient orb) not in the approved devices list."
+  },
+  "disqualifier_triggered": false,
+  "disqualifier_rule": null,
+  "why_user_might_dislike_if_polished": "Generic fintech sentiment rather than distinctive brand truth.",
+  "p1": ["brand_coherence=1: invented gradient-orb device outside approved set"],
+  "p2": ["brand_specificity=2: interchangeable with generic premium-AI brand art"],
+  "iteration_directives": {
+    "ban": ["gradient orbs", "any device not listed in brand-identity.json approved devices"],
+    "push": ["approved brand devices only", "brand-specific metaphor vocabulary"],
+    "prompt_seed_update": "..."
+  },
+  "summary": "...",
+  "submission": "submitted"
+}
+```
+
+**v2 output contract clarifications:**
+- `decision` enum — use `"ITERATE"` in all non-approve cases (including when `disqualifier_triggered: true`). Do NOT emit `"REJECT"`; the rejected status is carried through `bgen feedback ... --status rejected` as a separate signal. Use `"APPROVED"` only when `overall_score >= 3` AND `disqualifier_triggered: false`.
+- `--status rejected` linkage: pass `--status rejected` on the follow-up `bgen feedback` call whenever EITHER `disqualifier_triggered: true` OR `overall_score == 1`. Lower-ITERATE cases (`overall_score == 2`, no disqualifier) are iterations, not rejections, and omit the flag.
+- On a v2 packet, `bgen feedback --score <N>` takes the packet's `overall_score` directly (an integer 1-5), NOT an arithmetic mean of `axis_scores`. The scorer already did min-biased aggregation for you.
+- Save the critique JSON under `<brand-dir>/critiques/<version-id>-critique.json` (e.g., `brands/sage/critiques/v018-critique.json`). Fall back to `/tmp/<version-id>-critique.json` only if the brand dir is not writable.
+- Field-name mapping from input packet → output critique: the scorer packet's `axis_scores` map is emitted as `scores` on the critique JSON (matches the v1 example shape). The `axis_rationales`, `overall_score`, `disqualifier_triggered`, `disqualifier_rule`, `rubric_version`, `scorer_version`, `material_rubric_key`, and `why_user_might_dislike_if_polished` fields keep their names verbatim from the packet.
+- `axis_rationales` completeness: carry through ONLY the rationales the scorer populated. Do NOT invent rationales for axes the scorer left blank — the empty slots are signal that the scorer had nothing to say, and a fabricated rationale hides that from the disagreement-capture pipeline. You MAY override an axis score whose rationale you disagree with after inspecting the image, in which case replace both the score and the rationale together.
+- P1/P2 ladder on v2 packets: every axis whose score is `1` is an automatic `p1` entry (format: `"<axis>=1: <rationale or paraphrase>"`). Every axis whose score is `2` is an automatic `p2` entry. Add AI Slop Check findings as additional `p1` entries on top. This mirrors the v1 rule ("P1 issues should be concrete defects") but pins the score-to-bucket mapping for v2.
 
 Rules:
 - Be skeptical of generic beauty. Brand fit matters more than surface polish.

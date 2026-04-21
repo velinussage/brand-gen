@@ -642,6 +642,27 @@ def build_derive_mockup_cli(parser: argparse.ArgumentParser, *, inspire_urls: di
 
 def build_critique_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("version", help="Version ID to critique (e.g. v12)")
+    parser.add_argument(
+        "--dspy-scorer",
+        action="store_true",
+        help=(
+            "Run the v2 DSPy scorer inline and embed axis_scores, axis_rationales, "
+            "disqualifier_triggered, and rubric_version into the returned packet. "
+            "Requires the scoring extras installed (pip install -e '.[scoring]') and "
+            "OPENROUTER_API_KEY (or ANTHROPIC_API_KEY) in .env. When absent, the "
+            "packet returns the v1 4-axis rubric as before and the agent does the "
+            "actual scoring by hand."
+        ),
+    )
+    parser.add_argument(
+        "--scorer-model",
+        help=(
+            "Override the DSPy scorer LM (LiteLLM model string). "
+            "Default openrouter/anthropic/claude-haiku-4.5. Examples: "
+            "openrouter/google/gemini-2.5-flash (cheaper), "
+            "openrouter/anthropic/claude-sonnet-4.5 (stronger)."
+        ),
+    )
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
