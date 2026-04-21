@@ -14,6 +14,8 @@ DEFAULT_ITERATION_MEMORY = {
     "copy_notes": [],
     "messaging_notes": [],
     "material_notes": {},
+    "last_style_anchor_by_material": {},
+    "recent_style_anchors_by_material": {},
 }
 
 def iteration_memory_paths(brand_dir: Path) -> tuple[Path, Path]:
@@ -30,7 +32,73 @@ def normalize_iteration_memory(payload: dict | None) -> dict:
     out["copy_notes"] = list(out.get("copy_notes") or [])
     out["messaging_notes"] = list(out.get("messaging_notes") or [])
     out["material_notes"] = dict(out.get("material_notes") or {})
+    out["last_style_anchor_by_material"] = dict(out.get("last_style_anchor_by_material") or {})
+    out["recent_style_anchors_by_material"] = {
+        k: list(v) for k, v in (out.get("recent_style_anchors_by_material") or {}).items()
+    }
     return out
+
+
+def pick_rotating_style_anchor(
+    policy: dict,
+    memory: dict,
+    *,
+    material_type: str | None = None,
+) -> str | None:
+    """Pick a style anchor from a `rotating_anchor_set` policy that differs
+    from the recent anchors used for this material type.
+
+    The helper uses a rotation window of size N-1 (N = number of anchors in
+    the policy) so the planner cycles through the full set before any
+    anchor repeats. This prevents the v094-v096 failure cluster where
+    "same aesthetic thrice" triggers user rejection.
+
+    Returns the chosen anchor version, or None when the policy is malformed.
+    Updates are written by `record_style_anchor_choice` — this helper is
+    read-only so plan-building can stay pure.
+    """
+    if not isinstance(policy, dict):
+        return None
+    anchors = policy.get("required_style_reference_versions") or []
+    if not anchors:
+        return None
+    if policy.get("reference_policy") != "rotating_anchor_set":
+        return anchors[0]
+    mt = material_type or policy.get("material_type") or ""
+    recent = list((memory.get("recent_style_anchors_by_material") or {}).get(mt) or [])
+    # legacy single-field fallback so older iteration memories still rotate
+    if not recent:
+        last = (memory.get("last_style_anchor_by_material") or {}).get(mt)
+        if last:
+            recent = [last]
+    candidates = [a for a in anchors if a not in recent]
+    if not candidates:
+        candidates = list(anchors)
+    return candidates[0]
+
+
+def record_style_anchor_choice(
+    memory: dict,
+    *,
+    material_type: str,
+    anchor_version: str,
+    anchor_set_size: int | None = None,
+) -> dict:
+    """Persist the chosen style anchor so the next run's rotation picks a
+    different one. Callers must `save_iteration_memory` after.
+
+    `anchor_set_size` determines the rotation-window length — pass the
+    number of anchors in the policy so the window size stays N-1 and the
+    helper cycles through the full set before repeating.
+    """
+    memory = normalize_iteration_memory(memory)
+    memory["last_style_anchor_by_material"][material_type] = anchor_version
+    history = list(memory["recent_style_anchors_by_material"].get(material_type) or [])
+    history = [h for h in history if h != anchor_version]
+    history.append(anchor_version)
+    window = max((anchor_set_size or len(history)) - 1, 1)
+    memory["recent_style_anchors_by_material"][material_type] = history[-window:]
+    return memory
 
 
 def load_iteration_memory(brand_dir: Path) -> dict:
