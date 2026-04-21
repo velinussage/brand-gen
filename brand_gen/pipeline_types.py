@@ -253,6 +253,111 @@ class PipelineResult:
         return asdict(self)
 
 
+@dataclass
+class NextAction:
+    tool: str
+    args: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class PrepareRunResponse:
+    run_id: str
+    brand_dna_summary: dict[str, Any] = field(default_factory=dict)
+    applicable_learnings: dict[str, Any] = field(default_factory=dict)
+    readiness_issues: list[str] = field(default_factory=list)
+    route: dict[str, Any] = field(default_factory=dict)
+    next_action: NextAction | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class PlanRunResponse:
+    run_id: str
+    plan_id: str = ""
+    plan_summary: dict[str, Any] = field(default_factory=dict)
+    next_action: NextAction | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class ValidateRunResponse:
+    run_id: str
+    status: str = "ok"
+    blocking_issues: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    critique_id: str = ""
+    critique_policy: dict[str, Any] = field(default_factory=dict)
+    next_action: NextAction | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class ExecuteRunResponse:
+    run_id: str
+    version_id: str = ""
+    image_paths: list[str] = field(default_factory=list)
+    stopped_at: str = ""
+    scratchpad_path: str = ""
+    review_packet_path: str = ""
+    quality_gate: dict[str, Any] = field(default_factory=dict)
+    iterations: int = 1
+    all_versions: list[str] = field(default_factory=list)
+    next_action: NextAction | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class ReviewRunResponse:
+    run_id: str
+    version_id: str
+    packet_id: str = ""
+    axis_scores: dict[str, Any] = field(default_factory=dict)
+    decision: str = ""
+    before_after_diffs: list[dict[str, Any]] = field(default_factory=list)
+    visual_review_status: str = ""
+    auto_review_path: str = ""
+    agent_review_path: str = ""
+    next_action: NextAction | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class EvolveRunResponse:
+    run_id: str
+    version_id: str = ""
+    learnings_promoted: list[dict[str, Any]] = field(default_factory=list)
+    disagreements_logged: int = 0
+    recommendation: str = ""
+    identity_rebuild_recommended: bool = False
+    improvement_questions: list[dict[str, Any]] = field(default_factory=list)
+    next_action: NextAction | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class OrchestrateMaterialResponse:
+    run_id: str
+    stages_completed: list[str] = field(default_factory=list)
+    stop_reason: str = ""
+    next_action: NextAction | None = None
+    artifacts: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 def _filter_fields(raw: dict[str, Any], allowed: set[str]) -> dict[str, Any]:
     return {key: value for key, value in raw.items() if key in allowed}
 

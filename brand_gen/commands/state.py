@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import uuid
+
 from ..runtime import *
 from ..material_planning import *
 from ..generation_flow import *
@@ -242,3 +245,328 @@ def cmd_list_brands(args):
         print(f"{marker:<2} {item['key']:<20} {str(item['profile']):<8} {str(item['identity']):<9} {item['score']:<8} {item['warnings']:<5} {item['inspiration_sources']}")
         if item["description"]:
             print(f"   {item['description'][:120]}")
+
+
+def cmd_append_forbidden_pattern(args):
+    from ..custom_scratchpad import append_forbidden_pattern, custom_scratchpad_json_path, load_custom_scratchpad_json
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    pattern = str(getattr(args, "pattern", "") or "").strip()
+    if not pattern:
+        raise SystemExit("--pattern is required")
+    reason = str(getattr(args, "reason", "") or "").strip()
+    source_version = str(getattr(args, "source_version", "") or "").strip()
+    dry_run = bool(getattr(args, "dry_run", False))
+    before = load_custom_scratchpad_json(brand_dir)
+    existing = list(before.get("forbidden_patterns") or [])
+    duplicate = pattern.lower() in {
+        str(item.get("pattern") or "").strip().lower()
+        for item in existing
+        if isinstance(item, dict)
+    }
+
+    if not dry_run and not duplicate:
+        append_forbidden_pattern(
+            brand_dir,
+            pattern=pattern,
+            reason=reason,
+            source_version=source_version,
+            via_cli=True,
+        )
+        after = load_custom_scratchpad_json(brand_dir)
+        total_forbidden_patterns = len(list(after.get("forbidden_patterns") or []))
+        status = "appended"
+    elif dry_run:
+        total_forbidden_patterns = len(existing) + (0 if duplicate else 1)
+        status = "duplicate" if duplicate else "would_append"
+    else:
+        total_forbidden_patterns = len(existing)
+        status = "duplicate"
+
+    if not dry_run:
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="forbidden_pattern_appended",
+            source_version=source_version,
+            status=status,
+            notes=reason,
+            data={"pattern": pattern, "duplicate": duplicate},
+        )
+
+    result = {
+        "status": status,
+        "pattern": pattern,
+        "reason": reason,
+        "source_version": source_version,
+        "duplicate": duplicate,
+        "path": str(custom_scratchpad_json_path(brand_dir)),
+        "total_forbidden_patterns": total_forbidden_patterns,
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{status}: {pattern}")
+
+
+LEARNING_BUCKETS = (
+    "modelPreferences",
+    "colorInsights",
+    "compositionPatterns",
+    "failurePatterns",
+    "messagingInsights",
+    "audienceInsights",
+)
+
+
+def cmd_promote_learning(args):
+    from ..learnings_memory import append_learning_entry, learnings_memory_path, load_learnings_memory, save_learnings_memory
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    bucket = str(getattr(args, "bucket", "") or "").strip()
+    if bucket not in LEARNING_BUCKETS:
+        raise SystemExit(f"--bucket must be one of: {', '.join(LEARNING_BUCKETS)}")
+    text = str(getattr(args, "text", "") or "").strip()
+    if not text:
+        raise SystemExit("--text is required")
+    material_type = str(getattr(args, "material_type", "") or "").strip()
+    evidence_versions = [str(item).strip() for item in (getattr(args, "evidence_version", None) or []) if str(item).strip()]
+    dry_run = bool(getattr(args, "dry_run", False))
+    memory = load_learnings_memory(brand_dir)
+    existing = list(memory.get(bucket) or [])
+    existing_text = {
+        (str(item.get("text") or "") if isinstance(item, dict) else str(item or "")).strip().lower()
+        for item in existing
+        if (str(item.get("text") or "") if isinstance(item, dict) else str(item or "")).strip()
+    }
+    duplicate = text.lower() in existing_text
+    entry = {
+        "text": text,
+        "material_type": material_type,
+        "evidence_versions": evidence_versions,
+        "source": "typed_mutation_tool",
+        "promoted_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+    }
+
+    if dry_run:
+        status = "duplicate" if duplicate else "would_promote"
+        total_in_bucket = len(existing) + (0 if duplicate else 1)
+    else:
+        appended = append_learning_entry(memory, bucket, entry)
+        if appended:
+            memory["lastUpdated"] = entry["promoted_at"]
+            save_learnings_memory(brand_dir, memory)
+            status = "promoted"
+        else:
+            status = "duplicate"
+        duplicate = not appended
+        total_in_bucket = len(list(memory.get(bucket) or []))
+
+    if not dry_run:
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="learning_promoted",
+            material_type=material_type,
+            status=status,
+            notes=text,
+            data={"bucket": bucket, "evidence_versions": evidence_versions, "duplicate": duplicate},
+        )
+
+    result = {
+        "status": status,
+        "bucket": bucket,
+        "text": text,
+        "material_type": material_type,
+        "evidence_versions": evidence_versions,
+        "duplicate": duplicate,
+        "path": str(learnings_memory_path(brand_dir)),
+        "total_in_bucket": total_in_bucket,
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{status}: {bucket} -> {text}")
+
+
+def cmd_append_custom_scratchpad_note(args):
+    from ..custom_scratchpad import append_scratchpad_note, custom_scratchpad_md_path
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    section = str(getattr(args, "section", "") or "").strip().lower()
+    text = str(getattr(args, "text", "") or "").strip()
+    if not section:
+        raise SystemExit("--section is required")
+    if not text:
+        raise SystemExit("--text is required")
+    dry_run = bool(getattr(args, "dry_run", False))
+    path = custom_scratchpad_md_path(brand_dir)
+    if dry_run:
+        chars_added = len(f"- {text}\n")
+        result = {
+            "status": "would_append",
+            "section": section,
+            "path": str(path),
+            "chars_added": chars_added,
+        }
+    else:
+        chars_added = append_scratchpad_note(brand_dir, section=section, bullet=text, via_cli=True)
+        status = "appended" if chars_added else "duplicate"
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="scratchpad_note_appended",
+            status=status,
+            notes=text,
+            data={"section": section, "chars_added": chars_added},
+        )
+        result = {
+            "status": status,
+            "section": section,
+            "path": str(path),
+            "chars_added": chars_added,
+        }
+    print(json.dumps(result, indent=2))
+
+
+def cmd_set_motion_grammar(args):
+    from ..motion_grammar import set_motion_grammar
+    from ..custom_scratchpad import custom_scratchpad_json_path, custom_scratchpad_md_path
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    director = str(getattr(args, "director", "") or "").strip()
+    if not director:
+        raise SystemExit("--director is required")
+    favored = [str(item).strip() for item in (getattr(args, "favored", None) or []) if str(item).strip()]
+    banned = [str(item).strip() for item in (getattr(args, "banned", None) or []) if str(item).strip()]
+    intensity = str(getattr(args, "intensity", "") or "").strip()
+    dry_run = bool(getattr(args, "dry_run", False))
+    payload = {
+        "director": director,
+        "favored": favored,
+        "banned": banned,
+        "intensity": intensity,
+    }
+    if dry_run:
+        result = {
+            "status": "would_set",
+            "motion_grammar": payload,
+            "json_path": str(custom_scratchpad_json_path(brand_dir)),
+            "markdown_path": str(custom_scratchpad_md_path(brand_dir)),
+        }
+    else:
+        payload = set_motion_grammar(
+            brand_dir,
+            director=director,
+            favored=favored,
+            banned=banned,
+            intensity=intensity,
+            via_cli=True,
+        )
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="motion_grammar_set",
+            status="set",
+            notes=director,
+            data=payload,
+        )
+        result = {
+            "status": "set",
+            "motion_grammar": payload,
+            "json_path": str(custom_scratchpad_json_path(brand_dir)),
+            "markdown_path": str(custom_scratchpad_md_path(brand_dir)),
+        }
+    print(json.dumps(result, indent=2))
+
+
+def cmd_promote_style_policy(args):
+    from ..learnings_memory import append_learning_entry, learnings_memory_path, load_learnings_memory, save_learnings_memory
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    material_type = str(getattr(args, "material_type", "") or "").strip()
+    if not material_type:
+        raise SystemExit("--material-type is required")
+    anchors = [str(item).strip() for item in (getattr(args, "anchor", None) or []) if str(item).strip()]
+    if not anchors:
+        raise SystemExit("at least one --anchor is required")
+    applies_to = [str(item).strip() for item in (getattr(args, "apply_to", None) or []) if str(item).strip()] or [material_type]
+    reference_policy = str(getattr(args, "reference_policy", "single_style_anchor") or "single_style_anchor").strip()
+    style_anchor_role = str(getattr(args, "style_anchor_role", "style") or "style").strip()
+    text = str(getattr(args, "text", "") or "").strip() or f"[{material_type}] Style policy anchored on {', '.join(anchors)}"
+    evidence_versions = [str(item).strip() for item in (getattr(args, "evidence_version", None) or []) if str(item).strip()]
+    must_carry_forward = [str(item).strip() for item in (getattr(args, "must_carry_forward", None) or []) if str(item).strip()]
+    dry_run = bool(getattr(args, "dry_run", False))
+    memory = load_learnings_memory(brand_dir)
+    existing = list(memory.get("styleReferencePolicies") or [])
+    existing_text = {
+        (str(item.get("text") or "") if isinstance(item, dict) else str(item or "")).strip().lower()
+        for item in existing
+        if (str(item.get("text") or "") if isinstance(item, dict) else str(item or "")).strip()
+    }
+    entry = {
+        "text": text,
+        "material_type": material_type,
+        "applies_to_material_types": applies_to,
+        "required_style_reference_versions": anchors,
+        "reference_policy": reference_policy,
+        "style_anchor_role": style_anchor_role,
+        "evidence_versions": evidence_versions,
+        "source": str(getattr(args, "source", "typed_mutation_tool") or "typed_mutation_tool").strip(),
+        "promoted_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "failure_mode_if_missing": str(getattr(args, "failure_mode_if_missing", "") or "").strip(),
+        "model_behavior_note": str(getattr(args, "model_behavior_note", "") or "").strip(),
+        "must_carry_forward": must_carry_forward,
+        "correction_note": str(getattr(args, "correction_note", "") or "").strip(),
+    }
+    duplicate = any(
+        isinstance(item, dict)
+        and str(item.get("material_type") or "").strip() == material_type
+        and list(item.get("required_style_reference_versions") or []) == anchors
+        and str(item.get("reference_policy") or "").strip() == reference_policy
+        for item in existing
+    ) or text.lower() in existing_text
+
+    if dry_run:
+        status = "duplicate" if duplicate else "would_promote"
+        total_in_bucket = len(existing) + (0 if duplicate else 1)
+    else:
+        appended = append_learning_entry(memory, "styleReferencePolicies", entry)
+        if appended:
+            memory["lastUpdated"] = entry["promoted_at"]
+            save_learnings_memory(brand_dir, memory)
+            status = "promoted"
+        else:
+            status = "duplicate"
+        duplicate = not appended
+        total_in_bucket = len(list(memory.get("styleReferencePolicies") or []))
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="style_policy_promoted",
+            material_type=material_type,
+            status=status,
+            notes=text,
+            data={"anchors": anchors, "reference_policy": reference_policy, "duplicate": duplicate},
+        )
+
+    result = {
+        "status": status,
+        "material_type": material_type,
+        "reference_policy": reference_policy,
+        "anchors": anchors,
+        "duplicate": duplicate,
+        "path": str(learnings_memory_path(brand_dir)),
+        "total_in_bucket": total_in_bucket,
+    }
+    print(json.dumps(result, indent=2))

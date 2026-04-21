@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -54,8 +55,23 @@ COMMAND_OVERRIDES: dict[str, McpBridgeOverride] = {
     "extract-brand": McpBridgeOverride(tool_name="brand_extract"),
     "build-identity": McpBridgeOverride(tool_name="brand_build_identity"),
     "describe-brand": McpBridgeOverride(tool_name="brand_describe"),
+    "append-forbidden-pattern": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "append-custom-scratchpad-note": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "promote-learning": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "promote-style-policy": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "set-motion-grammar": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "update-palette": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "update-typography": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "update-devices": McpBridgeOverride(argv_defaults={"format": "json"}),
     "show-identity": McpBridgeOverride(argv_defaults={"format": "json"}),
     "show-blackboard": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "prepare-run": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "plan-run": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "validate-run": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "execute-run": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "review-run": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "evolve-run": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "orchestrate-material": McpBridgeOverride(argv_defaults={"format": "json"}),
     "show-session-summary": McpBridgeOverride(argv_defaults={"format": "json"}),
     "context-snapshot": McpBridgeOverride(argv_defaults={"format": "json"}),
     "capabilities": McpBridgeOverride(argv_defaults={"format": "json"}),
@@ -100,6 +116,7 @@ COMMAND_OVERRIDES: dict[str, McpBridgeOverride] = {
         arg_renames={"reference_assets": "image"},
         argv_defaults={"format": "json"},
     ),
+    "submit-review": McpBridgeOverride(tool_name="brand_submit_review", argv_defaults={"format": "json"}),
     "plan-set": McpBridgeOverride(argv_defaults={"format": "json"}),
     "validate-brand-fit": McpBridgeOverride(argv_defaults={"format": "json"}),
     "validate-set": McpBridgeOverride(argv_defaults={"format": "json"}),
@@ -174,6 +191,8 @@ def _json_type_for_action(action: argparse.Action) -> str:
         return "boolean"
     if getattr(action, "type", None) is int:
         return "integer"
+    if getattr(action, "type", None) is json.loads:
+        return "object"
     if action.nargs in ("+", "*") or isinstance(action, argparse._AppendAction):
         return "array"
     return "string"
@@ -185,7 +204,10 @@ def _json_property_for_action(action: argparse.Action, override: dict[str, Any] 
     prop_type = _json_type_for_action(action)
     if prop_type == "array":
         return {"type": "array", "items": {"type": "string"}}
-    prop: dict[str, Any] = {"type": prop_type}
+    if prop_type == "object":
+        prop: dict[str, Any] = {"type": "object"}
+    else:
+        prop = {"type": prop_type}
     if action.choices:
         prop["enum"] = list(action.choices)
     if isinstance(action, (argparse._StoreTrueAction, argparse._StoreFalseAction)):
@@ -247,6 +269,8 @@ def argv_from_mcp_args(bridge: McpBridge, arguments: dict[str, Any]) -> list[str
         value = values[action.dest]
         if value is None:
             continue
+        if getattr(action, "type", None) is json.loads and not isinstance(value, str):
+            value = json.dumps(value)
         if not action.option_strings:
             if isinstance(value, list):
                 argv.extend(str(item) for item in value)

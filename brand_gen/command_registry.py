@@ -7,8 +7,22 @@ from typing import Callable
 
 from .cli_builders import CliBuilder, build_cli_parser, get_cli_builder
 from .runtime import INSPIRE_URLS, RuntimeContext, list_material_types
-from .commands.generation import cmd_create_video, cmd_derive_mockup, cmd_derive_video, cmd_generate, cmd_generate_set, cmd_pipeline
-from .commands.generation import cmd_generate_once
+from .commands.generation import (
+    cmd_create_video,
+    cmd_derive_mockup,
+    cmd_derive_video,
+    cmd_evolve_run,
+    cmd_execute_run,
+    cmd_generate,
+    cmd_generate_once,
+    cmd_generate_set,
+    cmd_orchestrate_material,
+    cmd_pipeline,
+    cmd_plan_run,
+    cmd_prepare_run,
+    cmd_review_run,
+    cmd_validate_run,
+)
 from .commands.identity import (
     cmd_build_identity,
     cmd_describe_brand,
@@ -18,6 +32,9 @@ from .commands.identity import (
     cmd_diff_design_memory,
     cmd_parse_design_memory,
     cmd_show_identity,
+    cmd_update_devices,
+    cmd_update_palette,
+    cmd_update_typography,
     cmd_validate_identity,
 )
 from .commands.inspection import (
@@ -85,9 +102,22 @@ from .commands.review import (
     cmd_feedback,
     cmd_review_brand,
     cmd_submit_critique,
+    cmd_submit_review,
     cmd_validate_set,
 )
-from .commands.state import cmd_bootstrap, cmd_create_brand, cmd_init, cmd_list_brands, cmd_start_testing, cmd_use
+from .commands.state import (
+    cmd_append_custom_scratchpad_note,
+    cmd_append_forbidden_pattern,
+    cmd_bootstrap,
+    cmd_create_brand,
+    cmd_init,
+    cmd_list_brands,
+    cmd_promote_learning,
+    cmd_promote_style_policy,
+    cmd_set_motion_grammar,
+    cmd_start_testing,
+    cmd_use,
+)
 from .commands.composite import cmd_composite_illustration
 
 
@@ -140,10 +170,17 @@ READ_ONLY_COMMANDS = {
     "prompts-get",
 }
 
-CONVENIENCE_COMMANDS = {"pipeline", "generate", "inspire"}
+CONVENIENCE_COMMANDS = {"pipeline", "generate", "inspire", "orchestrate-material"}
 
 FEATURE_TAGS_BY_COMMAND: dict[str, tuple[str, ...]] = {
     "pipeline": ("workflow", "generation"),
+    "orchestrate-material": ("workflow", "orchestration"),
+    "prepare-run": ("workflow", "orchestration"),
+    "plan-run": ("workflow", "orchestration"),
+    "validate-run": ("workflow", "orchestration"),
+    "execute-run": ("workflow", "orchestration", "generation"),
+    "review-run": ("workflow", "orchestration", "review"),
+    "evolve-run": ("workflow", "orchestration", "learning"),
     "generate": ("workflow", "generation"),
     "generate-once": ("generation", "primitive"),
     "context-snapshot": ("context",),
@@ -155,6 +192,15 @@ FEATURE_TAGS_BY_COMMAND: dict[str, tuple[str, ...]] = {
     "inspiration-list": ("inspiration",),
     "inspiration-configure": ("inspiration",),
     "inspiration-clear": ("inspiration",),
+    "append-forbidden-pattern": ("mutation", "scratchpad"),
+    "promote-learning": ("mutation", "learnings"),
+    "append-custom-scratchpad-note": ("mutation", "scratchpad"),
+    "set-motion-grammar": ("mutation", "scratchpad"),
+    "promote-style-policy": ("mutation", "learnings"),
+    "update-palette": ("mutation", "identity"),
+    "update-typography": ("mutation", "identity"),
+    "update-devices": ("mutation", "identity"),
+    "submit-review": ("mutation", "review"),
 }
 
 
@@ -234,8 +280,16 @@ COMMAND_SPECS = [
     command_spec('ideate-messaging', cmd_ideate_messaging, 'Assemble brand context for messaging ideation.'),
     command_spec('promote-messaging', cmd_promote_messaging, 'Promote session messaging into the saved brand identity for cross-session persistence.'),
     command_spec('update-messaging', cmd_update_messaging, 'Update brand messaging in the brand identity.'),
+    command_spec('update-palette', cmd_update_palette, 'Update the brand identity palette and rerun a WCAG audit.'),
+    command_spec('update-typography', cmd_update_typography, 'Update the brand identity typography roles and cues.'),
+    command_spec('update-devices', cmd_update_devices, 'Add or remove approved graphic devices in the brand identity.'),
     command_spec('show-iteration-memory', cmd_show_iteration_memory, 'Show the evolving scratchpad of negative examples, messaging/copy notes, and wins.'),
     command_spec('update-iteration-memory', cmd_update_iteration_memory, 'Record positive/negative examples or explicit brand/messaging/copy/material notes.'),
+    command_spec('append-forbidden-pattern', cmd_append_forbidden_pattern, 'Append a forbidden pattern to the custom scratchpad hard-ban list.'),
+    command_spec('append-custom-scratchpad-note', cmd_append_custom_scratchpad_note, 'Append a bullet note under a custom scratchpad markdown section.'),
+    command_spec('set-motion-grammar', cmd_set_motion_grammar, 'Set the structured motion grammar and sync it to the custom scratchpad.'),
+    command_spec('promote-learning', cmd_promote_learning, 'Promote a typed learning entry into the active brand learnings memory.'),
+    command_spec('promote-style-policy', cmd_promote_style_policy, 'Promote a structured style-reference policy into brand learnings.'),
     command_spec('review-brand', cmd_review_brand, 'Build a structured critique/refine packet for a generated or composed artifact.'),
     command_spec('suggest-role-pack', cmd_suggest_role_pack, 'Inspect candidate reference-role selections before generation.'),
     command_spec('suggest-layout', cmd_suggest_layout, 'Suggest composition layouts from the vocabulary for a material type.', read_only=True),
@@ -249,8 +303,16 @@ COMMAND_SPECS = [
     command_spec('social-specs', cmd_social_specs, 'Show recommended social and podcast dimensions.'),
     command_spec('critique-rubric', cmd_critique_rubric, 'Return the critique rubric + image path for the calling agent to evaluate.'),
     command_spec('submit-critique', cmd_submit_critique, 'Accept agent-provided critique JSON for a version.'),
+    command_spec('submit-review', cmd_submit_review, 'Submit an agent review for a version (discoverability alias for submit-critique).'),
     command_spec('reference-rubric', cmd_reference_rubric, 'Return reference image paths + analysis rubric for the calling agent to evaluate.'),
     command_spec('submit-reference-analysis', cmd_submit_reference_analysis, 'Accept agent-provided reference analysis JSON.'),
+    command_spec('prepare-run', cmd_prepare_run, 'Prepare one typed orchestration run: apply learnings, check inspiration readiness, and route the brief.'),
+    command_spec('plan-run', cmd_plan_run, 'Create a typed plan draft artifact for an orchestration run.'),
+    command_spec('validate-run', cmd_validate_run, 'Validate a typed plan draft and return blocking findings or next execution action.'),
+    command_spec('execute-run', cmd_execute_run, 'Build the generation scratchpad and execute one typed orchestration run.'),
+    command_spec('review-run', cmd_review_run, 'Return typed review packet status for a generated version.'),
+    command_spec('evolve-run', cmd_evolve_run, 'Promote new learnings and surface the next recommended evolution action.'),
+    command_spec('orchestrate-material', cmd_orchestrate_material, 'Run the typed orchestration API end-to-end and return stage completion + next action.'),
     command_spec('generate-once', cmd_generate_once, 'Generate exactly one output from a generation scratchpad with no internal critique loop.'),
     command_spec('generate', cmd_generate, 'Generate a new brand material version from a generation scratchpad.', aliases=('gen','g')),
     command_spec('derive-mockup', cmd_derive_mockup, 'Derive a generated contextual mockup scene from an approved still version (not pixel-precise compositing).'),

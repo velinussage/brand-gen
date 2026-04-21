@@ -24,6 +24,8 @@ the critic.
 from __future__ import annotations
 
 import json
+import re
+import warnings
 from pathlib import Path
 
 from .runtime_io import load_json_file
@@ -33,6 +35,7 @@ DEFAULT_CUSTOM_SCRATCHPAD_JSON = {
     "schema_version": 1,
     "model_overrides_by_material": {},
     "forbidden_patterns": [],
+    "motion_grammar": {},
 }
 
 
@@ -54,6 +57,46 @@ def load_custom_scratchpad_markdown(brand_dir: Path) -> str:
         return ""
 
 
+def _coerce_list(value: object) -> list[object]:
+    if isinstance(value, list):
+        return list(value)
+    return []
+
+
+def _coerce_dict(value: object) -> dict:
+    if isinstance(value, dict):
+        return dict(value)
+    return {}
+
+
+def _normalize_forbidden_patterns(items: list[object]) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items:
+        if isinstance(item, dict):
+            pattern = str(item.get("pattern") or "").strip()
+            reason = str(item.get("reason") or "").strip()
+            source_version = str(item.get("source_version") or "").strip()
+        else:
+            pattern = str(item or "").strip()
+            reason = ""
+            source_version = ""
+        if not pattern:
+            continue
+        key = pattern.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(
+            {
+                "pattern": pattern,
+                "reason": reason,
+                "source_version": source_version,
+            }
+        )
+    return out
+
+
 def load_custom_scratchpad_json(brand_dir: Path) -> dict:
     path = custom_scratchpad_json_path(brand_dir)
     if not path.exists():
@@ -61,8 +104,9 @@ def load_custom_scratchpad_json(brand_dir: Path) -> dict:
     data = load_json_file(path) or {}
     merged = dict(DEFAULT_CUSTOM_SCRATCHPAD_JSON)
     merged.update(data)
-    merged["model_overrides_by_material"] = dict(merged.get("model_overrides_by_material") or {})
-    merged["forbidden_patterns"] = list(merged.get("forbidden_patterns") or [])
+    merged["model_overrides_by_material"] = _coerce_dict(merged.get("model_overrides_by_material"))
+    merged["forbidden_patterns"] = _normalize_forbidden_patterns(_coerce_list(merged.get("forbidden_patterns")))
+    merged["motion_grammar"] = _coerce_dict(merged.get("motion_grammar"))
     return merged
 
 
@@ -105,18 +149,71 @@ def resolve_model_override(brand_dir: Path, material_type: str | None) -> dict:
     return out
 
 
+SECTION_HEADINGS = {
+    "global": "Global bans",
+    "motion": "Motion bans",
+    "typography": "Typography bans",
+    "composition": "Composition bans",
+}
+
+
+def append_scratchpad_note(
+    brand_dir: Path,
+    *,
+    section: str,
+    bullet: str,
+    via_cli: bool = False,
+) -> int:
+    if not via_cli:
+        warnings.warn(
+            "append_scratchpad_note() direct helper calls are deprecated; use the typed CLI/MCP tool instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+    heading = SECTION_HEADINGS.get(str(section or "").strip().lower())
+    if not heading:
+        raise ValueError(f"unknown scratchpad section: {section!r}")
+    bullet = str(bullet or "").strip().lstrip("- ").strip()
+    if not bullet:
+        return 0
+    path = custom_scratchpad_md_path(brand_dir)
+    text = path.read_text() if path.exists() else "# Custom scratchpad\n"
+    bullet_line = f"- {bullet}"
+    pattern = re.compile(rf"(?ms)^## {re.escape(heading)}\s*\n(.*?)(?=^## |\Z)")
+    match = pattern.search(text)
+    if not match:
+        block = f"\n\n## {heading}\n\n{bullet_line}\n"
+        path.write_text(text.rstrip() + block)
+        return len(block)
+    body = match.group(1)
+    existing_lines = {line.strip() for line in body.splitlines() if line.strip()}
+    if bullet_line in existing_lines:
+        return 0
+    insertion = match.end(1)
+    updated = text[:insertion] + ("" if body.endswith("\n") or not body else "\n") + bullet_line + "\n" + text[insertion:]
+    path.write_text(updated)
+    return len(bullet_line) + 1
+
+
 def append_forbidden_pattern(
     brand_dir: Path,
     *,
     pattern: str,
     reason: str = "",
     source_version: str = "",
+    via_cli: bool = False,
 ) -> None:
+    if not via_cli:
+        warnings.warn(
+            "append_forbidden_pattern() direct helper calls are deprecated; use the typed CLI/MCP tool instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     pattern = str(pattern or "").strip()
     if not pattern:
         return
     data = load_custom_scratchpad_json(brand_dir)
-    existing = data.get("forbidden_patterns") or []
+    existing = _normalize_forbidden_patterns(_coerce_list(data.get("forbidden_patterns")))
     lowered = {str(item.get("pattern") or "").strip().lower() for item in existing}
     if pattern.lower() in lowered:
         return

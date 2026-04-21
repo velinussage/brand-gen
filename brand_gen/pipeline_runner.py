@@ -15,14 +15,22 @@ try:
     from .pipeline_request import PipelineRequest
     from .pipeline_types import (
         CritiqueChecks,
+        EvolveRunResponse,
+        ExecuteRunResponse,
         GenerationResult,
         GenerationScratchpad,
+        NextAction,
+        OrchestrateMaterialResponse,
         PlanCritique,
         PipelineResult,
         PlanDraft,
+        PlanRunResponse,
+        PrepareRunResponse,
+        ReviewRunResponse,
         RouteDecision,
         RoutingBrief,
         VLMCritique,
+        ValidateRunResponse,
         WorkflowMeta,
         critique_from_dict,
         plan_draft_from_dict,
@@ -65,20 +73,28 @@ except ImportError:  # pragma: no cover - top-level compatibility for direct imp
     from pipeline_request import PipelineRequest  # type: ignore
     from pipeline_types import (  # type: ignore
         CritiqueChecks,
+        EvolveRunResponse,
+        ExecuteRunResponse,
         GenerationResult,
         GenerationScratchpad,
+        NextAction,
+        OrchestrateMaterialResponse,
         PlanCritique,
         PipelineResult,
         PlanDraft,
+        PlanRunResponse,
+        PrepareRunResponse,
+        ReviewRunResponse,
         RouteDecision,
         RoutingBrief,
         VLMCritique,
+        ValidateRunResponse,
         WorkflowMeta,
         critique_from_dict,
         plan_draft_from_dict,
         scratchpad_from_dict,
     )
-    from run_ledger import append_run_event  # type: ignore
+    from run_ledger import append_run_event, load_all_run_events  # type: ignore
     from generation_flow import (  # type: ignore
         apply_generation_critique_policy,
         assemble_generation_scratchpad,
@@ -283,6 +299,362 @@ class PipelineRunner:
         result.stopped_at = "complete"
         result.stop_reason = "Pipeline completed successfully"
         return result
+
+    def _record_orchestration_response(self, stage: str, payload: Any, *, status: str = "ok", notes: str = "") -> None:
+        try:
+            data = payload.to_dict() if hasattr(payload, "to_dict") else dict(payload or {})
+        except Exception:
+            data = {"repr": repr(payload)}
+        append_run_event(
+            self.brand_dir,
+            self.workflow_id,
+            stage=stage,
+            event_type=f"{stage}_run_completed",
+            status=status,
+            notes=notes,
+            data=data,
+        )
+
+    def prepare_run(self, plan_args: argparse.Namespace) -> PrepareRunResponse:
+        try:
+            from .brand_policy import summarize_identity
+            from .learnings_memory import load_learnings_memory, summarize_learnings_memory
+            from .plan_builder import check_identity_freshness
+            from .generation_flow import check_inspiration_pipeline_status
+            from .runtime_brand import get_brand_gen_dir, resolve_context_brand_key
+        except ImportError:  # pragma: no cover - direct import compatibility
+            from brand_policy import summarize_identity  # type: ignore
+            from learnings_memory import load_learnings_memory, summarize_learnings_memory  # type: ignore
+            from plan_builder import check_identity_freshness  # type: ignore
+            from generation_flow import check_inspiration_pipeline_status  # type: ignore
+            from runtime_brand import get_brand_gen_dir, resolve_context_brand_key  # type: ignore
+
+        self.pipeline_request = PipelineRequest.from_namespace(plan_args)
+        plan_args = self.pipeline_request.to_namespace()
+        learnings_applied: dict[str, Any] = {}
+        readiness_issues: list[str] = []
+        route_payload: dict[str, Any] = {}
+
+        try:
+            learnings_applied = self._apply_learnings(plan_args)
+        except Exception as exc:
+            readiness_issues.append(f"learnings warning: {exc}")
+
+        try:
+            self._ensure_inspiration(plan_args)
+        except Exception as exc:
+            readiness_issues.append(f"inspiration warning: {exc}")
+
+        try:
+            manifest = load_manifest(self.brand_dir)
+            freshness = check_identity_freshness(self.brand_dir, manifest, self.identity)
+            readiness_issues.extend(str(item) for item in (freshness.get("reasons") or []) if str(item).strip())
+        except Exception as exc:
+            readiness_issues.append(f"identity freshness warning: {exc}")
+
+        try:
+            brand_gen_dir = get_brand_gen_dir()
+            active_brand = resolve_context_brand_key(
+                brand_dir=self.brand_dir,
+                profile=self.profile,
+                identity=self.identity,
+                brand_gen_dir=brand_gen_dir,
+            ) or self.brand_dir.name
+            inspiration_status = check_inspiration_pipeline_status(brand_gen_dir, active_brand, getattr(plan_args, "mode", None))
+            readiness_issues.extend(
+                str(item) for item in (inspiration_status.get("warnings") or []) if str(item).strip()
+            )
+        except Exception:
+            inspiration_status = {}
+
+        if not self.skip_route:
+            try:
+                route_result = self._run_route(plan_args)
+                if route_result.output is not None:
+                    route_payload = {
+                        "route_key": route_result.output.route_key,
+                        "route_label": route_result.output.route_label,
+                        "score": route_result.output.score,
+                        "method": route_result.output.method,
+                        "score_vector": dict(route_result.output.score_vector or {}),
+                        "specialists": list(route_result.output.specialists or []),
+                        "next_commands": list(route_result.output.next_commands or []),
+                        "notes": route_result.output.notes,
+                    }
+            except Exception as exc:
+                readiness_issues.append(f"route warning: {exc}")
+
+        payload = PrepareRunResponse(
+            run_id=self.workflow_id,
+            brand_dna_summary=summarize_identity(self.profile, self.identity),
+            applicable_learnings={
+                "summary": summarize_learnings_memory(load_learnings_memory(self.brand_dir), limit=3),
+                "applied_overrides": learnings_applied,
+                "inspiration_status": inspiration_status,
+            },
+            readiness_issues=list(dict.fromkeys(item for item in readiness_issues if item)),
+            route=route_payload,
+            next_action=NextAction(
+                tool="brand_plan_run",
+                args={
+                    "material_type": getattr(plan_args, "material_type", "") or "",
+                    "mode": getattr(plan_args, "mode", "hybrid") or "hybrid",
+                    "workflow_id": self.workflow_id,
+                },
+            ),
+        )
+        self._record_orchestration_response("prepare", payload, status="ok")
+        return payload
+
+    def plan_run(self, plan_args: argparse.Namespace) -> PlanRunResponse:
+        self.pipeline_request = PipelineRequest.from_namespace(plan_args)
+        plan_args = self.pipeline_request.to_namespace()
+        draft_result = self._run_plan_draft(plan_args)
+        draft = draft_result.output
+        payload = PlanRunResponse(
+            run_id=self.workflow_id,
+            plan_id=str(draft.output_path or ""),
+            plan_summary={
+                "material_type": draft.plan.material_type,
+                "mode": draft.plan.mode,
+                "purpose": draft.plan.purpose,
+                "target_surface": draft.plan.target_surface,
+                "selected_role_names": list((draft.derived or {}).get("selected_role_names") or []),
+                "missing_required_roles": list((draft.derived or {}).get("missing_required_roles") or []),
+                "output_path": str(draft.output_path or ""),
+            },
+            next_action=(
+                NextAction(
+                    tool="brand_validate_run",
+                    args={"plan_draft": str(draft.output_path or ""), "workflow_id": self.workflow_id},
+                )
+                if draft_result.proceed
+                else None
+            ),
+        )
+        self._record_orchestration_response("plan", payload, status="ok" if draft_result.proceed else "blocked", notes=draft_result.reason)
+        return payload
+
+    def validate_run(self, plan_draft_path: str) -> ValidateRunResponse:
+        draft_path = Path(plan_draft_path).expanduser().resolve()
+        if not draft_path.exists():
+            raise ValueError(f"plan draft not found: {draft_path}")
+        payload_dict = load_json_file(draft_path)
+        draft = plan_draft_from_dict(payload_dict or {}, self.workflow_id)
+        draft.output_path = str(draft_path)
+        critique_result = self._run_critique(draft)
+        critique = critique_result.output
+        blocked = bool(critique.has_blocking and (critique.critique_policy or {}).get("blocks_generation", True))
+        payload = ValidateRunResponse(
+            run_id=self.workflow_id,
+            status="blocked" if blocked else "ok",
+            blocking_issues=list(critique.checks.blocking or []),
+            warnings=list(critique.checks.warnings or []),
+            critique_id=str(critique.output_path or ""),
+            critique_policy=dict(critique.critique_policy or {}),
+            next_action=(
+                NextAction(
+                    tool="brand_execute_run",
+                    args={
+                        "plan_draft": str(draft.output_path or ""),
+                        "critique_path": str(critique.output_path or ""),
+                        "workflow_id": self.workflow_id,
+                    },
+                )
+                if not blocked
+                else None
+            ),
+        )
+        self._record_orchestration_response("validate", payload, status=payload.status, notes=critique_result.reason)
+        return payload
+
+    def execute_run(self, plan_draft_path: str, *, critique_path: str | None = None) -> ExecuteRunResponse:
+        draft_path = Path(plan_draft_path).expanduser().resolve()
+        if not draft_path.exists():
+            raise ValueError(f"plan draft not found: {draft_path}")
+        draft_payload = load_json_file(draft_path)
+        draft = plan_draft_from_dict(draft_payload or {}, self.workflow_id)
+        draft.output_path = str(draft_path)
+
+        critique: PlanCritique
+        if critique_path:
+            resolved_critique_path = Path(critique_path).expanduser().resolve()
+            if not resolved_critique_path.exists():
+                raise ValueError(f"critique not found: {resolved_critique_path}")
+            critique_payload = load_json_file(resolved_critique_path)
+            critique = critique_from_dict(critique_payload or {}, self.workflow_id)
+            critique.output_path = str(resolved_critique_path)
+        else:
+            critique_result = self._run_critique(draft)
+            critique = critique_result.output
+            blocked = bool(critique.has_blocking and (critique.critique_policy or {}).get("blocks_generation", True))
+            if blocked:
+                payload = ExecuteRunResponse(run_id=self.workflow_id, stopped_at="validate")
+                self._record_orchestration_response("execute", payload, status="blocked", notes=critique_result.reason)
+                return payload
+
+        scratchpad_result = self._run_scratchpad(draft, critique)
+        scratchpad = scratchpad_result.output
+        blocked = bool(scratchpad.has_blocking and (scratchpad.critique_policy or {}).get("blocks_generation", True))
+        if blocked:
+            payload = ExecuteRunResponse(
+                run_id=self.workflow_id,
+                stopped_at="scratchpad",
+                scratchpad_path=str(scratchpad.output_path or ""),
+            )
+            self._record_orchestration_response("execute", payload, status="blocked", notes=scratchpad_result.reason)
+            return payload
+
+        gen_result = self._run_generate(scratchpad)
+        generation = gen_result.output
+        quality_gate = self._run_quality_gate(generation) if generation and generation.version_id else {}
+        payload = ExecuteRunResponse(
+            run_id=self.workflow_id,
+            version_id=str(generation.version_id or ""),
+            image_paths=list(generation.image_paths or []),
+            stopped_at="complete" if generation.version_id else "generate",
+            scratchpad_path=str(generation.scratchpad_path or scratchpad.output_path or ""),
+            review_packet_path=str(generation.agent_review_path or ""),
+            quality_gate=quality_gate,
+            iterations=int(generation.iteration or 1),
+            all_versions=list(generation.all_versions or []),
+            next_action=(
+                NextAction(
+                    tool="brand_review_run",
+                    args={"version_id": generation.version_id, "workflow_id": self.workflow_id},
+                )
+                if generation.version_id
+                else None
+            ),
+        )
+        self._record_orchestration_response("execute", payload, status="ok" if generation.version_id else "blocked", notes=gen_result.reason)
+        return payload
+
+    def review_run(self, version_id: str) -> ReviewRunResponse:
+        manifest = load_manifest(self.brand_dir)
+        entry = (manifest.get("versions") or {}).get(version_id) or {}
+        if not entry:
+            raise ValueError(f"version not found: {version_id}")
+        critique = dict(entry.get("vlm_critique") or {})
+        visual_review_status = str(entry.get("visual_review_status") or ("approved" if critique.get("approved") else "pending"))
+        payload = ReviewRunResponse(
+            run_id=str(entry.get("workflow_id") or self.workflow_id),
+            version_id=version_id,
+            packet_id=str(entry.get("agent_review_path") or ""),
+            axis_scores=dict(critique.get("axis_scores") or {}),
+            decision=str(critique.get("decision") or visual_review_status or "pending"),
+            before_after_diffs=[],
+            visual_review_status=visual_review_status,
+            auto_review_path=str(entry.get("auto_review_path") or ""),
+            agent_review_path=str(entry.get("agent_review_path") or ""),
+            next_action=(
+                NextAction(tool="brand_submit_review", args={"version": version_id})
+                if visual_review_status != "approved"
+                else NextAction(tool="brand_evolve_run", args={"version_id": version_id, "workflow_id": str(entry.get("workflow_id") or self.workflow_id)})
+            ),
+        )
+        self._record_orchestration_response("review", payload, status="ok")
+        return payload
+
+    def evolve_run(self, version_id: str) -> EvolveRunResponse:
+        try:
+            from .learnings_memory import promote_blackboard_lessons_to_learnings
+            from .plan_builder import build_improvement_questions, check_identity_freshness
+            from .scoring.dataset import load_disagreements
+        except ImportError:  # pragma: no cover - direct import compatibility
+            from learnings_memory import promote_blackboard_lessons_to_learnings  # type: ignore
+            from plan_builder import build_improvement_questions, check_identity_freshness  # type: ignore
+            from scoring.dataset import load_disagreements  # type: ignore
+
+        manifest = load_manifest(self.brand_dir)
+        entry = (manifest.get("versions") or {}).get(version_id) or {}
+        if not entry:
+            raise ValueError(f"version not found: {version_id}")
+        material_type = str(entry.get("material_type") or "")
+        promotion = promote_blackboard_lessons_to_learnings(self.brand_dir, material_type=material_type)
+        freshness = check_identity_freshness(self.brand_dir, manifest, self.identity)
+        questions = build_improvement_questions(self.brand_dir, self.profile, self.identity, manifest)
+        disagreement_records = [
+            item for item in load_disagreements(self.brand_dir, material_type=material_type, limit=None)
+            if str(item.get("version_id") or "") == version_id
+        ]
+        recommendation = "continue_iteration"
+        if freshness.get("needs_rebuild"):
+            recommendation = "rebuild_identity"
+        elif questions:
+            recommendation = "answer_improvement_questions"
+        elif promotion.get("promoted"):
+            recommendation = "reuse_promoted_learnings"
+        elif str(entry.get("visual_review_status") or "") == "pending":
+            recommendation = "submit_review"
+        payload = EvolveRunResponse(
+            run_id=str(entry.get("workflow_id") or self.workflow_id),
+            version_id=version_id,
+            learnings_promoted=list(promotion.get("promoted") or []),
+            disagreements_logged=len(disagreement_records),
+            recommendation=recommendation,
+            identity_rebuild_recommended=bool(freshness.get("needs_rebuild")),
+            improvement_questions=list(questions or []),
+            next_action=(
+                NextAction(tool="brand_feedback", args={"version": version_id})
+                if str(entry.get("score") or "") == ""
+                else None
+            ),
+        )
+        self._record_orchestration_response("evolve", payload, status="ok")
+        return payload
+
+    def orchestrate_material(self, plan_args: argparse.Namespace) -> OrchestrateMaterialResponse:
+        result = self.run(plan_args)
+        stages_completed: list[str] = []
+        if self.skip_route or result.route is not None:
+            stages_completed.append("prepare")
+        if result.plan_draft is not None:
+            stages_completed.append("plan")
+        if result.critique is not None:
+            stages_completed.append("validate")
+        if result.result is not None:
+            stages_completed.append("execute")
+        if result.result and (result.result.agent_review_path or result.result.auto_review_path):
+            stages_completed.append("review")
+
+        if result.stopped_at in {"critique", "scratchpad"}:
+            stop_reason = "blocking_findings"
+        elif result.stopped_at == "complete" and result.result and result.result.visual_review_status == "approved":
+            stop_reason = "approved"
+        elif result.stopped_at == "complete":
+            stop_reason = "iterating"
+        else:
+            stop_reason = "max_retries" if "retry" in str(result.stop_reason or "").lower() else "iterating"
+
+        next_action = None
+        if result.result and result.result.version_id:
+            next_action = NextAction(
+                tool="brand_review_run",
+                args={"version_id": result.result.version_id, "workflow_id": self.workflow_id},
+            )
+        elif result.plan_draft and not result.critique:
+            next_action = NextAction(
+                tool="brand_validate_run",
+                args={"plan_draft": result.plan_draft.output_path, "workflow_id": self.workflow_id},
+            )
+
+        payload = OrchestrateMaterialResponse(
+            run_id=self.workflow_id,
+            stages_completed=stages_completed,
+            stop_reason=stop_reason,
+            next_action=next_action,
+            artifacts={
+                "plan": result.plan_draft.output_path if result.plan_draft else "",
+                "critique": result.critique.output_path if result.critique else "",
+                "scratchpad": result.scratchpad.output_path if result.scratchpad else "",
+                "version_id": result.result.version_id if result.result else "",
+                "review_packet": result.result.agent_review_path if result.result else "",
+                "auto_review": result.result.auto_review_path if result.result else "",
+            },
+        )
+        self._record_orchestration_response("orchestrate", payload, status=stop_reason, notes=result.stop_reason)
+        return payload
 
     def _run_route(self, plan_args: argparse.Namespace) -> StageResult:
         try:
