@@ -306,6 +306,18 @@ Return JSON in one of these two shapes (pick based on `rubric_version` on the in
   "why_user_might_dislike_if_polished": "Generic fintech sentiment rather than distinctive brand truth.",
   "p1": ["brand_coherence=1: invented gradient-orb device outside approved set"],
   "p2": ["brand_specificity=2: interchangeable with generic premium-AI brand art"],
+  "before_after_diffs": [
+    {
+      "principle": "brand_coherence",
+      "before": "Gradient orb floats at center — invented device outside brand's approved set.",
+      "after": "Canonical cream-on-terracotta Doric mark occupies the same focal slot."
+    },
+    {
+      "principle": "brand_specificity",
+      "before": "Composition could belong to any fintech or AI brand — no Sage-specific vocabulary.",
+      "after": "Sage's declared metaphor (governed routing through thresholds) carries the whole composition."
+    }
+  ],
   "iteration_directives": {
     "ban": ["gradient orbs", "any device not listed in brand-identity.json approved devices"],
     "push": ["approved brand devices only", "brand-specific metaphor vocabulary"],
@@ -316,7 +328,10 @@ Return JSON in one of these two shapes (pick based on `rubric_version` on the in
 }
 ```
 
+On ITERATE, prefer filling `before_after_diffs` rows before writing the prose `summary` — the rows are the diff the planner will feed back into the next run's `--ban` / `--push`. One row per principle the iteration addresses; avoid meta-principles ("quality") in favor of concrete rubric-axis or slop-pattern names.
+
 **v2 output contract clarifications:**
+- `before_after_diffs` (NEW, optional, array): on ITERATE, describe each concrete change the next iteration should make as a `{principle, before, after}` row. The brand-planner reads these and turns them into `--ban` / `--push` flags. Principle is one of the rubric axes or a named slop pattern. Before is one sentence describing what the current output shows. After is one sentence describing what the next iteration should show. Example: `{"principle": "brand_specificity", "before": "Generic premium-AI gradient orb in center", "after": "Brand's declared Doric mark rendered in approved cream-on-terracotta, occupying the same focal slot"}`. Omit the field on APPROVED.
 - `decision` enum — use `"ITERATE"` in all non-approve cases (including when `disqualifier_triggered: true`). Do NOT emit `"REJECT"`; the rejected status is carried through `bgen feedback ... --status rejected` as a separate signal. Use `"APPROVED"` only when `overall_score >= 3` AND `disqualifier_triggered: false`.
 - `--status rejected` linkage: pass `--status rejected` on the follow-up `bgen feedback` call whenever EITHER `disqualifier_triggered: true` OR `overall_score == 1`. Lower-ITERATE cases (`overall_score == 2`, no disqualifier) are iterations, not rejections, and omit the flag.
 - On a v2 packet, `bgen feedback --score <N>` takes the packet's `overall_score` directly (an integer 1-5), NOT an arithmetic mean of `axis_scores`. The scorer already did min-biased aggregation for you.
