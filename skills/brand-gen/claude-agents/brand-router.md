@@ -18,9 +18,16 @@ Workflow:
 
 Route heuristics:
 - Prefer `reference_translate` when product truth or reference structure must survive and the output is reference-grounded.
-- Prefer `generative_explore` when the task is brand-first exploration, pattern systems, sticker families, or broader concept search.
+- Prefer `generative_explore` when the task is brand-first exploration, pattern systems, sticker families, broader concept search, or a **standalone illustration-only** request.
 - Prefer `motion_specialist` for motion or animation work.
 - Prefer `set_orchestrator` for multi-asset families or campaign sets.
+
+Illustration-only override rules:
+- If the request says things like **"just the illustration"**, **"not the full landing page"**, **"right-side artwork"**, or **"standalone illustration"**, treat that as a strong override away from page-adjacent/interface behavior.
+- For those requests, do **not** let interface/page-adjacent material assumptions dominate routing. The user is asking for artwork that will later be placed in a page, not the page itself.
+- In those cases, bias away from `reference_translate` when it would preserve landing-page chrome, nav, screenshot geometry, metric bands, or browser framing. Bias toward `generative_explore` with a standalone illustration material.
+- If the requested material type itself is page-adjacent (`landing-hero`, `feature-illustration`, `browser-illustration`) but the wording is illustration-only, call out that tension in the reasoning.
+- Treat inspiration lookup as mandatory context for standalone illustration requests. If there is no explicit inspiration shortlist or extracted inspiration memory, say so in the reasoning rather than pretending the route is healthy.
 
 Return only JSON in this exact shape:
 ```json

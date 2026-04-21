@@ -363,7 +363,8 @@ def select_inspiration_sources(
 ) -> dict:
     material_key = role_pack_material_key(material_type)
     is_interface = material_key in INTERFACE_MATERIAL_KEYS
-    limit = max_sources or (1 if is_interface else 2)
+    illustration_first = material_key in {"concept_illustration", "brand_scene"}
+    limit = max_sources or (1 if is_interface else (3 if illustration_first else 2))
     role_keys = {
         normalize_inspiration_key(item.get("source_key") or item.get("source_name") or "")
         for item in (selected_roles or [])
@@ -381,10 +382,52 @@ def select_inspiration_sources(
             score += 2.0
         if not is_interface and "premium-branding" in path_hint:
             score += 2.0
+        best_for = " ".join(str(value).lower() for value in (item.get("best_for") or []))
+        bucket_hints = set(str(value).strip().lower() for value in (item.get("bucket_hints") or []) if str(value).strip())
+        if illustration_first:
+            if "composition" in bucket_hints:
+                score += 1.2
+            if "narrative_system" in bucket_hints:
+                score += 1.0
+            if "rendering_style" in bucket_hints:
+                score += 0.8
+            if any(term in best_for for term in ["composition", "campaign", "application", "reasoning"]):
+                score += 0.8
         if idx == 0:
             score += 0.25
         ranked.append((score, idx, item))
-    picked = [item for _, _, item in sorted(ranked, key=lambda row: (-row[0], row[1]))[:limit]]
+    sorted_ranked = [item for _, _, item in sorted(ranked, key=lambda row: (-row[0], row[1]))]
+    if illustration_first:
+        bucket_targets = ["composition", "narrative_system", "rendering_style"]
+        picked = []
+        seen_keys: set[str] = set()
+        for bucket in bucket_targets:
+            match = next(
+                (
+                    item for item in sorted_ranked
+                    if bucket in set(str(value).strip().lower() for value in (item.get("bucket_hints") or []) if str(value).strip())
+                    and normalize_inspiration_key(item.get("source_key") or item.get("source_name") or "") not in seen_keys
+                ),
+                None,
+            )
+            if match is None:
+                continue
+            source_key = normalize_inspiration_key(match.get("source_key") or match.get("source_name") or "")
+            if source_key:
+                seen_keys.add(source_key)
+            picked.append(match)
+        for item in sorted_ranked:
+            source_key = normalize_inspiration_key(item.get("source_key") or item.get("source_name") or "")
+            if source_key in seen_keys:
+                continue
+            if source_key:
+                seen_keys.add(source_key)
+            picked.append(item)
+            if len(picked) >= limit:
+                break
+        picked = picked[:limit]
+    else:
+        picked = sorted_ranked[:limit]
     if not picked:
         return {
             "records": [],
@@ -395,6 +438,8 @@ def select_inspiration_sources(
         reasons.append("matched configured inspiration sources to selected role-pack references")
     if is_interface:
         reasons.append("kept interface inspiration narrow to reduce prompt bloat")
+    elif illustration_first:
+        reasons.append("built a slightly wider inspiration set for standalone illustration so the plan does not collapse into poster or page-chrome defaults")
     else:
         reasons.append("used a small branded inspiration subset instead of the full doctrine merge")
     return {

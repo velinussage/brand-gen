@@ -9,6 +9,7 @@ from typing import Callable
 try:
     from .pipeline_types import RoutingBrief
     from .material_planning import classify_workflow_route_smart
+    from .request_intent import infer_illustration_only_request
     from .runtime_brand import load_workflow_router_rules
 except ImportError:
     @dataclass
@@ -26,6 +27,7 @@ except ImportError:
         mode: str | None = None
 
     from material_planning import classify_workflow_route_smart  # type: ignore
+    from request_intent import infer_illustration_only_request  # type: ignore
     from runtime_brand import load_workflow_router_rules  # type: ignore
 
 
@@ -58,6 +60,9 @@ def score_motion_specialist(brief: RoutingBrief) -> float:
 
 
 def score_reference_translate(brief: RoutingBrief) -> float:
+    illustration_only = infer_illustration_only_request(goal=brief.goal, request=brief.request)
+    if illustration_only and brief.material_key in TRANSLATE_MATERIAL_KEYS:
+        return 0.0
     if str(brief.render_backend or "").strip().lower() == "html" and str(brief.source_url or "").strip():
         return _SCORE_TRANSLATE_MATERIAL_MATCH
     if str(brief.entity_type or "").strip().lower() in {"prompt", "skill", "library"} and str(brief.source_url or "").strip():
@@ -69,7 +74,9 @@ def score_reference_translate(brief: RoutingBrief) -> float:
     return 0.0
 
 
-def score_generative_explore(_brief: RoutingBrief) -> float:
+def score_generative_explore(brief: RoutingBrief) -> float:
+    if infer_illustration_only_request(goal=brief.goal, request=brief.request):
+        return max(_SCORE_GENERATIVE_EXPLORE_BASELINE, 0.8)
     return _SCORE_GENERATIVE_EXPLORE_BASELINE
 
 

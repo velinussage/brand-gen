@@ -25,6 +25,7 @@ from .brand_policy import (
     normalize_material_brand_policy,
     summarize_identity,
 )
+from .capability_focus import build_capability_focus_context
 from .critique_policy import build_critique_policy
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
 from .learnings_memory import load_learnings_memory
@@ -39,6 +40,10 @@ from .reference_role_packs import (
     source_risk_rank,
     stable_mechanic_id,
     suggest_reference_role_pack,
+)
+from .request_intent import (
+    infer_illustration_only_request,
+    illustration_only_hits,
 )
 from .runtime import *
 from .runtime_brand import load_alignment_questions, load_idea_tracks, load_pipeline_config, load_prompt_fragments
@@ -218,6 +223,24 @@ def create_material_plan(
         material_type=material_type,
         brand_dir=brand_dir,
     )
+    illustration_only = infer_illustration_only_request(
+        purpose=purpose or "",
+        target_surface=target_surface or "",
+        prompt_seed=prompt_seed or "",
+        briefing=briefing or "",
+        preserve=preserve or [],
+        push=push or [],
+        ban=ban or [],
+    )
+    illustration_hits = illustration_only_hits(
+        purpose=purpose or "",
+        target_surface=target_surface or "",
+        prompt_seed=prompt_seed or "",
+        briefing=briefing or "",
+        preserve=preserve or [],
+        push=push or [],
+        ban=ban or [],
+    )
     inspiration_memory = inspiration_context.get("memory") or {}
     inspiration_recommendations = select_inspiration_sources(
         list(inspiration_context.get("source_records") or []),
@@ -257,6 +280,10 @@ def create_material_plan(
     missing_required = [role for role in enforced_required_roles if role not in selected_role_names]
     role_pack_requirement_mode = "advisory_inspiration_fallback" if relaxed_role_pack_gate else "strict"
     learning_context = build_blackboard_learning_context(brand_dir, material_type)
+    illustration_inspiration_required = bool(
+        illustration_only or role_pack_material_key(material_type) in {"concept_illustration", "brand_scene"}
+    )
+    min_inspiration_sources = 3 if illustration_only else (2 if illustration_inspiration_required else 0)
     learned_setup_warnings = get_blackboard_learning_warnings(
         brand_dir,
         material_type,
@@ -277,6 +304,18 @@ def create_material_plan(
         policy["product_truth_expression"] = product_truth_expression
     if abstraction_level:
         policy["abstraction_level"] = abstraction_level
+    capability_focus = build_capability_focus_context(
+        brand_dir=brand_dir,
+        identity=identity,
+        material_type=material_type,
+        product_truth_expression=policy.get("product_truth_expression") or product_truth_expression or "",
+        artifact_scope="illustration_only" if illustration_only else "full_surface",
+    )
+    if capability_focus.get("directive"):
+        push = dedupe_keep_order(list(push or []) + [capability_focus["directive"]])
+    if capability_focus.get("avoid_repeating_linear_story"):
+        ban = dedupe_keep_order(list(ban or []) + ["single repeated linear process diagram as the whole story"])
+
     resolved_render_backend = "html" if str(render_backend or "").strip().lower() == "html" else "native"
     resolved_entity_type = str(entity_type or "").strip().lower()
     resolved_source_url = str(source_url or "").strip()
@@ -319,6 +358,8 @@ def create_material_plan(
         briefing=briefing or "",
     )
     memory_seed_prompt = str(inspiration_memory.get("seed_prompt") or "").strip()
+    if capability_focus.get("directive"):
+        seed = f"{seed} {capability_focus['directive']}".strip()
     if not prompt_seed and memory_seed_prompt:
         seed = f"{seed} {memory_seed_prompt}".strip()
 
@@ -352,6 +393,12 @@ def create_material_plan(
         "preserve": preserve or [],
         "push": push or [],
         "ban": ban or [],
+        "artifact_scope": "illustration_only" if illustration_only else "full_surface",
+        "request_signals": {
+            "illustration_only": illustration_only,
+            "illustration_only_hits": illustration_hits,
+        },
+        "capability_focus": capability_focus,
         "selected_inspiration_ids": [],
         "inspiration_recommendations": {
             "mode": inspiration_recommendations.get("mode") or "advisory_shortlist",
@@ -369,6 +416,15 @@ def create_material_plan(
         "selected_inspiration_translation": selected_inspiration_translation_payload.get("translation") or "",
         "inspiration_selection_reason": inspiration_selection.get("reason") or "",
         "inspiration_selection_mode": inspiration_selection.get("mode") or "unselected",
+        "inspiration_requirements": {
+            "required": illustration_inspiration_required,
+            "min_selected_sources": min_inspiration_sources,
+            "reason": (
+                "Standalone or non-interface illustration work needs an explicit inspiration set so the pipeline does not fall back to page chrome, posters, or generic diagrams."
+                if illustration_inspiration_required
+                else ""
+            ),
+        },
         "inspiration_memory_summary": str(inspiration_memory.get("summary") or ""),
         "inspiration_memory_seed_prompt": memory_seed_prompt,
         "learning_context": learning_context,
@@ -510,6 +566,10 @@ def build_route_payload(args, brand_dir: Path, profile: dict, identity: dict) ->
                 set_scope=bool(getattr(args, "set_scope", False)),
             )
     route = route_info["route"]
+    illustration_only = infer_illustration_only_request(
+        goal=getattr(args, "goal", "") or "",
+        request=getattr(args, "request", "") or "",
+    )
     plan_needed = route_info["route_key"] in {"reference_translate", "generative_explore", "motion_specialist"}
     result = {
         "schema_type": "workflow_route",
@@ -533,9 +593,20 @@ def build_route_payload(args, brand_dir: Path, profile: dict, identity: dict) ->
         "score_vector": route_info.get("score_vector", {}),
         "brand_dir": str(brand_dir),
         "brand_dna": summarize_identity(profile, identity),
+        "request_signals": {
+            "illustration_only": illustration_only,
+            "illustration_only_hits": illustration_only_hits(
+                goal=getattr(args, "goal", "") or "",
+                request=getattr(args, "request", "") or "",
+            ),
+        },
     }
     # Include route candidates so the calling agent can override if the
     # default route doesn't match intent.  Re-run with --route <key>.
+    if illustration_only and role_pack_material_key(getattr(args, "material_type", None)) in {"browser_illustration", "feature_illustration", "landing_hero", "product_banner", "terminal_hero", "command_illustration"}:
+        result.setdefault("warnings", []).append(
+            "Illustration-only intent conflicts with an interface/page-adjacent material type. Prefer a standalone illustration material such as concept-illustration unless the user explicitly wants the page/UI itself."
+        )
     if route_info.get("method") != "agent_override":
         result["route_candidates"] = build_route_candidates(
             getattr(args, "material_type", None),

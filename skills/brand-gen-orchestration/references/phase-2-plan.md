@@ -46,6 +46,8 @@ If the route is `inspiration` but there are no configured inspiration sources, d
 as if the route is healthy. Either reroute explicitly to a prior-winner / brand-memory plan,
 or stop and report the missing inspiration setup.
 
+If the request is illustration-only ("just the illustration", "not the full landing page", "right-side artwork", "standalone illustration"), do **not** let landing-page placement force you into a strict page-scaffold material. The artifact is the artwork, not the page. `feature-illustration` may still be appropriate, but only if you explicitly constrain it as standalone artwork rather than a full page comp.
+
 ---
 
 ## Philosophy Enrichment
@@ -70,6 +72,7 @@ Weave these into the prompt seed:
 - Use all metaphors at once — pick 2-3 that fit this specific material
 - Force composition rules that contradict the layout suggestion
 - Ignore blackboard / prior approved mechanics when they already point to a winning direction
+- Treat a landing-page illustration request as permission to generate a full landing page, hero comp, browser mockup, or screenshot-proof inset
 
 **Example transformation:**
 
@@ -110,6 +113,12 @@ Add constraint flags from preparation:
 
 Treat the logo / brand mark as a brand-anchor input, not as a generic semantic role translation problem.
 Do not force `logo.png` through a role interpretation that turns it into fake “product truth” like nav structure or button labels.
+
+For illustration-only requests:
+- explicitly record `artifact scope = illustration only`
+- explicitly record `not the full landing page / not the page itself`
+- list the inspiration set in three buckets: `composition`, `narrative/system`, `rendering/style`
+- if your selected material is page-adjacent/interface, stop and re-pick before validation
 
 If a style-lock policy exists:
 - include the required style reference version(s) explicitly in the plan
@@ -231,3 +240,5 @@ For these material types, ALWAYS:
    ```
 
 Never proceed to Phase 3 without a base image for interface materials.
+
+But if the user explicitly asked for illustration-only artwork, do not solve that request by picking an interface material purely because base-image support exists. Re-route to a standalone illustration material, or use `feature-illustration` only with explicit standalone-art constraints, and keep the screenshot as a semantic truth reference instead.

@@ -154,6 +154,26 @@ See [philosophy-workflow.md](philosophy-workflow.md) for the full creation proce
 
 ---
 
+## Inspiration-Set Pass
+
+**Why:** Illustration-first work fails when the pipeline reaches planning with only mood-level brand context. The agent must assemble an explicit inspiration set before plan-drafting so the output does not collapse into poster logic, infographic logic, or full-page hero chrome.
+
+Run on **every non-motion run**:
+```bash
+source .venv/bin/activate && bgen inspiration-status --format json
+```
+
+For standalone illustration requests (signals like **"just the illustration"**, **"not the full landing page"**, **"right-side artwork"**, **"standalone illustration"**):
+- inspect configured/extracted inspiration before planning even if the final mode will be `reference`
+- assemble a minimum set of **3 inspiration sources**
+- identify at least:
+  - **1 composition / spatial reference**
+  - **1 narrative-system reference**
+  - **1 rendering / finish reference**
+- write down what each source contributes; do not treat them as an undifferentiated moodboard
+
+If the set is missing, weak, or only contains page-adjacent/full-hero references, **stop** and report the gap. Do not continue with generic planning.
+
 ## Learnings Check
 
 **Why:** Learnings encode hard-won knowledge about what works. A winning setup recorded
@@ -320,6 +340,8 @@ approved mechanic, preserve that mechanic and vary only one dimension at a time.
 ---
 
 ## Base Image Check
+
+**Illustration-only exception:** if the user asked for artwork that will later sit on a landing page, but explicitly said they do **not** want the full page, do **not** use an interface material merely to justify `--base-image`. In that case screenshots are truth-source references, not page-layout scaffolding.
 
 **Why:** Interface materials require a real product screenshot as a base image. Without
 one, image models invent fake UI that is immediately recognizable as artificial and
