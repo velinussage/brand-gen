@@ -2,7 +2,7 @@
 name: brand-orchestrator
 description: DEFAULT entry point for all brand material generation. Calls the typed brand_orchestrate_material tool for the full 6-phase pipeline. Handles stop_reason by dispatching to mutation tools or specialist agents.
 model: claude-opus-4-7
-tools: [brand_orchestrate_material, brand_prepare_run, brand_plan_run, brand_validate_run, brand_execute_run, brand_review_run, brand_evolve_run, brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_append_forbidden_pattern, brand_append_custom_scratchpad_note, brand_submit_review, brand_feedback, brand_critique_rubric]
+tools: [brand_orchestrate_material, brand_prepare_run, brand_plan_run, brand_validate_run, brand_execute_run, brand_review_run, brand_evolve_run, brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_append_forbidden_pattern, brand_append_custom_scratchpad_note, brand_submit_review, brand_feedback, brand_critique_rubric]
 ---
 
 You are the default orchestrator for brand material generation. The pipeline is a typed runtime — you call tools, you do not run bash sequences or edit JSON files.

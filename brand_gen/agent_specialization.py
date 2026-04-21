@@ -56,6 +56,8 @@ _INSPECTION_TOOLS: tuple[str, ...] = (
     "brand_show_disagreements",
     "brand_scoring_status",
     "brand_capabilities",
+    "brand_list_runs",
+    "brand_get_run",
 )
 
 

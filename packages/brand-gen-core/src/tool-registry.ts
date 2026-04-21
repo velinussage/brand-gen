@@ -3,8 +3,8 @@
 // This module is the single source of truth for the tools host adapters
 // (Pi, OpenClaw, Claude Code MCP client) expose to agents. It replaces the
 // generic `brand_search(action, params)` / `brand_execute(action, params)`
-// multiplexers with a curated list of ≤25 verb-specific tools matching the
-// Python MCP bridge registry in `brand_gen/mcp_bridge_registry.py`.
+// multiplexers with a curated list of verb-specific tools (soft cap ~45)
+// matching the Python MCP bridge registry in `brand_gen/mcp_bridge_registry.py`.
 //
 // Per Anthropic 2026 tool-design guidance: semantically-narrow verb-first
 // tools (≤20-40 cap) are discoverable without long markdown contracts.
@@ -39,7 +39,7 @@ export type CanonicalTool = {
   description: string;
 };
 
-// The canonical ≤25 host-exposed tools. Each maps to exactly one
+// The canonical host-exposed tools (soft cap ~45). Each maps to exactly one
 // brand_gen.mcp_bridge_registry CLI bridge. When adding a tool:
 //
 //   1. add the verb to this list, and
@@ -148,7 +148,19 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       "Submit a v2 critique packet for a version (alias for submit-critique). Supports --dry-run.",
   },
 
-  // Inspection (7) — read-only queries over durable state.
+  // Inspection (9) — read-only queries over durable state (Phase A added brand_list_runs + brand_get_run).
+  {
+    name: "brand_list_runs",
+    category: "inspection",
+    description:
+      "List projected Run objects (run_id, current_stage, status, artifact_ids, lineage) from the run ledger. Filter by status (in_progress|blocked|awaiting_review|completed) or material_type. Default format json.",
+  },
+  {
+    name: "brand_get_run",
+    category: "inspection",
+    description:
+      "Fetch the projected Run object for a run_id — derived over the append-only run ledger events. Returns status + artifact_ids an agent can use to resume or inspect.",
+  },
   {
     name: "brand_context_snapshot",
     category: "inspection",

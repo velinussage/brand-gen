@@ -15,6 +15,7 @@ from ..material_planning import *
 from ..generation_flow import *
 from ..reference_analysis import reference_analysis_confidence, reference_analysis_mode
 from ..run_ledger import load_run_events
+from ..run_state import Run, get_run as project_run_by_id, list_all_runs
 from ..runtime_support import html_escape, version_sort_key as _version_sort_key
 from ..session_summary import *
 from ..media_board import *
@@ -1163,3 +1164,85 @@ def cmd_rebucket_inspiration(args):
     print(f"Updated {source_key} in {im_path}")
     for ch in changes:
         print(f"  - {ch}")
+
+
+def cmd_list_runs(args):
+    """List projected runs from the run ledger under the active brand dir."""
+    brand_dir = get_brand_dir()
+    status_filter = getattr(args, "status", None) or None
+    material_filter = getattr(args, "material_type", None) or None
+    limit = getattr(args, "limit", None)
+    runs = list_all_runs(
+        brand_dir,
+        status=status_filter,
+        material_type=material_filter,
+        limit=limit if isinstance(limit, int) and limit > 0 else None,
+    )
+    payload = {
+        "brand_dir": str(brand_dir),
+        "count": len(runs),
+        "filter": {
+            "status": status_filter,
+            "material_type": material_filter,
+            "limit": limit if isinstance(limit, int) and limit > 0 else None,
+        },
+        "runs": [run.to_dict() for run in runs],
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    if not runs:
+        print("No runs found.")
+        return
+    print(f"{'RUN_ID':<14} {'STAGE':<14} {'STATUS':<18} {'MATERIAL':<22} {'UPDATED':<20} {'EVENTS':>6}")
+    print("-" * 100)
+    for run in runs:
+        print(
+            f"{run.run_id:<14} {(run.current_stage or '—'):<14} "
+            f"{(run.status or '—'):<18} {(run.material_type or '—'):<22} "
+            f"{(run.last_updated_at or run.created_at or '—'):<20} {run.event_count:>6}"
+        )
+
+
+def cmd_get_run(args):
+    """Return the projected Run object for a workflow_id."""
+    brand_dir = get_brand_dir()
+    workflow_id = str(getattr(args, "run_id", "") or "").strip()
+    if not workflow_id:
+        raise SystemExit("--run-id is required")
+    run = project_run_by_id(brand_dir, workflow_id)
+    if run is None:
+        payload = {
+            "status": "not_found",
+            "run_id": workflow_id,
+            "brand_dir": str(brand_dir),
+        }
+        print(json.dumps(payload, indent=2))
+        return
+    payload = {
+        "status": "ok",
+        "brand_dir": str(brand_dir),
+        "run": run.to_dict(),
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    print(f"Run {run.run_id}")
+    print(f"  brand_key:      {run.brand_key or '—'}")
+    print(f"  material_type:  {run.material_type or '—'}")
+    print(f"  mode:           {run.mode or '—'}")
+    print(f"  current_stage:  {run.current_stage or '—'}")
+    print(f"  status:         {run.status}")
+    print(f"  created_at:     {run.created_at}")
+    print(f"  last_updated:   {run.last_updated_at}")
+    print(f"  stages:         {', '.join(run.stages_completed) or '—'}")
+    if run.blocking_issues:
+        print(f"  blocking_issues:")
+        for item in run.blocking_issues:
+            print(f"    - {item}")
+    if run.lineage:
+        print(f"  lineage:        {', '.join(run.lineage)}")
+    if run.artifact_ids:
+        print("  artifacts:")
+        for k, v in run.artifact_ids.items():
+            print(f"    {k}: {v}")

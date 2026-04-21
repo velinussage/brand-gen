@@ -141,6 +141,22 @@ def build_show_workflow_lineage_cli(parser: argparse.ArgumentParser, *, inspire_
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_list_runs_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--status",
+        choices=["in_progress", "blocked", "awaiting_review", "completed"],
+        help="Filter by derived run status",
+    )
+    parser.add_argument("--material-type", help="Filter by material type")
+    parser.add_argument("--limit", type=int, default=20, help="Max runs to return (default 20)")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_get_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--run-id", required=True, help="Workflow id (aka run_id) to project")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
 def build_show_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -1049,6 +1065,8 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'workspace-status': build_workspace_status_cli,
     'improvement-questions': build_improvement_questions_cli,
     'show-workflow-lineage': build_show_workflow_lineage_cli,
+    'list-runs': build_list_runs_cli,
+    'get-run': build_get_run_cli,
     'show-reference-analysis': build_show_reference_analysis_cli,
     'prompts-list': build_prompts_list_cli,
     'prompts-get': build_prompts_get_cli,
