@@ -257,6 +257,25 @@ def build_show_disagreements_cli(parser: argparse.ArgumentParser, *, inspire_url
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_rebucket_inspiration_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--source", required=True, help="Source key (as stored in inspiration-memory.json)")
+    parser.add_argument(
+        "--primary",
+        choices=["composition", "narrative_system", "rendering_style"],
+        help="Primary bucket this source should be assigned to. Sources with a primary_bucket set get a strong scoring bonus during role-pack selection.",
+    )
+    parser.add_argument(
+        "--scores",
+        help='Per-bucket weights as JSON, e.g. \'{"composition": 1.0, "narrative_system": 0.3, "rendering_style": 0.0}\'. Overrides --primary when both are set.',
+    )
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Clear primary_bucket and bucket_scores on the source (revert to legacy bucket_hints ranking).",
+    )
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_scoring_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
@@ -861,6 +880,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-rubric': build_show_rubric_cli,
     'show-disagreements': build_show_disagreements_cli,
     'scoring-status': build_scoring_status_cli,
+    'rebucket-inspiration': build_rebucket_inspiration_cli,
     'extract-inspiration': build_extract_inspiration_cli,
     'consolidate-inspiration': build_consolidate_inspiration_cli,
     'inspiration-mode': build_inspiration_mode_cli,

@@ -197,6 +197,7 @@ bgen pipeline \
 - `extract-inspiration`
 - `consolidate-inspiration`
 - `inspiration-mode`
+- `rebucket-inspiration --source <key> [--primary composition|narrative_system|rendering_style | --scores '<json>' | --clear]` — pin a PRIMARY bucket (or per-bucket scores) on an inspiration source so role-pack ranking stops defaulting to first-by-index when every source declares every bucket. Use when `suggest-role-pack` keeps returning the same source for every slot.
 - `example-sources`
 - `collect-examples`
 - `shotlist`
