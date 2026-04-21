@@ -702,6 +702,62 @@ def compact_execution_selected_inspiration(context: dict) -> str:
     return cap_text_at_sentence(text, _shared("execution_inspiration_cap"))
 
 
+# Short push clauses per overlay axis. Kept compact so the injection
+# doesn't bloat the execution prompt (which already runs tight against
+# total_cap). The clauses are the positive inversion of the scorer's
+# axis definition, because the prompt is push/ban, not rubric prose.
+_OVERLAY_AXIS_PUSH_CLAUSES = {
+    # landing-hero
+    "surface_fit": "prove surface_fit: compose like a landing hero (not a social card or ad) — left-column copy supported by right-column art, or full-bleed with clean headline overlay",
+    "meaning_at_glance": "prove meaning_at_glance: a visitor understands the product category in 2-3 seconds; the image does the work, the headline only seals it",
+    # concept-illustration
+    "system_logic_visible": "prove system_logic_visible: show a visible system (nodes+edges, strata+flow, parts+whole) — not a single symbol floating in space",
+    "brand_specificity": "prove brand_specificity: carry THIS brand's declared metaphor vocabulary and material palette, not interchangeable premium-AI-brand art",
+    # brand-scene
+    "process_implied": "prove process_implied: show evidence of the brand's actual work (tools, materials mid-use, posture of activity) — not pure architectural mood",
+}
+
+
+def compact_execution_rubric_overlay_push(material_type: str | None) -> str:
+    """Emit a compact 'Prove axes:' clause for the material's v2 overlay axes.
+
+    Pulls overlay-axis names from brand_gen.scoring.rubric_registry and
+    renders one push clause per axis. Returns empty string when the
+    material has no overlay (universal-only materials).
+
+    Rationale: the planner's Step 5 already reads show-rubric so the
+    PLAN targets the right axes. But the execution_prompt the model
+    sees has no rubric content — the model never learns the scorer's
+    criteria. Injecting push clauses for the overlay axes closes that
+    gap so the generator is biased toward the axes the critic will
+    score.
+    """
+    if not material_type:
+        return ""
+    try:
+        from .scoring.rubric_registry import axes_for, disqualifier_for, material_rubric_key
+    except ImportError:
+        return ""
+    rubric_key = material_rubric_key(material_type)
+    if not rubric_key:
+        return ""
+    # axes_for returns universal + overlay; the overlay axes are the ones
+    # whose name matches a key in _OVERLAY_AXIS_PUSH_CLAUSES.
+    axes = axes_for(material_type)
+    overlay_names = [a["name"] for a in axes if a["name"] in _OVERLAY_AXIS_PUSH_CLAUSES]
+    if not overlay_names:
+        return ""
+    clauses = [_OVERLAY_AXIS_PUSH_CLAUSES[name] for name in overlay_names]
+    parts = ["Prove axes: " + "; ".join(clauses) + "."]
+    # Also surface the disqualifier so the generator avoids it explicitly.
+    dq = disqualifier_for(material_type)
+    if dq:
+        parts.append(
+            f"Avoid the {dq['rule_id']} failure: {dq['description']}"
+        )
+    return " ".join(parts)
+
+
 def build_execution_prompt(
     raw_prompt: str,
     context: dict,
@@ -725,6 +781,7 @@ def build_execution_prompt(
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
+        "rubric_overlay_push": compact_execution_rubric_overlay_push(material_type),
         "critical_bans": compact_execution_critical_bans(context, material_key),
         "explicit_copy_rule": compact_execution_copy_rule(context),
         "reference_analysis_caveat": compact_execution_reference_caveat(context),
@@ -736,6 +793,7 @@ def build_execution_prompt(
         sections["brand_anchor_rule"],
         sections["role_pack_block"],
         sections["selected_inspiration_block"],
+        sections["rubric_overlay_push"],
         sections["critical_bans"],
         sections["explicit_copy_rule"],
         sections["reference_analysis_caveat"],
