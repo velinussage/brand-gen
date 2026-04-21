@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from ..runtime import *
 from ..material_planning import *
 from ..generation_flow import *
@@ -242,3 +244,192 @@ def cmd_export_design_tokens(args):
         print(f"  wcag: {'pass' if audit.ok else 'warnings/errors'}")
         for line in audit.report().splitlines():
             print(f"  {line}")
+
+
+def _identity_mutation_paths(brand_dir: Path, identity_override: str | None):
+    identity_path = Path(identity_override).expanduser().resolve() if identity_override else brand_dir / "brand-identity.json"
+    identity = load_json_file(identity_path)
+    if not identity and not identity_path.exists():
+        raise SystemExit(f"brand-identity.json not found: {identity_path}")
+    return identity_path, identity
+
+
+def cmd_update_palette(args):
+    from ..design_tokens import build_tokens, hex_to_rgb, wcag_audit
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    brand_dir.mkdir(parents=True, exist_ok=True)
+    identity_path, identity = _identity_mutation_paths(brand_dir, getattr(args, "identity", None))
+    role = str(getattr(args, "role", "") or "").strip().lower()
+    hex_value = str(getattr(args, "hex", "") or "").strip()
+    if not role:
+        raise SystemExit("--role is required")
+    if not hex_value:
+        raise SystemExit("--hex is required")
+    try:
+        hex_to_rgb(hex_value)
+    except Exception as exc:
+        raise SystemExit(f"invalid --hex value: {hex_value}") from exc
+
+    colors = dict(identity.get("brand_colors") or {})
+    accents = [str(item).strip() for item in (colors.get("accents") or []) if str(item).strip()]
+    if role in {"primary", "secondary", "neutral"}:
+        colors[role] = hex_value
+    elif role.startswith("accent"):
+        if hex_value not in accents:
+            accents.append(hex_value)
+        colors["accents"] = accents
+    else:
+        colors[role] = hex_value
+    identity["brand_colors"] = colors
+
+    core = identity.setdefault("identity_core", {})
+    preserve = core.setdefault("must_preserve", {})
+    palette_direction = [str(item).strip() for item in (preserve.get("palette_direction") or []) if str(item).strip()]
+    if hex_value not in palette_direction:
+        palette_direction.append(hex_value)
+    preserve["palette_direction"] = palette_direction
+
+    design_language = identity.setdefault("design_language", {})
+    semantic_roles = [str(item).strip() for item in (design_language.get("semantic_palette_roles") or []) if str(item).strip()]
+    role_entry = f"{role}: {hex_value}"
+    semantic_roles = [item for item in semantic_roles if not item.lower().startswith(f"{role}:")]
+    semantic_roles.append(role_entry)
+    design_language["semantic_palette_roles"] = semantic_roles
+
+    tokens = build_tokens(identity)
+    audit = wcag_audit(tokens)
+    result = {
+        "status": "would_update" if getattr(args, "dry_run", False) else "updated",
+        "path": str(identity_path),
+        "role": role,
+        "hex": hex_value,
+        "palette_direction": palette_direction,
+        "semantic_palette_roles": semantic_roles,
+        "wcag": {
+            "ok": audit.ok,
+            "errors": audit.errors,
+            "warnings": audit.warnings,
+            "checks": audit.checks,
+        },
+    }
+    if not getattr(args, "dry_run", False):
+        identity_path.write_text(json.dumps(identity, indent=2) + "\n")
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="palette_updated",
+            status="updated",
+            notes=f"{role}={hex_value}",
+            data={"role": role, "hex": hex_value, "wcag_ok": audit.ok},
+        )
+    print(json.dumps(result, indent=2))
+
+
+def cmd_update_typography(args):
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    brand_dir.mkdir(parents=True, exist_ok=True)
+    identity_path, identity = _identity_mutation_paths(brand_dir, getattr(args, "identity", None))
+    role = str(getattr(args, "role", "") or "").strip().lower()
+    family = str(getattr(args, "family", "") or "").strip()
+    fallback = str(getattr(args, "fallback", "") or "").strip()
+    if not role:
+        raise SystemExit("--role is required")
+    if not family:
+        raise SystemExit("--family is required")
+
+    typography = dict(identity.get("typography") or {})
+    if role in {"display", "heading", "headings"}:
+        typography["headings"] = family
+        canonical_role = "display"
+    elif role == "body":
+        typography["body"] = family
+        canonical_role = "body"
+    elif role == "mono":
+        typography["mono"] = family
+        canonical_role = "mono"
+    else:
+        typography[role] = family
+        canonical_role = role
+    fallbacks = dict(typography.get("fallbacks") or {})
+    if fallback:
+        fallbacks[canonical_role] = fallback
+    if fallbacks:
+        typography["fallbacks"] = fallbacks
+    identity["typography"] = typography
+
+    core = identity.setdefault("identity_core", {})
+    preserve = core.setdefault("must_preserve", {})
+    typography_roles = dict(preserve.get("typography_roles") or {})
+    typography_roles[canonical_role] = family
+    preserve["typography_roles"] = typography_roles
+    typography_cues = [str(item).strip() for item in (preserve.get("typography_cues") or []) if str(item).strip()]
+    if family not in typography_cues:
+        typography_cues.append(family)
+    preserve["typography_cues"] = typography_cues
+
+    result = {
+        "status": "would_update" if getattr(args, "dry_run", False) else "updated",
+        "path": str(identity_path),
+        "role": canonical_role,
+        "family": family,
+        "fallback": fallback,
+        "typography_roles": typography_roles,
+        "typography_cues": typography_cues,
+    }
+    if not getattr(args, "dry_run", False):
+        identity_path.write_text(json.dumps(identity, indent=2) + "\n")
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="typography_updated",
+            status="updated",
+            notes=f"{canonical_role}={family}",
+            data={"role": canonical_role, "family": family, "fallback": fallback},
+        )
+    print(json.dumps(result, indent=2))
+
+
+def cmd_update_devices(args):
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    brand_dir.mkdir(parents=True, exist_ok=True)
+    identity_path, identity = _identity_mutation_paths(brand_dir, getattr(args, "identity", None))
+    add_items = [str(item).strip() for item in (getattr(args, "add", None) or []) if str(item).strip()]
+    remove_items = {str(item).strip().lower() for item in (getattr(args, "remove", None) or []) if str(item).strip()}
+    if not add_items and not remove_items:
+        raise SystemExit("provide --add and/or --remove")
+
+    core = identity.setdefault("identity_core", {})
+    current = [str(item).strip() for item in (core.get("approved_graphic_devices") or []) if str(item).strip()]
+    filtered = [item for item in current if item.lower() not in remove_items]
+    seen = {item.lower() for item in filtered}
+    for item in add_items:
+        if item.lower() not in seen:
+            filtered.append(item)
+            seen.add(item.lower())
+    result = {
+        "status": "would_update" if getattr(args, "dry_run", False) else ("updated" if filtered != current else "no_change"),
+        "path": str(identity_path),
+        "approved_graphic_devices": filtered,
+        "added_count": len(filtered) - len([item for item in current if item.lower() not in remove_items]),
+        "removed_count": len(current) - len([item for item in current if item.lower() not in remove_items]),
+    }
+    if not getattr(args, "dry_run", False):
+        core["approved_graphic_devices"] = filtered
+        identity_path.write_text(json.dumps(identity, indent=2) + "\n")
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="devices_updated",
+            status=result["status"],
+            data={"approved_graphic_devices": filtered},
+        )
+    print(json.dumps(result, indent=2))

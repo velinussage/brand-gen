@@ -293,6 +293,45 @@ def cmd_submit_critique(args):
         "model_recommendation": model_rec,
     }, indent=2))
 
+
+def cmd_submit_review(args):
+    """Discoverability alias for submit-critique with optional dry-run."""
+    if not getattr(args, "dry_run", False):
+        return cmd_submit_critique(args)
+
+    brand_dir = get_brand_dir()
+    manifest = load_manifest()
+    version_id = args.version
+    entry = manifest.get("versions", {}).get(version_id)
+    if not entry:
+        print(json.dumps({"error": f"Version {version_id} not found"}))
+        sys.exit(1)
+
+    critique_input = args.critique_json
+    if Path(critique_input).exists():
+        vlm_result = json.loads(Path(critique_input).read_text())
+    else:
+        vlm_result = json.loads(critique_input)
+    approved = vlm_result.get("approved")
+    if approved is None:
+        approved = not bool(vlm_result.get("p1"))
+    payload = {
+        "status": "dry_run",
+        "version": version_id,
+        "approved": bool(approved),
+        "p1_count": len(vlm_result.get("p1") or []),
+        "p2_count": len(vlm_result.get("p2") or []),
+        "would_save_to": str(brand_dir / "reviews" / f"{version_id}-vlm-critique.json"),
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    print(
+        f"dry_run: {version_id} -> approved={payload['approved']} "
+        f"p1={payload['p1_count']} p2={payload['p2_count']}"
+    )
+
+
 def cmd_feedback(args):
     manifest = load_manifest()
     brand_dir = get_brand_dir()

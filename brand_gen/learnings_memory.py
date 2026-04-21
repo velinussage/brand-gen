@@ -16,6 +16,7 @@ DEFAULT_LEARNINGS_MEMORY = {
     "failurePatterns": [],
     "messagingInsights": [],
     "audienceInsights": [],
+    "styleReferencePolicies": [],
     "lastUpdated": "",
 }
 
@@ -42,6 +43,10 @@ def _learning_text(entry: object) -> str:
     return ""
 
 
+def _coerce_learning_list(value: object) -> list[object]:
+    return list(value) if isinstance(value, list) else []
+
+
 def normalize_learnings_memory(payload: dict | None) -> dict:
     out = dict(DEFAULT_LEARNINGS_MEMORY)
     if isinstance(payload, dict):
@@ -53,8 +58,9 @@ def normalize_learnings_memory(payload: dict | None) -> dict:
         "failurePatterns",
         "messagingInsights",
         "audienceInsights",
+        "styleReferencePolicies",
     ]:
-        out[key] = list(out.get(key) or [])
+        out[key] = _coerce_learning_list(out.get(key))
     return out
 
 
@@ -97,6 +103,11 @@ def _append_learning_entry(memory: dict, bucket: str, entry: dict) -> bool:
     return True
 
 
+def append_learning_entry(memory: dict, bucket: str, entry: dict) -> bool:
+    """Public wrapper for CLI/MCP mutators."""
+    return _append_learning_entry(memory, bucket, entry)
+
+
 def summarize_learnings_memory(payload: dict, *, limit: int = 5) -> dict:
     normalized = normalize_learnings_memory(payload)
     buckets = {}
@@ -107,6 +118,7 @@ def summarize_learnings_memory(payload: dict, *, limit: int = 5) -> dict:
         "failurePatterns",
         "messagingInsights",
         "audienceInsights",
+        "styleReferencePolicies",
     ]:
         items = list(normalized.get(key) or [])
         preview: list[dict] = []
@@ -251,6 +263,7 @@ def promote_blackboard_lessons_to_learnings(
 __all__ = [
     "DEFAULT_LEARNINGS_MEMORY",
     "PROMOTION_THRESHOLDS",
+    "append_learning_entry",
     "learnings_memory_path",
     "load_learnings_memory",
     "normalize_learnings_memory",

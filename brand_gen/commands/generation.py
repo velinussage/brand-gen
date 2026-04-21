@@ -489,20 +489,102 @@ def cmd_derive_mockup(args):
     print("Mode: generated mockup scene (not pixel-precise compositing)")
 
 
-def cmd_pipeline(args):
+def _build_pipeline_runner_from_request(request: PipelineRequest, *, workflow_id: str = ""):
     from ..pipeline_runner import PipelineRunner
 
-    request = PipelineRequest.from_namespace(args)
     brand_dir = get_brand_dir()
     brand_dir.mkdir(parents=True, exist_ok=True)
     _, _, profile, identity = load_brand_memory(brand_dir, request.profile, request.identity)
-
     runner = PipelineRunner(
         brand_dir=brand_dir,
         profile=profile,
         identity=identity,
         **request.runner_kwargs(),
     )
+    if workflow_id:
+        runner.workflow_id = str(workflow_id)
+    return runner, brand_dir, profile, identity
+
+
+def _print_orchestration_payload(payload: dict, *, format: str = "json") -> None:
+    if format == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    print(json.dumps(payload, indent=2))
+
+
+def cmd_prepare_run(args):
+    request = PipelineRequest.from_namespace(args)
+    runner, _, _, _ = _build_pipeline_runner_from_request(request)
+    payload = runner.prepare_run(request.to_namespace()).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_plan_run(args):
+    request = PipelineRequest.from_namespace(args)
+    runner, _, _, _ = _build_pipeline_runner_from_request(
+        request,
+        workflow_id=str(getattr(args, "workflow_id", "") or ""),
+    )
+    payload = runner.plan_run(request.to_namespace()).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_validate_run(args):
+    request = PipelineRequest.from_namespace(args)
+    workflow_id = str(getattr(args, "workflow_id", "") or "")
+    if not workflow_id:
+        draft_payload = load_json_file(Path(args.plan_draft).expanduser().resolve())
+        workflow_id = str((draft_payload or {}).get("workflow_id") or "")
+    runner, _, _, _ = _build_pipeline_runner_from_request(request, workflow_id=workflow_id)
+    payload = runner.validate_run(getattr(args, "plan_draft")).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_execute_run(args):
+    request = PipelineRequest.from_namespace(args)
+    workflow_id = str(getattr(args, "workflow_id", "") or "")
+    if not workflow_id:
+        draft_payload = load_json_file(Path(args.plan_draft).expanduser().resolve())
+        workflow_id = str((draft_payload or {}).get("workflow_id") or "")
+    runner, _, _, _ = _build_pipeline_runner_from_request(request, workflow_id=workflow_id)
+    payload = runner.execute_run(
+        getattr(args, "plan_draft"),
+        critique_path=getattr(args, "critique_path", None),
+    ).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_review_run(args):
+    request = PipelineRequest.from_namespace(args)
+    runner, _, _, _ = _build_pipeline_runner_from_request(
+        request,
+        workflow_id=str(getattr(args, "workflow_id", "") or ""),
+    )
+    payload = runner.review_run(str(getattr(args, "version_id", "") or "")).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_evolve_run(args):
+    request = PipelineRequest.from_namespace(args)
+    runner, _, _, _ = _build_pipeline_runner_from_request(
+        request,
+        workflow_id=str(getattr(args, "workflow_id", "") or ""),
+    )
+    payload = runner.evolve_run(str(getattr(args, "version_id", "") or "")).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_orchestrate_material(args):
+    request = PipelineRequest.from_namespace(args)
+    runner, _, _, _ = _build_pipeline_runner_from_request(request)
+    payload = runner.orchestrate_material(request.to_namespace()).to_dict()
+    _print_orchestration_payload(payload, format=getattr(args, "format", "json"))
+
+
+def cmd_pipeline(args):
+    request = PipelineRequest.from_namespace(args)
+    runner, brand_dir, profile, identity = _build_pipeline_runner_from_request(request)
     result = runner.run(request.to_namespace())
     payload = result.to_dict()
     # Add identity freshness and improvement questions to pipeline output

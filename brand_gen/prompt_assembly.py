@@ -32,6 +32,7 @@ from .reference_role_packs import (
     select_inspiration_sources,
     stable_mechanic_id,
 )
+from .prompt_block import PromptBlock, blocks_from_sections, evict_to_budget
 from .runtime import *
 from .runtime_brand import load_material_snippets, load_prompt_budget, load_prompt_fragments
 
@@ -54,6 +55,8 @@ __all__ = [
     "compact_execution_reference_caveat",
     "compact_execution_selected_inspiration",
     "compact_role_pack_snippet",
+    "PromptBlock",
+    "evict_to_budget",
     # Text utilities
     "split_prompt_sentences",
     "sentence_join",
@@ -553,55 +556,22 @@ def compress_prompt_body(body: str, material_key: str, *, max_sentences: int | N
     sentences = split_prompt_sentences(body)
     if not sentences:
         return ""
-    # If the body fits within budget, return it unchanged — never truncate
-    # content that already fits.
     joined_full = " ".join(sentences).strip()
     if len(joined_full) <= max_chars and len(sentences) <= max_sentences:
         return joined_full
-    prioritized: list[tuple[int, str]] = []
-    keywords = []
-    if material_key in INTERFACE_MATERIAL_KEYS:
-        keywords = ["real", "product", "ui", "screenshot", "hero", "moment", "crop", "preserve", "logo", "copy", "headline"]
-    elif material_key in NON_INTERFACE_MATERIAL_KEYS:
-        keywords = ["logo", "mark", "motif", "copy", "headline", "slogan", "brand", "palette", "poster"]
-    else:
-        keywords = ["brand", "product", "logo", "headline"]
-    for idx, sentence in enumerate(sentences):
-        score = 0
-        lower = sentence.lower()
-        for kw in keywords:
-            if kw in lower:
-                score += 3
-        if "do not" in lower or "never" in lower:
-            score += 2
-        if idx < 3:
-            score += 1
-        prioritized.append((score, sentence))
     picked: list[str] = []
     total = 0
-    for _, sentence in sorted(prioritized, key=lambda item: (-item[0], sentences.index(item[1]))):
+    for sentence in sentences:
         candidate_len = total + len(sentence) + (1 if picked else 0)
         if len(picked) >= max_sentences or candidate_len > max_chars:
-            continue
+            break
         picked.append(sentence)
         total = candidate_len
-    # If keyword-priority picking dropped too much, fall back to keeping
-    # sentences in their original order up to the char budget — never
-    # hard-truncate mid-sentence.
     if not picked:
-        picked = []
-        total = 0
-        for s in sentences:
-            candidate_len = total + len(s) + (1 if picked else 0)
-            if candidate_len > max_chars:
-                break
-            picked.append(s)
-            total = candidate_len
-    if not picked:
-        # Body is a single very long sentence — keep it whole rather than
-        # cutting mid-thought.  The model handles long prompts better than
-        # truncated fragments.
-        return joined_full
+        # No sentence fits the current char budget (usually because the
+        # first sentence is very long). Keep the first sentence whole
+        # rather than returning the entire body.
+        return sentences[0].strip()
     return " ".join(picked).strip()
 
 
@@ -965,8 +935,11 @@ def build_execution_prompt(
 
     # If prelude + body exceeds total cap, shrink the *prelude*, not the body.
     prelude_budget = max(total_cap - len(compact_body) - 4, int(total_cap * 0.3))
+    prompt_blocks = blocks_from_sections(sections)
+    dropped_blocks: list[PromptBlock] = []
     if len(prelude) > prelude_budget:
-        prelude = cap_text_at_sentence(prelude, prelude_budget)
+        kept_blocks, dropped_blocks = evict_to_budget(prompt_blocks, prelude_budget)
+        prelude = "\n\n".join(block.text for block in kept_blocks if block.text.strip())
 
     sections["body"] = compact_body
     execution_prompt = prefix_prompt(prelude, compact_body, token_block="")
@@ -975,6 +948,27 @@ def build_execution_prompt(
         "execution_prompt_kind": "image_compact",
         "execution_prompt_compressed": True,
         "execution_prompt_sections": sections,
+        "execution_prompt_blocks": [
+            {
+                "id": block.id,
+                "priority": block.priority,
+                "constraint_type": block.constraint_type,
+                "stage": block.stage,
+                "provenance": block.provenance,
+                "chars": len(block.text),
+            }
+            for block in prompt_blocks
+        ],
+        "dropped_blocks": [
+            {
+                "id": block.id,
+                "priority": block.priority,
+                "stage": block.stage,
+                "chars": len(block.text),
+                "reason": "over_budget",
+            }
+            for block in dropped_blocks
+        ],
         "body_compressed": body_was_lossy,
         "body_original_chars": len(raw_prompt.strip()),
         "body_compressed_chars": len(compact_body),
@@ -1257,6 +1251,13 @@ def review_prompt_architecture(
             f"Summarize or shorten the --prompt-seed to avoid losing creative direction. "
             f"The pipeline preserves full sentences but drops lower-priority ones when over budget."
         )
+    dropped_blocks = list(execution_prompt_payload.get("dropped_blocks") or [])
+    if dropped_blocks:
+        dropped_names = ", ".join(str(item.get("id") or "") for item in dropped_blocks[:4] if str(item.get("id") or "").strip())
+        recommendations.append(
+            "Execution prompt prelude exceeded budget; dropped lower-priority prompt blocks"
+            + (f": {dropped_names}." if dropped_names else ".")
+        )
 
     return {
         "material_key": material_key,
@@ -1274,6 +1275,8 @@ def review_prompt_architecture(
         "execution_prompt_kind": execution_prompt_payload.get("execution_prompt_kind") or "",
         "execution_prompt_compressed": bool(execution_prompt_payload.get("execution_prompt_compressed")),
         "execution_prompt_sections": execution_prompt_payload.get("execution_prompt_sections") or {},
+        "execution_prompt_blocks": execution_prompt_payload.get("execution_prompt_blocks") or [],
+        "dropped_blocks": dropped_blocks,
         "body_compressed": execution_prompt_payload.get("body_compressed", False),
         "body_original_chars": execution_prompt_payload.get("body_original_chars", 0),
         "body_compressed_chars": execution_prompt_payload.get("body_compressed_chars", 0),
