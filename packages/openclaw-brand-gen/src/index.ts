@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  CANONICAL_TOOLS,
   McpBridge,
   buildBrandGenContext,
   callJsonTool,
@@ -115,12 +116,44 @@ function extractEventPrompt(event: any): string {
         : "";
 }
 
+function createCanonicalTools() {
+  // Phase 3: each canonical verb becomes its own OpenClaw tool. The generic
+  // `brand_search` / `brand_execute` multiplexers stay registered as
+  // deprecated shims until the next major release.
+  return CANONICAL_TOOLS.map((tool) => ({
+    name: tool.name,
+    label: tool.name,
+    description: tool.description,
+    parameters: Type.Object({
+      args: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+    }),
+    execute: async (_toolCallId: string, params: Record<string, unknown>) => {
+      try {
+        const bridge = brandBridge;
+        if (!bridge || !bridge.isReady()) {
+          throw new Error("Brand-gen MCP bridge is not ready yet.");
+        }
+        const args =
+          params.args && typeof params.args === "object"
+            ? (params.args as Record<string, unknown>)
+            : (params as Record<string, unknown>);
+        const normalized: Record<string, unknown> = { format: "json", ...args };
+        const payload = await callJsonTool(bridge, tool.name, normalized);
+        return toToolResult(payload ?? { status: "ok" });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return toToolResult({ error: message });
+      }
+    },
+  }));
+}
+
 function createBrandSearchTool() {
   return {
     name: "brand_search",
     label: "Brand Gen: search",
     description:
-      "Read-only brand-gen plugin queries: MCP tools, context, session summary, workspace status, reviews, learnings, and recent entries.",
+      "[DEPRECATED] Use the canonical verb-specific tools (brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_capabilities, etc.). This multiplexer stays registered for backward compatibility and will be removed in a future release.",
     parameters: Type.Object({
       action: Type.String(),
       params: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
@@ -246,7 +279,7 @@ function createBrandExecuteTool(api: PluginApi) {
     name: "brand_execute",
     label: "Brand Gen: execute",
     description:
-      "Mutating brand-gen plugin actions: generate, derive mockups/videos, consolidate inspiration, feedback, critique submission, switch_brand, patch_learnings, and rate journal outputs.",
+      "[DEPRECATED] Use the canonical verb-specific mutation tools (brand_append_forbidden_pattern, brand_update_palette, brand_submit_review, brand_feedback, brand_orchestrate_material, etc.). This multiplexer stays registered for backward compatibility.",
     parameters: Type.Object({
       action: Type.String(),
       params: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
@@ -433,6 +466,11 @@ const plugin = {
       },
     });
 
+    // Phase 3: register canonical verb-specific tools first. The deprecated
+    // multiplexers stay registered for backward compatibility.
+    for (const canonical of createCanonicalTools()) {
+      api.registerTool(canonical, { name: canonical.name, optional: true });
+    }
     api.registerTool(createBrandSearchTool(), { name: "brand_search", optional: true });
     api.registerTool(createBrandExecuteTool(api), { name: "brand_execute", optional: true });
     api.registerTool(createBrandStatusTool(), { name: "brand_status", optional: true });

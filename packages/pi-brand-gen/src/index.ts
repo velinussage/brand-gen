@@ -13,7 +13,12 @@ import {
   type PluginConfig,
 } from "../../brand-gen-core/src/index.ts";
 import { resolvePiRuntimePaths } from "./runtime-paths.ts";
-import { createBrandExecuteTool, createBrandSearchTool, createBrandStatusTool } from "./tool.ts";
+import {
+  createBrandExecuteTool,
+  createBrandSearchTool,
+  createBrandStatusTool,
+  createCanonicalBrandTools,
+} from "./tool.ts";
 import { BrandGenWidget } from "./ui/brand-widget.ts";
 
 function compatRegisterTool(pi: any, tool: any) {
@@ -68,6 +73,12 @@ export default async function brandGenPiExtension(pi: any) {
   const heartbeat = createHeartbeatState();
   const widget = new BrandGenWidget(bridge, config, heartbeat);
 
+  // Phase 3: register the canonical verb-specific tool surface first so
+  // agents discover the typed verbs by default. The deprecated multiplexers
+  // (brand_search, brand_execute) stay registered for backward compatibility.
+  for (const tool of createCanonicalBrandTools(bridge, config)) {
+    compatRegisterTool(pi, tool);
+  }
   compatRegisterTool(pi, createBrandSearchTool(bridge, config));
   compatRegisterTool(pi, createBrandExecuteTool(bridge, config));
   compatRegisterTool(pi, createBrandStatusTool(config, bridge, heartbeat));
