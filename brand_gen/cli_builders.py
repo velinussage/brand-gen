@@ -191,6 +191,16 @@ def build_compare_versions_cli(parser: argparse.ArgumentParser, *, inspire_urls:
     parser.add_argument("--format", choices=["json"], default="json")
 
 
+def build_switch_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand-key", required=True, help="Brand key slug to activate")
+    parser.add_argument("--format", choices=["json", "text"], default="json")
+
+
+def build_get_pending_reviews_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--limit", type=int, default=20, help="Max pending reviews to return (default 20)")
+    parser.add_argument("--format", choices=["json"], default="json")
+
+
 def build_show_reference_analysis_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -1107,6 +1117,8 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'get-review-packet': build_get_review_packet_cli,
     'get-version': build_get_version_cli,
     'compare-versions': build_compare_versions_cli,
+    'switch-brand': build_switch_brand_cli,
+    'get-pending-reviews': build_get_pending_reviews_cli,
     'show-reference-analysis': build_show_reference_analysis_cli,
     'prompts-list': build_prompts_list_cli,
     'prompts-get': build_prompts_get_cli,

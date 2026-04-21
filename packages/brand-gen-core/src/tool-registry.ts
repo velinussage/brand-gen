@@ -200,6 +200,24 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       "Side-by-side diff of two version manifest entries (material_type, model, score, mode, reference_count, etc.).",
   },
   {
+    name: "brand_list_brands",
+    category: "inspection",
+    description:
+      "List brands under .brand-gen/brands with profile/identity presence, validation score, warnings, and active marker.",
+  },
+  {
+    name: "brand_switch_brand",
+    category: "mutation",
+    description:
+      "Activate a different brand by slug. Writes activeBrand to .brand-gen/config.json. Takes --brand-key. Administrative mutation granted only to the orchestrator.",
+  },
+  {
+    name: "brand_get_pending_reviews",
+    category: "inspection",
+    description:
+      "List runs whose derived status is awaiting_review — the single source of truth for 'what needs a human'.",
+  },
+  {
     name: "brand_context_snapshot",
     category: "inspection",
     description:

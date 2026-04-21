@@ -64,6 +64,16 @@ _INSPECTION_TOOLS: tuple[str, ...] = (
     "brand_get_review_packet",
     "brand_get_version",
     "brand_compare_versions",
+    "brand_list_brands",
+    "brand_get_pending_reviews",
+)
+
+
+# Administrative mutation: activates a brand, writes activeBrand to
+# .brand-gen/config.json. Granted only to the orchestrator (not to
+# read-only agents).
+_ADMIN_MUTATIONS: tuple[str, ...] = (
+    "brand_switch_brand",
 )
 
 
@@ -107,7 +117,10 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
             "the full 6-phase pipeline; handles stop_reason by dispatching "
             "to mutation tools or to specialist agents."
         ),
-        canonical_tools=_ORCHESTRATION_TOOLS + _INSPECTION_TOOLS + _CRITIC_MUTATIONS,
+        canonical_tools=_ORCHESTRATION_TOOLS
+        + _INSPECTION_TOOLS
+        + _CRITIC_MUTATIONS
+        + _ADMIN_MUTATIONS,
         may_call_orchestrator=False,
     ),
     AgentSpecialization(
