@@ -130,6 +130,45 @@ class AgentSpecializationTests(unittest.TestCase):
         empty = [spec.agent_id for spec in self.specs if not spec.role.strip()]
         self.assertEqual(empty, [], f"Agents with empty role description: {empty}")
 
+    def test_claude_markdown_tools_frontmatter_matches_python_spec(self) -> None:
+        """Phase E invariant: every `.claude/agents/<spec>.md` declares
+        the same canonical tool list as brand_gen/agent_specialization.
+
+        This is the contract that makes the typed-runtime surface the
+        single source of truth — changes to Python flow through to
+        markdown without drift.
+        """
+        import re
+
+        failures: list[str] = []
+        claude_dir = REPO_ROOT / ".claude" / "agents"
+        for spec in self.specs:
+            path = claude_dir / f"{spec.agent_id}.md"
+            text = path.read_text(encoding="utf-8")
+            match = re.search(r"^tools:\s*\[(.*?)\]", text, re.MULTILINE)
+            if not match:
+                failures.append(f"{spec.agent_id}: no `tools: [...]` frontmatter")
+                continue
+            declared = frozenset(
+                tool.strip()
+                for tool in match.group(1).split(",")
+                if tool.strip()
+            )
+            expected = frozenset(spec.canonical_tools)
+            missing = expected - declared
+            extra = declared - expected
+            if missing or extra:
+                failures.append(
+                    f"{spec.agent_id}:\n  missing from markdown: {sorted(missing)}\n"
+                    f"  extra in markdown:    {sorted(extra)}"
+                )
+        self.assertEqual(
+            failures,
+            [],
+            "Specialist markdown `tools:` frontmatter diverges from "
+            "brand_gen/agent_specialization.py:\n\n" + "\n\n".join(failures),
+        )
+
 
 class OrchestratorMirrorParityTests(unittest.TestCase):
     """The brand-orchestrator contract body must be byte-equivalent between
@@ -187,6 +226,30 @@ class OrchestratorMirrorParityTests(unittest.TestCase):
             text,
             "brand-orchestrator.md references `bgen` CLI directly; "
             "Phase 5 contract uses typed tools only.",
+        )
+
+
+class SpecialistBashFreeTests(unittest.TestCase):
+    """Phase E: every specialist body must be free of ``source .venv``
+    activation blocks. ``bgen`` may still appear as a debugging-fallback
+    reference, but the contract is typed-tool-first.
+    """
+
+    def test_no_venv_activate_in_any_specialist(self) -> None:
+        offenders: list[str] = []
+        specialist_files = list((REPO_ROOT / ".claude" / "agents").glob("brand-*.md"))
+        specialist_files += list(
+            (REPO_ROOT / "skills" / "brand-gen" / "claude-agents").glob("brand-*.md")
+        )
+        for path in specialist_files:
+            text = path.read_text(encoding="utf-8")
+            if "source .venv/bin/activate" in text:
+                offenders.append(str(path.relative_to(REPO_ROOT)))
+        self.assertEqual(
+            offenders,
+            [],
+            "Specialist markdown still carries `source .venv/bin/activate` "
+            f"activation blocks (Phase E violation): {offenders}",
         )
 
 

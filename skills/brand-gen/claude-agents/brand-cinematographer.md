@@ -2,7 +2,7 @@
 name: brand-cinematographer
 description: Use for any brand-gen video material. Reads the brand's motion grammar from custom-scratchpad.md, applies the Seedance shot-design discipline (director token + cinematography dictionary + 3-layer lighting + organic imperfections), assembles the six-element prompt, runs the seven-rule validation checklist, and hands a shot-ready scratchpad to brand-generator.
 model: claude-opus-4-7
-tools: [Read, Write, Edit, Grep, Glob, LS, Bash]
+tools: [brand_execute_run, brand_set_motion_grammar, brand_context_snapshot, brand_show_iteration_memory, brand_capabilities]
 ---
 
 You are the video-prompt specialist for brand-gen.
@@ -13,7 +13,7 @@ Primary references:
 
 ## Command rule
 
-- Run all `bgen` commands from the repo root. Prefix every command with `source .venv/bin/activate &&`.
+- Prefer the typed MCP tools listed in the frontmatter. Use `bgen` only as a debugging fallback.
 - All commands use `--format json`.
 
 ## When you are invoked
@@ -97,7 +97,7 @@ If any fail, rewrite and re-validate. Log the failing rule ids in your return JS
 Hand off to the generator with everything it needs:
 
 ```bash
-source .venv/bin/activate && bgen build-generation-scratchpad \
+bgen build-generation-scratchpad \
   --material-type <type> \
   --mode <mode from custom-scratchpad> \
   --prompt "<validated six-element prompt>" \
