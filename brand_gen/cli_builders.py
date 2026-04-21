@@ -233,6 +233,14 @@ def build_inspiration_status_cli(parser: argparse.ArgumentParser, *, inspire_url
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
 
+def build_show_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument(
+        "--material-type",
+        help="Optional material type to focus on (e.g. landing-hero, concept-illustration, brand-scene)",
+    )
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def build_diff_design_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--before", required=True, help="Earlier .design-memory folder or project root containing one")
     parser.add_argument("--after", required=True, help="Later .design-memory folder or project root containing one")
@@ -805,6 +813,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'diff-design-memory': build_diff_design_memory_cli,
     'export-design-tokens': build_export_design_tokens_cli,
     'inspiration-status': build_inspiration_status_cli,
+    'show-rubric': build_show_rubric_cli,
     'extract-inspiration': build_extract_inspiration_cli,
     'consolidate-inspiration': build_consolidate_inspiration_cli,
     'inspiration-mode': build_inspiration_mode_cli,
