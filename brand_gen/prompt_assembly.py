@@ -141,6 +141,7 @@ def build_effective_prompt(
     source_url: str | None = None,
     entity_type: str | None = None,
     selected_surface_strategy: str | None = None,
+    aesthetic_archetype: dict | None = None,
 ) -> dict:
     reference_analysis = reference_analysis or {}
     analysis_mode = reference_analysis_mode(reference_analysis)
@@ -389,6 +390,8 @@ def build_effective_prompt(
         "selected_mechanic_labels": list(selected_mechanic_labels or []),
         "inspiration_selection_reason": resolved_inspiration_selection_reason,
         "inspiration_selection_mode": resolved_inspiration_selection_mode,
+        "aesthetic_archetype": aesthetic_archetype if isinstance(aesthetic_archetype, dict) else None,
+        "aesthetic_archetype_id": (aesthetic_archetype.get("id") if isinstance(aesthetic_archetype, dict) else ""),
         "token_block": token_block,
         "token_block_fragments": inspiration.get("token_block_fragments", []),
         "resolved_prompt": resolved,
@@ -718,6 +721,46 @@ _OVERLAY_AXIS_PUSH_CLAUSES = {
 }
 
 
+def compact_execution_aesthetic_archetype(
+    context: dict,
+    material_type: str | None,
+) -> str:
+    """Render the chosen aesthetic archetype as a compositional directive.
+
+    The planner selects an archetype per run (rotating through the material's
+    set — see brand_gen.aesthetic_archetypes.pick_rotating_archetype) and
+    persists the choice on the plan under `aesthetic_archetype` (either the
+    full dict or just the id). This helper materializes it into the prompt
+    so the model has concrete handholds (grammar + color + finish) instead
+    of the mood words that produced v181/v182-style generic output.
+
+    Returns empty string when no archetype is on the plan or the material
+    has no archetype library declared.
+    """
+    from .aesthetic_archetypes import (
+        get_archetype,
+        list_archetypes,
+        render_archetype_brief,
+    )
+
+    archetype = context.get("aesthetic_archetype")
+    archetype_id = context.get("aesthetic_archetype_id") or (
+        archetype.get("id") if isinstance(archetype, dict) else None
+    )
+    if isinstance(archetype, dict) and archetype.get("compositional_grammar"):
+        return render_archetype_brief(archetype)
+    if archetype_id:
+        found = get_archetype(material_type, archetype_id)
+        if found:
+            return render_archetype_brief(found)
+    # No explicit pick; fall back to the first archetype if the library has
+    # one for this material so the prompt is never completely unopinionated.
+    candidates = list_archetypes(material_type)
+    if candidates:
+        return render_archetype_brief(candidates[0])
+    return ""
+
+
 def compact_execution_rubric_overlay_push(material_type: str | None) -> str:
     """Emit a compact 'Prove axes:' clause for the material's v2 overlay axes.
 
@@ -781,6 +824,7 @@ def build_execution_prompt(
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
+        "aesthetic_archetype_block": compact_execution_aesthetic_archetype(context, material_type),
         "rubric_overlay_push": compact_execution_rubric_overlay_push(material_type),
         "critical_bans": compact_execution_critical_bans(context, material_key),
         "explicit_copy_rule": compact_execution_copy_rule(context),
@@ -793,6 +837,7 @@ def build_execution_prompt(
         sections["brand_anchor_rule"],
         sections["role_pack_block"],
         sections["selected_inspiration_block"],
+        sections["aesthetic_archetype_block"],
         sections["rubric_overlay_push"],
         sections["critical_bans"],
         sections["explicit_copy_rule"],

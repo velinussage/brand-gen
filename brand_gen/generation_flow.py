@@ -262,6 +262,7 @@ def assemble_generation_scratchpad(
         source_url=getattr(args, "source_url", None) or "",
         entity_type=getattr(args, "entity_type", None) or "",
         selected_surface_strategy=plan.get("selected_surface_strategy") or "",
+        aesthetic_archetype=plan.get("aesthetic_archetype") if isinstance(plan.get("aesthetic_archetype"), dict) else None,
     )
     prompt_context["reference_analysis_mode"] = reference_analysis_mode
     prompt_context["reference_analysis_confidence"] = reference_analysis_confidence
