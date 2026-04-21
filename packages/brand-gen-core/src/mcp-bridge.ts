@@ -31,6 +31,7 @@ export class McpBridge extends EventEmitter {
   private command: string;
   private args: string[];
   private env?: Record<string, string>;
+  private cwd?: string;
   private proc: ChildProcess | null = null;
   private rl: ReadlineInterface | null = null;
   private pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
@@ -44,12 +45,13 @@ export class McpBridge extends EventEmitter {
     command: string,
     args: string[],
     env?: Record<string, string>,
-    opts?: { clientName?: string; clientVersion?: string },
+    opts?: { clientName?: string; clientVersion?: string; cwd?: string },
   ) {
     super();
     this.command = command;
     this.args = args;
     this.env = env;
+    this.cwd = opts?.cwd;
     this.clientName = opts?.clientName ?? "brand-gen";
     this.clientVersion = opts?.clientVersion ?? "0.0.0";
   }
@@ -102,6 +104,7 @@ export class McpBridge extends EventEmitter {
       const proc = spawn(this.command, this.args, {
         stdio: ["pipe", "pipe", "pipe"],
         env: { ...process.env, ...this.env },
+        cwd: this.cwd,
       });
 
       proc.on("error", (err) => {

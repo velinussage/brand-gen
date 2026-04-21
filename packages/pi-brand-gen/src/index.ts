@@ -69,7 +69,16 @@ export default async function brandGenPiExtension(pi: any) {
     if (process.env[key]) env[key] = process.env[key] as string;
   }
 
-  const bridge = new McpBridge(runtime.pythonCommand, [runtime.mcpPath], env);
+  // Launch the MCP backend as a Python module (`-m brand_gen.brand_iterate_mcp`)
+  // with cwd=repoRoot so intra-package relative imports resolve. Running the
+  // .py file as a script breaks `from .cli_builders import ...` inside
+  // brand_gen/command_registry.py.
+  const bridge = new McpBridge(
+    runtime.pythonCommand,
+    ["-m", "brand_gen.brand_iterate_mcp"],
+    env,
+    { cwd: runtime.repoRoot },
+  );
   const heartbeat = createHeartbeatState();
   const widget = new BrandGenWidget(bridge, config, heartbeat);
 
