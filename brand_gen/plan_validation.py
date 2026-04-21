@@ -24,7 +24,56 @@ __all__ = [
     "validate_identity_summary",
     "detect_enumerated_categories",
     "plan_has_text_ban",
+    "normalize_complexity_tier",
+    "complexity_tier_enumeration_min_items",
 ]
+
+# Complexity tier controls how many named elements the brief may carry.
+# Simple: ≤2 named elements — one clear system mechanic only. This is the
+#   default for concept-illustration and brand-scene based on the user
+#   feedback around v180/v181 ("Wants a simpler Sage illus").
+# Moderate: ≤4 named elements — balanced scope for most editorial work.
+# Dense: unlimited — opt-in for storyboards and multi-scene films where
+#   enumerating capability flows is the point.
+_COMPLEXITY_TIERS = ("simple", "moderate", "dense")
+_COMPLEXITY_TIER_THRESHOLDS = {
+    "simple": 2,
+    "moderate": 4,
+    "dense": 99,  # effectively disabled
+}
+_DEFAULT_TIER_BY_MATERIAL = {
+    "concept-illustration": "simple",
+    "concept_illustration": "simple",
+    "brand-scene": "simple",
+    "brand_scene": "simple",
+}
+
+
+def normalize_complexity_tier(
+    requested: str | None,
+    *,
+    material_type: str | None = None,
+) -> str:
+    """Resolve a valid complexity tier string.
+
+    Precedence: explicit caller argument > per-material default > "moderate".
+    Invalid values fall back to the per-material default.
+    """
+    if requested and str(requested).lower().strip() in _COMPLEXITY_TIERS:
+        return str(requested).lower().strip()
+    if material_type:
+        default = _DEFAULT_TIER_BY_MATERIAL.get(str(material_type).lower().strip())
+        if default:
+            return default
+    return "moderate"
+
+
+def complexity_tier_enumeration_min_items(tier: str) -> int:
+    """Return the named-category threshold that triggers the enumerated-
+    categories warning for the given tier. A higher number means the
+    detector tolerates longer lists.
+    """
+    return _COMPLEXITY_TIER_THRESHOLDS.get(tier, _COMPLEXITY_TIER_THRESHOLDS["moderate"])
 
 
 # Phrases that signal a "no text", "no labels", "no headlines" constraint.
@@ -246,7 +295,13 @@ def validate_material_plan_dict(plan: dict) -> dict:
     # failure pattern where the brief lists N named categories in parens and
     # the image model renders them as text labels. When the plan also
     # carries a text ban, promote to an error so generation is blocked.
-    enum_hits = detect_enumerated_categories(str(plan.get("prompt_seed") or ""))
+    # The threshold is tier-aware: simple=2, moderate=4, dense=99 (off).
+    tier = normalize_complexity_tier(plan.get("complexity_tier"), material_type=material_type)
+    min_items = complexity_tier_enumeration_min_items(tier)
+    enum_hits = detect_enumerated_categories(
+        str(plan.get("prompt_seed") or ""),
+        min_items=min_items,
+    )
     if enum_hits:
         preview_items = ", ".join(enum_hits[0][:6])
         if plan_has_text_ban(plan):
@@ -262,9 +317,10 @@ def validate_material_plan_dict(plan: dict) -> dict:
         else:
             warnings.append(
                 f"Prompt seed enumerates {len(enum_hits[0])} named categories "
-                f"({preview_items}...). Enumerations tend to encourage the "
-                "image model to render the names as labels; consider "
-                "collapsing to a single compositional cue."
+                f"({preview_items}...) — exceeds the '{tier}' complexity tier "
+                f"cap ({min_items}). Enumerations tend to encourage the image "
+                "model to render the names as labels; consider collapsing to a "
+                f"single compositional cue or raising --complexity-tier."
             )
 
     warnings = dedupe_keep_order(warnings)

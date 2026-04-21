@@ -129,5 +129,114 @@ class IntegrationWithValidateMaterialPlanDict(unittest.TestCase):
         self.assertNotIn("enumerates", all_msgs)
 
 
+class ComplexityTierTests(unittest.TestCase):
+    def test_normalize_respects_explicit_value(self):
+        from brand_gen.plan_validation import normalize_complexity_tier
+        self.assertEqual(normalize_complexity_tier("simple"), "simple")
+        self.assertEqual(normalize_complexity_tier("moderate"), "moderate")
+        self.assertEqual(normalize_complexity_tier("dense"), "dense")
+
+    def test_normalize_falls_back_to_material_default(self):
+        from brand_gen.plan_validation import normalize_complexity_tier
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="concept-illustration"),
+            "simple",
+        )
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="brand-scene"),
+            "simple",
+        )
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="campaign-poster"),
+            "moderate",
+        )
+
+    def test_normalize_underscore_material_type(self):
+        """Legacy plans may have underscore form; normalize should handle it."""
+        from brand_gen.plan_validation import normalize_complexity_tier
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="concept_illustration"),
+            "simple",
+        )
+
+    def test_normalize_invalid_value_falls_back(self):
+        from brand_gen.plan_validation import normalize_complexity_tier
+        self.assertEqual(
+            normalize_complexity_tier("ultradense", material_type="concept-illustration"),
+            "simple",
+        )
+
+    def test_threshold_per_tier(self):
+        from brand_gen.plan_validation import complexity_tier_enumeration_min_items
+        self.assertEqual(complexity_tier_enumeration_min_items("simple"), 2)
+        self.assertEqual(complexity_tier_enumeration_min_items("moderate"), 4)
+        self.assertEqual(complexity_tier_enumeration_min_items("dense"), 99)
+
+
+class ComplexityTierIntegrationTests(unittest.TestCase):
+    """complexity_tier on the plan must tighten or loosen the enumeration
+    detector accordingly. A 'simple' tier catches a 3-item enumeration that
+    'moderate' would tolerate; 'dense' disables the check entirely.
+    """
+
+    def _base_plan(self, **overrides):
+        plan = {
+            "material_type": "concept-illustration",
+            "purpose": "Visualize system logic",
+            "target_surface": "social 4:5",
+            "product_truth_expression": "Sage capability routing",
+            "abstraction_level": "medium",
+            "brand_anchor_policy": {"rule": "quiet editorial"},
+            "system_mechanic": "Node-edge graph",
+            "preserve": ["warm palette"],
+            "push": ["editorial restraint"],
+            "ban": ["gradients"],
+            "prompt_seed": "A concept illustration.",
+        }
+        plan.update(overrides)
+        return plan
+
+    def test_simple_tier_catches_three_item_list(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            complexity_tier="simple",
+            prompt_seed="Show regions (alpha, beta, gamma)",
+        )
+        report = validate_material_plan_dict(plan)
+        all_msgs = "\n".join(report["warnings"] + report["errors"])
+        self.assertIn("enumerates", all_msgs)
+
+    def test_moderate_tier_tolerates_three_item_list(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            complexity_tier="moderate",
+            prompt_seed="Show regions (alpha, beta, gamma)",
+        )
+        report = validate_material_plan_dict(plan)
+        all_msgs = "\n".join(report["warnings"] + report["errors"])
+        self.assertNotIn("enumerates", all_msgs)
+
+    def test_dense_tier_tolerates_six_item_list(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            complexity_tier="dense",
+            prompt_seed="Show six habitats (A, B, C, D, E, F)",
+        )
+        report = validate_material_plan_dict(plan)
+        all_msgs = "\n".join(report["warnings"] + report["errors"])
+        self.assertNotIn("enumerates", all_msgs)
+
+    def test_concept_illustration_defaults_to_simple(self):
+        """No explicit tier on concept-illustration → simple default → 3-item list fires."""
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            prompt_seed="Show regions (alpha, beta, gamma)",
+        )
+        plan.pop("complexity_tier", None)  # ensure unset
+        report = validate_material_plan_dict(plan)
+        all_msgs = "\n".join(report["warnings"] + report["errors"])
+        self.assertIn("enumerates", all_msgs)
+
+
 if __name__ == "__main__":
     unittest.main()
