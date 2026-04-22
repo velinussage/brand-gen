@@ -45,7 +45,8 @@ class CopyBearingDefaultModelTests(unittest.TestCase):
     def test_mockup_materials_are_registered(self):
         self.assertIn("device-mockup", MATERIAL_CONFIG)
         self.assertIn("lifestyle-mockup", MATERIAL_CONFIG)
-        self.assertIn("billboard-mockup", MATERIAL_CONFIG)
+        self.assertIn("website-hero-illustration", MATERIAL_CONFIG)
+        self.assertNotIn("billboard-mockup", MATERIAL_CONFIG)
         self.assertIn("device-mockup", COPY_BEARING_MATERIALS)
 
     def test_mockup_hybrid_with_refs_uses_flux2flex(self):

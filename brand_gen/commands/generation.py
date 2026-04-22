@@ -62,7 +62,7 @@ def _build_derived_mockup_prompt(source_version: str, source_entry: dict, sideca
     scene_goal = {
         "device-mockup": "Present the approved branded still inside a believable premium device mockup scene.",
         "lifestyle-mockup": "Stage the approved branded still inside a believable premium lifestyle context.",
-        "billboard-mockup": "Stage the approved branded still as a believable large-format billboard or outdoor placement.",
+        "website-hero-illustration": "Reinterpret the approved branded still as an editorial illustration that anchors a product landing page hero slot.",
     }.get(material_type, "Present the approved branded still in a believable contextual mockup scene.")
     preserve = (
         "Treat the source still as visual truth for palette, mark usage, hero hierarchy, and product proof. "

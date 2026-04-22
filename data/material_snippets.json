@@ -43,11 +43,11 @@
       "inspiration": "Borrow scene mood and camera attitude from inspiration. Branded asset stays the unmistakable focal point \u2014 think product placement in a Wes Anderson frame. Never mood board collage.",
       "hybrid": "One believable lifestyle setting, one clear branded hero surface. Scene supports like a gallery pedestal \u2014 present, not competing. Think Aesop store interior: environment serves the object."
     },
-    "billboard_mockup": {
-      "default": "Billboard: the brand at monumental scale. Think Vignelli for American Airlines or Barbara Kruger installation \u2014 one dominant mark, institutional confidence, urban architecture. Owns the street. Never busy or cluttered.",
-      "reference": "Source hierarchy translates to outdoor scale without inventing a second campaign. Think faithful enlargement with architectural presence \u2014 what's on the wall is what was approved.",
-      "inspiration": "Borrow framing, golden hour mood, or environmental drama only. Brand asset stays recognizable and primary. Think architectural photography with the brand as its subject.",
-      "hybrid": "One strong outdoor placement, one faithful brand rendering. The city amplifies scale and gravitas \u2014 think Christo wrapping a building, but your brand is the intervention. Never distract."
+    "website_hero_illustration": {
+      "default": "Website hero illustration: one confident editorial moment for a product landing page's above-the-fold. Think Stripe homepage hero, Linear release note illustration, or Pentagram editorial print \u2014 one dominant product-truth gesture, clean hierarchy, generous whitespace, brand palette discipline. Flat editorial rendering, not 3D mock-up or photorealism. Meaning readable in 2 seconds. Never moodboard, busy panels, or fake UI chrome.",
+      "reference": "Source hierarchy translates to a web hero slot without inventing a second campaign. Keep one approved product moment as the focal illustration; treat headline copy as deterministic fixed text composed outside the image model. Never duplicate the source verbatim \u2014 reinterpret for landing-page framing.",
+      "inspiration": "Borrow editorial illustration grammar, composition rhythm, or line-weight discipline only. Product-truth stays primary. Think illustrated editorial feature rather than generic SaaS hero. Never moodboard.",
+      "hybrid": "One decisive product-truth gesture, one editorial illustration treatment. Render flat and branded; leave room for a headline overlay outside the image. Think Figma or Ramp homepage hero \u2014 restrained, obviously product-grounded."
     },
     "data_card": {
       "default": "Data card: one stat, monumental. Think Bloomberg Businessweek cover stat or Pentagram annual report \u2014 big number hero in display font, one line of context, brand mark anchored. Solid field, thumbnail-legible. Never charts, graphs, or clutter."

@@ -190,7 +190,7 @@ export default async function brandGenPiExtension(pi: any) {
         const sourceVersion = args[1];
         const materialType = args[2] ?? "device-mockup";
         if (!sourceVersion) {
-          throw new Error("Usage: /brand-gen mockup <sourceVersion> [device-mockup|lifestyle-mockup|billboard-mockup]");
+          throw new Error("Usage: /brand-gen mockup <sourceVersion> [device-mockup|lifestyle-mockup|website-hero-illustration]");
         }
         const result = await executeAction(bridge, config, "derive_mockup", {
           sourceVersion,

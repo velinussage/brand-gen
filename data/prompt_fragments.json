@@ -4,7 +4,7 @@
   "non_interface_quality_prelude": "Editorial photography, medium-format depth, real material textures — never CGI renders.",
   "copy_anchor_with_strings": "Approved copy only: {quoted_strings}. If none fit, render no text. Never invent slogans or captions.",
   "copy_anchor_no_strings": "Use only explicit user-provided copy. If none given, render no text. Never invent slogans or captions.",
-  "copy_anchor_materials": ["landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner", "content_card", "editorial_card", "data_card", "quote_card", "announcement_card", "process_card", "concept_illustration", "brand_scene", "lifestyle_mockup", "billboard_mockup"],
+  "copy_anchor_materials": ["landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner", "content_card", "editorial_card", "data_card", "quote_card", "announcement_card", "process_card", "concept_illustration", "brand_scene", "lifestyle_mockup", "website_hero_illustration"],
   "compact_bans_interface": "Preserve the real product UI exactly. No invented chrome, no floating elements, no simplified redrawing.",
   "compact_bans_non_interface": "No metadata overlays, no technical annotations, no prompt text rendered as content.",
   "brand_anchor_acceptable": [

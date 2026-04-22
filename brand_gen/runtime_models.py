@@ -192,7 +192,7 @@ def infer_material_type_from_filename(filename: str) -> str:
         "feature-illustration",
         "device-mockup",
         "lifestyle-mockup",
-        "billboard-mockup",
+        "website-hero-illustration",
         "product-visual",
         "linkedin-feed-portrait",
         "linkedin-feed-square",

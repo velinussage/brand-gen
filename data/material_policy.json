@@ -241,7 +241,7 @@
       "default_model": "flux-2-pro",
       "default_aspect_ratio": "4:5"
     },
-    "billboard-mockup": {
+    "website-hero-illustration": {
       "generation_mode": "image",
       "default_model": "flux-2-pro",
       "default_aspect_ratio": "16:9"
@@ -316,7 +316,7 @@
     ],
     "non_interface": [
       "announcement_card",
-      "billboard_mockup",
+      "website_hero_illustration",
       "brand_bumper",
       "brand_scene",
       "campaign_poster",
@@ -337,7 +337,6 @@
     ],
     "copy_bearing": [
       "announcement-card",
-      "billboard-mockup",
       "browser-illustration",
       "campaign-poster",
       "carousel-slide",
@@ -378,7 +377,7 @@
     "feature-illustration": "feature_illustration",
     "device-mockup": "device_mockup",
     "lifestyle-mockup": "lifestyle_mockup",
-    "billboard-mockup": "billboard_mockup",
+    "website-hero-illustration": "website_hero_illustration",
     "styleframe": "styleframe",
     "storyboard": "styleframe",
     "x-card": "social",
@@ -736,13 +735,13 @@
       "logo_mode": "preferred",
       "clearly_branded_without_logo_min": 3
     },
-    "billboard_mockup": {
-      "role": "large-format presentation",
-      "target_surface": "campaign board, investor deck, outdoor advertising preview, or launch story",
-      "purpose": "translate one approved branded asset into a believable outdoor placement while preserving the hero brand read",
-      "product_truth_expression": "one approved campaign, poster, or hero asset presented as large-format outdoor media",
+    "website_hero_illustration": {
+      "role": "website hero illustration",
+      "target_surface": "product landing page hero, marketing website above-the-fold, or homepage hero section",
+      "purpose": "produce a branded editorial illustration that anchors a website hero section with strong product-truth and clear meaning at glance",
+      "product_truth_expression": "one approved branded concept, product moment, or system mechanic rendered as a flat editorial illustration suitable for a website hero slot",
       "abstraction_level": "medium",
-      "logo_mode": "required",
+      "logo_mode": "preferred",
       "clearly_branded_without_logo_min": 3
     },
     "campaign_poster": {

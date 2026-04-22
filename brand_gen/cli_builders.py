@@ -848,7 +848,7 @@ def build_derive_video_cli(parser: argparse.ArgumentParser, *, inspire_urls: dic
 
 def build_derive_mockup_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--source-version", required=True, help="Approved still version to reinterpret as a generated contextual mockup scene (e.g. v012)")
-    parser.add_argument("--material-type", choices=["device-mockup", "lifestyle-mockup", "billboard-mockup"], default="device-mockup")
+    parser.add_argument("--material-type", choices=["device-mockup", "lifestyle-mockup", "website-hero-illustration"], default="device-mockup")
     parser.add_argument("--prompt", help="Optional prompt override for the generated mockup scene (not pixel-precise compositing)")
     parser.add_argument("-m", "--model", help="Optional image model override")
     parser.add_argument("--aspect-ratio", "-ar")

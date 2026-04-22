@@ -187,7 +187,7 @@ Recommended quick-setup values:
 - `/brand-gen reviews`
 - `/brand-gen review <version>`
 - `/brand-gen generate <materialType> <goal...>`
-- `/brand-gen mockup <sourceVersion> [device-mockup|lifestyle-mockup|billboard-mockup]`
+- `/brand-gen mockup <sourceVersion> [device-mockup|lifestyle-mockup|website-hero-illustration]`
 - `/brand-gen video <sourceVersion> [short-video|feature-animation|motion-loop]`
 - `/brand-gen feedback <version> <score> [notes...]`
 - `/brand-gen widget [show|hide]`
