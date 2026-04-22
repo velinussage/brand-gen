@@ -106,6 +106,28 @@
       "Text opacity hierarchy: primary 100%, secondary 68-76%, tertiary 44-62%, disabled 30%",
       "Label font-size 12px matches proof-label exactly — never 10px or 14px",
       "Proof-row always has border-top separator even when it is the only footer content"
-    ]
+    ],
+    "motion_rules": [
+      "Only animate transform and opacity — never width, height, padding, margin, or top/left (they trigger layout + paint). Emil Kowalski's rule.",
+      "Asymmetric timing: enter states are deliberate (600-1200ms for hero reveals, 300-500ms for UI chrome), exit states are snappy (150-220ms). Never mirror enter and exit durations.",
+      "Ease-out for UI chrome approaches (landing / arriving / revealing). Use symmetric `ease` for brand hero reveals — it reads as more elegant and matches Sage's editorial tone.",
+      "Never ease-in on a user-facing transition — it feels sluggish and late.",
+      "Never animate from transform: scale(0) or opacity: 0 without pairing them. Start from transform: scale(0.95); opacity: 0 so the element emerges rather than materializes from nothing.",
+      "Specify exact transition properties (transition: transform 200ms ease-out, opacity 180ms ease-out). Never use transition: all — it animates unintended properties.",
+      "Use @starting-style for enter animations when available (native CSS, no JS). Fall back to a keyframe only when @starting-style is not supported.",
+      "Honor prefers-reduced-motion: reduce by removing position/movement animations but keeping opacity transitions that aid comprehension. Don't nuke all motion.",
+      "Scale transforms scale child content too — use translateY/translateX for position changes when the child layout should stay fixed.",
+      "Transform-origin: scale from the anchor point (corner, trigger, edge), not always center. A popover scales from the trigger; a modal stays centered."
+    ],
+    "motion_anti_patterns": [
+      "transition: all on any element",
+      "ease-in on user-facing state changes",
+      "transform: scale(0) — things should emerge, not materialize",
+      "symmetric enter/exit duration (both 300ms feels mechanical)",
+      "animating width/height/padding/margin (layout thrash)",
+      "no prefers-reduced-motion fallback",
+      "keyframe restarts from zero on interrupted dynamic UI — use transitions for retargeting"
+    ],
+    "emil_principle": "The invisible details compound. A card feels right because the shadow is warm-tinted and the enter takes 180ms ease-out and the headline fades slightly slower than the proof and the radii nest concentrically. No single rule is the reason — the aggregate of correctness is."
   }
 }
