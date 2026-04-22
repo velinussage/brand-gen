@@ -325,9 +325,15 @@ export const CANONICAL_TOOL_NAMES: readonly string[] = CANONICAL_TOOLS.map(
 // The real schema lives in Python (brand_gen.mcp_bridge_registry.build_tool_schema)
 // and is exposed through the MCP bridge. TS-side we accept an open object and
 // forward verbatim — type validation happens server-side.
+//
+// OpenAI's function-calling spec requires object schemas to include a
+// `properties` field (even an empty `{}`), so we emit one explicitly.
+// Without this, providers like openai-codex reject every tool call with
+// "Invalid schema for function '...': object schema missing properties".
 function openObjectSchema(description: string): Record<string, unknown> {
   return {
     type: "object",
+    properties: {},
     additionalProperties: true,
     description,
   };

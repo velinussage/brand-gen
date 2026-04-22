@@ -242,7 +242,24 @@ export default async function brandGenPiExtension(pi: any) {
   });
 
   compatOn(pi, "session_start", async (event: any) => {
-    await bridge.start();
+    // Kick off the MCP bridge in the BACKGROUND. Do not await —
+    // bridge.start() awaits an MCP `initialize` handshake with no
+    // timeout, so blocking session_start on it can hang Pi's entire
+    // session-ready state. Tools check bridge.isReady() before calling;
+    // heartbeat scheduler waits for the ready event internally.
+    //
+    // Swallow "Bridge stopped" — short-lived Pi sessions (e.g.
+    // --no-session -p) dispose before the handshake lands, and the
+    // pending promise rejects with that message. That's not an error.
+    bridge
+      .start()
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("Bridge stopped")) return;
+        (pi?.logger ?? console).warn?.(
+          `[brand-gen] MCP bridge failed to start: ${message}`,
+        );
+      });
     scheduleHeartbeat(bridge, config, heartbeat, pi?.logger ?? console);
     writeRuntimeStatusMarker("pi-brand-gen", config, {
       plugin: "pi",
