@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   McpBridge,
   buildBrandGenContext,
@@ -51,7 +53,30 @@ function extractPrompt(event: any): string {
 }
 
 export default async function brandGenPiExtension(pi: any) {
-  const config: PluginConfig = parsePluginConfig(pi?.config ?? pi?.pluginConfig ?? {});
+  const rawConfig = (pi?.config ?? pi?.pluginConfig ?? {}) as Record<string, unknown>;
+  // Prefer a project-local `.brand-gen` when the operator hasn't set an
+  // explicit brandGenDir. parsePluginConfig's default of `~/.brand-gen`
+  // assumes a single global workspace, but most brand-gen users run
+  // against the checkout's own `.brand-gen/` directory. We pick in this
+  // order: explicit config > repoRoot/.brand-gen (if it exists) > cwd/.brand-gen
+  // (if it exists) > ~/.brand-gen (parsePluginConfig default).
+  if (!(typeof rawConfig?.brandGenDir === "string" && rawConfig.brandGenDir.trim())) {
+    const probeRuntime = resolvePiRuntimePaths(
+      import.meta.url,
+      typeof rawConfig.brandIterateMcpPath === "string" ? rawConfig.brandIterateMcpPath : undefined,
+    );
+    const candidates = [
+      resolve(probeRuntime.repoRoot, ".brand-gen"),
+      resolve(process.cwd(), ".brand-gen"),
+    ];
+    for (const candidate of candidates) {
+      if (existsSync(candidate)) {
+        rawConfig.brandGenDir = candidate;
+        break;
+      }
+    }
+  }
+  const config: PluginConfig = parsePluginConfig(rawConfig);
   const runtime = resolvePiRuntimePaths(import.meta.url, config.brandIterateMcpPath);
   const env: Record<string, string> = {
     HOME: process.env.HOME || "",
