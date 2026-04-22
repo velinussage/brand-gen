@@ -194,35 +194,34 @@ def handle_tool_call(name, arguments):
 
 def send_response(id, result):
     msg = {"jsonrpc": "2.0", "id": id, "result": result}
-    data = json.dumps(msg)
-    sys.stdout.write(f"Content-Length: {len(data)}\r\n\r\n{data}")
+    sys.stdout.write(json.dumps(msg) + "\n")
     sys.stdout.flush()
 
 
 def send_error(id, code, message):
     msg = {"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}}
-    data = json.dumps(msg)
-    sys.stdout.write(f"Content-Length: {len(data)}\r\n\r\n{data}")
+    sys.stdout.write(json.dumps(msg) + "\n")
     sys.stdout.flush()
 
 
 def read_message():
-    headers = {}
+    """MCP stdio transport uses newline-delimited JSON (NDJSON) per the spec.
+
+    Each message is a single JSON object on its own line. This differs from
+    JSON-RPC over HTTP/TCP which uses Content-Length headers.
+    """
     while True:
         line = sys.stdin.readline()
         if not line:
             return None
         line = line.strip()
         if not line:
-            break
-        if ":" in line:
-            key, val = line.split(":", 1)
-            headers[key.strip()] = val.strip()
-    content_length = int(headers.get("Content-Length", 0))
-    if content_length == 0:
-        return None
-    body = sys.stdin.read(content_length)
-    return json.loads(body)
+            continue
+        try:
+            return json.loads(line)
+        except json.JSONDecodeError:
+            # Tolerate stray non-JSON lines (log noise, shell artifacts).
+            continue
 
 
 def handle_message(msg):

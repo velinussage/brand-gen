@@ -340,9 +340,34 @@ function openObjectSchema(description: string): Record<string, unknown> {
 }
 
 /**
+ * Wait for the MCP bridge to become ready before dispatching tool calls.
+ *
+ * session_start runs bridge.start() in the background (to avoid hanging Pi's
+ * session-ready state on a slow MCP handshake). If the LLM emits tool calls
+ * before the handshake lands, we'd write JSON-RPC requests to an
+ * uninitialized server. This helper blocks up to `timeoutMs` (default 15s)
+ * waiting for `bridge.isReady()` before proceeding.
+ */
+async function waitForBridgeReady(bridge: BridgeLike, timeoutMs = 15000): Promise<boolean> {
+  if (bridge.isReady()) return true;
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (bridge.isReady()) return true;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return bridge.isReady();
+}
+
+/**
  * Wrap a canonical tool entry as a HostToolDefinition that dispatches through
- * the MCP bridge. Host adapters (Pi, OpenClaw) call this to register all ≤25
+ * the MCP bridge. Host adapters (Pi, OpenClaw) call this to register all
  * canonical tools without repeating dispatch logic.
+ *
+ * Pi's tool execute signature evolved to `(toolCallId, params, signal,
+ * onUpdate, ctx)`. OpenClaw uses `(toolCallId, params)`. Older hosts pass
+ * plain `(args)` as the first argument. This wrapper handles all three shapes
+ * by sniffing the first argument: if it's a string we treat it as a
+ * toolCallId and read params from the second argument.
  */
 export function canonicalToolDefinition(
   bridge: BridgeLike,
@@ -352,19 +377,47 @@ export function canonicalToolDefinition(
     name: tool.name,
     description: tool.description,
     parameters: openObjectSchema(`Arguments for ${tool.name}`),
-    execute: async (args: Record<string, unknown>) => {
-      const normalizedArgs = (args && typeof args === "object" ? args : {}) as Record<
-        string,
-        unknown
-      >;
+    execute: (async (...invokeArgs: unknown[]) => {
+      // Normalize across Pi / OpenClaw / legacy calling conventions.
+      let rawParams: unknown;
+      let signal: AbortSignal | undefined;
+      if (typeof invokeArgs[0] === "string") {
+        // Pi / OpenClaw: (toolCallId, params, signal?, onUpdate?, ctx?)
+        rawParams = invokeArgs[1];
+        signal = invokeArgs[2] as AbortSignal | undefined;
+      } else {
+        // Legacy generic host: (args)
+        rawParams = invokeArgs[0];
+      }
+      const params =
+        rawParams && typeof rawParams === "object"
+          ? ({ ...(rawParams as Record<string, unknown>) } as Record<string, unknown>)
+          : {};
       // Default to JSON format so agents get structured payloads back unless
       // they explicitly override.
-      if (normalizedArgs.format === undefined) {
-        normalizedArgs.format = "json";
+      if (params.format === undefined) {
+        params.format = "json";
       }
-      const payload = await callJsonTool(bridge, tool.name, normalizedArgs);
+
+      // Honour AbortSignal if the host supplied one.
+      if (signal?.aborted) {
+        return toToolResult({ status: "cancelled", tool: tool.name });
+      }
+
+      // Wait for bridge readiness; if the handshake never lands, return a
+      // structured error instead of hanging the tool call indefinitely.
+      const ready = await waitForBridgeReady(bridge);
+      if (!ready) {
+        return toToolResult({
+          status: "error",
+          tool: tool.name,
+          error: "MCP bridge not ready — Python backend failed to initialize within 15s.",
+        });
+      }
+
+      const payload = await callJsonTool(bridge, tool.name, params);
       return toToolResult(payload ?? { status: "ok" });
-    },
+    }) as HostToolDefinition["execute"],
   };
 }
 
