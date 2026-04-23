@@ -196,6 +196,21 @@ def build_switch_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dic
     parser.add_argument("--format", choices=["json", "text"], default="json")
 
 
+def build_migrate_material_taxonomy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand-dir", help="Optional workspace root to migrate. Defaults to the active brand/session workspace.")
+    parser.add_argument("--all-saved", action="store_true", help="Migrate all discovered saved-brand workspaces under ./brands and .brand-gen/brands.")
+    parser.add_argument("--include-sessions", action="store_true", help="When used with --all-saved, also include .brand-gen testing sessions.")
+    parser.add_argument("--apply", action="store_true", help="Write migrated material types back to disk. Default is dry run.")
+    parser.add_argument("--format", choices=["json", "text"], default="text")
+
+
+def build_report_material_taxonomy_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--brand-dir", help="Optional workspace root to inspect. Defaults to the active brand/session workspace.")
+    parser.add_argument("--all-saved", action="store_true", help="Report deprecated material-type usage across all discovered saved-brand workspaces under ./brands and .brand-gen/brands.")
+    parser.add_argument("--include-sessions", action="store_true", help="When used with --all-saved, also include .brand-gen testing sessions.")
+    parser.add_argument("--format", choices=["json", "text"], default="text")
+
+
 def build_get_pending_reviews_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--limit", type=int, default=20, help="Max pending reviews to return (default 20)")
     parser.add_argument("--format", choices=["json"], default="json")
@@ -329,7 +344,7 @@ def build_inspiration_status_cli(parser: argparse.ArgumentParser, *, inspire_url
 def build_show_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument(
         "--material-type",
-        help="Optional material type to focus on (e.g. landing-hero, concept-illustration, brand-scene)",
+        help="Optional material type to focus on (e.g. landing-hero, system-explainer-illustration, illustrated-brand-world)",
     )
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
@@ -495,13 +510,13 @@ def build_review_brand_cli(parser: argparse.ArgumentParser, *, inspire_urls: dic
 
 
 def build_suggest_role_pack_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("--material-type", required=True, help="Material type to inspect (e.g. pattern-system, sticker-family, campaign-poster)")
+    parser.add_argument("--material-type", required=True, help="Material type to inspect (e.g. site-pattern-tile, sticker-family, proof-poster)")
     parser.add_argument("--format", choices=["text", "json"], default="text")
     parser.add_argument("--top", type=int, default=3, help="How many suggestions to show per role")
 
 
 def build_plan_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("--material-type", required=True, help="Material type to plan")
+    parser.add_argument("--material-type", required=True, help="Material type to plan. Prefer the new taxonomy (e.g. system-explainer-illustration, editorial-metaphor-illustration, proof-poster, site-pattern-tile). Deprecated aliases like concept-illustration, campaign-poster, and pattern-system are still accepted.")
     parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid", help="Workflow mode for the plan")
     parser.add_argument("--mechanic", help="The one system mechanic or reveal move to emphasize")
     parser.add_argument("--purpose", help="What job this material should do")
@@ -512,7 +527,7 @@ def build_plan_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: di
     parser.add_argument("--source-url", help="Real product/app URL to plan against")
     parser.add_argument("--entity-type", help="Entity type for governed share-card planning")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10) used when selecting a surface strategy")
-    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for illustration-first materials such as system-explainer-illustration or illustrated-brand-world, moderate otherwise).")
     parser.add_argument("--prompt-subject", default=None, help="Concrete subject phrase for the 5-slot template (e.g. 'two hands placing clay pots on a drying board')")
     parser.add_argument("--prompt-style-descriptors", default=None, help="Style descriptors for the 5-slot template (e.g. 'Kodak Portra 400 film grain, charcoal woodcut, hand-inked botanical plate')")
     parser.add_argument("--prompt-lighting", default=None, help="Lighting for the 5-slot template (e.g. 'golden hour raking light, chiaroscuro, diffused north daylight')")
@@ -533,7 +548,7 @@ def build_plan_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: di
 
 
 def build_plan_draft_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("--material-type", required=True, help="Material type to plan")
+    parser.add_argument("--material-type", required=True, help="Material type to plan. Prefer the new taxonomy (e.g. system-explainer-illustration, editorial-metaphor-illustration, proof-poster, site-pattern-tile). Deprecated aliases like concept-illustration, campaign-poster, and pattern-system are still accepted.")
     parser.add_argument("--mode", choices=["reference", "inspiration", "hybrid"], default="hybrid", help="Workflow mode for the draft")
     parser.add_argument("--mechanic", help="The one system mechanic or reveal move to emphasize")
     parser.add_argument("--purpose", help="What job this material should do")
@@ -544,7 +559,7 @@ def build_plan_draft_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[
     parser.add_argument("--source-url", help="Real product/app URL to plan against")
     parser.add_argument("--entity-type", help="Entity type for governed share-card planning")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10) used when selecting a surface strategy")
-    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for illustration-first materials such as system-explainer-illustration or illustrated-brand-world, moderate otherwise).")
     parser.add_argument("--prompt-subject", default=None, help="Concrete subject phrase for the 5-slot template (e.g. 'two hands placing clay pots on a drying board')")
     parser.add_argument("--prompt-style-descriptors", default=None, help="Style descriptors for the 5-slot template (e.g. 'Kodak Portra 400 film grain, charcoal woodcut, hand-inked botanical plate')")
     parser.add_argument("--prompt-lighting", default=None, help="Lighting for the 5-slot template (e.g. 'golden hour raking light, chiaroscuro, diffused north daylight')")
@@ -630,7 +645,7 @@ def build_build_generation_scratchpad_cli(parser: argparse.ArgumentParser, *, in
     parser.add_argument("--proof-meta", action="append", help="Proof metadata row/chip for HTML share cards; repeat as needed")
     parser.add_argument("--proof-crop-path", help="Screenshot crop or product image path used as supporting texture inside the proof module")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10): 1-3 clean centered, 4-7 editorial asymmetry, 8-10 strong asymmetry")
-    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for illustration-first materials such as system-explainer-illustration or illustrated-brand-world, moderate otherwise).")
     parser.add_argument("--prompt-subject", default=None, help="Concrete subject phrase for the 5-slot template (e.g. 'two hands placing clay pots on a drying board')")
     parser.add_argument("--prompt-style-descriptors", default=None, help="Style descriptors for the 5-slot template (e.g. 'Kodak Portra 400 film grain, charcoal woodcut, hand-inked botanical plate')")
     parser.add_argument("--prompt-lighting", default=None, help="Lighting for the 5-slot template (e.g. 'golden hour raking light, chiaroscuro, diffused north daylight')")
@@ -807,16 +822,16 @@ def build_collect_examples_cli(parser: argparse.ArgumentParser, *, inspire_urls:
 
 
 def build_social_specs_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("format", nargs="?", help="Optional single format filter (x-card, x-feed, x-feed-square, x-feed-portrait, linkedin-card, linkedin-feed, linkedin-feed-square, linkedin-feed-portrait, og-card, podcast-cover, podcast-banner)")
+    parser.add_argument("format", nargs="?", help="Optional single format filter. New taxonomy examples: proof-poster, site-pattern-tile, system-explainer-illustration. Deprecated filters like campaign-poster, pattern-system, and brand-scene are still listed but marked as deprecated.")
     parser.add_argument("--verbose", action="store_true", help="Include notes and source hints")
 
 
 def build_generate_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--scratchpad", required=True, help="Path to a generation scratchpad JSON created by build-generation-scratchpad")
     parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→critique→refine loops (1-3, default: 1 = single-shot)")
-    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique)")
+    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique). Uses OPENROUTER_API_KEY or ANTHROPIC_API_KEY when enabled.")
     parser.add_argument("--skip-vlm", action="store_true", help="Deprecated compatibility flag. Internal VLM critique is off by default unless --internal-vlm-critique is set.")
-    parser.add_argument("--vlm-critique", help="Path to agent-provided critique JSON (skips internal VLM call)")
+    parser.add_argument("--vlm-critique", help="Path to agent-provided critique JSON (skips the internal OpenRouter/Anthropic VLM call)")
 
 
 def build_generate_once_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
@@ -886,13 +901,24 @@ def build_critique_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: 
 
 
 def build_submit_critique_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("version", help="Version ID (e.g. v12)")
+    # Accept both --version-id (preferred, matches sibling review verbs) and
+    # the legacy positional form. See build_submit_review_cli for rationale.
+    parser.add_argument("version", nargs="?", help="Version ID (e.g. v12). Deprecated positional form — prefer --version-id.")
+    parser.add_argument("--version-id", dest="version_id", help="Version ID (e.g. v12). Preferred form; matches sibling review verbs.")
     parser.add_argument("--critique-json", required=True, help="Path to critique JSON file or inline JSON string")
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
 def build_submit_review_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("version", help="Version ID (e.g. v12)")
+    # Historically this command took a positional `version`. Every sibling
+    # review verb (get-review-packet, submit-critique via its alias path, the
+    # pi-adapter tool schema) uses --version-id. The inconsistency caused
+    # repeated subagent failures: the pi tool-registry emits --version-id and
+    # argparse rejected it as an unknown option. Accept both. The positional
+    # remains optional for backward compat; if neither form is given, we emit
+    # a clear error in cmd_submit_review.
+    parser.add_argument("version", nargs="?", help="Version ID (e.g. v12). Deprecated positional form — prefer --version-id.")
+    parser.add_argument("--version-id", dest="version_id", help="Version ID (e.g. v12). Preferred form; matches sibling review verbs.")
     parser.add_argument("--critique-json", required=True, help="Path to critique JSON file or inline JSON string")
     parser.add_argument("--dry-run", action="store_true", help="Validate and preview without writing")
     parser.add_argument("--format", choices=["text", "json"], default="json")
@@ -930,7 +956,7 @@ def _add_pipeline_core_args(parser: argparse.ArgumentParser, *, require_material
     parser.add_argument("--proof-meta", action="append", help="Proof metadata row/chip for HTML share cards; repeat as needed")
     parser.add_argument("--proof-crop-path", help="Screenshot crop or product image path used as supporting texture inside the proof module")
     parser.add_argument("--design-variance", type=int, default=5, help="Design variance dial (1-10): 1-3 clean centered, 4-7 editorial asymmetry, 8-10 strong asymmetry")
-    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for concept-illustration + brand-scene, moderate otherwise).")
+    parser.add_argument("--complexity-tier", choices=["simple", "moderate", "dense"], default=None, help="Cap named-elements in the brief: simple (≤2) / moderate (≤4) / dense (unlimited). Default: per-material (simple for illustration-first materials such as system-explainer-illustration or illustrated-brand-world, moderate otherwise).")
     parser.add_argument("--prompt-subject", default=None, help="Concrete subject phrase for the 5-slot template (e.g. 'two hands placing clay pots on a drying board')")
     parser.add_argument("--prompt-style-descriptors", default=None, help="Style descriptors for the 5-slot template (e.g. 'Kodak Portra 400 film grain, charcoal woodcut, hand-inked botanical plate')")
     parser.add_argument("--prompt-lighting", default=None, help="Lighting for the 5-slot template (e.g. 'golden hour raking light, chiaroscuro, diffused north daylight')")
@@ -955,7 +981,7 @@ def _add_pipeline_core_args(parser: argparse.ArgumentParser, *, require_material
 def _add_pipeline_generation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--max-iterations", type=int, default=1, help="Max generate→VLM-critique→refine loops (1-3)")
     parser.add_argument("--max-retries", type=int, default=1, help="Max quality-gate retries on very low scores (0-2)")
-    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique)")
+    parser.add_argument("--internal-vlm-critique", action="store_true", help="Opt into the legacy internal VLM critique/refine loop after generation (deprecated; prefer critique-rubric + submit-critique). Uses OPENROUTER_API_KEY or ANTHROPIC_API_KEY when enabled.")
     parser.add_argument("--skip-vlm", action="store_true", help="Deprecated compatibility flag. Internal VLM critique is off by default unless --internal-vlm-critique is set.")
 
 
@@ -1105,7 +1131,7 @@ def build_inspiration_clear_cli(parser: argparse.ArgumentParser, *, inspire_urls
 
 
 def build_suggest_layout_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
-    parser.add_argument("--material-type", required=True, help="Material type to suggest layouts for (e.g. campaign-poster, social, brand-scene)")
+    parser.add_argument("--material-type", required=True, help="Material type to suggest layouts for (e.g. proof-poster, social, illustrated-brand-world)")
     parser.add_argument("--count", type=int, default=4, help="How many layout suggestions to return")
     parser.add_argument("--format", choices=["text", "json"], default="text")
 
@@ -1151,6 +1177,8 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'get-version': build_get_version_cli,
     'compare-versions': build_compare_versions_cli,
     'switch-brand': build_switch_brand_cli,
+    'migrate-material-taxonomy': build_migrate_material_taxonomy_cli,
+    'report-material-taxonomy': build_report_material_taxonomy_cli,
     'get-pending-reviews': build_get_pending_reviews_cli,
     'get-policy': build_get_policy_cli,
     'set-policy': build_set_policy_cli,

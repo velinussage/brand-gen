@@ -17,7 +17,7 @@ brand-gen is a **multi-agent system**. The intended entry point for any brand ma
 
 ## Typed runtime (2026-04+, preferred surface)
 
-After the typed-agentic-runtime refactor, brand-gen exposes a **25-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
+After the typed-agentic-runtime refactor, brand-gen exposes a **44-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
 
 ### Orchestration (7 verbs)
 
@@ -39,7 +39,7 @@ bgen evolve-run    # → {learnings_promoted, improvement_questions, recommendat
 
 Each response's `next_action` is a direct hint to the tool to call next. Follow it unless you're A/B-testing a stage.
 
-### Mutation (9 typed verbs — replace all direct file edits)
+### Mutation (13 typed verbs — replace all direct file edits)
 
 **Never manually edit `custom-scratchpad.json`, `custom-scratchpad.md`, `learnings.json`, `iteration-memory.json`, or `brand-identity.json`.** Call the typed verb instead. Every mutation tool supports `--dry-run` returning the same response shape, so you can preview before committing.
 
@@ -65,7 +65,7 @@ bgen set-motion-grammar --director "..." --favored "..." --banned "..." --intens
 bgen submit-review <version-id> --critique-json <path> --format json
 ```
 
-### Inspection (7 read verbs)
+### Inspection / policy-read (17 read verbs)
 
 ```bash
 bgen context-snapshot --format json       # canonical workspace snapshot — run at every session start
@@ -100,7 +100,7 @@ Every time this skill or an agent instructs "edit this JSON file" or "append to 
 
 ### When to use the legacy CLI chain below
 
-The 82-command CLI surface (`route-request`, `plan-draft`, `critique-plan`, `build-generation-scratchpad`, `generate`, `submit-critique`, `feedback`, `evolve`, `pipeline`, etc.) remains supported for:
+The 100+ command CLI surface (`route-request`, `plan-draft`, `critique-plan`, `build-generation-scratchpad`, `generate`, `submit-critique`, `feedback`, `evolve`, `pipeline`, etc.) remains supported for:
 - CI/scripting that needs a single blocking `bgen pipeline` call
 - Debugging individual stages when `orchestrate-material` stops with `max_retries`
 - Pre-2026-04 host adapters that haven't been upgraded

@@ -7,7 +7,7 @@
 // matching the Python MCP bridge registry in `brand_gen/mcp_bridge_registry.py`.
 //
 // Per Anthropic 2026 tool-design guidance: semantically-narrow verb-first
-// tools (≤20-40 cap) are discoverable without long markdown contracts.
+// tools kept under the local soft cap are discoverable without long markdown contracts.
 // Generic action-enum dispatchers fail agent priors.
 //
 // The canonical list is validated against the Python side by the
@@ -45,6 +45,15 @@ export type CanonicalTool = {
   category: ToolCategory;
   description: string;
   policy_class?: ToolPolicyClass; // Phase D: policy-tag-first enforcement. Keep in sync with brand_gen/policy.py::POLICY_CLASSES_BY_TOOL.
+  /**
+   * Required parameter keys the host must provide before the tool is
+   * dispatched to the Python CLI bridge. Caught pre-spawn so agents get a
+   * clear validation error (`missing_required_param: version_id`) instead of
+   * an argparse usage blob truncated in the tool-result surface. Populate
+   * this for any tool whose CLI bridge would exit non-zero without the key.
+   */
+  requiredParams?: readonly string[];
+  parameterSchema?: Record<string, unknown>;
 };
 
 // The canonical host-exposed tools (soft cap ~45). Each maps to exactly one
@@ -56,7 +65,7 @@ export type CanonicalTool = {
 //
 // Ordering is stable: orchestration → mutation → inspection → feedback.
 export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
-  // Orchestration (7) — stage-by-stage typed responses plus one convenience wrapper.
+  // Orchestration (8) — stage-by-stage typed responses plus one convenience wrapper and scratchpad prep.
   {
     name: "brand_prepare_run",
     category: "orchestration",
@@ -68,12 +77,29 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "orchestration",
     description:
       "Phase 2 — draft a material plan (material_type, mode, prompt_seed, archetype). Returns PlanRunResponse with plan_id + next_action.",
+    requiredParams: ["material_type"],
+    parameterSchema: objectSchema({
+      material_type: { type: "string", description: "Material type to generate." },
+      mode: { type: "string", enum: ["reference", "inspiration", "hybrid"], default: "hybrid" },
+      purpose: { type: "string" },
+      target_surface: { type: "string" },
+      prompt_seed: { type: "string" },
+      render_backend: { type: "string", enum: ["native", "html"], default: "native" },
+      workflow_id: { type: "string" },
+    }, ["material_type"], "Arguments for brand_plan_run"),
   },
   {
     name: "brand_validate_run",
     category: "orchestration",
     description:
       "Phase 3 — critique the plan, surface blocking issues. Returns ValidateRunResponse with critique_id + status + next_action.",
+    requiredParams: ["plan_draft"],
+    parameterSchema: objectSchema({
+      plan_draft: { type: "string", description: "Path to a plan draft JSON produced by plan-run." },
+      workflow_id: { type: "string" },
+      critique_mode: { type: "string", enum: ["advisory", "strict"], default: "strict" },
+      allow_blocking: { type: "boolean", default: false },
+    }, ["plan_draft"], "Arguments for brand_validate_run"),
   },
   {
     name: "brand_execute_run",
@@ -81,18 +107,35 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     description:
       "Phase 4 — assemble the scratchpad and generate. Returns ExecuteRunResponse with version_id + image_paths + next_action.",
     policy_class: "costly_generation",
+    requiredParams: ["plan_draft"],
+    parameterSchema: objectSchema({
+      plan_draft: { type: "string", description: "Path to a plan draft JSON produced by plan-run." },
+      critique_path: { type: "string" },
+      workflow_id: { type: "string" },
+      max_iterations: { type: "integer", minimum: 1, maximum: 3, default: 1 },
+      max_retries: { type: "integer", minimum: 0, maximum: 2, default: 1 },
+    }, ["plan_draft"], "Arguments for brand_execute_run"),
   },
   {
     name: "brand_review_run",
     category: "orchestration",
     description:
       "Phase 5 — run the v2 DSPy scorer + before/after diffs. Returns ReviewRunResponse with axis_scores + decision + next_action.",
+    requiredParams: ["version_id"],
+    parameterSchema: objectSchema({
+      version_id: { type: "string", description: "Generated version id to inspect." },
+      workflow_id: { type: "string" },
+    }, ["version_id"], "Arguments for brand_review_run"),
   },
   {
     name: "brand_evolve_run",
     category: "orchestration",
     description:
       "Phase 6 — promote learnings, log disagreements, recommend next iteration. Returns EvolveRunResponse with improvement_questions.",
+    parameterSchema: objectSchema({
+      version_id: { type: "string" },
+      workflow_id: { type: "string" },
+    }, [], "Arguments for brand_evolve_run"),
   },
   {
     name: "brand_orchestrate_material",
@@ -102,7 +145,26 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     policy_class: "costly_generation",
   },
 
-  // Mutation (9) — typed state-change tools replacing direct JSON/markdown edits.
+  {
+    name: "brand_build_generation_scratchpad",
+    category: "orchestration",
+    description:
+      "Assemble a generation scratchpad from a plan without running the paid generation step. Useful for video specialists and debugging generation readiness.",
+    policy_class: "local_mutation",
+    requiredParams: ["plan"],
+    parameterSchema: objectSchema({
+      plan: { type: "string", description: "Material plan JSON or plan-draft JSON." },
+      prompt: { type: "string" },
+      material_type: { type: "string" },
+      mode: { type: "string", enum: ["auto", "reference", "inspiration", "hybrid"], default: "auto" },
+      model: { type: "string" },
+      render_backend: { type: "string", enum: ["native", "html"], default: "native" },
+      allow_blocking: { type: "boolean", default: false },
+    }, ["plan"], "Arguments for brand_build_generation_scratchpad"),
+  },
+
+
+  // Mutation (13) — typed state-change tools replacing direct JSON/markdown edits.
   {
     name: "brand_append_forbidden_pattern",
     category: "mutation",
@@ -152,10 +214,47 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       "Add or remove an approved graphic device from brand-identity.json approved devices list.",
   },
   {
+    name: "brand_export_design_tokens",
+    category: "mutation",
+    description:
+      "Export brand identity as production design tokens (CSS/Tailwind/JSON/W3C) and run the WCAG audit before HTML-bound generation.",
+    policy_class: "local_mutation",
+    parameterSchema: objectSchema({
+      output_format: { type: "string", enum: ["css", "tailwind", "json", "w3c"], default: "css" },
+      skip_audit: { type: "boolean", default: false },
+      out: { type: "string" },
+    }, [], "Arguments for brand_export_design_tokens"),
+  },
+  {
+    name: "brand_extract_inspiration",
+    category: "mutation",
+    description:
+      "Run built-in semantic extraction for configured inspiration sources so hybrid/inspiration plans have real source analysis.",
+    policy_class: "local_mutation",
+    parameterSchema: objectSchema({
+      sources: { type: "array", items: { type: "string" } },
+      category: { type: "string" },
+      workers: { type: "integer", default: 4 },
+      force: { type: "boolean", default: false },
+      limit: { type: "integer" },
+    }, [], "Arguments for brand_extract_inspiration"),
+  },
+  {
+    name: "brand_consolidate_inspiration",
+    category: "mutation",
+    description:
+      "Consolidate extracted inspiration analyses into reusable inspiration-memory artifacts for planning and prompt assembly.",
+    policy_class: "local_mutation",
+    parameterSchema: objectSchema({
+      image: { type: "array", items: { type: "string" } },
+    }, [], "Arguments for brand_consolidate_inspiration"),
+  },
+  {
     name: "brand_submit_review",
     category: "mutation",
     description:
       "Submit a v2 critique packet for a version (alias for submit-critique). Supports --dry-run.",
+    requiredParams: ["version_id", "critique_json"],
   },
 
   // Inspection (15) — read-only queries over durable state.
@@ -196,18 +295,23 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "inspection",
     description:
       "Fetch the agent or auto review packet for a generated version (prefers agent-review.json over auto-review.json).",
+    requiredParams: ["version_id"],
   },
   {
     name: "brand_get_version",
     category: "inspection",
     description:
       "Fetch the manifest entry + on-disk files for a version.",
+    requiredParams: ["version_id"],
+    parameterSchema: objectSchema({ version_id: { type: "string" } }, ["version_id"], "Arguments for brand_get_version"),
   },
   {
     name: "brand_compare_versions",
     category: "inspection",
     description:
       "Side-by-side diff of two version manifest entries (material_type, model, score, mode, reference_count, etc.).",
+    requiredParams: ["a", "b"],
+    parameterSchema: objectSchema({ a: { type: "string" }, b: { type: "string" } }, ["a", "b"], "Arguments for brand_compare_versions"),
   },
   {
     name: "brand_list_brands",
@@ -308,18 +412,44 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "feedback",
     description:
       "Record a user score and notes on a version. Updates manifest + iteration memory. Use --status rejected for auto-fails.",
+    requiredParams: ["version"],
+    parameterSchema: objectSchema({
+      version: { type: "string", description: "Version ID (e.g. v12)." },
+      score: { type: "integer", enum: [1, 2, 3, 4, 5] },
+      notes: { type: "string" },
+      status: { type: "string", enum: ["favorite", "rejected"] },
+    }, ["version"], "Arguments for brand_feedback"),
   },
   {
     name: "brand_critique_rubric",
     category: "feedback",
     description:
       "Produce an agent-visual-review packet for a version. With --dspy-scorer the v2 DSPy rubric runs inline and the packet includes axis_scores + before_after_diffs.",
+    requiredParams: ["version_id"],
+    parameterSchema: objectSchema({
+      version_id: { type: "string" },
+      dspy_scorer: { type: "boolean", default: false },
+    }, ["version_id"], "Arguments for brand_critique_rubric"),
   },
 ] as const;
 
 export const CANONICAL_TOOL_NAMES: readonly string[] = CANONICAL_TOOLS.map(
   (tool) => tool.name,
 );
+
+function objectSchema(
+  properties: Record<string, unknown>,
+  required: readonly string[] = [],
+  description = "Arguments",
+): Record<string, unknown> {
+  return {
+    type: "object",
+    properties,
+    ...(required.length ? { required: [...required] } : {}),
+    additionalProperties: true,
+    description,
+  };
+}
 
 // Minimal permissive parameter schema shared by every generated host tool.
 // The real schema lives in Python (brand_gen.mcp_bridge_registry.build_tool_schema)
@@ -376,7 +506,7 @@ export function canonicalToolDefinition(
   return {
     name: tool.name,
     description: tool.description,
-    parameters: openObjectSchema(`Arguments for ${tool.name}`),
+    parameters: tool.parameterSchema ?? openObjectSchema(`Arguments for ${tool.name}`),
     execute: (async (...invokeArgs: unknown[]) => {
       // Normalize across Pi / OpenClaw / legacy calling conventions.
       let rawParams: unknown;
@@ -397,6 +527,26 @@ export function canonicalToolDefinition(
       // they explicitly override.
       if (params.format === undefined) {
         params.format = "json";
+      }
+
+      // Pre-flight required-param validation. Without this, the CLI spawns
+      // and argparse emits a usage blob that the pi adapter truncates to
+      // "brand_xxx failed (exit 1): usage:..." — unreadable to the subagent.
+      // Reject the call here with a structured error instead.
+      if (tool.requiredParams && tool.requiredParams.length > 0) {
+        const missing = tool.requiredParams.filter((key) => {
+          const v = (params as Record<string, unknown>)[key];
+          return v === undefined || v === null || v === "";
+        });
+        if (missing.length > 0) {
+          return toToolResult({
+            status: "error",
+            tool: tool.name,
+            error: "missing_required_param",
+            missing,
+            message: `Tool '${tool.name}' requires: ${tool.requiredParams.join(", ")}. Missing: ${missing.join(", ")}.`,
+          });
+        }
       }
 
       // Honour AbortSignal if the host supplied one.

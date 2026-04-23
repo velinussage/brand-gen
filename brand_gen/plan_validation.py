@@ -24,6 +24,8 @@ __all__ = [
     "validate_identity_summary",
     "detect_enumerated_categories",
     "plan_has_text_ban",
+    "detect_exact_text_request",
+    "plan_declares_deterministic_text_strategy",
     "normalize_complexity_tier",
     "complexity_tier_enumeration_min_items",
     "normalize_visual_density",
@@ -35,8 +37,8 @@ __all__ = [
 
 # Complexity tier controls how many named elements the brief may carry.
 # Simple: ≤2 named elements — one clear system mechanic only. This is the
-#   default for concept-illustration and brand-scene based on the user
-#   feedback around v180/v181 ("Wants a simpler Sage illus").
+#   default for illustration-first materials such as concept-illustration,
+#   the new explainer/metaphor splits, and illustrated-brand-world.
 # Moderate: ≤4 named elements — balanced scope for most editorial work.
 # Dense: unlimited — opt-in for storyboards and multi-scene films where
 #   enumerating capability flows is the point.
@@ -49,8 +51,20 @@ _COMPLEXITY_TIER_THRESHOLDS = {
 _DEFAULT_TIER_BY_MATERIAL = {
     "concept-illustration": "simple",
     "concept_illustration": "simple",
+    "system-explainer-illustration": "simple",
+    "system_explainer_illustration": "simple",
+    "editorial-metaphor-illustration": "simple",
+    "editorial_metaphor_illustration": "simple",
     "brand-scene": "simple",
     "brand_scene": "simple",
+    "illustrated-brand-world": "simple",
+    "illustrated_brand_world": "simple",
+    "site-pattern-tile": "simple",
+    "site_pattern_tile": "simple",
+    "pattern-board": "moderate",
+    "pattern_board": "moderate",
+    "proof-poster": "moderate",
+    "proof_poster": "moderate",
 }
 
 
@@ -84,13 +98,20 @@ def complexity_tier_enumeration_min_items(tier: str) -> int:
 # Visual density controls the SPATIAL side of density (whitespace vs
 # information-packing), independently of complexity_tier which governs
 # named-element count. Low density = art gallery; high = pilot cockpit.
-# Defaults to 4 for concept-illustration + brand-scene (airy editorial),
-# 5 otherwise.
+# Defaults to 4 for airy editorial illustration-first materials, 5 otherwise.
 _VISUAL_DENSITY_DEFAULT_BY_MATERIAL = {
     "concept-illustration": 4,
     "concept_illustration": 4,
+    "system-explainer-illustration": 4,
+    "system_explainer_illustration": 4,
+    "editorial-metaphor-illustration": 4,
+    "editorial_metaphor_illustration": 4,
     "brand-scene": 4,
     "brand_scene": 4,
+    "illustrated-brand-world": 4,
+    "illustrated_brand_world": 4,
+    "site-pattern-tile": 4,
+    "site_pattern_tile": 4,
     "landing-hero": 4,
     "landing_hero": 4,
 }
@@ -216,6 +237,37 @@ def visual_density_grammar(density: int) -> str:
     )
 
 
+
+# Phrases that indicate exact copy/text must survive. These are separate
+# from text bans: they catch requests that should route to deterministic
+# HTML/SVG/composite text handling instead of asking an image model to draw
+# words.
+_EXACT_TEXT_REQUEST_PHRASES = (
+    "exact text",
+    "exact title",
+    "exact headline",
+    "exact tagline",
+    "exact copy",
+    "exact wording",
+    "keep the exact",
+    "preserve the exact",
+    "render the exact",
+    "verbatim",
+)
+
+_DETERMINISTIC_TEXT_STRATEGY_VALUES = {
+    "deterministic",
+    "html",
+    "svg",
+    "css",
+    "composite",
+    "post_composite",
+    "post-composite",
+    "overlay",
+    "deterministic_overlay",
+    "deterministic-overlay",
+}
+
 # Phrases that signal a "no text", "no labels", "no headlines" constraint.
 # When one of these is present AND the prompt seed enumerates ≥4 named
 # categories, the plan is in the v062 / v163-168 / v176-178 failure zone:
@@ -293,12 +345,22 @@ def detect_enumerated_categories(
     return hits
 
 
-def plan_has_text_ban(plan: dict) -> bool:
-    """Return True when the plan's ban list, preserve list, or prompt_seed
-    carries a text/labels/headlines prohibition.
-    """
+
+
+def _plan_text_haystack(plan: dict) -> str:
     haystack_parts: list[str] = []
-    for field in ("prompt_seed", "system_mechanic", "purpose"):
+    for field in (
+        "prompt_seed",
+        "system_mechanic",
+        "purpose",
+        "target_surface",
+        "product_truth_expression",
+        "briefing",
+        "headline",
+        "subhead",
+        "proof_title",
+        "proof_excerpt",
+    ):
         v = plan.get(field)
         if v:
             haystack_parts.append(str(v))
@@ -308,7 +370,51 @@ def plan_has_text_ban(plan: dict) -> bool:
             haystack_parts.extend(str(item) for item in v)
         elif isinstance(v, str):
             haystack_parts.append(v)
-    haystack = " ".join(haystack_parts).lower()
+    return " ".join(haystack_parts).lower()
+
+
+def detect_exact_text_request(plan_or_text: dict | str | None) -> bool:
+    """Return True when a brief/plan asks for exact copy fidelity.
+
+    Exact text is a different class of requirement than normal brand copy: if
+    the output must contain a specific headline/tagline/verbatim wording, the
+    runtime should use deterministic text composition (HTML/SVG/composite) or
+    block before spending image-model credits.
+    """
+    if isinstance(plan_or_text, dict):
+        haystack = _plan_text_haystack(plan_or_text)
+    else:
+        haystack = str(plan_or_text or "").lower()
+    return any(phrase in haystack for phrase in _EXACT_TEXT_REQUEST_PHRASES)
+
+
+def plan_declares_deterministic_text_strategy(plan: dict) -> bool:
+    """Return True when a plan explicitly routes exact text through a
+    deterministic renderer/compositor rather than native image text.
+    """
+    render_backend = str(plan.get("render_backend") or "").strip().lower()
+    if render_backend == "html":
+        return True
+    strategy_fields = (
+        "text_rendering_strategy",
+        "text_strategy",
+        "render_strategy",
+        "composition_strategy",
+        "copy_rendering_strategy",
+    )
+    for field in strategy_fields:
+        value = str(plan.get(field) or "").strip().lower()
+        if value in _DETERMINISTIC_TEXT_STRATEGY_VALUES:
+            return True
+        if value and any(token in value for token in _DETERMINISTIC_TEXT_STRATEGY_VALUES):
+            return True
+    return False
+
+def plan_has_text_ban(plan: dict) -> bool:
+    """Return True when the plan's ban list, preserve list, or prompt_seed
+    carries a text/labels/headlines prohibition.
+    """
+    haystack = _plan_text_haystack(plan)
     return any(phrase in haystack for phrase in _TEXT_BAN_PHRASES)
 
 
@@ -449,6 +555,12 @@ def validate_material_plan_dict(plan: dict) -> dict:
             "Plan has no aesthetic_commitment. Pick one extreme from "
             f"{', '.join(AESTHETIC_COMMITMENTS)} — commitment (not intensity) is "
             "what separates distinctive output from generic premium-AI-brand mood."
+        )
+
+    if detect_exact_text_request(plan) and not plan_declares_deterministic_text_strategy(plan):
+        errors.append(
+            "Exact text request detected, but the plan does not declare a deterministic text rendering strategy. "
+            "Route exact headlines/taglines/stats through render_backend=html or a text_rendering_strategy such as html/svg/composite before generation."
         )
 
     # Enumerated-categories detector: catches the v062 / v163-168 / v176-178

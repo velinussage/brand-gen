@@ -49,7 +49,8 @@ def normalize_material_brand_policy(material_type: str | None, *, identity: dict
             }
         }
     """
-    key = role_pack_material_key(material_type)
+    normalized = str(material_type or "").strip().lower().replace("-", "_")
+    key = normalized if normalized in MATERIAL_BRAND_POLICIES else role_pack_material_key(material_type)
     base = dict(MATERIAL_BRAND_POLICIES.get(key, {}))
     # Merge per-brand overrides from identity if available
     if identity:
@@ -230,7 +231,7 @@ def derive_copy_candidates(profile: dict, identity: dict, material_type: str, go
         "Logo-led ad illustration + short slogan + one UI proof inset",
         "Quiet product frame + bold headline + minimal proof chips",
     ]))
-    if role_pack_material_key(material_type) in {"campaign_poster", "merch_poster", "social"}:
+    if role_pack_material_key(material_type) in {"campaign_poster", "proof_poster", "merch_poster", "social"}:
         visual_angles.insert(0, "Ad illustration with slogan + visible brand wordmark + one proof cue")
     if goal:
         slogans.insert(0, goal.strip())

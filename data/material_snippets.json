@@ -134,6 +134,42 @@
       "reference": "Command and flags stay verbatim. Borrow diagrammatic grammar \u2014 arrows, callouts, step ordering \u2014 from references only. Never repackage another tool's CLI as your own.",
       "inspiration": "Illustration may stretch into editorial diagram territory, but the command text is never invented. Think a New Yorker explainer: the subject is real, the drawing clarifies it.",
       "hybrid": "Pair one real command with one disciplined branded illustration. The command is the proof, the diagram is the teach. Keep both in the same breath visually \u2014 monospace block and illustrative arrows share the same grid."
+    },
+    "system_explainer_illustration": {
+      "default": "System explainer illustration: make one product or protocol mechanic legible at a glance. Show visible flow, gating, routing, or transformation. Think editorial explainer plate, not ambient brand art. One mechanism, one reading path, zero collage.",
+      "reference": "Borrow diagrammatic clarity, staging, and compositional hierarchy from references only. The explained mechanic stays brand-specific and concrete. Never turn the explainer into a generic network wallpaper.",
+      "inspiration": "Borrow illustration grammar and pacing, but keep the image anchored to one explicit mechanism. Think magazine explainer spread rather than premium AI mood art.",
+      "hybrid": "One branded metaphorical system plus one clearly legible flow. Treat it like a product-mechanic explainer for a launch essay: specific, causal, brand-tied, and easy to decode in seconds."
+    },
+    "editorial_metaphor_illustration": {
+      "default": "Editorial metaphor illustration: one brand-tied metaphor only. Think opinion-essay opener or launch narrative still \u2014 singular, legible, symbolic, and not diagrammatic. No collage of icons, no ambient worldbuilding.",
+      "reference": "Borrow composition and editorial gravitas from references, not their literal symbols. Reduce the image to one metaphor that belongs to this brand and this brief.",
+      "inspiration": "Borrow mood, materiality, and compositional authority, but keep the metaphor singular. Think magazine opener or essay illustration, not a multi-symbol board.",
+      "hybrid": "One dominant metaphor anchored in brand vocabulary, supported by one secondary cue maximum. Editorial clarity over system-diagram detail; strong concept over many props."
+    },
+    "illustrated_brand_world": {
+      "default": "Illustrated brand world: an explicit worldbuilding still for the brand, not a generic scene. The environment must imply the brand's work, tools, rituals, or active process. Cinematic, yes \u2014 but still evidence-bearing.",
+      "reference": "Borrow environmental composition and atmosphere from references, but keep the world tied to the brand's actual process vocabulary. Never drift into pure architectural mood.",
+      "inspiration": "Borrow worldbuilding attitude, material palette, and narrative environment only. The scene still needs evidence of work happening there.",
+      "hybrid": "One inhabited brand world, one visible process cue. Think launch-film styleframe or immersive header: atmospheric, but still clearly about the brand's work rather than generic premium scenery."
+    },
+    "proof_poster": {
+      "default": "Proof poster: a poster led by evidence. Quote, screenshot, stat, or proof module carries the piece; the logo supports it. Think editorial launch poster or institutional announcement sheet, not a logo billboard.",
+      "reference": "Borrow hierarchy and pacing from poster references, but make the proof payload primary. Real screenshot, quote, stat, or product claim leads; mark and decoration stay subordinate.",
+      "inspiration": "Borrow poster confidence and print authority, but keep one visible proof payload doing the communicative work. Never let a giant logo become the main event.",
+      "hybrid": "One proof payload in the top half or dominant read position, one brand field supporting it. Poster energy, editorial hierarchy, subordinate mark, and no empty campaign grandstanding."
+    },
+    "site_pattern_tile": {
+      "default": "Site pattern tile: one deployable repeatable tile for a live website. Low contrast, restraint-first, mark-derived logic, and easy to place behind UI without fighting content. Never a presentation board.",
+      "reference": "Borrow repeat grammar and craft logic from references only. Deliver one tile that could ship behind a real product section tomorrow.",
+      "inspiration": "Borrow pattern character and materiality, but keep the output restrained and deployable. Think subtle site underlay, not collectible poster art.",
+      "hybrid": "One repeat grammar, one deployable tile, one restrained brand move. Website-ready first; presentation-board energy is a failure mode."
+    },
+    "pattern_board": {
+      "default": "Pattern board: show a few related pattern applications inside one coherent repeat grammar. Internal review surface, not the default production output. Variations must feel like one family, not unrelated motifs.",
+      "reference": "Borrow board composition and system-presentation logic from references, but keep every variation inside one brand-derived repeat grammar.",
+      "inspiration": "Borrow exploratory energy and presentation confidence, but constrain the board to one family. Never moodboard sprawl.",
+      "hybrid": "A small board of coherent pattern variations: enough range for review, not enough chaos to feel like multiple systems. One grammar expanded carefully."
     }
   }
 }

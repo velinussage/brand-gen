@@ -582,6 +582,258 @@
           "logo stamp"
         ]
       }
+    ],
+    "system_explainer_illustration": [
+      {
+        "name": "visible routing explainer",
+        "mechanic": "one visible routed flow with gates, branches, or transforms",
+        "why": "Best when the material should explain one concrete protocol or product mechanic in a SaaS-useful way.",
+        "preserve": [
+          "one mechanism only",
+          "brand-tied visual vocabulary",
+          "clear reading path"
+        ],
+        "push": [
+          "flow legibility",
+          "causal structure",
+          "one dominant explainer diagram move"
+        ],
+        "ban": [
+          "ambient worldbuilding",
+          "symbol collage",
+          "generic glowing network art"
+        ]
+      },
+      {
+        "name": "parts-to-whole explainer",
+        "mechanic": "parts-to-whole assembly",
+        "why": "Best when the product truth is about components combining into one governed or routed system.",
+        "preserve": [
+          "explicit parts",
+          "hierarchy of importance",
+          "brand palette discipline"
+        ],
+        "push": [
+          "assembly logic",
+          "module contrast",
+          "annotation-like clarity without actual UI chrome"
+        ],
+        "ban": [
+          "poster slogans",
+          "decorative gradients",
+          "multiple unrelated metaphors"
+        ]
+      }
+    ],
+    "editorial_metaphor_illustration": [
+      {
+        "name": "single symbolic scene",
+        "mechanic": "one dominant metaphor with one support cue maximum",
+        "why": "Best for essays, launch narratives, and thought pieces where one metaphor should carry the message.",
+        "preserve": [
+          "one metaphor only",
+          "editorial clarity",
+          "brand vocabulary anchor"
+        ],
+        "push": [
+          "symbolic resonance",
+          "quiet drama",
+          "magazine-opener confidence"
+        ],
+        "ban": [
+          "diagram labels",
+          "symbol collage",
+          "generic AI atmospherics"
+        ]
+      },
+      {
+        "name": "opener still",
+        "mechanic": "one still life or staged metaphor",
+        "why": "Best when the piece should feel like an editorial opener rather than a system diagram.",
+        "preserve": [
+          "calm hierarchy",
+          "one readable subject",
+          "brand material palette"
+        ],
+        "push": [
+          "editorial restraint",
+          "surface texture",
+          "high-conviction composition"
+        ],
+        "ban": [
+          "multi-panel boards",
+          "how-it-works arrows",
+          "environment-as-mood-only"
+        ]
+      }
+    ],
+    "illustrated_brand_world": [
+      {
+        "name": "process-bearing world",
+        "mechanic": "one environment that visibly implies work, ritual, or process",
+        "why": "Best when explicit worldbuilding is desired but the brand's work still needs to feel present.",
+        "preserve": [
+          "evidence of work",
+          "brand materials and mark logic",
+          "environmental coherence"
+        ],
+        "push": [
+          "immersive atmosphere",
+          "tool or artifact cues",
+          "world scale"
+        ],
+        "ban": [
+          "pure architectural mood",
+          "generic cinematic scenery",
+          "empty set dressing"
+        ]
+      },
+      {
+        "name": "ritual environment",
+        "mechanic": "ritualized workspace or threshold environment",
+        "why": "Best when the world should feel inhabited by the brand's philosophy, not just decorated with it.",
+        "preserve": [
+          "brand process implication",
+          "narrative setting",
+          "specific material cues"
+        ],
+        "push": [
+          "threshold moments",
+          "light and depth",
+          "one unmistakable world signal"
+        ],
+        "ban": [
+          "tourism scenery",
+          "logo monumentality",
+          "scene for its own sake"
+        ]
+      }
+    ],
+    "proof_poster": [
+      {
+        "name": "quote-led proof poster",
+        "mechanic": "quote or claim block supported by one proof payload",
+        "why": "Best when a customer quote, statement, or campaign claim should lead while the brand mark stays secondary.",
+        "preserve": [
+          "clear hierarchy",
+          "subordinate logo",
+          "phone-readable proof"
+        ],
+        "push": [
+          "editorial poster pacing",
+          "top-half payload placement",
+          "institutional confidence"
+        ],
+        "ban": [
+          "giant logo dominance",
+          "proofless branding",
+          "empty campaign grandstanding"
+        ]
+      },
+      {
+        "name": "screenshot-led proof poster",
+        "mechanic": "one screenshot or stat module as the main carrier",
+        "why": "Best when the poster should feel grounded in product proof rather than abstract campaign energy.",
+        "preserve": [
+          "real proof payload",
+          "supporting brand field",
+          "disciplined typography"
+        ],
+        "push": [
+          "screenshot framing",
+          "evidence-first hierarchy",
+          "poster drama without clutter"
+        ],
+        "ban": [
+          "full UI redrawing",
+          "tiny unreadable proof",
+          "logo as hero subject"
+        ]
+      }
+    ],
+    "site_pattern_tile": [
+      {
+        "name": "quiet deployable tile",
+        "mechanic": "one low-contrast repeat tile suitable for live UI backgrounds",
+        "why": "Best for production website surfaces where the pattern must support content rather than compete with it.",
+        "preserve": [
+          "deployability",
+          "repeatability",
+          "mark-derived logic"
+        ],
+        "push": [
+          "subtle rhythm",
+          "section-background usefulness",
+          "web-safe contrast"
+        ],
+        "ban": [
+          "board presentation",
+          "poster contrast",
+          "multiple competing motifs"
+        ]
+      },
+      {
+        "name": "section underlay system",
+        "mechanic": "one restrained underlay pattern with clear repeat grammar",
+        "why": "Best when you need a pattern that can stretch across pricing, docs, or feature sections without noise.",
+        "preserve": [
+          "low visual weight",
+          "tiling discipline",
+          "brand geometry"
+        ],
+        "push": [
+          "repeat confidence",
+          "micro-contrast",
+          "subtle texture"
+        ],
+        "ban": [
+          "hero artwork energy",
+          "collectible poster styling",
+          "variant boards"
+        ]
+      }
+    ],
+    "pattern_board": [
+      {
+        "name": "coherent variation board",
+        "mechanic": "one repeat grammar expanded into a few related variants",
+        "why": "Best for internal review when the team needs to inspect range without losing system coherence.",
+        "preserve": [
+          "one family only",
+          "shared repeat grammar",
+          "presentation clarity"
+        ],
+        "push": [
+          "variation range",
+          "application examples",
+          "board readability"
+        ],
+        "ban": [
+          "unrelated motifs",
+          "moodboard sprawl",
+          "production-default assumptions"
+        ]
+      },
+      {
+        "name": "applications board",
+        "mechanic": "one tile logic shown across a few support surfaces",
+        "why": "Best when the goal is evaluating how one system behaves across backgrounds, borders, and cropped fields.",
+        "preserve": [
+          "single grammar",
+          "clear applications",
+          "brand system lineage"
+        ],
+        "push": [
+          "usage variety",
+          "support-surface realism",
+          "board composition"
+        ],
+        "ban": [
+          "random ornament",
+          "unbounded exploration",
+          "multiple system families"
+        ]
+      }
     ]
   },
   "default_track": {

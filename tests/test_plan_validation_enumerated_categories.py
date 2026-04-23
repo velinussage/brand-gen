@@ -13,6 +13,8 @@ import unittest
 
 from brand_gen.plan_validation import (
     detect_enumerated_categories,
+    detect_exact_text_request,
+    plan_declares_deterministic_text_strategy,
     plan_has_text_ban,
 )
 
@@ -128,6 +130,28 @@ class IntegrationWithValidateMaterialPlanDict(unittest.TestCase):
         all_msgs = "\n".join(report["warnings"] + report["errors"])
         self.assertNotIn("enumerates", all_msgs)
 
+    def test_exact_text_request_requires_deterministic_strategy(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            prompt_seed='Render the exact headline "95% to the creator. Instant." inside the image.',
+            ban=['no invented copy'],
+        )
+        report = validate_material_plan_dict(plan)
+        self.assertFalse(report['ok'])
+        self.assertTrue(any('Exact text request detected' in item for item in report['errors']))
+
+    def test_exact_text_request_allows_html_strategy(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            prompt_seed='Render the exact headline "95% to the creator. Instant."',
+            render_backend='html',
+        )
+        report = validate_material_plan_dict(plan)
+        self.assertTrue(report['ok'], report['errors'])
+        self.assertTrue(detect_exact_text_request(plan))
+        self.assertTrue(plan_declares_deterministic_text_strategy(plan))
+
+
 
 class ComplexityTierTests(unittest.TestCase):
     def test_normalize_respects_explicit_value(self):
@@ -147,8 +171,24 @@ class ComplexityTierTests(unittest.TestCase):
             "simple",
         )
         self.assertEqual(
+            normalize_complexity_tier(None, material_type="system-explainer-illustration"),
+            "simple",
+        )
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="illustrated-brand-world"),
+            "simple",
+        )
+        self.assertEqual(
             normalize_complexity_tier(None, material_type="campaign-poster"),
             "moderate",
+        )
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="proof-poster"),
+            "moderate",
+        )
+        self.assertEqual(
+            normalize_complexity_tier(None, material_type="site-pattern-tile"),
+            "simple",
         )
 
     def test_normalize_underscore_material_type(self):

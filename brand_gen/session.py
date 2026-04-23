@@ -16,10 +16,37 @@ DEFAULT_BRAND_GEN_CONFIG = {
 }
 
 
+def _looks_like_repo_root_workspace_override(candidate: Path, *, repo_root: Path) -> bool:
+    """Return True when BRAND_GEN_DIR points at the checkout root, not the
+    durable `.brand-gen` root.
+
+    Older local env files used `BRAND_GEN_DIR=/path/to/brand-gen`, which
+    made the runtime read/write top-level `brands/` beside the source tree
+    while Pi/OpenClaw usually used `/path/to/brand-gen/.brand-gen`.  Treat
+    that exact checkout-root shape as a compatibility typo and canonicalize
+    to the child `.brand-gen` directory.  Do not rewrite arbitrary workspace
+    roots named something else; users may intentionally keep a workspace at
+    `~/brand-workspace` with `brands/` and `config.json` directly inside it.
+    """
+    try:
+        if candidate.resolve() != repo_root.resolve():
+            return False
+    except OSError:
+        return False
+    return (candidate / ".brand-gen").is_dir() and (candidate / "brand_gen").is_dir()
+
+
+def canonicalize_brand_gen_dir(value: str | Path, *, repo_root: Path) -> Path:
+    candidate = Path(value).expanduser().resolve()
+    if _looks_like_repo_root_workspace_override(candidate, repo_root=repo_root):
+        return (candidate / ".brand-gen").resolve()
+    return candidate
+
+
 def get_brand_gen_dir(*, repo_root: Path) -> Path | None:
     override = os.environ.get("BRAND_GEN_DIR")
     if override:
-        return Path(override).expanduser().resolve()
+        return canonicalize_brand_gen_dir(override, repo_root=repo_root)
     candidate = repo_root / ".brand-gen"
     if candidate.exists():
         return candidate.resolve()

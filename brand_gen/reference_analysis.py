@@ -274,7 +274,11 @@ def run_vlm_reference_analysis(item: dict, brand_context: str, *, env: dict | No
     )
     parsed = run_vlm_json(image_path, REFERENCE_ANALYSIS_SYSTEM, user_text, env=env, max_tokens=700)
     if parsed is None:
-        return _reference_analysis_stub(item, deterministic, "No VLM API key available or response was invalid")
+        return _reference_analysis_stub(
+            item,
+            deterministic,
+            "No VLM API key available (set OPENROUTER_API_KEY or ANTHROPIC_API_KEY) or response was invalid",
+        )
     return {
         "path": str(image_path),
         "role": role,

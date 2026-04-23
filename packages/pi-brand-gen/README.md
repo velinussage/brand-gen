@@ -5,7 +5,7 @@ Native Pi extension for brand-gen. It wraps the Python MCP backend, injects work
 ## Features
 
 - brand-gen MCP bridge to the Python backend
-- native Pi tools: `brand_search`, `brand_execute`, `brand_status`
+- native Pi tools: 44 canonical `brand_*` verbs plus compatibility shims (`brand_search`, `brand_execute`, `brand_status`)
 - `/brand-gen` command surface
 - widget/status panel support
 - session lifecycle hooks and context prepend on `before_agent_start`
@@ -89,7 +89,7 @@ Use this config:
   "brandGenDir": "~/.brand-gen",
   "approvalMode": "output_only",
   "heartbeatIntervalMinutes": 60,
-  "autoHeartbeat": true
+  "autoHeartbeat": false
 }
 ```
 
@@ -134,7 +134,7 @@ Use:
 /brand-gen switch <brand>
 ```
 
-The Pi extension exposes explicit switching for existing saved brands. The one current limitation is that the brand list is only available through `/brand-gen brands` or the `brand_search` tool surface — there is not a separate dedicated widget for it. Creating a new saved brand or starting a testing session is still CLI-first today (`bgen create-brand ...` / `bgen start-testing ...`), unless your Pi host also gives the agent separate shell access.
+The Pi extension exposes explicit switching for existing saved brands. The brand list is available through `/brand-gen brands`, `brand_list_brands`, or the deprecated `brand_search` compatibility surface — there is not a separate dedicated widget for it. Creating a new saved brand or starting a testing session is still CLI-first today (`bgen create-brand ...` / `bgen start-testing ...`), unless your Pi host also gives the agent separate shell access.
 
 ## Install from the repo checkout
 
@@ -157,7 +157,7 @@ The Pi extension config schema is declared in `pi.extension.json`.
 | `approvalMode` | `"all" \| "output_only" \| "none"` | no | `"output_only"` | How much human approval is required between autonomous cycles |
 | `logLevel` | `"debug" \| "info" \| "warn" \| "error"` | no | `"info"` | Extension log verbosity |
 | `heartbeatIntervalMinutes` | `number` | no | `60` | Heartbeat timer interval |
-| `autoHeartbeat` | `boolean` | no | `true` | Whether timer-based heartbeat runs automatically |
+| `autoHeartbeat` | `boolean` | no | `false` | Whether timer-based heartbeat runs automatically. Off by default because it runs a full generation cycle, not a health check. |
 
 Example:
 
@@ -166,7 +166,7 @@ Example:
   "brandGenDir": "~/.brand-gen",
   "approvalMode": "output_only",
   "heartbeatIntervalMinutes": 60,
-  "autoHeartbeat": true
+  "autoHeartbeat": false
 }
 ```
 
@@ -175,7 +175,7 @@ Recommended quick-setup values:
 - `brandIterateMcpPath` — leave unset for a normal fork/checkout; only override it if the extension cannot infer the backend path from the repo layout
 - `brandGenDir` — keep the default `~/.brand-gen` unless you want Pi to write state elsewhere
 - `approvalMode` — `output_only` is the safest default for normal use
-- `autoHeartbeat` — keep `true` unless you want Pi to stay entirely manual
+- `autoHeartbeat` — keep `false` unless you explicitly want autonomous background generation
 
 ## `/brand-gen` commands
 
@@ -200,7 +200,7 @@ For a first smoke test, use:
 4. `/brand-gen switch <brand>` if you need to change the active brand
 5. `/brand-gen generate x-feed Launch announcement`
 
-## `brand_search` actions
+## Deprecated `brand_search` compatibility actions
 
 - `list_brands`
 - `list_tools`
@@ -216,7 +216,7 @@ For a first smoke test, use:
 - `get_journal_stats`
 - `get_pending_reviews`
 
-## `brand_execute` actions
+## Deprecated `brand_execute` compatibility actions
 
 - `generate`
 - `derive_mockup`

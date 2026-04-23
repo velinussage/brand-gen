@@ -44,6 +44,24 @@ class ArchetypeRegistryTests(unittest.TestCase):
         archetypes = list_archetypes("campaign-poster")
         self.assertGreaterEqual(len(archetypes), 3)
 
+    def test_new_material_aliases_inherit_archetypes(self):
+        self.assertEqual(
+            [a["id"] for a in list_archetypes("system-explainer-illustration")],
+            [a["id"] for a in list_archetypes("concept-illustration")],
+        )
+        self.assertEqual(
+            [a["id"] for a in list_archetypes("illustrated-brand-world")],
+            [a["id"] for a in list_archetypes("brand-scene")],
+        )
+        self.assertEqual(
+            [a["id"] for a in list_archetypes("proof-poster")],
+            [a["id"] for a in list_archetypes("campaign-poster")],
+        )
+        self.assertEqual(
+            [a["id"] for a in list_archetypes("site-pattern-tile")],
+            [a["id"] for a in list_archetypes("pattern-system")],
+        )
+
     def test_underscore_form_accepted(self):
         """Legacy plan data uses underscore form — loader must accept both."""
         a_hyphen = list_archetypes("concept-illustration")

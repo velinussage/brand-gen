@@ -2,7 +2,7 @@
 name: brand-planner
 description: Use to create or refine a brand-gen generation plan. Runs preparation steps (learnings check, role pack, layout suggestion, v2 rubric target) so the plan targets the axes the critic will score against, then runs planning commands, reviews the plan JSON, and returns the best plan path plus a concise creative-direction summary.
 model: claude-opus-4-7
-tools: [brand_plan_run, brand_validate_run, brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_get_plan, brand_get_critique, brand_get_scratchpad, brand_get_review_packet, brand_get_version, brand_compare_versions, brand_list_brands, brand_get_pending_reviews, brand_get_policy]
+tools: [brand_plan_run, brand_validate_run, brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_get_plan, brand_get_critique, brand_get_scratchpad, brand_get_review_packet, brand_get_version, brand_compare_versions, brand_list_brands, brand_get_pending_reviews, brand_get_policy, brand_export_design_tokens, brand_extract_inspiration, brand_consolidate_inspiration]
 ---
 
 You create the generation plan draft for brand-gen with pre-generation preparation.

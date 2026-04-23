@@ -166,6 +166,41 @@ class PromptUpdateTests(unittest.TestCase):
         self.assertEqual(variant, 'default')
         self.assertIn('25% visual weight', snippet)
 
+    def test_system_explainer_uses_explicit_new_snippet(self):
+        key, variant, snippet = resolve_material_prompt_snippet({}, {}, 'system-explainer-illustration', 'hybrid')
+        self.assertEqual(key, 'system_explainer_illustration')
+        self.assertEqual(variant, 'default')
+        self.assertIn('clearly legible flow', snippet)
+
+    def test_proof_poster_uses_explicit_new_snippet(self):
+        key, variant, snippet = resolve_material_prompt_snippet({}, {}, 'proof-poster', 'hybrid')
+        self.assertEqual(key, 'proof_poster')
+        self.assertEqual(variant, 'default')
+        self.assertIn('proof payload', snippet)
+        self.assertIn('subordinate mark', snippet)
+
+    def test_build_effective_prompt_surfaces_pattern_discovery_packet(self):
+        with patch(
+            'brand_gen.prompt_assembly.discover_prompt_patterns',
+            return_value={
+                'retrieval_mode': 'material_exact',
+                'hypotheses': [{'version': 'v001', 'model': 'gpt-image-2', 'borrow': ['single_thesis']}],
+                'recommended_moves': ['single_thesis'],
+                'avoid_moves': ['logo_dominance'],
+                'packet': 'Pattern hypotheses:\n- v001 (gpt-image-2): bias toward single_thesis',
+            },
+        ):
+            payload = build_effective_prompt(
+                {},
+                {},
+                'Create a system explainer.',
+                material_type='system-explainer-illustration',
+                brand_dir=Path('/tmp/brand'),
+            )
+
+        self.assertIn('Pattern hypotheses', payload['pattern_discovery_packet'])
+        self.assertEqual(payload['pattern_discovery']['retrieval_mode'], 'material_exact')
+
     def test_build_effective_prompt_surfaces_selected_inspiration_translation(self):
         with patch(
             'brand_gen.prompt_assembly.load_inspiration_prompt_context',

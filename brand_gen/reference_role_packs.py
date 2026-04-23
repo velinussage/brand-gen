@@ -363,7 +363,13 @@ def select_inspiration_sources(
 ) -> dict:
     material_key = role_pack_material_key(material_type)
     is_interface = material_key in INTERFACE_MATERIAL_KEYS
-    illustration_first = material_key in {"concept_illustration", "brand_scene"}
+    illustration_first = material_key in {
+        "concept_illustration",
+        "system_explainer_illustration",
+        "editorial_metaphor_illustration",
+        "brand_scene",
+        "illustrated_brand_world",
+    }
     limit = max_sources or (1 if is_interface else (3 if illustration_first else 2))
     role_keys = {
         normalize_inspiration_key(item.get("source_key") or item.get("source_name") or "")

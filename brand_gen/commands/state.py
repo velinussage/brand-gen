@@ -9,6 +9,13 @@ from ..generation_flow import *
 from ..session_summary import *
 from ..media_board import *
 from ..brand_scaffold import build_profile_from_brief, deep_merge_defaults, load_brand_profile_template
+from ..material_taxonomy_migration import (
+    find_saved_workspaces,
+    migrate_workspace as migrate_taxonomy_workspace,
+    migrate_workspaces as migrate_taxonomy_workspaces,
+    report_workspace_deprecated_usage,
+    report_workspaces_deprecated_usage,
+)
 
 def cmd_bootstrap(args):
     manifest = load_manifest()
@@ -184,6 +191,82 @@ def cmd_start_testing(args):
     print(f"- Run the main skill in {REPO_ROOT / 'skills' / 'brand-gen' / 'SKILL.md'}")
     print(f"- Reverse interview into: {REPO_ROOT / 'prompts' / 'start-brand-testing.md'}")
     print("- Then route-request -> plan-draft -> critique-plan -> build-generation-scratchpad -> generate --scratchpad")
+
+def _resolve_taxonomy_target_workspaces(args) -> list[Path]:
+    explicit_brand_dir = str(getattr(args, "brand_dir", "") or "").strip()
+    if explicit_brand_dir:
+        return [Path(explicit_brand_dir).expanduser().resolve()]
+    if bool(getattr(args, "all_saved", False)):
+        return find_saved_workspaces(
+            REPO_ROOT,
+            get_brand_gen_dir(),
+            include_sessions=bool(getattr(args, "include_sessions", False)),
+        )
+    return [get_brand_dir()]
+
+
+def cmd_migrate_material_taxonomy(args):
+    workspaces = _resolve_taxonomy_target_workspaces(args)
+    apply = bool(getattr(args, "apply", False))
+    payload = (
+        migrate_taxonomy_workspaces(workspaces, apply=apply)
+        if len(workspaces) > 1
+        else migrate_taxonomy_workspace(workspaces[0], apply=apply)
+    )
+    if getattr(args, "format", "text") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    mode = "Applied" if apply else "Dry run"
+    if len(workspaces) == 1 and "brand_dir" in payload:
+        print(f"{mode} taxonomy migration for: {payload['brand_dir']}")
+        print(f"Total changes: {payload.get('changes', 0)}")
+        for item in payload.get("files_changed") or []:
+            print(f"- {item['kind']}: {item['path']} ({item['changes']} changes)")
+        if payload.get("errors"):
+            print("\nErrors:")
+            for item in payload["errors"]:
+                print(f"- {item['path']}: {item['error']}")
+    else:
+        print(f"{mode} taxonomy migration across {len(workspaces)} workspaces")
+        print(f"Total changes: {payload.get('changes', 0)}")
+        for item in payload.get("results") or []:
+            print(f"- {item['brand_dir']}: {item.get('changes', 0)} changes")
+    if not apply and payload.get("changes"):
+        print("\nRe-run with --apply to write these updates.")
+
+
+def cmd_report_material_taxonomy(args):
+    workspaces = _resolve_taxonomy_target_workspaces(args)
+    payload = (
+        report_workspaces_deprecated_usage(workspaces)
+        if len(workspaces) > 1
+        else report_workspace_deprecated_usage(workspaces[0])
+    )
+    if getattr(args, "format", "text") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    if len(workspaces) == 1 and "brand_dir" in payload:
+        print(f"Deprecated material-type usage report: {payload['brand_dir']}")
+        print(f"Scanned files: {payload.get('scanned_files', 0)}")
+        print(f"Remaining deprecated usages: {payload.get('deprecated_usage_count', 0)}")
+        print("By file class:")
+        for file_class, item in (payload.get("by_file_class") or {}).items():
+            print(f"- {file_class}: {item.get('count', 0)} hits")
+        print("By material type:")
+        for material_type, item in (payload.get("deprecated_material_types") or {}).items():
+            print(f"- {material_type} → {item.get('preferred_material_type') or 'n/a'}: {item.get('count', 0)} hits across {item.get('file_count', 0)} files")
+    else:
+        print(f"Deprecated material-type usage report across {len(workspaces)} workspaces")
+        print(f"Remaining deprecated usages: {payload.get('deprecated_usage_count', 0)}")
+        print("By file class:")
+        for file_class, item in (payload.get("aggregate_by_file_class") or {}).items():
+            print(f"- {file_class}: {item.get('count', 0)} hits across {item.get('workspace_count', 0)} workspaces")
+        print("By material type:")
+        for material_type, item in (payload.get("aggregate") or {}).items():
+            print(f"- {material_type} → {item.get('preferred_material_type') or 'n/a'}: {item.get('count', 0)} hits across {item.get('workspace_count', 0)} workspaces")
+        for item in payload.get("results") or []:
+            print(f"  · {item['brand_dir']}: {item.get('deprecated_usage_count', 0)} hits")
+
 
 def cmd_switch_brand(args):
     """Typed verb variant of cmd_use — takes --brand-key as a named flag for MCP ergonomics."""

@@ -25,6 +25,30 @@
     "brand_bumper": [
       "Should the motion feel more calm and editorial, or more active and infrastructural?",
       "Is the final hold the main goal, or is the reveal itself supposed to be memorable?"
+    ],
+    "system_explainer_illustration": [
+      "What is the one mechanism this image must make legible in 2\u20133 seconds?",
+      "Should the explainer feel more diagrammatic and instructional, or more editorial and atmospheric while still clearly causal?"
+    ],
+    "editorial_metaphor_illustration": [
+      "What is the single metaphor you want a viewer to walk away with?",
+      "Should this feel more essay-opener, more symbolic still life, or more narrative launch image?"
+    ],
+    "illustrated_brand_world": [
+      "Is explicit worldbuilding actually useful here, or would a tighter explainer/metaphor image be more practical?",
+      "What evidence of the brand's work must appear so the world does not collapse into pure mood?"
+    ],
+    "proof_poster": [
+      "What proof payload should lead the hierarchy: quote, screenshot, stat, or claim?",
+      "How subordinate should the logo be relative to the proof payload?"
+    ],
+    "site_pattern_tile": [
+      "Where should this tile actually deploy first: homepage sections, docs backgrounds, pricing panels, or social crops?",
+      "How subtle does it need to be before it stops fighting UI and copy?"
+    ],
+    "pattern_board": [
+      "Is this board purely for internal review, or should one variant already look close to production-ready?",
+      "How much variation is useful before the board stops feeling like one coherent system?"
     ]
   }
 }

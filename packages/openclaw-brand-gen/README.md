@@ -30,8 +30,8 @@ All settings go in the host's plugin config under the `openclaw-brand-gen` key.
 | `logoIterateMcpPath` | `string` | no | auto-derived | Optional path to `logo_iterate_mcp.py` |
 | `approvalMode` | `"all" \| "output_only" \| "none"` | no | `"output_only"` | Controls human approval between autonomous cycles |
 | `logLevel` | `"debug" \| "info" \| "warn" \| "error"` | no | `"info"` | Plugin log verbosity |
-| `heartbeatIntervalMinutes` | `number` | no | `60` | Heartbeat timer interval |
-| `autoHeartbeat` | `boolean` | no | `true` | Whether timer-based heartbeat runs automatically |
+| `heartbeatIntervalMinutes` | `number` | no | `60` | Heartbeat timer interval (minutes) |
+| `autoHeartbeat` | `boolean` | no | `false` | Whether timer-based heartbeat runs automatically. **Off by default** — the timer runs a full generation pipeline, not just a health ping. Enable explicitly if you want autonomous background generation. |
 
 Example:
 
@@ -42,16 +42,16 @@ Example:
     "brandIterateMcpPath": "/home/user/brand-gen/brand_gen/brand_iterate_mcp.py",
     "approvalMode": "output_only",
     "heartbeatIntervalMinutes": 60,
-    "autoHeartbeat": true
+    "autoHeartbeat": false
   }
 }
 ```
 
 ## Registered tools
 
-The plugin registers four tools with the host agent.
+The plugin registers the 44 canonical `brand_*` tools with the host agent, plus deprecated compatibility shims for older sessions.
 
-### `brand_search` (read-only)
+### Deprecated `brand_search` compatibility shim (read-only)
 
 Query plugin state without side effects.
 
@@ -70,7 +70,7 @@ Query plugin state without side effects.
 | `get_capabilities` | — | Current material/model/tool capability surface |
 | `get_improvement_questions` | — | Contextual questions to improve brand understanding |
 
-### `brand_execute` (mutating)
+### Deprecated `brand_execute` compatibility shim (mutating)
 
 Trigger brand-gen actions that modify state.
 
@@ -108,7 +108,8 @@ Usage: `{ tool: "logo_generate", params: { ... } }`
 
 ```text
 OpenClaw host
-  ├─ brand_search / brand_execute / brand_status / logo_execute
+  ├─ 44 canonical brand_* tools
+  ├─ deprecated brand_search / brand_execute / brand_status / logo_execute shims
   ├─ openclaw-brand-gen plugin
   ├─ @brand-gen/core shared layer
   └─ MCP bridges

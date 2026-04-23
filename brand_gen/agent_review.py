@@ -160,7 +160,7 @@ def build_agent_visual_review_packet(
         "preferred_reviewer": "agent",
         "submission": {
             "suggested_output_path": str(suggested_output),
-            "command": f"bgen submit-critique {version_id} --critique-json {suggested_output} --format json",
+            "command": f"bgen submit-critique --version-id {version_id} --critique-json {suggested_output} --format json",
         },
         "rubric": {
             "instructions": (

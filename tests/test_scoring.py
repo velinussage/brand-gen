@@ -45,9 +45,18 @@ class TestUniversalAxes(unittest.TestCase):
 
 
 class TestMaterialOverlays(unittest.TestCase):
-    MATERIALS = ("landing-hero", "concept-illustration", "brand-scene")
+    MATERIALS = (
+        "landing-hero",
+        "concept-illustration",
+        "system-explainer-illustration",
+        "editorial-metaphor-illustration",
+        "illustrated-brand-world",
+        "proof-poster",
+        "site-pattern-tile",
+        "pattern-board",
+    )
 
-    def test_three_materials_registered(self):
+    def test_expected_materials_registered(self):
         for material in self.MATERIALS:
             self.assertIn(material, MATERIAL_OVERLAYS)
 
@@ -87,14 +96,18 @@ class TestMaterialOverlays(unittest.TestCase):
         self.assertEqual(len(axes), len(UNIVERSAL_AXES))
 
     def test_underscore_aliases_resolve(self):
-        # landing_hero → landing-hero
         self.assertEqual(len(axes_for("landing_hero")), 7)
         self.assertEqual(len(axes_for("concept_illustration")), 7)
         self.assertEqual(len(axes_for("brand_scene")), 7)
+        self.assertEqual(len(axes_for("campaign_poster")), 7)
+        self.assertEqual(len(axes_for("pattern_system")), 7)
 
     def test_material_rubric_key(self):
         self.assertEqual(material_rubric_key("landing-hero"), "landing-hero")
         self.assertEqual(material_rubric_key("landing_hero"), "landing-hero")
+        self.assertEqual(material_rubric_key("brand-scene"), "illustrated-brand-world")
+        self.assertEqual(material_rubric_key("campaign-poster"), "proof-poster")
+        self.assertEqual(material_rubric_key("pattern-system"), "site-pattern-tile")
         self.assertEqual(material_rubric_key("unknown"), "")
         self.assertEqual(material_rubric_key(None), "")
 
@@ -106,7 +119,7 @@ class TestToJsonDict(unittest.TestCase):
         self.assertIn("universal_axes", payload)
         self.assertIn("materials", payload)
         self.assertEqual(len(payload["universal_axes"]), 5)
-        self.assertEqual(len(payload["materials"]), 3)
+        self.assertEqual(len(payload["materials"]), len(MATERIAL_OVERLAYS))
 
     def test_material_focused_shape(self):
         payload = to_json_dict("landing-hero")
@@ -126,7 +139,7 @@ class TestToJsonDict(unittest.TestCase):
         payload = to_json_dict()
         # should not raise
         json.dumps(payload)
-        for material in ("landing-hero", "concept-illustration", "brand-scene"):
+        for material in ("landing-hero", "concept-illustration", "illustrated-brand-world", "proof-poster", "site-pattern-tile"):
             json.dumps(to_json_dict(material))
 
 

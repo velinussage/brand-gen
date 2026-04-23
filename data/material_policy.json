@@ -6,11 +6,6 @@
       "default_model": "recraft-v4",
       "default_aspect_ratio": "1:1"
     },
-    "wordmark": {
-      "generation_mode": "image",
-      "default_model": "ideogram",
-      "default_aspect_ratio": "16:9"
-    },
     "lockup": {
       "generation_mode": "image",
       "default_model": "recraft-v4",
@@ -128,7 +123,7 @@
     },
     "product-visual": {
       "generation_mode": "image",
-      "default_model": "recraft-v4",
+      "default_model": "gpt-image-2",
       "default_aspect_ratio": "4:5"
     },
     "styleframe": {
@@ -188,12 +183,12 @@
     },
     "concept-illustration": {
       "generation_mode": "image",
-      "default_model": "recraft-v4",
+      "default_model": "gpt-image-2",
       "default_aspect_ratio": "4:5"
     },
     "brand-scene": {
       "generation_mode": "image",
-      "default_model": "recraft-v4",
+      "default_model": "gpt-image-2",
       "default_aspect_ratio": "16:9"
     },
     "data-card": {
@@ -300,6 +295,36 @@
       "generation_mode": "image",
       "default_model": "nano-banana-2",
       "default_aspect_ratio": "4:5"
+    },
+    "system-explainer-illustration": {
+      "generation_mode": "image",
+      "default_model": "gpt-image-2",
+      "default_aspect_ratio": "4:5"
+    },
+    "editorial-metaphor-illustration": {
+      "generation_mode": "image",
+      "default_model": "gpt-image-2",
+      "default_aspect_ratio": "4:5"
+    },
+    "illustrated-brand-world": {
+      "generation_mode": "image",
+      "default_model": "gpt-image-2",
+      "default_aspect_ratio": "16:9"
+    },
+    "proof-poster": {
+      "generation_mode": "image",
+      "default_model": "flux-2-pro",
+      "default_aspect_ratio": "4:5"
+    },
+    "site-pattern-tile": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
+    },
+    "pattern-board": {
+      "generation_mode": "image",
+      "default_model": "recraft-v4",
+      "default_aspect_ratio": "1:1"
     }
   },
   "classifications": {
@@ -333,7 +358,13 @@
       "process_card",
       "quote_card",
       "social",
-      "sticker_family"
+      "sticker_family",
+      "system_explainer_illustration",
+      "editorial_metaphor_illustration",
+      "illustrated_brand_world",
+      "proof_poster",
+      "site_pattern_tile",
+      "pattern_board"
     ],
     "copy_bearing": [
       "announcement-card",
@@ -363,8 +394,8 @@
       "social",
       "state-card",
       "terminal-hero",
-      "wordmark",
-      "x-card"
+      "x-card",
+      "proof-poster"
     ]
   },
   "snippet_aliases": {
@@ -423,7 +454,13 @@
     "short-video": "feature_animation",
     "terminal-hero": "terminal_hero",
     "cli-recording": "cli_recording",
-    "command-illustration": "command_illustration"
+    "command-illustration": "command_illustration",
+    "system-explainer-illustration": "concept_illustration",
+    "editorial-metaphor-illustration": "concept_illustration",
+    "illustrated-brand-world": "brand_scene",
+    "proof-poster": "campaign_poster",
+    "site-pattern-tile": "pattern_system",
+    "pattern-board": "pattern_system"
   },
   "social_specs": {
     "x-card": {
@@ -499,19 +536,19 @@
       "source": "brand-gen inference from major social preview ecosystems"
     },
     "concept-illustration": {
-      "label": "Concept illustration (brand world)",
+      "label": "[DEPRECATED] Concept illustration (umbrella)",
       "width": 1080,
       "height": 1350,
       "aspect_ratio": "4:5",
-      "notes": "Abstract branded illustration that explains a concept, value, or idea without showing product UI. Uses brand palette, motifs, and illustration style to create a visual metaphor. Think editorial illustration, not screenshot.",
+      "notes": "Deprecated umbrella type. Prefer system-explainer-illustration for mechanism-led SaaS explanation, or editorial-metaphor-illustration for essay/metaphor-led work. Deprecated umbrella type. Prefer system-explainer-illustration or editorial-metaphor-illustration for new planning. Abstract branded illustration that explains a concept, value, or idea without showing product UI. Uses brand palette, motifs, and illustration style to create a visual metaphor. Think editorial illustration, not screenshot.",
       "source": "Brand illustration best practices"
     },
     "brand-scene": {
-      "label": "Brand world scene (atmospheric)",
+      "label": "[DEPRECATED] Brand scene (umbrella)",
       "width": 1600,
       "height": 900,
       "aspect_ratio": "16:9",
-      "notes": "Atmospheric brand-world imagery \u2014 landscapes, environments, or abstract scenes that establish mood and brand feeling. No UI elements. Think backgrounds, headers, or immersive brand moments.",
+      "notes": "Deprecated umbrella type. Prefer illustrated-brand-world only when explicit illustrated worldbuilding is desired. Deprecated umbrella type. Prefer illustrated-brand-world only when explicit worldbuilding is desired. Atmospheric brand-world imagery \u2014 landscapes, environments, or abstract scenes that establish mood and brand feeling. No UI elements. Think backgrounds, headers, or immersive brand moments.",
       "source": "Brand world imagery patterns"
     },
     "data-card": {
@@ -633,6 +670,54 @@
       "aspect_ratio": "4:5",
       "notes": "Portrait feature-illustration crop pairing a real command with a restrained branded diagram.",
       "source": "brand-gen command explainer preset"
+    },
+    "system-explainer-illustration": {
+      "label": "System explainer illustration",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Structured concept still that makes one product or protocol mechanic legible at a glance. Prefer visible flow and one clear causal system over ambient worldbuilding.",
+      "source": "brand-gen SaaS explainer taxonomy v1"
+    },
+    "editorial-metaphor-illustration": {
+      "label": "Editorial metaphor illustration",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Single-metaphor editorial illustration for essays, launch narratives, or thought pieces. Use one clear visual metaphor tied to brand vocabulary, not a collage of symbols.",
+      "source": "brand-gen SaaS explainer taxonomy v1"
+    },
+    "illustrated-brand-world": {
+      "label": "Illustrated brand world",
+      "width": 1600,
+      "height": 900,
+      "aspect_ratio": "16:9",
+      "notes": "Narrative worldbuilding still used only when an atmospheric illustrated environment is explicitly desired. Must still imply process, not just mood.",
+      "source": "brand-gen SaaS explainer taxonomy v1"
+    },
+    "proof-poster": {
+      "label": "Proof poster",
+      "width": 1080,
+      "height": 1350,
+      "aspect_ratio": "4:5",
+      "notes": "Poster-like launch still led by a quote, screenshot, stat, or proof payload. The logo stays subordinate to the information hierarchy.",
+      "source": "brand-gen SaaS explainer taxonomy v1"
+    },
+    "site-pattern-tile": {
+      "label": "Site pattern tile",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Single deployable pattern tile meant to sit behind UI or sections on a live site. Low contrast, repeatable, and restraint-first.",
+      "source": "brand-gen SaaS explainer taxonomy v1"
+    },
+    "pattern-board": {
+      "label": "Pattern board",
+      "width": 1080,
+      "height": 1080,
+      "aspect_ratio": "1:1",
+      "notes": "Exploration board showing a few coherent pattern applications within one grammar. Use for internal review, not as the default site-output target.",
+      "source": "brand-gen SaaS explainer taxonomy v1"
     }
   },
   "brand_policies": {
@@ -824,6 +909,60 @@
       "abstraction_level": "medium",
       "logo_mode": "preferred",
       "clearly_branded_without_logo_min": 3
+    },
+    "system_explainer_illustration": {
+      "role": "system explainer",
+      "target_surface": "editorial explainer, docs still, or launch narrative card",
+      "purpose": "make one concrete system, workflow, or protocol mechanic visually legible without collapsing into generic AI brand art",
+      "product_truth_expression": "one specific product or protocol mechanic with visible flow, causality, or structure",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "editorial_metaphor_illustration": {
+      "role": "editorial metaphor",
+      "target_surface": "essay illustration, launch narrative, or thought-leadership card",
+      "purpose": "carry one clear brand-tied metaphor with editorial clarity instead of a broad scene or multi-symbol collage",
+      "product_truth_expression": "one explicit brand metaphor tied to the product philosophy or vocabulary",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "illustrated_brand_world": {
+      "role": "narrative worldbuilding still",
+      "target_surface": "launch film styleframe, immersive header, or occasional editorial world moment",
+      "purpose": "establish an illustrated brand environment only when explicit worldbuilding is useful",
+      "product_truth_expression": "the brand's work should still feel implied by the environment, tools, or activity",
+      "abstraction_level": "high",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "proof_poster": {
+      "role": "proof-led poster",
+      "target_surface": "launch still, campaign board, or proof-heavy social poster",
+      "purpose": "lead with a quote, screenshot, stat, or proof payload while keeping the brand mark subordinate to the message hierarchy",
+      "product_truth_expression": "one real screenshot, quote, stat, or other proof payload that visibly carries the piece",
+      "abstraction_level": "low",
+      "logo_mode": "preferred",
+      "clearly_branded_without_logo_min": 3
+    },
+    "site_pattern_tile": {
+      "role": "deployable site pattern",
+      "target_surface": "website backgrounds, section underlays, and subtle surface support",
+      "purpose": "create one reusable low-contrast pattern tile that works on a real site instead of a presentation board",
+      "product_truth_expression": "repeatable mark-derived system logic suitable for web deployment",
+      "abstraction_level": "medium",
+      "logo_mode": "optional",
+      "clearly_branded_without_logo_min": 3
+    },
+    "pattern_board": {
+      "role": "pattern exploration board",
+      "target_surface": "internal design review or system presentation",
+      "purpose": "show a few related pattern applications inside one coherent grammar",
+      "product_truth_expression": "one repeat grammar expanded into a small exploratory board, not unrelated motifs",
+      "abstraction_level": "medium",
+      "logo_mode": "optional",
+      "clearly_branded_without_logo_min": 3
     }
   },
   "role_translation_defaults": {
@@ -923,7 +1062,7 @@
           "role": "motion proof"
         },
         {
-          "material_type": "pattern-system",
+          "material_type": "site-pattern-tile",
           "role": "supporting identity system"
         }
       ]
@@ -948,7 +1087,7 @@
           "role": "motion identity"
         },
         {
-          "material_type": "pattern-system",
+          "material_type": "site-pattern-tile",
           "role": "supporting brand field"
         }
       ]
@@ -957,11 +1096,11 @@
       "description": "System-first set for brands that already have strong product proof and want applied identity extensions.",
       "materials": [
         {
-          "material_type": "campaign-poster",
+          "material_type": "proof-poster",
           "role": "campaign still"
         },
         {
-          "material_type": "pattern-system",
+          "material_type": "site-pattern-tile",
           "role": "system core"
         },
         {
@@ -994,10 +1133,42 @@
           "role": "social motion"
         },
         {
-          "material_type": "pattern-system",
+          "material_type": "site-pattern-tile",
           "role": "supporting crop system"
         }
       ]
     }
+  },
+  "deprecated_material_types": {
+    "brand-scene": {
+      "prefer": "illustrated-brand-world",
+      "note": "Deprecated umbrella scene type. Prefer illustrated-brand-world only when explicit brand-world worldbuilding is desired."
+    },
+    "campaign-poster": {
+      "prefer": "proof-poster",
+      "note": "Deprecated poster type. Prefer proof-poster so hierarchy is led by quote, screenshot, stat, or other proof payload instead of a dominant logo."
+    },
+    "pattern-system": {
+      "prefer": "site-pattern-tile",
+      "alternates": [
+        "pattern-board"
+      ],
+      "note": "Deprecated pattern umbrella. Planning now defaults to one deployable site-pattern-tile; use pattern-board only for exploration boards."
+    },
+    "concept-illustration": {
+      "prefer": "system-explainer-illustration",
+      "alternates": [
+        "editorial-metaphor-illustration"
+      ],
+      "note": "Deprecated illustration umbrella. Planning now defaults to system-explainer-illustration unless the brief is explicitly metaphor-led."
+    }
+  },
+  "prompt_snippet_keys": {
+    "system-explainer-illustration": "system_explainer_illustration",
+    "editorial-metaphor-illustration": "editorial_metaphor_illustration",
+    "illustrated-brand-world": "illustrated_brand_world",
+    "proof-poster": "proof_poster",
+    "site-pattern-tile": "site_pattern_tile",
+    "pattern-board": "pattern_board"
   }
 }

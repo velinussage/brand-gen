@@ -44,8 +44,15 @@ test('parsePluginConfig applies pi defaults', () => {
   const cfg = parsePluginConfig({});
   assert.equal(cfg.brandGenDir.endsWith('.brand-gen'), true);
   assert.equal(cfg.brandIterateMcpPath, '');
-  assert.equal(cfg.autoHeartbeat, true);
+  // autoHeartbeat defaults off — the timer runs a full generation pipeline,
+  // not a health check. Users must opt in explicitly.
+  assert.equal(cfg.autoHeartbeat, false);
   assert.equal(cfg.heartbeatIntervalMinutes, 60);
+});
+
+test('parsePluginConfig respects explicit autoHeartbeat: true opt-in', () => {
+  const cfg = parsePluginConfig({ autoHeartbeat: true });
+  assert.equal(cfg.autoHeartbeat, true);
 });
 
 test('resolvePiRuntimePaths finds the repo backend from the package checkout', () => {

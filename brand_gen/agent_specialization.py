@@ -12,7 +12,7 @@ then consumed by:
 Invariants enforced by tests/test_host_consistency.py:
 
   1. Every tool listed here must exist in packages/brand-gen-core/src/
-     tool-registry.ts's CANONICAL_TOOLS (25-tool cap).
+     tool-registry.ts's CANONICAL_TOOLS (soft-capped canonical surface).
   2. Every agent_id referenced here must have a markdown file in all
      three mirrors.
   3. Each mirror's brand-orchestrator.md is byte-equivalent after
@@ -91,6 +91,18 @@ _POLICY_MUTATIONS: tuple[str, ...] = (
 )
 
 
+# Scratchpad/readiness verbs used by specialists before paid generation.
+_GENERATION_PREP_TOOLS: tuple[str, ...] = (
+    "brand_build_generation_scratchpad",
+)
+
+# Inspiration/design-token mutations used by philosopher/planner preflights.
+_PREP_MUTATIONS: tuple[str, ...] = (
+    "brand_export_design_tokens",
+    "brand_extract_inspiration",
+    "brand_consolidate_inspiration",
+)
+
 # Mutation verbs the critic uses to land decisions from review packets.
 _CRITIC_MUTATIONS: tuple[str, ...] = (
     "brand_append_forbidden_pattern",
@@ -167,7 +179,8 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
             "brand_plan_run",
             "brand_validate_run",
         )
-        + _INSPECTION_TOOLS,
+        + _INSPECTION_TOOLS
+        + _PREP_MUTATIONS,
         may_call_orchestrator=True,
     ),
     AgentSpecialization(
@@ -202,7 +215,7 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
             "Owns design philosophy + custom scratchpad + motion grammar "
             "+ brand identity palette/typography/devices."
         ),
-        canonical_tools=_PHILOSOPHER_MUTATIONS + _INSPECTION_TOOLS,
+        canonical_tools=_PHILOSOPHER_MUTATIONS + _PREP_MUTATIONS + _INSPECTION_TOOLS,
     ),
     AgentSpecialization(
         agent_id="brand-cinematographer",
@@ -212,6 +225,7 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
         ),
         canonical_tools=(
             "brand_execute_run",
+            "brand_build_generation_scratchpad",
             "brand_set_motion_grammar",
             "brand_context_snapshot",
             "brand_show_iteration_memory",
@@ -229,8 +243,8 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
             "brand_update_typography",
             "brand_update_devices",
             "brand_append_custom_scratchpad_note",
-            "brand_capabilities",
-        ),
+        )
+        + _INSPECTION_TOOLS,
     ),
 )
 

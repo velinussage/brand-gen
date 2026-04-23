@@ -5,8 +5,8 @@ Inline Python dict. Editable without touching any other file.
 `to_json_dict()` serializes for `bgen show-rubric --format json` and
 for any downstream consumer (scorer, eval harness, PR comment bots).
 
-v1 covers 3 materials explicitly: landing-hero, concept-illustration,
-brand-scene. Other materials fall through to universal axes only.
+v1 covers landing-hero plus a small set of SaaS illustration / poster / pattern
+materials explicitly. Other materials fall through to universal axes only.
 
 To add a material overlay: extend MATERIAL_OVERLAYS with a dict.
 To add a universal axis: extend UNIVERSAL_AXES (affects every run — do this
@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Any
 
 
-RUBRIC_VERSION = "2026-04-20"
+RUBRIC_VERSION = "2026-04-22"
 
 
 UNIVERSAL_AXES: list[dict[str, str]] = [
@@ -155,44 +155,198 @@ MATERIAL_OVERLAYS: dict[str, dict[str, Any]] = {
             ),
         },
     },
-    "brand-scene": {
-        "material_rubric_key": "brand-scene",
+    "system-explainer-illustration": {
+        "material_rubric_key": "system-explainer-illustration",
         "overlay_axes": [
             {
-                "name": "process_implied",
+                "name": "system_logic_visible",
                 "definition": (
-                    "Does the environment imply the brand's actual process or work, or "
-                    "is it just a tasteful architectural / interior mood piece? Brand "
-                    "scenes should feel like the kind of room where the brand's work "
-                    "happens — the textures, tools, materials, posture all carry "
-                    "evidence of process."
+                    "Can a viewer see one explicit mechanism, flow, or causal structure "
+                    "at work? System explainers should make the product or protocol "
+                    "logic feel legible, not merely atmospheric."
                 ),
             },
             {
                 "name": "brand_specificity",
                 "definition": (
-                    "Same definition as concept-illustration. Scenes that feel like "
-                    "generic premium interior design score low. Scenes that carry the "
-                    "brand's declared material vocabulary (rammed earth, aged stone, "
-                    "specific typographic signage, brand palette in the lighting) "
-                    "score high."
+                    "Does the explainer still feel uniquely tied to this brand's visual "
+                    "language, metaphor vocabulary, and material palette rather than a "
+                    "generic premium SaaS diagram?"
                 ),
             },
         ],
         "disqualifier": {
-            "rule_id": "brand-scene-pure-mood-no-process",
+            "rule_id": "system-explainer-illustration-no-mechanism",
             "description": (
-                "The scene is pure architectural mood — tasteful interior with no "
-                "implied process, activity, tools, or evidence that the brand's "
-                "work would happen in this space."
+                "The image claims to explain a system but shows only atmospheric or "
+                "decorative symbolism with no visible mechanism, flow, or structure."
             ),
             "detection_prompt": (
-                "Examine the scene. Can you point to specific visual evidence that "
-                "the brand's work happens in this space? Examples of sufficient "
-                "evidence: tools arrayed on a surface, documents mid-review, a "
-                "typographic signage that matches brand voice, materials in "
-                "progress, a figure in working posture. If the scene is purely "
-                "decorative architecture / interior mood with no process evidence, "
+                "Examine the illustration. Could a new viewer point to one specific "
+                "system or process in motion (routing, gating, proving, indexing, "
+                "selection, transformation)? If not — if it reads as decorative brand "
+                "art rather than a system explainer — return true. Otherwise return false."
+            ),
+        },
+    },
+    "editorial-metaphor-illustration": {
+        "material_rubric_key": "editorial-metaphor-illustration",
+        "overlay_axes": [
+            {
+                "name": "metaphor_clarity",
+                "definition": (
+                    "Is there one clear metaphor carrying the image, or does it feel like "
+                    "a collage of symbols, props, and mood cues? Editorial metaphor "
+                    "illustrations should be singular and legible, not encyclopedic."
+                ),
+            },
+            {
+                "name": "brand_specificity",
+                "definition": (
+                    "Could this metaphor belong only to this brand's declared vocabulary, "
+                    "or could any tasteful AI brand have used it?"
+                ),
+            },
+        ],
+        "disqualifier": {
+            "rule_id": "editorial-metaphor-illustration-collage-no-single-metaphor",
+            "description": (
+                "The illustration is a collage of symbols or ambience with no single "
+                "metaphor doing the communicative work."
+            ),
+            "detection_prompt": (
+                "Examine the illustration. Can you summarize its main metaphor in one "
+                "sentence without listing multiple unrelated symbols? If no — if it "
+                "reads as a decorative collage or ambient world rather than one clear "
+                "editorial metaphor — return true. Otherwise return false."
+            ),
+        },
+    },
+    "illustrated-brand-world": {
+        "material_rubric_key": "illustrated-brand-world",
+        "overlay_axes": [
+            {
+                "name": "process_implied",
+                "definition": (
+                    "Does the environment imply the brand's actual process or work, or "
+                    "is it just a tasteful architectural / interior mood piece? The "
+                    "world should still feel inhabited by the brand's work."
+                ),
+            },
+            {
+                "name": "brand_specificity",
+                "definition": (
+                    "Does the world carry the brand's declared material vocabulary, mark "
+                    "logic, and narrative environment rather than generic premium mood?"
+                ),
+            },
+        ],
+        "disqualifier": {
+            "rule_id": "illustrated-brand-world-pure-mood-no-process",
+            "description": (
+                "The world is pure architectural or atmospheric mood with no process, "
+                "activity, or evidence that the brand's work happens there."
+            ),
+            "detection_prompt": (
+                "Examine the world. Can you point to specific visual evidence that the "
+                "brand's work happens in this environment? If it is only mood, interior, "
+                "or cinematic atmosphere with no process implication, return true. "
+                "Otherwise return false."
+            ),
+        },
+    },
+    "proof-poster": {
+        "material_rubric_key": "proof-poster",
+        "overlay_axes": [
+            {
+                "name": "information_hierarchy",
+                "definition": (
+                    "Is the hierarchy led by the proof payload — quote, screenshot, stat, "
+                    "or claim — with the mark supporting it? If the logo is the biggest "
+                    "thing and the message is secondary, the poster scores low."
+                ),
+            },
+            {
+                "name": "proof_payload_visible",
+                "definition": (
+                    "Is there an actual payload carrying meaning: visible quote, real "
+                    "screenshot, stat, or proof module? Proof posters without a proof "
+                    "payload collapse into generic brand ads."
+                ),
+            },
+        ],
+        "disqualifier": {
+            "rule_id": "proof-poster-logo-dominant-no-proof",
+            "description": (
+                "The poster is dominated by the brand mark with no clear quote, proof, "
+                "or screenshot payload doing the communicative work."
+            ),
+            "detection_prompt": (
+                "Examine the poster. Is the largest or dominant element simply the brand "
+                "mark or a logo carrier, while the quote, screenshot, or proof payload is "
+                "missing or visibly subordinate? If yes, return true. Otherwise return false."
+            ),
+        },
+    },
+    "site-pattern-tile": {
+        "material_rubric_key": "site-pattern-tile",
+        "overlay_axes": [
+            {
+                "name": "deployability",
+                "definition": (
+                    "Does this read like one repeatable, low-contrast tile that could sit "
+                    "behind UI on a real site, or like a presentation board / poster / "
+                    "motif collage?"
+                ),
+            },
+            {
+                "name": "brand_specificity",
+                "definition": (
+                    "Is the repeat logic clearly derived from this brand's mark anatomy or "
+                    "system language, not a generic abstract wallpaper?"
+                ),
+            },
+        ],
+        "disqualifier": {
+            "rule_id": "site-pattern-tile-board-not-tile",
+            "description": (
+                "The output is a board of multiple treatments or a motif collage instead "
+                "of one deployable repeatable tile."
+            ),
+            "detection_prompt": (
+                "Examine the pattern output. Does it show one repeatable, low-contrast tile "
+                "that could actually be deployed on a website? If instead it shows multiple "
+                "competing treatments, presentation framing, or a collage of motifs, return "
+                "true. Otherwise return false."
+            ),
+        },
+    },
+    "pattern-board": {
+        "material_rubric_key": "pattern-board",
+        "overlay_axes": [
+            {
+                "name": "system_coherence",
+                "definition": (
+                    "Do the explored modules all belong to one repeat grammar, or does the "
+                    "board feel like unrelated motifs collected together?"
+                ),
+            },
+            {
+                "name": "brand_specificity",
+                "definition": (
+                    "Are the board's pattern moves clearly derived from this brand's mark "
+                    "anatomy and system logic rather than generic geometric exercises?"
+                ),
+            },
+        ],
+        "disqualifier": {
+            "rule_id": "pattern-board-unrelated-motif-collage",
+            "description": (
+                "The board mixes unrelated motifs without a single coherent repeat grammar."
+            ),
+            "detection_prompt": (
+                "Examine the board. Do the modules feel like variations inside one system, "
+                "or like unrelated patterns placed next to each other? If unrelated collage, "
                 "return true. Otherwise return false."
             ),
         },
@@ -204,7 +358,18 @@ MATERIAL_OVERLAYS: dict[str, dict[str, Any]] = {
 _MATERIAL_ALIASES = {
     "landing_hero": "landing-hero",
     "concept_illustration": "concept-illustration",
-    "brand_scene": "brand-scene",
+    "brand_scene": "illustrated-brand-world",
+    "campaign_poster": "proof-poster",
+    "pattern_system": "site-pattern-tile",
+    "system_explainer_illustration": "system-explainer-illustration",
+    "editorial_metaphor_illustration": "editorial-metaphor-illustration",
+    "illustrated_brand_world": "illustrated-brand-world",
+    "proof_poster": "proof-poster",
+    "site_pattern_tile": "site-pattern-tile",
+    "pattern_board": "pattern-board",
+    "brand-scene": "illustrated-brand-world",
+    "campaign-poster": "proof-poster",
+    "pattern-system": "site-pattern-tile",
 }
 
 

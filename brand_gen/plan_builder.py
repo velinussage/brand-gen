@@ -50,6 +50,7 @@ from .reference_role_packs import (
 from .request_intent import (
     infer_illustration_only_request,
     illustration_only_hits,
+    resolve_planner_material_type,
 )
 from .runtime import *
 from .runtime_brand import load_alignment_questions, load_idea_tracks, load_pipeline_config, load_prompt_fragments
@@ -209,6 +210,16 @@ def create_material_plan(
     inspiration_picks: list[str] | None = None,
     accept_inspiration_recommendations: bool = False,
 ) -> tuple[dict, list[str]]:
+    requested_material_type = material_type
+    material_type, material_type_resolution_note = resolve_planner_material_type(
+        material_type,
+        purpose=purpose or "",
+        target_surface=target_surface or "",
+        prompt_seed=prompt_seed or "",
+        briefing=briefing or "",
+        product_truth_expression=product_truth_expression or "",
+    )
+
     candidates = suggest_reference_role_pack(brand_dir, material_type)
     configured_required_roles = list(candidates.get("required_roles") or [])
     candidate_counts = {
@@ -296,7 +307,14 @@ def create_material_plan(
     role_pack_requirement_mode = "advisory_inspiration_fallback" if relaxed_role_pack_gate else "strict"
     learning_context = build_blackboard_learning_context(brand_dir, material_type)
     illustration_inspiration_required = bool(
-        illustration_only or role_pack_material_key(material_type) in {"concept_illustration", "brand_scene"}
+        illustration_only
+        or role_pack_material_key(material_type) in {
+            "concept_illustration",
+            "system_explainer_illustration",
+            "editorial_metaphor_illustration",
+            "brand_scene",
+            "illustrated_brand_world",
+        }
     )
     min_inspiration_sources = 3 if illustration_only else (2 if illustration_inspiration_required else 0)
     learned_setup_warnings = get_blackboard_learning_warnings(
@@ -391,6 +409,13 @@ def create_material_plan(
         "brand_dir": str(brand_dir),
         "identity_path": str(identity_path),
         "material_type": material_type,
+        "requested_material_type": requested_material_type,
+        "material_type_resolution": {
+            "requested": requested_material_type,
+            "resolved": material_type,
+            "changed": requested_material_type != material_type,
+            "note": material_type_resolution_note,
+        },
         "mode": mode,
         "render_backend": resolved_render_backend,
         "source_url": resolved_source_url,
@@ -543,9 +568,10 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
 
 
 def default_idea_tracks(material_type: str) -> list[dict]:
-    key = role_pack_material_key(material_type) or (material_type or "").strip().lower().replace("-", "_")
+    normalized = (material_type or "").strip().lower().replace("-", "_")
     data = load_idea_tracks()
     tracks = data.get("tracks", {})
+    key = normalized if normalized in tracks else (role_pack_material_key(material_type) or normalized)
     default_track = data.get("default_track", {
         "name": "core brand extension",
         "mechanic": "one clear repeated brand mechanic",
@@ -558,14 +584,15 @@ def default_idea_tracks(material_type: str) -> list[dict]:
 
 
 def default_alignment_questions(material_type: str) -> list[str]:
-    key = role_pack_material_key(material_type) or (material_type or "").strip().lower().replace("-", "_")
+    normalized = (material_type or "").strip().lower().replace("-", "_")
     data = load_alignment_questions()
+    material_specific = data.get("material_specific", {})
+    key = normalized if normalized in material_specific else (role_pack_material_key(material_type) or normalized)
     common = data.get("common", [
         "Which direction feels most like the brand you want to become, not just the brand you have now?",
         "Should this feel calmer and more institutional, or bolder and more collectible?",
         "What would make you reject a version immediately?",
     ])
-    material_specific = data.get("material_specific", {})
     return common + material_specific.get(key, [])
 
 
@@ -648,7 +675,7 @@ def build_route_payload(args, brand_dir: Path, profile: dict, identity: dict) ->
     # default route doesn't match intent.  Re-run with --route <key>.
     if illustration_only and role_pack_material_key(getattr(args, "material_type", None)) in {"browser_illustration", "feature_illustration", "landing_hero", "product_banner", "terminal_hero", "command_illustration"}:
         result.setdefault("warnings", []).append(
-            "Illustration-only intent conflicts with an interface/page-adjacent material type. Prefer a standalone illustration material such as concept-illustration unless the user explicitly wants the page/UI itself."
+            "Illustration-only intent conflicts with an interface/page-adjacent material type. Prefer a standalone illustration material such as system-explainer-illustration or editorial-metaphor-illustration unless the user explicitly wants the page/UI itself."
         )
     if route_info.get("method") != "agent_override":
         result["route_candidates"] = build_route_candidates(
@@ -877,7 +904,14 @@ def build_improvement_questions(brand_dir: Path, profile: dict, identity: dict, 
 
     # Phase 2: Visual direction questions (after first few generations)
     if len(versions) >= 2:
-        illustration_types_used = material_types_used & {"concept-illustration", "brand-scene", "feature-illustration"}
+        illustration_types_used = material_types_used & {
+            "concept-illustration",
+            "system-explainer-illustration",
+            "editorial-metaphor-illustration",
+            "brand-scene",
+            "illustrated-brand-world",
+            "feature-illustration",
+        }
         ui_types_used = material_types_used & {"browser-illustration", "landing-hero", "product-banner"}
         if len(ui_types_used) > 0 and len(illustration_types_used) == 0:
             questions.append({

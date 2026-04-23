@@ -20,6 +20,7 @@ from .iteration_memory import (
 from .runtime import *
 from .runtime_models import recommend_text_model
 from .material_planning import *
+from .plan_validation import detect_exact_text_request, plan_declares_deterministic_text_strategy
 from .reference_analysis import (
     build_reference_analysis_inputs as _build_reference_analysis_inputs,
     build_reference_analysis_snippet as _build_reference_analysis_snippet,
@@ -262,6 +263,9 @@ def assemble_generation_scratchpad(
         source_url=getattr(args, "source_url", None) or "",
         entity_type=getattr(args, "entity_type", None) or "",
         selected_surface_strategy=plan.get("selected_surface_strategy") or "",
+        selected_surface_strategy_label=plan.get("selected_surface_strategy_label") or "",
+        purpose=plan.get("purpose") or "",
+        target_surface=plan.get("target_surface") or "",
         aesthetic_archetype=plan.get("aesthetic_archetype") if isinstance(plan.get("aesthetic_archetype"), dict) else None,
         prompt_subject=str(plan.get("prompt_subject") or ""),
         prompt_style_descriptors=str(plan.get("prompt_style_descriptors") or ""),
@@ -476,12 +480,7 @@ def assemble_generation_scratchpad(
         warnings.append(
             f"Custom scratchpad override: mode forced to '{_custom_override['mode']}' for material '{material_type}'."
         )
-    _learned_model = (
-        resolve_learned_model(material_type, brand_dir)
-        if not (_source_critique_model_rec or args.model or _custom_model)
-        else None
-    )
-    model = _source_critique_model_rec or args.model or _custom_model or _learned_model or resolve_default_model(
+    _default_model = resolve_default_model(
         material_type,
         generation_mode,
         workflow_mode,
@@ -490,6 +489,22 @@ def assemble_generation_scratchpad(
         has_motion_reference=bool(motion_reference),
         has_base_image=bool(base_image),
     )
+    _preserve_default_model = material_uses_canonical_gpt_image_2(
+        material_type,
+        generation_mode,
+        has_base_image=bool(base_image),
+        has_motion_reference=bool(motion_reference),
+    )
+    _learned_model = (
+        resolve_learned_model(material_type, brand_dir)
+        if not (_source_critique_model_rec or args.model or _custom_model or _preserve_default_model)
+        else None
+    )
+    model = _source_critique_model_rec or args.model or _custom_model or _learned_model or _default_model
+    if _preserve_default_model and not (_source_critique_model_rec or args.model or _custom_model):
+        warnings.append(
+            f"Canonical material renderer preserved: '{material_type}' stays on '{_default_model}' unless explicitly overridden."
+        )
     if _learned_model and model == _learned_model:
         warnings.append(
             f"Learnings override: modelPreferences promoted '{_learned_model}' "
@@ -507,6 +522,8 @@ def assemble_generation_scratchpad(
         blocking_issues.append(f"Model '{model}' does not support motion references.")
 
     aspect_ratio = resolve_default_aspect_ratio(material_type, getattr(args, "aspect_ratio", None), model_config or {})
+    prompt_context["output_aspect_ratio"] = aspect_ratio or ""
+    prompt_context["output_resolution"] = str(getattr(args, "resolution", None) or "")
     prompt_review = review_prompt_architecture(
         profile_data,
         identity_data,
@@ -523,6 +540,14 @@ def assemble_generation_scratchpad(
         reference_paths,
         prompt_context.get("reference_role_pack") or [],
     )
+    if (
+        detect_exact_text_request(plan) or detect_exact_text_request(raw_prompt)
+    ) and render_backend != "html" and not plan_declares_deterministic_text_strategy(plan):
+        blocking_issues.append(
+            "Exact-text rendering block: this brief asks for exact/verbatim text, but the run is using the native image backend. "
+            "Use render_backend=html or declare text_rendering_strategy=html/svg/composite so text is rendered deterministically before generation."
+        )
+
     effective_prompt = prompt_review["refined_prompt"]
     execution_prompt = prompt_review.get("execution_prompt") or effective_prompt
     if base_image:

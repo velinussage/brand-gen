@@ -1,3 +1,5 @@
+PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+
 .PHONY: setup test lint dev demo help
 
 help: ## Show this help
@@ -5,32 +7,22 @@ help: ## Show this help
 
 setup: ## First-time setup (copy .env, validate)
 	@cp -n .env.example .env 2>/dev/null || true
-	@python3 scripts/validate_setup.py
+	@$(PYTHON) scripts/validate_setup.py
 
 test: ## Run all tests
-	python3 -m pytest tests/ -v
+	$(PYTHON) -m pytest tests/ -v
 
 lint: ## Compile-check all Python modules
-	@python3 -m py_compile mcp/brand_iterate.py
-	@python3 -m py_compile mcp/brand_iterate_mcp.py
-	@python3 -m py_compile mcp/blackboard.py
-	@python3 -m py_compile mcp/pipeline_runner.py
-	@python3 -m py_compile mcp/pipeline_types.py
-	@python3 -m py_compile mcp/route_predicates.py
-	@python3 -m py_compile mcp/iteration_memory.py
-	@python3 -m py_compile mcp/reference_analysis.py
-	@python3 -m py_compile mcp/session.py
-	@python3 -m py_compile mcp/generate.py
-	@python3 -m py_compile mcp/vlm_critique.py
+	$(PYTHON) -m compileall -q brand_gen scripts
 	@echo "All modules compile cleanly."
 
 dev: ## Start the MCP server (stdio)
-	python3 mcp/brand_iterate_mcp.py
+	$(PYTHON) -m brand_gen.brand_iterate_mcp
 
 demo: ## Print the quickstart demo command
 	@echo "Run this to generate your first social card:"
 	@echo ""
-	@echo "  python3 mcp/brand_iterate.py pipeline \\"
+	@echo "  $(PYTHON) -m brand_gen pipeline \\"
 	@echo "    --material-type x-feed \\"
 	@echo "    --mode hybrid \\"
 	@echo "    --prompt-seed 'Product dashboard with clean branded field' \\"

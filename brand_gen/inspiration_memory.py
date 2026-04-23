@@ -6,7 +6,7 @@ state derived from the current inspiration image set. Keep the two lifecycles se
 
 Execution model:
 - standalone command / optional post-step (`consolidate-inspiration`)
-- one remote VLM JSON analysis per image when a provider key is available
+- one remote VLM JSON analysis per image when `OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY` is available
 - local aggregation / ranking / persistence after the per-image analyses return
 """
 
@@ -232,7 +232,7 @@ def consolidate_inspiration_memory(brand_dir: Path, *, images: list[str] | None 
     if image_paths:
         analyses = [analyze_inspiration_image(path, env=env) for path in image_paths]
         if not any(item.get("vlm_available") for item in analyses):
-            raise SystemExit("No VLM provider available for inspiration consolidation. Set ANTHROPIC_API_KEY or OPENAI_API_KEY.")
+            raise SystemExit("No VLM provider available for inspiration consolidation. Set OPENROUTER_API_KEY or ANTHROPIC_API_KEY.")
 
         payload = normalize_inspiration_memory(
             {

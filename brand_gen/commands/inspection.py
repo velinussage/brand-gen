@@ -159,7 +159,7 @@ def build_agent_regeneration_prompt(version_id: str, entry: dict) -> str:
         lines.append("Replace the primary product/reference image with <NEW_SCREEN_PATH> if you are using a new screen from the app.")
     else:
         lines.append("If you want to incorporate a new app screen, attach it as <NEW_SCREEN_PATH> and use it as the new primary product truth reference.")
-    if meta["material_type"] in {"landing-hero", "social", "campaign-poster", "merch-poster", "podcast-cover", "podcast-banner", "og-card"}:
+    if meta["material_type"] in {"landing-hero", "social", "campaign-poster", "proof-poster", "merch-poster", "podcast-cover", "podcast-banner", "og-card"}:
         lines.append("If visible copy appears, use explicit user-provided copy or approved messaging only; do not invent new slogans or event names.")
     if meta["raw_prompt"]:
         lines.append(f"Starting prompt seed from {version_id}: {meta['raw_prompt'][:400]}")
@@ -431,7 +431,11 @@ def cmd_capabilities(args):
     print("Capabilities\n")
     print("Material types:")
     for item in payload.get("material_types") or []:
-        print(f"- {item['material_type']}: {item['classification']} · {item['generation_mode']} · default {item['default_model']} @ {item['default_aspect_ratio']}")
+        suffix = ""
+        if item.get("deprecated"):
+            preferred = item.get("preferred_material_type") or "new taxonomy"
+            suffix = f" [deprecated → {preferred}]"
+        print(f"- {item['material_type']}: {item['classification']} · {item['generation_mode']} · default {item['default_model']} @ {item['default_aspect_ratio']}{suffix}")
     print("\nModels:")
     for item in (payload.get("models") or [])[:12]:
         supports = []

@@ -5,10 +5,10 @@ Exposes logo iteration tools via Model Context Protocol (stdio transport).
 Zero external dependencies — stdlib JSON-RPC over stdin/stdout.
 
 Register with your MCP host:
-  See mcp/brand_iterate_mcp.example.json for configuration.
+  See brand_gen/brand_iterate_mcp.example.json or docs/host-setup.md for configuration.
 
 Or run directly:
-  python3 mcp/logo_iterate_mcp.py
+  python3 -m brand_gen.logo_iterate_mcp
 """
 
 import json
@@ -46,7 +46,7 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "prompt": {"type": "string", "description": "The generation prompt. Use geometric language: 'flat vertical rectangles' not 'columns'."},
-                "model": {"type": "string", "description": "Model alias", "default": "recraft-v4", "enum": ["recraft-v4", "recraft-v4-svg", "recraft-v3", "ideogram", "nano-banana-2"]},
+                "model": {"type": "string", "description": "Model alias", "default": "recraft-v4", "enum": ["recraft-v4", "recraft-v4-svg", "recraft-v3", "gpt-image-2", "nano-banana-2"]},
                 "aspect_ratio": {"type": "string", "description": "Aspect ratio: 1:1 (icon), 2:1 (horizontal), 4:5 (stacked), 16:9 (banner)"},
                 "tag": {"type": "string", "description": "Short tag for filename, e.g. 'icon', 'banner', 'horizontal-lockup'"},
                 "mode": {"type": "string", "description": "Workflow mode: inspiration, reference, or hybrid.", "default": "auto", "enum": ["auto", "reference", "inspiration", "hybrid"]},

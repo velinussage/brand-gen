@@ -32,6 +32,7 @@ from .reference_role_packs import (
     select_inspiration_sources,
     stable_mechanic_id,
 )
+from .pattern_discovery import discover_prompt_patterns
 from .prompt_block import PromptBlock, blocks_from_sections, evict_to_budget
 from .runtime import *
 from .runtime_brand import load_material_snippets, load_prompt_budget, load_prompt_fragments
@@ -75,7 +76,7 @@ __all__ = [
 # ── Material prompt snippets ─────────────────────────────────────────
 
 def resolve_material_prompt_snippet(profile: dict, identity: dict, material_type: str | None, workflow_mode: str | None = None) -> tuple[str, str, str]:
-    key = MATERIAL_PROMPT_SNIPPET_ALIASES.get((material_type or "").strip().lower(), "")
+    key = MATERIAL_PROMPT_KEYS.get((material_type or "").strip().lower(), "")
     if not key:
         return "", "", ""
     snippets = (
@@ -144,6 +145,9 @@ def build_effective_prompt(
     source_url: str | None = None,
     entity_type: str | None = None,
     selected_surface_strategy: str | None = None,
+    selected_surface_strategy_label: str | None = None,
+    purpose: str | None = None,
+    target_surface: str | None = None,
     aesthetic_archetype: dict | None = None,
     prompt_subject: str | None = None,
     prompt_style_descriptors: str | None = None,
@@ -318,6 +322,11 @@ def build_effective_prompt(
         if disable_brand_guardrails or not brand_dir
         else build_blackboard_learning_snippet(brand_dir, material_type)
     )
+    pattern_discovery = (
+        {"retrieval_mode": "none", "hypotheses": [], "recommended_moves": [], "avoid_moves": [], "packet": ""}
+        if disable_brand_guardrails or not brand_dir
+        else discover_prompt_patterns(brand_dir, material_type)
+    )
 
     # Apply per-part caps for non-interface materials to prevent prelude bloat
     if material_key not in INTERFACE_MATERIAL_KEYS:
@@ -363,6 +372,8 @@ def build_effective_prompt(
         "custom_scratchpad_snippet": custom_scratchpad_snippet,
         "blackboard_learning_snippet": blackboard_learning_snippet,
         "blackboard_learning_summary": blackboard_learning_context.get("summary") or {},
+        "pattern_discovery": pattern_discovery,
+        "pattern_discovery_packet": str(pattern_discovery.get("packet") or ""),
         "blackboard_learning_recipes": blackboard_learning_context.get("recipes") or [],
         "blackboard_learning_warnings": blackboard_learning_context.get("warnings") or [],
         "material_prompt_key": material_key,
@@ -372,6 +383,9 @@ def build_effective_prompt(
         "source_url": str(source_url or ""),
         "entity_type": str(entity_type or ""),
         "selected_surface_strategy": str(selected_surface_strategy or ""),
+        "selected_surface_strategy_label": str(selected_surface_strategy_label or ""),
+        "purpose": str(purpose or ""),
+        "target_surface": str(target_surface or ""),
         "reference_role_pack": role_pack.get("roles", []),
         "reference_role_pack_paths": [str(path) for path in role_pack.get("paths", [])],
         "reference_role_pack_motion_paths": [str(path) for path in role_pack.get("motion_paths", [])],
@@ -598,6 +612,22 @@ def compact_role_pack_snippet(roles: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def compact_execution_intended_output(context: dict, material_type: str | None) -> str:
+    material_label = str(material_type or context.get("material_prompt_key") or "image").replace("-", " ").replace("_", " ").strip()
+    target_surface = str(context.get("target_surface") or "").strip()
+    strategy_label = str(context.get("selected_surface_strategy_label") or context.get("selected_surface_strategy") or "").strip().replace("_", " ").replace("-", " ")
+    purpose = str(context.get("purpose") or "").strip()
+    clauses = [f"create one {material_label}"]
+    if target_surface:
+        clauses.append(f"for {target_surface}")
+    elif strategy_label:
+        clauses.append(f"using a {strategy_label} composition")
+    lead = " ".join(clauses).strip()
+    if purpose:
+        return f"Intended output: {lead}. Goal: {cap_text_at_sentence(purpose, 140)}"
+    return f"Intended output: {lead}."
+
+
 def compact_execution_material_policy(material_snippet: str, material_key: str) -> str:
     material_snippet = (material_snippet or "").strip()
     if not material_snippet:
@@ -653,6 +683,18 @@ def compact_execution_copy_rule(context: dict) -> str:
     return "Copy rule: " + cap_text_at_sentence(copy_anchor, _shared("copy_rule_cap")).rstrip(".") + "."
 
 
+def compact_execution_output_spec(context: dict) -> str:
+    aspect_ratio = str(context.get("output_aspect_ratio") or "").strip()
+    resolution = str(context.get("output_resolution") or "").strip()
+    if resolution and aspect_ratio:
+        return f"Output format: {resolution} at exact {aspect_ratio} aspect ratio."
+    if resolution:
+        return f"Output format: {resolution}."
+    if aspect_ratio:
+        return f"Output format: exact {aspect_ratio} aspect ratio."
+    return ""
+
+
 def compact_execution_critical_bans(context: dict, material_key: str) -> str:
     bans: list[str] = []
     if material_key in INTERFACE_MATERIAL_KEYS:
@@ -691,6 +733,13 @@ def compact_execution_selected_inspiration(context: dict) -> str:
     return cap_text_at_sentence(text, _shared("execution_inspiration_cap"))
 
 
+def compact_execution_pattern_discovery(context: dict) -> str:
+    packet = str((context.get("pattern_discovery") or {}).get("packet") or context.get("pattern_discovery_packet") or "").strip()
+    if not packet:
+        return ""
+    return cap_text_at_sentence(packet, 320)
+
+
 # Short push clauses per overlay axis. Kept compact so the injection
 # doesn't bloat the execution prompt (which already runs tight against
 # total_cap). The clauses are the positive inversion of the scorer's
@@ -699,11 +748,18 @@ _OVERLAY_AXIS_PUSH_CLAUSES = {
     # landing-hero
     "surface_fit": "prove surface_fit: compose like a landing hero (not a social card or ad) — left-column copy supported by right-column art, or full-bleed with clean headline overlay",
     "meaning_at_glance": "prove meaning_at_glance: a visitor understands the product category in 2-3 seconds; the image does the work, the headline only seals it",
-    # concept-illustration
+    # concept/system-explainer
     "system_logic_visible": "prove system_logic_visible: show a visible system (nodes+edges, strata+flow, parts+whole) — not a single symbol floating in space",
     "brand_specificity": "prove brand_specificity: carry THIS brand's declared metaphor vocabulary and material palette, not interchangeable premium-AI-brand art",
-    # brand-scene
+    "metaphor_clarity": "prove metaphor_clarity: build around one clear metaphor tied to the brief, not a collage of symbols or ambient worldbuilding",
+    # illustrated brand world
     "process_implied": "prove process_implied: show evidence of the brand's actual work (tools, materials mid-use, posture of activity) — not pure architectural mood",
+    # proof-poster
+    "information_hierarchy": "prove information_hierarchy: lead with the quote, screenshot, stat, or proof payload; keep the brand mark subordinate to the message hierarchy",
+    "proof_payload_visible": "prove proof_payload_visible: a real quote, screenshot, stat, or proof panel visibly carries the poster rather than a giant logo",
+    # pattern types
+    "deployability": "prove deployability: render one repeatable, low-contrast tile that could sit behind UI on a real site",
+    "system_coherence": "prove system_coherence: every tile or module belongs to one repeat grammar, not multiple competing pattern families",
 }
 
 
@@ -889,8 +945,10 @@ def build_execution_prompt(
 
     role_pack = context.get("reference_role_pack") or []
     sections = {
+        "intended_output": compact_execution_intended_output(context, material_type),
         "material_policy": compact_execution_material_policy(context.get("material_prompt_snippet") or "", material_key),
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
+        "pattern_discovery_block": compact_execution_pattern_discovery(context),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
         "aesthetic_commitment_block": compact_execution_aesthetic_commitment(context),
@@ -900,27 +958,33 @@ def build_execution_prompt(
         "rubric_overlay_push": compact_execution_rubric_overlay_push(material_type),
         "critical_bans": compact_execution_critical_bans(context, material_key),
         "explicit_copy_rule": compact_execution_copy_rule(context),
+        "output_spec": compact_execution_output_spec(context),
         "reference_analysis_caveat": compact_execution_reference_caveat(context),
     }
 
-    # Compute the total prelude size first.
-    prelude_parts = [
-        sections["material_policy"],
-        sections["brand_anchor_rule"],
-        sections["role_pack_block"],
-        sections["selected_inspiration_block"],
-        sections["aesthetic_commitment_block"],
-        sections["five_slot_brief"],
-        sections["visual_density_block"],
-        sections["aesthetic_archetype_block"],
-        sections["rubric_overlay_push"],
-        sections["critical_bans"],
-        sections["explicit_copy_rule"],
-        sections["reference_analysis_caveat"],
+    execution_order = [
+        "intended_output",
+        "five_slot_brief",
+        "material_policy",
+        "pattern_discovery_block",
+        "aesthetic_archetype_block",
+        "aesthetic_commitment_block",
+        "visual_density_block",
+        "rubric_overlay_push",
+        "brand_anchor_rule",
+        "explicit_copy_rule",
+        "critical_bans",
+        "output_spec",
+        "role_pack_block",
+        "selected_inspiration_block",
+        "reference_analysis_caveat",
     ]
-    prelude = "\n\n".join(
-        section for section in prelude_parts if section
-    )
+
+    # Compute the total prelude size first using image-model-friendly order:
+    # what the artifact is, what it should show, how it should look, then
+    # constraints and examples/caveats.
+    active_section_ids = [section_id for section_id in execution_order if sections.get(section_id)]
+    prelude = "\n\n".join(sections[section_id] for section_id in active_section_ids)
 
     # Budget: the body (creative direction) gets at least 40% of the total
     # prompt budget.  The prelude (guardrails) compresses to fit.
@@ -937,12 +1001,28 @@ def build_execution_prompt(
     prelude_budget = max(total_cap - len(compact_body) - 4, int(total_cap * 0.3))
     prompt_blocks = blocks_from_sections(sections)
     dropped_blocks: list[PromptBlock] = []
+    active_prompt_section_ids = list(active_section_ids)
     if len(prelude) > prelude_budget:
         kept_blocks, dropped_blocks = evict_to_budget(prompt_blocks, prelude_budget)
-        prelude = "\n\n".join(block.text for block in kept_blocks if block.text.strip())
+        kept_map = {block.id: block.text for block in kept_blocks if block.text.strip()}
+        active_prompt_section_ids = [section_id for section_id in execution_order if section_id in kept_map]
+        prelude = "\n\n".join(kept_map[section_id] for section_id in active_prompt_section_ids)
 
     sections["body"] = compact_body
-    execution_prompt = prefix_prompt(prelude, compact_body, token_block="")
+    prompt_parts = []
+    if sections.get("intended_output"):
+        prompt_parts.append(sections["intended_output"])
+    if sections.get("five_slot_brief"):
+        prompt_parts.append(sections["five_slot_brief"])
+    if compact_body:
+        prompt_parts.append(compact_body)
+    for section_id in active_prompt_section_ids:
+        if section_id in {"intended_output", "five_slot_brief"}:
+            continue
+        section_text = sections.get(section_id) or ""
+        if section_text:
+            prompt_parts.append(section_text)
+    execution_prompt = "\n\n".join(part for part in prompt_parts if part)
     return {
         "execution_prompt": execution_prompt or fallback_prompt,
         "execution_prompt_kind": "image_compact",

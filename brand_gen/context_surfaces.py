@@ -16,6 +16,7 @@ from .runtime_brand import (
 )
 from .runtime_io import load_json_file
 from .runtime_models import (
+    DEPRECATED_MATERIAL_TYPES,
     INTERFACE_MATERIAL_KEYS,
     MATERIAL_CONFIG,
     MATERIAL_PROMPT_SNIPPET_ALIASES,
@@ -181,6 +182,7 @@ def _material_capabilities() -> list[dict[str, Any]]:
     for material_type, config in sorted(MATERIAL_CONFIG.items()):
         material_key = MATERIAL_PROMPT_SNIPPET_ALIASES.get(material_type, material_type.replace("-", "_"))
         classification = "interface" if material_key in INTERFACE_MATERIAL_KEYS else "non_interface"
+        deprecated = DEPRECATED_MATERIAL_TYPES.get(material_type) or {}
         items.append(
             {
                 "material_type": material_type,
@@ -188,6 +190,9 @@ def _material_capabilities() -> list[dict[str, Any]]:
                 "generation_mode": config.get("generation_mode") or "",
                 "default_model": config.get("default_model") or "",
                 "default_aspect_ratio": config.get("default_aspect_ratio") or "",
+                "deprecated": bool(deprecated),
+                "preferred_material_type": deprecated.get("prefer") or "",
+                "deprecation_note": deprecated.get("note") or "",
             }
         )
     return items

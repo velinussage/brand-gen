@@ -3,7 +3,7 @@ must correspond to a live Python MCP bridge.
 
 Background (Phase 3 of the typed-agentic-runtime refactor): the generic
 `brand_search(action, params)` / `brand_execute(action, params)` multiplexers
-on Pi and OpenClaw were replaced with a curated list of ≤25 verb-specific
+on Pi and OpenClaw were replaced with a curated soft-capped list of 44 verb-specific
 host tools, declared once in
 `packages/brand-gen-core/src/tool-registry.ts` and re-used by every host
 adapter.
@@ -15,8 +15,9 @@ CANONICAL_TOOLS names, and asserts each one:
 - exists as a tool_name in `brand_gen.mcp_bridge_registry.BRIDGE_BY_TOOL`
 - is backed by an enabled CLI bridge (convenience wrappers excluded)
 - is declared in one of the four recognized categories
-- plus the total count stays at or below the 25-tool soft cap per
-  Anthropic's 2026 tool-design guidance.
+- plus the total count stays at or below the current 45-tool soft cap.
+  The historical 25-tool cap was raised when run projection, artifact
+  inspection, brand discovery, and policy/approval became first-class verbs.
 """
 from __future__ import annotations
 

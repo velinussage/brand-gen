@@ -28,7 +28,7 @@ type ToolDefinition = {
 
 /**
  * Phase 3 of the typed-agentic-runtime refactor: host adapters expose the
- * ≤25 canonical verb-specific tools from
+ * 44 canonical verb-specific tools from
  * `packages/brand-gen-core/src/tool-registry.ts` instead of the generic
  * `brand_search(action, params)` / `brand_execute(action, params)` multiplexers.
  *

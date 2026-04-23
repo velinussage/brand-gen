@@ -728,13 +728,18 @@ def cmd_plan_material(args):
     _, plan, missing_required = build_material_plan_from_args(args, brand_dir)
     plans_dir = brand_dir / "plans"
     plans_dir.mkdir(parents=True, exist_ok=True)
-    output_path = Path(args.output).expanduser().resolve() if args.output else plans_dir / f"{slugify(args.material_type)}-{slugify(args.mode)}-plan.json"
+    output_path = Path(args.output).expanduser().resolve() if args.output else plans_dir / f"{slugify(plan['material_type'])}-{slugify(args.mode)}-plan.json"
     output_path.write_text(json.dumps(plan, indent=2) + "\n")
     if args.format == "json":
         print(json.dumps(plan, indent=2))
         return
     print(f"Material plan written to: {output_path}\n")
     print(f"Material: {plan['material_type']}")
+    resolution = plan.get("material_type_resolution") or {}
+    if resolution.get("changed"):
+        print(f"Requested material: {resolution.get('requested')} → planned as {resolution.get('resolved')}")
+        if resolution.get("note"):
+            print(f"Material note: {resolution.get('note')}")
     print(f"Mode: {plan['mode']}")
     print(f"Purpose: {plan.get('purpose') or 'n/a'}")
     print(f"Surface: {plan.get('target_surface') or 'n/a'}")
@@ -791,7 +796,7 @@ def cmd_plan_draft(args):
     output_path = Path(args.output).expanduser().resolve() if args.output else save_plan_draft(
         brand_dir,
         draft,
-        label=f"{args.material_type}-{args.mode}-plan-draft",
+        label=f"{plan['material_type']}-{args.mode}-plan-draft",
         workflow_id=workflow_id,
     )
     if args.output:
@@ -803,6 +808,9 @@ def cmd_plan_draft(args):
         return
     print(f"Plan draft written to: {output_path}\n")
     print(f"Material: {plan['material_type']}")
+    resolution = plan.get("material_type_resolution") or {}
+    if resolution.get("changed"):
+        print(f"Requested material: {resolution.get('requested')} → planned as {resolution.get('resolved')}")
     print(f"Mode: {plan['mode']}")
     print(f"Mechanic: {plan['system_mechanic'] or 'n/a'}")
     print(f"Surface strategy: {plan.get('selected_surface_strategy_label') or plan.get('selected_surface_strategy') or 'n/a'}")
@@ -1257,8 +1265,8 @@ def cmd_plan_set(args):
         plan_path.write_text(json.dumps(plan, indent=2) + "\n")
         materials.append(
             {
-                "material_type": material_type,
-                "material_key": role_pack_material_key(material_type),
+                "material_type": plan.get("material_type") or material_type,
+                "material_key": role_pack_material_key(plan.get("material_type") or material_type),
                 "role": item.get("role") or policy.get("role") or "",
                 "target_surface": plan.get("target_surface") or "",
                 "product_truth_expression": plan.get("product_truth_expression") or "",

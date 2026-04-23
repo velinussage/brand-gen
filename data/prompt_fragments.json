@@ -1,10 +1,31 @@
 {
   "version": 2,
   "image_safety": "Output only the designed artwork. No metadata, annotations, file paths, or technical overlays.",
-  "non_interface_quality_prelude": "Editorial photography, medium-format depth, real material textures — never CGI renders.",
+  "non_interface_quality_prelude": "Editorial photography, medium-format depth, real material textures \u2014 never CGI renders.",
   "copy_anchor_with_strings": "Approved copy only: {quoted_strings}. If none fit, render no text. Never invent slogans or captions.",
   "copy_anchor_no_strings": "Use only explicit user-provided copy. If none given, render no text. Never invent slogans or captions.",
-  "copy_anchor_materials": ["landing_hero", "social", "campaign_poster", "merch_poster", "podcast_cover", "podcast_banner", "content_card", "editorial_card", "data_card", "quote_card", "announcement_card", "process_card", "concept_illustration", "brand_scene", "lifestyle_mockup", "website_hero_illustration"],
+  "copy_anchor_materials": [
+    "landing_hero",
+    "social",
+    "campaign_poster",
+    "merch_poster",
+    "podcast_cover",
+    "podcast_banner",
+    "content_card",
+    "editorial_card",
+    "data_card",
+    "quote_card",
+    "announcement_card",
+    "process_card",
+    "concept_illustration",
+    "brand_scene",
+    "lifestyle_mockup",
+    "website_hero_illustration",
+    "system_explainer_illustration",
+    "editorial_metaphor_illustration",
+    "illustrated_brand_world",
+    "proof_poster"
+  ],
   "compact_bans_interface": "Preserve the real product UI exactly. No invented chrome, no floating elements, no simplified redrawing.",
   "compact_bans_non_interface": "No metadata overlays, no technical annotations, no prompt text rendered as content.",
   "brand_anchor_acceptable": [
@@ -24,7 +45,7 @@
   "copy_candidate_defaults": {
     "visual_angles": [
       "Wordmark + one strong product crop + one proof line",
-      "Logo-led ad illustration + short slogan + one small UI proof inset (roughly 20–25% visual weight max)",
+      "Logo-led ad illustration + short slogan + one small UI proof inset (roughly 20\u201325% visual weight max)",
       "Quiet product frame + bold headline + minimal proof chips"
     ],
     "anti_patterns": [
@@ -65,7 +86,7 @@
     "color": "Warm cream field #f4ebd9. Single accent: rust #c67b5c. Ink: #2a231a. Sage: #9caf99 (backgrounds only, max 16% opacity). Sand: #eadbcc. All shadows brown-based rgba(42,35,26,n), never pure black. Accent borders use rust at 14-20% opacity. Max 1 saturated accent color per card.",
     "surfaces": "Proof cards: double-bezel with outer ring (1px rgba(42,35,26,.04) at inset -1px) and inner highlight (inset 0 1px 1px rgba(255,255,255,.22)). Three-layer shadow: ambient (0 20px 48px, 10% opacity), edge (0 2px 8px, 6% opacity), inset highlight. Detail tiles inside proof use softer shadow (inset 0 1px 0 rgba(255,255,255,.52)). SVG noise grain overlay at 2.8% opacity on cream background for tactile depth.",
     "border_radius_hierarchy": "Frame: 0 (canvas edge). Proof card: 22px. Proof ::before bezel: 23px. Detail tiles: 20px (concentric to proof). Proof crops: 18px. QR containers: 14-16px. Logo tile: 20-24px. Pills/badges/CTA: 999px.",
-    "shadow_system": "Logo: 0 12px 28px rgba(42,35,26,.12). Proof card: 0 20px 48px rgba(42,35,26,.10), 0 2px 8px rgba(42,35,26,.06), inset 0 1px 1px rgba(255,255,255,.22). CTA button: 0 4px 14px rgba(198,123,92,.22) — rust-tinted. Detail tiles: inset 0 1px 0 rgba(255,255,255,.52). All shadows warm-tinted; never rgba(0,0,0,n).",
+    "shadow_system": "Logo: 0 12px 28px rgba(42,35,26,.12). Proof card: 0 20px 48px rgba(42,35,26,.10), 0 2px 8px rgba(42,35,26,.06), inset 0 1px 1px rgba(255,255,255,.22). CTA button: 0 4px 14px rgba(198,123,92,.22) \u2014 rust-tinted. Detail tiles: inset 0 1px 0 rgba(255,255,255,.52). All shadows warm-tinted; never rgba(0,0,0,n).",
     "spacing": "Card padding: 68-84px from frame edge. Grid gaps: 20-24px between major zones. Proof interior padding: 24-34px. Label-to-content margin: 12-18px. Proof-row separator: 1px solid rgba(42,35,26,.08) with 14px padding-top. All spacing in 4px increments.",
     "type_scale": "Display: 64-104px (headline, varies by card size). Title: 28-34px (proof-title). Lead: 24px (prompt-detail-lead). Body: 16-17px (excerpt, detail values). Small: 13-14px (domain, source-link, proof-row). Micro: 11-12px (labels, kickers, captions). Stat: 34px weight 800 tracking -0.04em (detail-block-value).",
     "anti_patterns": [
@@ -78,9 +99,9 @@
       "AI copywriting cliches (elevate, seamless, unleash, next-gen)",
       "pill-shaped New/Beta badges",
       "glassmorphism or heavy blur effects",
-      "transform: scale(0) on any element — always start from scale(0.95)+opacity",
+      "transform: scale(0) on any element \u2014 always start from scale(0.95)+opacity",
       "animation duration > 300ms on UI elements",
-      "ease-in on any user-facing transition — use ease-out or custom cubic-bezier(0.23,1,0.32,1)",
+      "ease-in on any user-facing transition \u2014 use ease-out or custom cubic-bezier(0.23,1,0.32,1)",
       "centered QR codes competing with headlines",
       "proof cards stretched beyond content height"
     ],
@@ -91,10 +112,10 @@
     }
   },
   "html_design_engineering": {
-    "philosophy": "Every invisible detail compounds into something that feels right. The aggregate of correctness creates interfaces people trust without knowing why. Beauty is leverage — good defaults and good aesthetics are real differentiators.",
+    "philosophy": "Every invisible detail compounds into something that feels right. The aggregate of correctness creates interfaces people trust without knowing why. Beauty is leverage \u2014 good defaults and good aesthetics are real differentiators.",
     "review_format": "When reviewing card output, evaluate against the design system using Before/After/Why columns. Flag any deviation from the shadow_system, border_radius_hierarchy, type_scale, or color values.",
     "composition_rules": [
-      "Headline must be the dominant visual element. Proof card is subordinate. QR is utility — never competing with either.",
+      "Headline must be the dominant visual element. Proof card is subordinate. QR is utility \u2014 never competing with either.",
       "Two-column layouts: headline column gets 1fr-1.1fr, proof column gets 0.72fr-0.88fr. Never equal columns.",
       "Proof card sizes to content (no min-height, no forced stretching). Empty space below a proof card is the cream background doing its job, not wasted space.",
       "Logo aligns center to the headline text block, not to the full card height.",
@@ -102,32 +123,32 @@
     ],
     "detail_quality_checks": [
       "Concentric border-radius: every nested container has a radius 2-4px smaller than its parent",
-      "All shadows use rgba(42,35,26,n) — never rgba(0,0,0,n)",
+      "All shadows use rgba(42,35,26,n) \u2014 never rgba(0,0,0,n)",
       "Text opacity hierarchy: primary 100%, secondary 68-76%, tertiary 44-62%, disabled 30%",
-      "Label font-size 12px matches proof-label exactly — never 10px or 14px",
+      "Label font-size 12px matches proof-label exactly \u2014 never 10px or 14px",
       "Proof-row always has border-top separator even when it is the only footer content"
     ],
     "motion_rules": [
-      "Only animate transform and opacity — never width, height, padding, margin, or top/left (they trigger layout + paint). Emil Kowalski's rule.",
+      "Only animate transform and opacity \u2014 never width, height, padding, margin, or top/left (they trigger layout + paint). Emil Kowalski's rule.",
       "Asymmetric timing: enter states are deliberate (600-1200ms for hero reveals, 300-500ms for UI chrome), exit states are snappy (150-220ms). Never mirror enter and exit durations.",
-      "Ease-out for UI chrome approaches (landing / arriving / revealing). Use symmetric `ease` for brand hero reveals — it reads as more elegant and matches Sage's editorial tone.",
-      "Never ease-in on a user-facing transition — it feels sluggish and late.",
+      "Ease-out for UI chrome approaches (landing / arriving / revealing). Use symmetric `ease` for brand hero reveals \u2014 it reads as more elegant and matches Sage's editorial tone.",
+      "Never ease-in on a user-facing transition \u2014 it feels sluggish and late.",
       "Never animate from transform: scale(0) or opacity: 0 without pairing them. Start from transform: scale(0.95); opacity: 0 so the element emerges rather than materializes from nothing.",
-      "Specify exact transition properties (transition: transform 200ms ease-out, opacity 180ms ease-out). Never use transition: all — it animates unintended properties.",
+      "Specify exact transition properties (transition: transform 200ms ease-out, opacity 180ms ease-out). Never use transition: all \u2014 it animates unintended properties.",
       "Use @starting-style for enter animations when available (native CSS, no JS). Fall back to a keyframe only when @starting-style is not supported.",
       "Honor prefers-reduced-motion: reduce by removing position/movement animations but keeping opacity transitions that aid comprehension. Don't nuke all motion.",
-      "Scale transforms scale child content too — use translateY/translateX for position changes when the child layout should stay fixed.",
+      "Scale transforms scale child content too \u2014 use translateY/translateX for position changes when the child layout should stay fixed.",
       "Transform-origin: scale from the anchor point (corner, trigger, edge), not always center. A popover scales from the trigger; a modal stays centered."
     ],
     "motion_anti_patterns": [
       "transition: all on any element",
       "ease-in on user-facing state changes",
-      "transform: scale(0) — things should emerge, not materialize",
+      "transform: scale(0) \u2014 things should emerge, not materialize",
       "symmetric enter/exit duration (both 300ms feels mechanical)",
       "animating width/height/padding/margin (layout thrash)",
       "no prefers-reduced-motion fallback",
-      "keyframe restarts from zero on interrupted dynamic UI — use transitions for retargeting"
+      "keyframe restarts from zero on interrupted dynamic UI \u2014 use transitions for retargeting"
     ],
-    "emil_principle": "The invisible details compound. A card feels right because the shadow is warm-tinted and the enter takes 180ms ease-out and the headline fades slightly slower than the proof and the radii nest concentrically. No single rule is the reason — the aggregate of correctness is."
+    "emil_principle": "The invisible details compound. A card feels right because the shadow is warm-tinted and the enter takes 180ms ease-out and the headline fades slightly slower than the proof and the radii nest concentrically. No single rule is the reason \u2014 the aggregate of correctness is."
   }
 }

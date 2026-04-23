@@ -5,6 +5,7 @@ Zero external dependencies — stdlib only.
 
 Usage:
   python3 generate.py image -m flux-pro -p "Mountain at sunset, golden hour"
+  python3 generate.py image -m gpt-image-2 -p "A clean editorial poster about agent workflows"
   python3 generate.py video -m kling -p "Gentle head nod" -i photo.png
   python3 generate.py image -m flux-schnell -p "Logo design" --preset logo
   python3 generate.py image -m nano-banana-2 -p "Refine this logo" -i logo.png -i moodboard.png
@@ -22,8 +23,8 @@ import os
 import socket
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
@@ -32,7 +33,7 @@ ENV_CANDIDATES = [REPO_ROOT / ".env", Path.home() / ".claude" / ".env"]
 MODELS = json.loads((SCRIPT_DIR / "models.json").read_text())
 PRESETS = json.loads((SCRIPT_DIR / "presets.json").read_text())
 
-API_BASE = "https://api.replicate.com/v1"
+REPLICATE_API_BASE = "https://api.replicate.com/v1"
 
 
 def load_env_into_process():
@@ -164,7 +165,7 @@ def upload_file_to_replicate(token, file_path):
     }
     content_type = mime_map.get(p.suffix.lower(), "application/octet-stream")
     file_data = p.read_bytes()
-    url = f"{API_BASE}/files"
+    url = f"{REPLICATE_API_BASE}/files"
     # Build multipart form data manually (stdlib only)
     boundary = f"----ReplicateUpload{int(time.time()*1000)}"
     body_parts = []
@@ -242,7 +243,7 @@ def _replace_data_uris_with_uploads(token, input_data):
 
 def create_prediction(token, model_id, input_data, wait=True, _uploaded=False):
     """POST to Replicate predictions API."""
-    url = f"{API_BASE}/models/{model_id}/predictions"
+    url = f"{REPLICATE_API_BASE}/models/{model_id}/predictions"
     payload = json.dumps({"input": input_data}).encode()
     headers = {
         "Authorization": f"Bearer {token}",
@@ -342,6 +343,68 @@ def get_output_url(prediction):
     if isinstance(output, str):
         return output
     return None
+
+
+def _ratio_to_float(value):
+    text = str(value or "").strip()
+    if not text or ":" not in text:
+        return None
+    left, right = text.split(":", 1)
+    try:
+        left_val = float(left)
+        right_val = float(right)
+    except ValueError:
+        return None
+    if left_val <= 0 or right_val <= 0:
+        return None
+    return left_val / right_val
+
+
+def normalize_model_aspect_ratio(model_name, model_config, aspect_ratio):
+    """Coerce unsupported aspect ratios to the closest model-supported ratio."""
+    requested = str(aspect_ratio or "").strip()
+    if not requested:
+        return requested
+
+    supported = model_config.get("supported_aspect_ratios") or []
+    if requested in supported or not supported:
+        return requested
+
+    requested_ratio = _ratio_to_float(requested)
+    if requested_ratio is None:
+        return requested
+
+    if requested_ratio == 1:
+        requested_orientation = "square"
+    elif requested_ratio > 1:
+        requested_orientation = "landscape"
+    else:
+        requested_orientation = "portrait"
+
+    parsed_supported = []
+    for candidate in supported:
+        candidate_ratio = _ratio_to_float(candidate)
+        if candidate_ratio is None:
+            continue
+        if candidate_ratio == 1:
+            candidate_orientation = "square"
+        elif candidate_ratio > 1:
+            candidate_orientation = "landscape"
+        else:
+            candidate_orientation = "portrait"
+        parsed_supported.append((candidate, candidate_ratio, candidate_orientation))
+
+    same_orientation = [item for item in parsed_supported if item[2] == requested_orientation]
+    choices = same_orientation or parsed_supported
+    if not choices:
+        return requested
+
+    closest = min(choices, key=lambda item: abs(item[1] - requested_ratio))[0]
+    print(
+        f"WARNING: Model '{model_name}' does not support aspect ratio '{requested}'; using '{closest}' instead.",
+        file=sys.stderr,
+    )
+    return closest
 
 
 def resolve_model(mode, alias):
@@ -469,7 +532,8 @@ def build_input(model_config, args, mode):
     if args.height:
         input_data[field_map.get("height", "height")] = args.height
     if args.aspect_ratio:
-        input_data[field_map.get("aspect_ratio", "aspect_ratio")] = args.aspect_ratio
+        requested_aspect_ratio = normalize_model_aspect_ratio(args.model, model_config, args.aspect_ratio)
+        input_data[field_map.get("aspect_ratio", "aspect_ratio")] = requested_aspect_ratio
     if getattr(args, "resolution", None) and (field_map.get("resolution") or "resolution" in defaults):
         input_data[field_map.get("resolution", "resolution")] = args.resolution
 

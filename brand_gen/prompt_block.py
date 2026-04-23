@@ -17,23 +17,29 @@ class PromptBlock:
 
 SECTION_PRIORITY: dict[str, int] = {
     "brand_anchor_rule": 0,
+    "intended_output": 2,
     "critical_bans": 5,
     "explicit_copy_rule": 10,
-    "material_policy": 20,
-    "aesthetic_commitment_block": 25,
+    "output_spec": 12,
+    "five_slot_brief": 14,
+    "pattern_discovery_block": 15,
+    "aesthetic_archetype_block": 16,
+    "material_policy": 18,
+    "aesthetic_commitment_block": 20,
+    "visual_density_block": 22,
     "rubric_overlay_push": 30,
     "reference_analysis_caveat": 35,
-    "five_slot_brief": 40,
-    "visual_density_block": 45,
-    "aesthetic_archetype_block": 50,
     "role_pack_block": 80,
     "selected_inspiration_block": 85,
 }
 
 SECTION_STAGE: dict[str, str] = {
     "brand_anchor_rule": "system",
+    "intended_output": "system",
     "critical_bans": "system",
     "explicit_copy_rule": "system",
+    "output_spec": "system",
+    "pattern_discovery_block": "brief",
     "material_policy": "contract",
     "aesthetic_commitment_block": "contract",
     "rubric_overlay_push": "contract",
@@ -47,8 +53,10 @@ SECTION_STAGE: dict[str, str] = {
 
 SECTION_CONSTRAINT: dict[str, str] = {
     "brand_anchor_rule": "hard",
+    "intended_output": "hard",
     "critical_bans": "hard",
     "explicit_copy_rule": "hard",
+    "output_spec": "hard",
 }
 
 

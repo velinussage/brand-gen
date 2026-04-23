@@ -6,7 +6,7 @@ from typing import Any, Mapping
 
 
 PIPELINE_MCP_PROPERTIES: dict[str, dict[str, Any]] = {
-    "material_type": {"type": "string", "description": "Material type to generate (e.g. social, browser-illustration, landing-hero, wordmark)"},
+    "material_type": {"type": "string", "description": "Material type to generate (e.g. social, browser-illustration, landing-hero, logo)"},
     "render_backend": {"type": "string", "enum": ["native", "html"], "default": "native", "description": "Rendering backend. Use html for share-card oriented HTML/layout generation backed by structured page payloads."},
     "mode": {"type": "string", "enum": ["reference", "inspiration", "hybrid"], "default": "hybrid", "description": "Workflow mode for the plan"},
     "tag": {"type": "string", "description": "Optional short output tag for filenames and version metadata."},

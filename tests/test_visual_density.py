@@ -35,6 +35,9 @@ class NormalizeVisualDensityTests(unittest.TestCase):
     def test_invalid_input_falls_back_to_material_default(self):
         self.assertEqual(normalize_visual_density(None, material_type="concept-illustration"), 4)
         self.assertEqual(normalize_visual_density("abc", material_type="concept-illustration"), 4)
+        self.assertEqual(normalize_visual_density(None, material_type="system-explainer-illustration"), 4)
+        self.assertEqual(normalize_visual_density(None, material_type="illustrated-brand-world"), 4)
+        self.assertEqual(normalize_visual_density(None, material_type="site-pattern-tile"), 4)
         self.assertEqual(normalize_visual_density(None, material_type="landing-hero"), 4)
         self.assertEqual(normalize_visual_density(None, material_type="campaign-poster"), 5)
 

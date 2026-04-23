@@ -47,7 +47,13 @@ export function parsePluginConfig(raw: Record<string, unknown> | undefined): Plu
         ? raw.logLevel
         : "info",
     heartbeatIntervalMinutes: Number.isFinite(heartbeatRaw) && heartbeatRaw > 0 ? heartbeatRaw : 60,
-    autoHeartbeat: raw?.autoHeartbeat !== false,
+    // Default off. The "heartbeat" timer runs runGenerateStep() — a full
+    // image-generation pipeline — on every tick, not a health check. Leaving
+    // it on produced silent hourly generations during long-running sessions,
+    // drifting material-type choice, polluting the journal, and spending API
+    // credits without user intent. Users who want the autonomous loop must
+    // opt in explicitly via `autoHeartbeat: true` in the workspace config.
+    autoHeartbeat: raw?.autoHeartbeat === true,
   };
 }
 

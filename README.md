@@ -4,11 +4,11 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Backend: Replicate](https://img.shields.io/badge/backend-Replicate-black.svg)](https://replicate.com)
 [![Agents: 9](https://img.shields.io/badge/agents-9%20specialists-orange.svg)](#agent-reference)
-[![Typed runtime: 40 verbs](https://img.shields.io/badge/typed%20runtime-40%20verbs-6366f1.svg)](#typed-runtime-the-40-verb-surface)
+[![Typed runtime: 44 verbs](https://img.shields.io/badge/typed%20runtime-44%20verbs-6366f1.svg)](#typed-runtime-the-44-verb-surface)
 
 > A multi-agent brand design system. You talk to your agent; it runs a team of specialists - philosopher, planner, critic, cinematographer, generator - through a planning-first pipeline with quality gates.
 
-brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of nine specialist agents that share durable state (run ledger, blackboard, iteration memory, learnings, design tokens, policy envelope) and navigate a typed **40-verb canonical runtime** under the hood. The CLI and Python module both exist, but the typed runtime is the contract — agents call verbs like `brand_orchestrate_material`, `brand_list_runs`, `brand_get_policy` instead of editing files or scripting shell.
+brand-gen is **not a CLI you drive by hand**. It's a coordinated pipeline of nine specialist agents that share durable state (run ledger, blackboard, iteration memory, learnings, design tokens, policy envelope) and navigate a typed **44-verb canonical runtime** under the hood. The CLI and Python module both exist, but the typed runtime is the contract — agents call verbs like `brand_orchestrate_material`, `brand_list_runs`, `brand_get_policy` instead of editing files or scripting shell.
 
 Works with any agent host that has shell access: Claude Code, Pi, OpenClaw, MCP hosts, Codex, Cursor.
 
@@ -96,15 +96,15 @@ pipeline re-enters with --source-version, learnings auto-applied
 
 The pipeline is planning-first and quality-gated: **no freehand generation before a plan is critiqued**. Agents coordinate through typed MCP verbs — the file substrate is an audit trail, not the transport layer.
 
-## Typed runtime (the 40-verb surface)
+## Typed runtime (the 44-verb surface)
 
-Every agent call routes through one of 40 canonical verbs defined in `packages/brand-gen-core/src/tool-registry.ts` and bridged to Python via `brand_gen/mcp_bridge_registry.py`. Agents get a typed response with `next_action` pointing at the next call; they never need to parse bash output or guess at file paths.
+Every agent call routes through one of 44 canonical verbs defined in `packages/brand-gen-core/src/tool-registry.ts` and bridged to Python via `brand_gen/mcp_bridge_registry.py`. Agents get a typed response with `next_action` pointing at the next call; they never need to parse bash output or guess at file paths.
 
 | Category | Count | Examples |
 |----------|-------|----------|
-| **Orchestration** (stage transitions) | 7 | `brand_prepare_run`, `brand_plan_run`, `brand_validate_run`, `brand_execute_run`, `brand_review_run`, `brand_evolve_run`, `brand_orchestrate_material` |
-| **Mutation** (typed state edits) | 10 | `brand_append_forbidden_pattern`, `brand_set_motion_grammar`, `brand_promote_learning`, `brand_update_palette`, `brand_submit_review`, `brand_switch_brand`, … |
-| **Inspection** (read-only discovery) | 15 | `brand_list_runs`, `brand_get_run`, `brand_get_plan`, `brand_get_critique`, `brand_get_scratchpad`, `brand_get_review_packet`, `brand_get_version`, `brand_compare_versions`, `brand_list_brands`, `brand_get_pending_reviews`, `brand_context_snapshot`, `brand_show_rubric`, `brand_show_disagreements`, … |
+| **Orchestration** (stage transitions) | 8 | `brand_prepare_run`, `brand_plan_run`, `brand_validate_run`, `brand_execute_run`, `brand_review_run`, `brand_evolve_run`, `brand_orchestrate_material` |
+| **Mutation** (typed state edits) | 13 | `brand_append_forbidden_pattern`, `brand_set_motion_grammar`, `brand_promote_learning`, `brand_update_palette`, `brand_submit_review`, `brand_switch_brand`, … |
+| **Inspection** (read-only discovery) | 17 | `brand_list_runs`, `brand_get_run`, `brand_get_plan`, `brand_get_critique`, `brand_get_scratchpad`, `brand_get_review_packet`, `brand_get_version`, `brand_compare_versions`, `brand_list_brands`, `brand_get_pending_reviews`, `brand_context_snapshot`, `brand_show_rubric`, `brand_show_disagreements`, … |
 | **Feedback** (agent ↔ user loop) | 2 | `brand_feedback`, `brand_critique_rubric` |
 | **Policy** (per-brand approval envelope) | 4 | `brand_get_policy`, `brand_set_policy`, `brand_approve_action`, `brand_reject_action` |
 
@@ -112,7 +112,7 @@ Each tool has a `policy_class` (`read_only` / `local_mutation` / `costly_generat
 
 **Persistent Run state.** Every `brand_*_run` call appends to an append-only JSONL ledger under `<brand_dir>/runs/`. The projection fold (`brand_get_run`) derives `status` (`in_progress | blocked | awaiting_review | completed`), `artifact_ids`, and `lineage` so an agent can resume a run from a cold start without scanning the filesystem.
 
-See [docs/host-setup.md](docs/host-setup.md) for the full registry and allowlist-per-agent table.
+See [docs/host-setup.md](docs/host-setup.md) for the full registry and allowlist-per-agent table, and [docs/architecture/runtime-agent-contract.md](docs/architecture/runtime-agent-contract.md) for the root/tool/Pi-agent invariants.
 
 ## Requirements
 
@@ -315,9 +315,9 @@ Install the Pi plugin once from the repo root:
 pi install ./packages/pi-brand-gen
 ```
 
-This registers the plugin in `~/.pi/agent/settings.json::packages`, so every `pi` process — including spawned subagents — loads `brandGenPiExtension` and exposes the full 40-verb tool surface. Subagents defined under `.pi/agents/brand-*.md` read their `tools:` frontmatter against that registry; without the plugin install, the frontmatter names don't resolve and subagents fall back to `read`/`bash`/`write` built-ins.
+This registers the plugin in `~/.pi/agent/settings.json::packages`, so every `pi` process — including spawned subagents — loads `brandGenPiExtension` and exposes the full 44-verb tool surface. Subagents defined under `.pi/agents/brand-*.md` read their `tools:` frontmatter against that registry; without the plugin install, the frontmatter names don't resolve and subagents fall back to `read`/`bash`/`write` built-ins.
 
-Smoke-test with `pi list` — the entry `../../Documents/brand-gen/packages/pi-brand-gen` (or similar) should appear.
+Smoke-test with `pi list` — an entry pointing at `<path-to-brand-gen>/packages/pi-brand-gen` (or similar) should appear.
 
 ### OpenClaw
 
@@ -328,7 +328,7 @@ Load `packages/openclaw-brand-gen` as a plugin per your OpenClaw install docs. T
 For hosts that prefer a direct tool surface, run the stdio MCP server from the repo root:
 
 ```bash
-python3 -m brand_gen.brand_iterate_mcp    # stdio MCP server, exposes all 40 canonical verbs
+python3 -m brand_gen.brand_iterate_mcp    # stdio MCP server, exposes all 44 canonical verbs
 ```
 
 Always launch via `-m` module syntax, not `python brand_gen/brand_iterate_mcp.py` — the latter breaks intra-package relative imports.
@@ -340,7 +340,7 @@ See [docs/host-setup.md](docs/host-setup.md) for the full per-agent allowlist ta
 brand-gen ships nine agent definitions across three mirrors (Claude Code, Pi, skills distribution) with identical bodies — frontmatter differs only in the tool-list format (array vs comma-string) and model tag. Other hosts can read the same files and emulate the chain manually.
 
 - **Claude Code** - `.claude/agents/brand-*.md` (mirrored to `skills/brand-gen/claude-agents/brand-*.md`). Invoke via the `Agent` tool with `subagent_type="brand-orchestrator"` or any specialist name.
-- **Pi** - `.pi/agents/brand-*.md`. Invoke via `/run brand-orchestrator <task>` or chain syntax. Requires `pi install ./packages/pi-brand-gen` first so subagents see the 40 typed verbs.
+- **Pi** - `.pi/agents/brand-*.md`. Invoke via `/run brand-orchestrator <task>` or chain syntax. Requires `pi install ./packages/pi-brand-gen` first so subagents see the 44 typed verbs.
 
 The intended entry point is always `brand-orchestrator`. It calls `brand_orchestrate_material` (one typed verb, 6-phase pipeline) and handles `stop_reason` by dispatching to mutation verbs or specialist agents — not by scripting `bgen`.
 

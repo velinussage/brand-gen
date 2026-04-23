@@ -74,6 +74,8 @@ class BuildExecutionPromptBlockTests(unittest.TestCase):
             "material_prompt_key": "concept_illustration",
             "material_prompt_snippet": "Concept illustration policy.",
             "reference_role_pack": [],
+            "pattern_discovery_packet": "Pattern hypotheses: use a single dominant metaphor.",
+            "output_aspect_ratio": "4:5",
         }
         result = build_execution_prompt(
             "Short body.",
@@ -90,6 +92,8 @@ class BuildExecutionPromptBlockTests(unittest.TestCase):
             "material_prompt_key": "concept_illustration",
             "material_prompt_snippet": "Concept illustration policy.",
             "reference_role_pack": [],
+            "pattern_discovery_packet": "Pattern hypotheses: use a single dominant metaphor.",
+            "output_aspect_ratio": "4:5",
         }
         result = build_execution_prompt(
             "Short body.",
@@ -99,6 +103,27 @@ class BuildExecutionPromptBlockTests(unittest.TestCase):
         )
         json.dumps(result)
 
+    def test_execution_prompt_prefers_intent_body_then_constraints(self):
+        context = {
+            "material_prompt_key": "concept_illustration",
+            "material_prompt_snippet": "Concept illustration policy.",
+            "pattern_discovery_packet": "Pattern hypotheses: use a single dominant metaphor.",
+            "output_aspect_ratio": "4:5",
+            "reference_role_pack": [],
+            "purpose": "Explain one concept clearly.",
+        }
+        result = build_execution_prompt(
+            "One symbolic subject only.",
+            context,
+            material_type="concept-illustration",
+            generation_mode="image",
+        )
+        prompt = result["execution_prompt"]
+        self.assertIn("Intended output:", prompt)
+        self.assertIn("One symbolic subject only.", prompt)
+        self.assertIn("Pattern hypotheses:", prompt)
+        self.assertIn("exact 4:5 aspect ratio", prompt)
+
     def test_build_execution_prompt_drops_example_blocks_first(self):
         long_policy = " ".join(f"Policy sentence {i}." for i in range(90))
         long_inspiration = "Selected inspiration translation: " + " ".join(
@@ -107,6 +132,8 @@ class BuildExecutionPromptBlockTests(unittest.TestCase):
         context = {
             "material_prompt_key": "concept_illustration",
             "material_prompt_snippet": long_policy,
+            "pattern_discovery_packet": "Pattern hypotheses: use a single dominant metaphor and quiet composition.",
+            "output_aspect_ratio": "4:5",
             "reference_role_pack": [
                 {
                     "role": "composition",
@@ -147,6 +174,8 @@ class BuildExecutionPromptBlockTests(unittest.TestCase):
             "resolved_prompt": "Create a concept illustration.",
             "material_prompt_key": "concept_illustration",
             "material_prompt_snippet": long_policy,
+            "pattern_discovery_packet": "Pattern hypotheses: use a single dominant metaphor and quiet composition.",
+            "output_aspect_ratio": "4:5",
             "reference_role_pack": [],
             "reference_analysis_snippet": "",
             "inspiration_doctrine": "",

@@ -31,6 +31,9 @@ INSPIRE_URLS = {
 
 SOCIAL_SPECS = _mp.get("social_specs", {})
 MATERIAL_PROMPT_SNIPPET_ALIASES = _mp.get("snippet_aliases", {})
+MATERIAL_PROMPT_KEYS = dict(MATERIAL_PROMPT_SNIPPET_ALIASES)
+MATERIAL_PROMPT_KEYS.update(_mp.get("prompt_snippet_keys", {}))
+DEPRECATED_MATERIAL_TYPES = _mp.get("deprecated_material_types", {})
 NON_INTERFACE_MATERIAL_KEYS = set(_mp.get("classifications", {}).get("non_interface", []))
 INTERFACE_MATERIAL_KEYS = set(_mp.get("classifications", {}).get("interface", []))
 
@@ -40,6 +43,38 @@ ROLE_PACK_TAG_PRIORITY = _mp.get("role_pack_tag_priority", [])
 ROLE_TRANSLATION_DEFAULTS = _mp.get("role_translation_defaults", {})
 MATERIAL_BRAND_POLICIES = _mp.get("brand_policies", {})
 MATERIAL_SET_TEMPLATES = _mp.get("set_templates", {})
+
+FIRST_PASS_GPT_IMAGE2_MATERIALS = {
+    "concept-illustration",
+    "brand-scene",
+    "system-explainer-illustration",
+    "editorial-metaphor-illustration",
+    "illustrated-brand-world",
+    "product-visual",
+}
+
+
+def material_uses_canonical_gpt_image_2(
+    material_type: str,
+    generation_mode: str,
+    *,
+    has_base_image: bool = False,
+    has_motion_reference: bool = False,
+) -> bool:
+    """Return True when the material's default renderer should stay pinned
+    to GPT Image 2 unless the user explicitly overrides it.
+
+    These materials are authored as fresh text-to-image illustration surfaces.
+    A learned model preference should not silently override their canonical
+    renderer, because the material policy already encodes that GPT Image 2 is
+    the default visual engine for the class.
+    """
+    if generation_mode != "image":
+        return False
+    if has_base_image or has_motion_reference:
+        return False
+    default_model = MATERIAL_CONFIG.get(material_type, {}).get("default_model")
+    return default_model == "gpt-image-2" and material_type in FIRST_PASS_GPT_IMAGE2_MATERIALS
 
 
 def normalize_material_type(material_type: str) -> str:
@@ -112,6 +147,7 @@ def resolve_default_model(
     has_motion_reference: bool = False,
     has_base_image: bool = False,
 ) -> str:
+    default_model = MATERIAL_CONFIG[material_type]["default_model"]
     if generation_mode == "video" and has_motion_reference:
         return "kling-v2.6-motion-control"
     # When editing/overlaying on a base image:
@@ -124,13 +160,23 @@ def resolve_default_model(
         if material_key in _INTERFACE_TYPES:
             return "nano-banana-2"
         return "flux-2-pro"
+    if generation_mode == "image" and material_type in FIRST_PASS_GPT_IMAGE2_MATERIALS and default_model == "gpt-image-2":
+        return default_model
     if generation_mode == "image" and reference_paths and workflow_mode in {"reference", "hybrid"}:
         if material_type in COPY_BEARING_MATERIALS:
             return "flux-2-flex"
         return "nano-banana-2"
-    if material_type in {"pattern-system", "motif-system", "sticker-family", "badge-family", "icon-family"}:
-        return MATERIAL_CONFIG[material_type]["default_model"]
-    return MATERIAL_CONFIG[material_type]["default_model"]
+    if material_type in {
+        "pattern-system",
+        "site-pattern-tile",
+        "pattern-board",
+        "motif-system",
+        "sticker-family",
+        "badge-family",
+        "icon-family",
+    }:
+        return default_model
+    return default_model
 
 
 def model_supports_reference_images(model_config: dict, generation_mode: str) -> bool:
@@ -166,7 +212,7 @@ def recommend_text_model(
         return None
     if has_reference_images:
         return "flux-2-flex" if current_model != "flux-2-flex" else None
-    return "ideogram" if current_model != "ideogram" else None
+    return "gpt-image-2" if current_model != "gpt-image-2" else None
 
 
 def resolve_default_aspect_ratio(material_type: str, requested_aspect_ratio: str | None, model_config: dict) -> str:
@@ -207,7 +253,6 @@ def infer_material_type_from_filename(filename: str) -> str:
         "og-card",
         "banner",
         "poster",
-        "wordmark",
         "icon",
         "social",
         "gif",
@@ -236,4 +281,9 @@ def list_material_types() -> None:
     print("Available material types:\n")
     for key, config in sorted(MATERIAL_CONFIG.items()):
         ratio = config.get("default_aspect_ratio", "—")
-        print(f"  {key:<20} {config['generation_mode']:<6} default model: {config['default_model']:<12} default AR: {ratio}")
+        deprecated = DEPRECATED_MATERIAL_TYPES.get(key) or {}
+        suffix = ""
+        if deprecated:
+            prefer = deprecated.get("prefer") or ""
+            suffix = f"  [deprecated → {prefer}]" if prefer else "  [deprecated]"
+        print(f"  {key:<20} {config['generation_mode']:<6} default model: {config['default_model']:<12} default AR: {ratio}{suffix}")

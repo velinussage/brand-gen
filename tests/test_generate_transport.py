@@ -23,6 +23,51 @@ class _FakeResponse:
 
 
 class GenerateTransportTests(unittest.TestCase):
+    def test_build_input_coerces_gpt_image_2_aspect_ratio_and_applies_defaults(self):
+        model_config = generate.MODELS["image"]["gpt-image-2"]
+        args = type(
+            "Args",
+            (),
+            {
+                "model": "gpt-image-2",
+                "prompt": "Make a product visual",
+                "preset": None,
+                "negative_prompt": None,
+                "base_image": None,
+                "image": None,
+                "reference_tag": None,
+                "motion_reference": None,
+                "width": None,
+                "height": None,
+                "aspect_ratio": "4:5",
+                "resolution": None,
+                "guidance_scale": None,
+                "steps": None,
+                "seed": None,
+                "duration": None,
+                "motion_mode": None,
+                "character_orientation": None,
+                "keep_original_sound": False,
+                "style": None,
+            },
+        )()
+
+        with patch("sys.stderr") as mock_stderr:
+            input_data = generate.build_input(model_config, args, "image")
+
+        self.assertEqual(input_data["aspect_ratio"], "2:3")
+        self.assertEqual(input_data["quality"], "high")
+        self.assertEqual(input_data["background"], "auto")
+        self.assertEqual(input_data["output_format"], "png")
+        self.assertIn("does not support aspect ratio '4:5'", "".join(call.args[0] for call in mock_stderr.write.call_args_list))
+
+    def test_normalize_model_aspect_ratio_keeps_supported_gpt_image_2_ratio(self):
+        model_config = generate.MODELS["image"]["gpt-image-2"]
+        self.assertEqual(
+            generate.normalize_model_aspect_ratio("gpt-image-2", model_config, "3:2"),
+            "3:2",
+        )
+
     def test_replace_data_uris_with_uploads_handles_nested_lists_and_dicts(self):
         data_uri = "data:image/png;base64," + base64.b64encode(b"png-bytes").decode()
 

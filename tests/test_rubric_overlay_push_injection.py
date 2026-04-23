@@ -35,6 +35,21 @@ class OverlayPushClauseTests(unittest.TestCase):
         self.assertIn("surface_fit", out)
         self.assertIn("meaning_at_glance", out)
 
+    def test_proof_poster_emits_hierarchy_and_payload_axes(self):
+        out = compact_execution_rubric_overlay_push("proof-poster")
+        self.assertIn("information_hierarchy", out)
+        self.assertIn("proof_payload_visible", out)
+
+    def test_site_pattern_tile_emits_deployability(self):
+        out = compact_execution_rubric_overlay_push("site-pattern-tile")
+        self.assertIn("deployability", out)
+        self.assertIn("brand_specificity", out)
+
+    def test_editorial_metaphor_emits_metaphor_clarity(self):
+        out = compact_execution_rubric_overlay_push("editorial-metaphor-illustration")
+        self.assertIn("metaphor_clarity", out)
+        self.assertIn("brand_specificity", out)
+
     def test_disqualifier_is_surfaced(self):
         out = compact_execution_rubric_overlay_push("concept-illustration")
         self.assertIn("Avoid the", out)

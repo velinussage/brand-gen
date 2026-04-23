@@ -52,7 +52,13 @@
       "field_map": {
         "style": "style"
       },
-      "supported_styles": ["any", "realistic_image", "digital_illustration", "vector_illustration", "icon"]
+      "supported_styles": [
+        "any",
+        "realistic_image",
+        "digital_illustration",
+        "vector_illustration",
+        "icon"
+      ]
     },
     "recraft-v4": {
       "replicate_id": "recraft-ai/recraft-v4",
@@ -63,7 +69,13 @@
       "field_map": {
         "style": "style"
       },
-      "supported_styles": ["any", "realistic_image", "digital_illustration", "vector_illustration", "icon"]
+      "supported_styles": [
+        "any",
+        "realistic_image",
+        "digital_illustration",
+        "vector_illustration",
+        "icon"
+      ]
     },
     "recraft-v4-svg": {
       "replicate_id": "recraft-ai/recraft-v4-svg",
@@ -80,6 +92,30 @@
       "output_format": "png",
       "defaults": {},
       "field_map": {}
+    },
+    "gpt-image-2": {
+      "replicate_id": "openai/gpt-image-2",
+      "cost": "token-based",
+      "best_for": "General-purpose high quality generation and editing, reference-aware stills, multimodal image workflows",
+      "output_format": "png",
+      "max_reference_images": 16,
+      "supports_base_image": true,
+      "supports_transparent_background": false,
+      "supports_flexible_size": true,
+      "supported_aspect_ratios": [
+        "1:1",
+        "3:2",
+        "2:3"
+      ],
+      "defaults": {
+        "quality": "high",
+        "background": "auto",
+        "output_format": "png"
+      },
+      "field_map": {
+        "image": "input_images",
+        "aspect_ratio": "aspect_ratio"
+      }
     },
     "nano-banana-2": {
       "replicate_id": "google/nano-banana-2",
@@ -98,7 +134,7 @@
     "flux-2-flex": {
       "replicate_id": "black-forest-labs/flux-2-flex",
       "cost": "0.06/megapixel",
-      "best_for": "Typography specialist — legible text, infographics, UI mockups, text-heavy designs (up to 10 images)",
+      "best_for": "Typography specialist \u2014 legible text, infographics, UI mockups, text-heavy designs (up to 10 images)",
       "output_format": "png",
       "max_reference_images": 10,
       "supports_base_image": true,
@@ -237,7 +273,7 @@
     "veo-2": {
       "replicate_id": "google/veo-3.1",
       "cost": "0.20/sec",
-      "best_for": "Alias for veo — cinematic, audio, production quality",
+      "best_for": "Alias for veo \u2014 cinematic, audio, production quality",
       "output_format": "mp4",
       "defaults": {
         "duration": 4,
@@ -250,7 +286,7 @@
     "seedance": {
       "replicate_id": "bytedance/seedance-1-pro",
       "cost": "0.15/sec",
-      "best_for": "Seedance v1: strong motion dynamics, first+last frame control. Alias — prefer seedance-2-pro for new work.",
+      "best_for": "Seedance v1: strong motion dynamics, first+last frame control. Alias \u2014 prefer seedance-2-pro for new work.",
       "output_format": "mp4",
       "defaults": {
         "duration": 5

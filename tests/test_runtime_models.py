@@ -7,6 +7,7 @@ from brand_gen.runtime_models import (
     COPY_BEARING_MATERIALS,
     MATERIAL_CONFIG,
     MODELS,
+    material_uses_canonical_gpt_image_2,
     recommend_text_model,
     resolve_default_model,
     resolve_learned_model,
@@ -26,15 +27,46 @@ class CopyBearingDefaultModelTests(unittest.TestCase):
         )
         self.assertEqual(model, "nano-banana-2")
 
-    def test_copy_bearing_pure_defaults_to_material_config(self):
-        model = resolve_default_model("wordmark", "image", "pure", [])
-        self.assertEqual(model, "ideogram")
+    def test_first_pass_material_pure_defaults_to_gpt_image_2(self):
+        model = resolve_default_model("concept-illustration", "image", "pure", [])
+        self.assertEqual(model, "gpt-image-2")
 
     def test_browser_illustration_with_refs_uses_flux2flex(self):
         model = resolve_default_model(
             "browser-illustration", "image", "reference", [Path("ref.png")]
         )
         self.assertEqual(model, "flux-2-flex")
+
+    def test_first_pass_material_with_refs_keeps_gpt_image_2(self):
+        model = resolve_default_model(
+            "brand-scene", "image", "reference", [Path("ref.png")]
+        )
+        self.assertEqual(model, "gpt-image-2")
+
+    def test_split_explainer_material_pure_defaults_to_gpt_image_2(self):
+        model = resolve_default_model(
+            "system-explainer-illustration", "image", "pure", []
+        )
+        self.assertEqual(model, "gpt-image-2")
+
+    def test_canonical_gpt_image_2_materials_stay_pinned(self):
+        self.assertTrue(material_uses_canonical_gpt_image_2("system-explainer-illustration", "image"))
+        self.assertTrue(material_uses_canonical_gpt_image_2("brand-scene", "image"))
+
+    def test_canonical_gpt_image_2_materials_unpin_for_base_image_or_video(self):
+        self.assertFalse(material_uses_canonical_gpt_image_2("system-explainer-illustration", "image", has_base_image=True))
+        self.assertFalse(material_uses_canonical_gpt_image_2("system-explainer-illustration", "video"))
+
+    def test_new_material_types_are_registered(self):
+        for material_type in (
+            "illustrated-brand-world",
+            "proof-poster",
+            "site-pattern-tile",
+            "pattern-board",
+            "system-explainer-illustration",
+            "editorial-metaphor-illustration",
+        ):
+            self.assertIn(material_type, MATERIAL_CONFIG)
 
     def test_flux2flex_exists_in_models_json(self):
         self.assertIn("flux-2-flex", MODELS["image"])
@@ -70,7 +102,7 @@ class RecommendTextModelTests(unittest.TestCase):
     def test_recommend_text_model_with_p1_text(self):
         critique = {"text_accuracy": 1.0, "text_issues": [], "p1": ["Text is garbled"]}
         rec = recommend_text_model(critique, "recraft-v4", "landing-hero", False)
-        self.assertEqual(rec, "ideogram")
+        self.assertEqual(rec, "gpt-image-2")
 
     def test_recommend_text_model_clean_returns_none(self):
         critique = {"text_accuracy": 0.95, "p1": ["palette mismatch"], "text_issues": []}
@@ -82,14 +114,14 @@ class RecommendTextModelTests(unittest.TestCase):
         rec = recommend_text_model(critique, "flux-2-flex", "social", True)
         self.assertIsNone(rec)
 
-    def test_recommend_text_model_pure_mode_recommends_ideogram(self):
+    def test_recommend_text_model_pure_mode_recommends_gpt_image_2(self):
         critique = {"text_accuracy": 0.5}
-        rec = recommend_text_model(critique, "recraft-v4", "wordmark", False)
-        self.assertEqual(rec, "ideogram")
+        rec = recommend_text_model(critique, "recraft-v4", "logo", False)
+        self.assertEqual(rec, "gpt-image-2")
 
-    def test_recommend_text_model_pure_already_ideogram(self):
+    def test_recommend_text_model_pure_already_gpt_image_2(self):
         critique = {"text_accuracy": 0.5}
-        rec = recommend_text_model(critique, "ideogram", "wordmark", False)
+        rec = recommend_text_model(critique, "gpt-image-2", "logo", False)
         self.assertIsNone(rec)
 
 

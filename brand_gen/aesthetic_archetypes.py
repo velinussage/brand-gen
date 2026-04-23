@@ -30,10 +30,21 @@ def _load_archetypes() -> dict:
 _ARCHETYPE_DATA = _load_archetypes()
 
 
+_MATERIAL_ALIASES = {
+    "system-explainer-illustration": "concept-illustration",
+    "editorial-metaphor-illustration": "concept-illustration",
+    "illustrated-brand-world": "brand-scene",
+    "proof-poster": "campaign-poster",
+    "site-pattern-tile": "pattern-system",
+    "pattern-board": "pattern-system",
+}
+
+
 def _material_key(material_type: str | None) -> str:
     if not material_type:
         return ""
-    return str(material_type).strip().lower().replace("_", "-")
+    key = str(material_type).strip().lower().replace("_", "-")
+    return _MATERIAL_ALIASES.get(key, key)
 
 
 def list_archetypes(material_type: str | None) -> list[dict]:

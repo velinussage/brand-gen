@@ -78,6 +78,7 @@ POLICY_CLASSES_BY_TOOL: dict[str, PolicyClass] = {
     "brand_review_run":            "local_mutation",
     "brand_evolve_run":            "local_mutation",
     "brand_orchestrate_material":  "costly_generation",
+    "brand_build_generation_scratchpad": "local_mutation",
     # Mutation — typed state changes.
     "brand_append_forbidden_pattern":      "local_mutation",
     "brand_append_custom_scratchpad_note": "local_mutation",
@@ -87,6 +88,9 @@ POLICY_CLASSES_BY_TOOL: dict[str, PolicyClass] = {
     "brand_update_palette":                "local_mutation",
     "brand_update_typography":             "local_mutation",
     "brand_update_devices":                "local_mutation",
+    "brand_export_design_tokens":          "local_mutation",
+    "brand_extract_inspiration":           "local_mutation",
+    "brand_consolidate_inspiration":       "local_mutation",
     "brand_submit_review":                 "local_mutation",
     "brand_switch_brand":                  "local_mutation",
     # Inspection — read-only.

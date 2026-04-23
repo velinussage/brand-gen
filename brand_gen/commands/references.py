@@ -335,7 +335,11 @@ def cmd_social_specs(args):
     print("-" * 120)
     for name, spec in items:
         size = f"{spec['width']}x{spec['height']}"
-        print(f"{name:<24} {size:<14} {spec['aspect_ratio']:<10} {spec['label']}")
+        deprecated = DEPRECATED_MATERIAL_TYPES.get(name) or {}
+        label = spec['label']
+        if deprecated:
+            label = f"{label} [deprecated → {deprecated.get('prefer') or 'new taxonomy'}]"
+        print(f"{name:<24} {size:<14} {spec['aspect_ratio']:<10} {label}")
         if args.verbose:
             print(f"  notes: {spec['notes']}")
             print(f"  source: {spec['source']}")
