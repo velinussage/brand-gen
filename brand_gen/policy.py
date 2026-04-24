@@ -95,6 +95,7 @@ POLICY_CLASSES_BY_TOOL: dict[str, PolicyClass] = {
     "brand_switch_brand":                  "local_mutation",
     # Inspection — read-only.
     "brand_context_snapshot":        "read_only",
+    "brand_source_knowledge":        "read_only",
     "brand_show_blackboard":         "read_only",
     "brand_show_iteration_memory":   "read_only",
     "brand_show_rubric":             "read_only",

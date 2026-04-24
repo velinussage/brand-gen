@@ -12,6 +12,10 @@ compatibility:
 
 # Brand Gen Setup
 
+## Pi / Sage full-pipeline prompt
+
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. It routes Pi through the typed `brand_*` tools, the `brand-orchestrator` subagent, exact-text gates, v2/DSPy review, GEPA-ready disagreement fields, and typed mutation loops. Keep this link instead of copying the full prompt into skill bodies.
+
 This skill covers installation, validation, and host wiring.
 
 After setup is complete, load:
@@ -20,6 +24,10 @@ After setup is complete, load:
 - `skills/brand-gen-reference/SKILL.md` — models, surfaces, file layout
 - `skills/brand-gen-logo/SKILL.md` — logo workflows
 - `skills/brand-content-ideation/SKILL.md` — messaging/copy ideation
+
+New saved brands and testing sessions also get a generated Pi runtime prompt at
+`<brand-dir>/prompts/pi-full-pipeline.md`. Use that brand-scoped prompt for
+non-Sage brands instead of the Sage-specific prompt under `docs/prompts/`.
 
 ## Prerequisites
 
@@ -59,16 +67,24 @@ Important notes:
 Create `.brand-gen-local.json` at the repo root. The agent should do this automatically:
 
 1. Detect `repo_root` from the current working directory (`pwd`).
-2. Ask the user: "Do you have an Obsidian vault or brand docs folder you want to connect? If so, what's the path?" If yes, add it to `vault_paths`. If no, set `vault_paths` to `[]`.
+2. Ask the user: "Do you have an Obsidian vault or brand docs folder you want to connect? If so, what's the path and which brand should use it?" If yes, prefer a brand-specific map (`brand_vault_paths` / `brand_knowledge_base_paths`). Use global `vault_paths` only for a single-brand checkout.
 3. Write the file:
 ```json
 {
   "repo_root": "<detected path>",
-  "vault_paths": ["<user-provided path if any>"]
+  "vault_paths": [],
+  "brand_vault_paths": {
+    "<brand-key>": ["<user-provided Obsidian vault path if any>"]
+  },
+  "brand_knowledge_base_paths": {
+    "<brand-key>": ["<user-provided docs path if any>"]
+  }
 }
 ```
 
 This file is only needed for Pi agents. If the user is CLI-only, skip this step.
+Do not put Sage vault paths in global `vault_paths` for a multi-brand workspace; each
+brand should inherit only its own source knowledge.
 
 Creative defaults (quality benchmarks, concept categories, metaphor vocabulary) are stored per-brand in `brand-profile.json` → `creative_context` and seeded on `bgen create-brand`.
 

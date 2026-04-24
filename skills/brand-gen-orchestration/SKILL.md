@@ -19,6 +19,10 @@ compatibility:
 
 # Brand-Gen Orchestration Pipeline
 
+## Pi / Sage full-pipeline prompt
+
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. It routes Pi through the typed `brand_*` tools, the `brand-orchestrator` subagent, exact-text gates, v2/DSPy review, GEPA-ready disagreement fields, and typed mutation loops. Keep this link instead of copying the full prompt into skill bodies.
+
 This skill encodes the 6-phase generation pipeline that produces brand materials through structured preparation, planning, validation, generation, critique, and learning.
 
 Every phase exists for a reason. Preparation prevents repeating mistakes. Planning encodes creative intent. Validation catches contradictions cheaply. Critique enforces a quality bar. Evolution compounds learnings across runs.
@@ -27,7 +31,9 @@ Every phase exists for a reason. Preparation prevents repeating mistakes. Planni
 
 After the typed-agentic-runtime refactor (Phases 1-6 of the 2026-04 plan), the entire 6-phase pipeline is exposed as **typed MCP/CLI tools with structured responses**. Pin to these verbs instead of scripting the legacy chain below — the legacy chain is the fallback for CI/scripting, not the primary path.
 
-### Orchestration (7 verbs — run the pipeline)
+Architecture docs live in `docs/architecture/`; GEPA/DSPy optimization and disagreement-record fields are documented in `docs/architecture/gepa-dspy-optimization.md`.
+
+### Orchestration (8 verbs — run the pipeline)
 
 ```bash
 # Convenience: runs all six phases to a natural stop.
@@ -49,7 +55,7 @@ bgen orchestrate-material \
 | `max_retries` | Orchestrator hit its retry ceiling. | Fall through to per-stage tools to debug. |
 | `needs_user_input` | Ambiguity the orchestrator cannot resolve. | Surface `next_action` to the user. |
 
-Per-stage fall-through (6 tools) — use these only when `orchestrate-material` stops with `max_retries` or you need stage-level A/B testing:
+Per-stage fall-through (6 stage tools + scratchpad assembly) — use these only when `orchestrate-material` stops with `max_retries` or you need stage-level A/B testing:
 
 ```bash
 bgen prepare-run   # Phase 1 → {brand_dna_summary, applicable_learnings, readiness_issues, route, next_action}
@@ -79,7 +85,7 @@ When `review-run` (or `critique-rubric --dspy-scorer`) returns a packet with `ru
 
 Use durable when the `before` is a recurring slop tell. Use ephemeral when it's run-specific.
 
-### Mutation (9 typed verbs — replace every direct file edit)
+### Mutation (13 typed verbs — replace every direct file edit)
 
 **Never manually edit `custom-scratchpad.json`, `custom-scratchpad.md`, `learnings.json`, `iteration-memory.json`, or `brand-identity.json`.** Call the typed verb. Every tool supports `--dry-run` returning the same response shape so you can preview.
 
@@ -95,7 +101,7 @@ Use durable when the `before` is a recurring slop tell. Use ephemeral when it's 
 | `bgen set-motion-grammar --director "..." --favored "..." --banned "..." --intensity {low,medium,high}` | Hand-edits to motion-grammar section | Author or revise motion grammar |
 | `bgen submit-review <version-id> --critique-json <path>` | Alias for `submit-critique` | Submit a v2 critique packet |
 
-### Inspection (7 read verbs)
+### Inspection / policy-read (17 read verbs)
 
 ```bash
 bgen context-snapshot --format json        # canonical workspace snapshot — run at session start

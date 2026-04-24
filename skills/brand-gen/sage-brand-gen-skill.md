@@ -83,11 +83,11 @@ test -f brands/<ACTIVE_BRAND>/iteration-memory.md && head -60 brands/<ACTIVE_BRA
 ### v7 narrative rules (when sage is the active brand)
 If the active brand is `sage`, absorb:
 
-- `/Users/user/Downloads/sagedesign/v7/02-v7-narrative-brief.md` — approved
+- `~/Downloads/sagedesign/v7/02-v7-narrative-brief.md` — approved
   lines, message hierarchy, anti-patterns.
-- `/Users/user/Downloads/sagedesign/v7/03-video-feedback-and-plan.md` — scene
+- `~/Downloads/sagedesign/v7/03-video-feedback-and-plan.md` — scene
   structure, motion-language guidance, caption rule.
-- `/Users/user/Downloads/sagedesign/v7/04-visual-system-feedback.md` — logo
+- `~/Downloads/sagedesign/v7/04-visual-system-feedback.md` — logo
   fidelity rule, typography, composition guidance, retired-hero-motif list.
 
 Hard rules from v7:
@@ -127,7 +127,7 @@ Provision the sections above AS-NEEDED rather than dumping all of them. Prefer:
 ## Installation
 
 ```bash
-sage library skill add /Users/user/Documents/brand-gen/skills/brand-gen/sage-brand-gen-skill.md -l <your-library>
+sage library skill add ./skills/brand-gen/sage-brand-gen-skill.md -l <your-library>
 sage library push <your-library>
 ```
 

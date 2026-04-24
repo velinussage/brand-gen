@@ -14,6 +14,10 @@ compatibility:
 
 # Brand Gen Reference
 
+## Pi / Sage full-pipeline prompt
+
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. It routes Pi through the typed `brand_*` tools, the `brand-orchestrator` subagent, exact-text gates, v2/DSPy review, GEPA-ready disagreement fields, and typed mutation loops. Keep this link instead of copying the full prompt into skill bodies.
+
 Reference data for brand-gen — not workflow doctrine. Load individual reference files only when you need them.
 
 Preferred CLI: `bgen ...` or `python3 -m brand_gen ...`

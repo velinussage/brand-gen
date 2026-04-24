@@ -50,6 +50,7 @@ class AgentSpecialization:
 # need). Used by the explorer and router agents.
 _INSPECTION_TOOLS: tuple[str, ...] = (
     "brand_context_snapshot",
+    "brand_source_knowledge",
     "brand_show_blackboard",
     "brand_show_iteration_memory",
     "brand_show_rubric",

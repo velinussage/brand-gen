@@ -209,7 +209,7 @@ class OrchestratorMirrorParityTests(unittest.TestCase):
             100,
             "brand-orchestrator.md has grown past 100 lines — is it "
             "drifting back toward procedural bash contract? The Phase 5 "
-            "target is ≤80 lines.",
+            "target is ≤100 lines.",
         )
 
     def test_orchestrator_has_no_bash_commands(self) -> None:
@@ -251,6 +251,97 @@ class SpecialistBashFreeTests(unittest.TestCase):
             "Specialist markdown still carries `source .venv/bin/activate` "
             f"activation blocks (Phase E violation): {offenders}",
         )
+
+
+class PiAgentContractTests(unittest.TestCase):
+    """Pi agents should stay compact and typed-tool-only.
+
+    Pi subagents are more reliable when the frontmatter tool list is the
+    contract and the body is a short role/sequence note, not a long CLI manual.
+    """
+
+    def test_pi_agent_bodies_are_compact(self) -> None:
+        offenders: list[str] = []
+        for path in (REPO_ROOT / ".pi" / "agents").glob("brand-*.md"):
+            if path.name == "brand-pipeline-executor.md":
+                continue
+            lines = path.read_text(encoding="utf-8").splitlines()
+            limit = 110 if path.name == "brand-orchestrator.md" else 80
+            if len(lines) > limit:
+                offenders.append(f"{path.name}: {len(lines)} > {limit}")
+        self.assertEqual(offenders, [], f"Pi agent prompts too long: {offenders}")
+
+    def test_pi_agents_do_not_embed_cli_workflows(self) -> None:
+        offenders: list[str] = []
+        banned = ("```bash", "source .venv", "bgen ", "python3 -m brand_gen")
+        for path in (REPO_ROOT / ".pi" / "agents").glob("brand-*.md"):
+            if path.name == "brand-pipeline-executor.md":
+                continue
+            text = path.read_text(encoding="utf-8")
+            hits = [item for item in banned if item in text]
+            if hits:
+                offenders.append(f"{path.name}: {hits}")
+        self.assertEqual(offenders, [], f"Pi agents embed CLI workflows: {offenders}")
+
+
+class ArchitectureDocsTests(unittest.TestCase):
+    """Runtime architecture docs should stay repo-local and optimization-ready."""
+
+    def test_gepa_dspy_doc_lives_in_repo_docs_architecture(self) -> None:
+        path = REPO_ROOT / "docs" / "architecture" / "gepa-dspy-optimization.md"
+        self.assertTrue(path.exists(), f"Missing repo-local architecture doc: {path}")
+        text = path.read_text(encoding="utf-8")
+        required_terms = (
+            "axis_scores",
+            "axis_rationales",
+            "disqualifier_triggered",
+            "disqualifier_rule",
+            "why_user_might_dislike_if_polished",
+            "before_after_diffs",
+        )
+        missing = [term for term in required_terms if term not in text]
+        self.assertEqual(
+            missing,
+            [],
+            "GEPA/DSPy architecture doc must name the reflection-ready "
+            f"disagreement fields: {missing}",
+        )
+
+    def test_all_brand_gen_skills_link_pi_sage_prompt(self) -> None:
+        prompt_rel = "docs/prompts/pi-sage-brand-gen-full-pipeline.md"
+        skill_paths = sorted((REPO_ROOT / "skills").glob("brand*/SKILL.md"))
+        self.assertTrue(skill_paths, "No brand-gen skill files found under skills/")
+        missing = [
+            str(path.relative_to(REPO_ROOT))
+            for path in skill_paths
+            if prompt_rel not in path.read_text(encoding="utf-8")
+        ]
+        self.assertEqual(missing, [], f"Brand-gen skills missing Pi/Sage prompt link: {missing}")
+
+    def test_pi_sage_prompt_references_only_canonical_brand_tools(self) -> None:
+        prompt_path = REPO_ROOT / "docs" / "prompts" / "pi-sage-brand-gen-full-pipeline.md"
+        self.assertTrue(prompt_path.exists(), f"Missing prompt: {prompt_path}")
+        text = prompt_path.read_text(encoding="utf-8")
+        referenced = set(re.findall(r"\bbrand_[a-z_]+\b", text))
+        canonical = _parse_canonical_tool_names()
+        missing = sorted(referenced - canonical)
+        self.assertEqual(
+            missing,
+            [],
+            "Pi/Sage full-pipeline prompt references non-canonical brand tools: "
+            f"{missing}",
+        )
+
+    def test_pi_sage_prompt_covers_trace_derived_review_safety(self) -> None:
+        prompt_path = REPO_ROOT / "docs" / "prompts" / "pi-sage-brand-gen-full-pipeline.md"
+        text = prompt_path.read_text(encoding="utf-8")
+        for phrase in (
+            "Do not bypass blocking findings",
+            "Always pass the required version argument",
+            "decision: pending",
+            "Do not evolve from a pending review packet",
+        ):
+            self.assertIn(phrase, text)
 
 
 if __name__ == "__main__":

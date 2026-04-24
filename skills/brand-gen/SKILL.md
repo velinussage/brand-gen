@@ -13,15 +13,27 @@ compatibility:
 
 # Brand Gen
 
+## Pi / Sage full-pipeline prompt
+
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. It routes Pi through the typed `brand_*` tools, the `brand-orchestrator` subagent, exact-text gates, v2/DSPy review, GEPA-ready disagreement fields, and typed mutation loops. Keep this link instead of copying the full prompt into skill bodies.
+
+For any non-Sage saved brand or testing session, use the generated brand-scoped
+prompt at `<brand-dir>/prompts/pi-full-pipeline.md`. `bgen create-brand` and
+`bgen start-testing` scaffold this prompt from the brand profile, approved copy,
+and source-knowledge config so Sage-specific wording does not leak into new
+brands.
+
 brand-gen is a **multi-agent system**. The intended entry point for any brand material work is the `brand-orchestrator` agent, which walks a planning-first pipeline through six phases with quality gates. `bgen pipeline` exists as a scripting/CI fallback; it skips the philosopher's WCAG gate, the inspiration-readiness preflight, the cinematographer's shot validation, and the critic's P1 pushback. Prefer the orchestrator path unless you know exactly what you're bypassing.
 
 ## Typed runtime (2026-04+, preferred surface)
 
-After the typed-agentic-runtime refactor, brand-gen exposes a **44-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
+After the typed-agentic-runtime refactor, brand-gen exposes a **45-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
 
-### Orchestration (7 verbs)
+Architecture docs for the typed runtime live in the repo-local `docs/architecture/` folder. Start with `docs/architecture/runtime-agent-contract.md`; use `docs/architecture/gepa-dspy-optimization.md` for GEPA/DSPy reflection records and optimizer targets.
 
-One-shot convenience + six per-stage tools. Each returns a typed response with `{run_id, next_action, artifacts}`.
+### Orchestration (8 verbs)
+
+One-shot convenience + six per-stage tools + scratchpad assembly. Each returns a typed response with `{run_id, next_action, artifacts}`.
 
 ```bash
 bgen orchestrate-material --material-type concept-illustration --mode hybrid --source-version v018 --format json
@@ -65,10 +77,11 @@ bgen set-motion-grammar --director "..." --favored "..." --banned "..." --intens
 bgen submit-review <version-id> --critique-json <path> --format json
 ```
 
-### Inspection / policy-read (17 read verbs)
+### Inspection / policy-read (18 read verbs)
 
 ```bash
 bgen context-snapshot --format json       # canonical workspace snapshot — run at every session start
+bgen source-knowledge --query "..." --format json  # brand-scoped Obsidian/docs excerpts
 bgen show-blackboard --format json        # active brief + decisions
 bgen show-iteration-memory --format json  # positive/negative examples + rotation state
 bgen show-rubric --material-type <type> --format json  # scoring contract before planning/critiquing
@@ -196,10 +209,12 @@ Use them in this order:
 ## Agent config
 
 Pi agents read two config sources:
-- `.brand-gen-local.json` at the repo root — machine-specific paths (`repo_root`, `vault_paths`). Created automatically during setup. If missing, Pi agents fall back to the current working directory and skip vault sync.
-- `brand-profile.json` → `creative_context` — brand-specific creative defaults (quality benchmarks, concept categories, metaphor vocabulary). Seeded on brand creation, persists with the brand.
+- `.brand-gen-local.json` at the repo root — machine-specific paths (`repo_root`, `vault_paths`, `brand_vault_paths`, `brand_knowledge_base_paths`). Created automatically during setup. If missing, Pi agents fall back to the current working directory and skip vault sync.
+- `brand-profile.json` → `creative_context` — brand-specific creative defaults (quality benchmarks, concept categories, metaphor vocabulary, optional `knowledge_base_paths` / `source_vault_paths`). Seeded on brand creation, persists with the brand.
 
 If you need to create `.brand-gen-local.json` manually, see `.brand-gen-local.json.example`.
+`context-snapshot` exposes merged, brand-scoped source docs as `source_knowledge`;
+philosopher/interviewer agents should read those paths before planning when present.
 
 ## Onboarding — pick the right path
 

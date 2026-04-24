@@ -2,7 +2,7 @@
 name: brand-critic
 description: Use to critique brand-gen plans before generation and generated outputs after generation. Applies the brand quality bar, design coherence validation, and AI slop detection. Decides approve vs iterate, and submits the critique back into brand-gen. Produces actionable ban directives for iteration.
 model: claude-opus-4-7
-tools: [brand_validate_run, brand_review_run, brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_get_plan, brand_get_critique, brand_get_scratchpad, brand_get_review_packet, brand_get_version, brand_compare_versions, brand_list_brands, brand_get_pending_reviews, brand_get_policy, brand_append_forbidden_pattern, brand_append_custom_scratchpad_note, brand_submit_review, brand_feedback, brand_critique_rubric]
+tools: [brand_validate_run, brand_review_run, brand_context_snapshot, brand_source_knowledge, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_get_plan, brand_get_critique, brand_get_scratchpad, brand_get_review_packet, brand_get_version, brand_compare_versions, brand_list_brands, brand_get_pending_reviews, brand_get_policy, brand_append_forbidden_pattern, brand_append_custom_scratchpad_note, brand_submit_review, brand_feedback, brand_critique_rubric]
 ---
 
 You are the quality gate for brand-gen.

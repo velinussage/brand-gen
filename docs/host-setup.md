@@ -1,6 +1,6 @@
 # Host setup — typed runtime across Claude Code, Pi, and OpenClaw
 
-Phase 5 of the typed-agentic-runtime refactor consolidated all three hosts (Claude Code subagents, Pi plugin, OpenClaw plugin) onto the same 44-verb typed tool surface. This doc is the architecture reference.
+Phase 5 of the typed-agentic-runtime refactor consolidated all three hosts (Claude Code subagents, Pi plugin, OpenClaw plugin) onto the same 45-verb typed tool surface. This doc is the architecture reference.
 
 ## Architecture
 
@@ -12,13 +12,13 @@ Phase 5 of the typed-agentic-runtime refactor consolidated all three hosts (Clau
 │  (.claude/agents/*.md) │  (pi-brand-gen)   │  (openclaw-*)      │
 │                                                                 │
 └──────────────────────┬──────────────────────────────────────────┘
-                       │ same 44 typed tools
+                       │ same 45 typed tools
 ┌──────────────────────┴──────────────────────────────────────────┐
 │                                                                 │
 │  Canonical tool registry                                        │
 │    packages/brand-gen-core/src/tool-registry.ts                 │
-│    → CANONICAL_TOOLS (44 entries: 8 orchestration, 13 mutation, │
-│      17 inspection, 4 policy, 2 feedback)                                  │
+│    → CANONICAL_TOOLS (45 entries: 8 orchestration, 13 mutation, │
+│      18 inspection, 4 policy, 2 feedback)                                  │
 │                                                                 │
 └──────────────────────┬──────────────────────────────────────────┘
                        │ callJsonTool dispatch via MCP stdio
@@ -26,7 +26,7 @@ Phase 5 of the typed-agentic-runtime refactor consolidated all three hosts (Clau
 │                                                                 │
 │  Python MCP bridge (brand_gen/)                                 │
 │    brand_gen/mcp_bridge_registry.py                             │
-│    → BRIDGE_BY_TOOL (same 44 tool_names + schemas)              │
+│    → BRIDGE_BY_TOOL (same 45 tool_names + schemas)              │
 │                                                                 │
 │  Per-agent allowlist                                            │
 │    brand_gen/agent_specialization.py                            │
@@ -40,7 +40,7 @@ All three hosts expose the same tool names. The Python bridge is the single exec
 ## What each host does
 
 - **Claude Code subagent**: an `.md` file in `.claude/agents/` with `tools: [...]` frontmatter listing the agent's canonical allowlist. The agent calls tools; it does not run bash sequences. Claude Code auto-registers the MCP server declared in `.mcp.json` (or the session config).
-- **Pi plugin** (`packages/pi-brand-gen`): at plugin startup, `createCanonicalBrandTools(bridge, config)` registers all 44 canonical tools plus three compatibility shims (`brand_search`, `brand_execute`, `brand_status`). Context injection and heartbeat logic live in `packages/brand-gen-core`.
+- **Pi plugin** (`packages/pi-brand-gen`): at plugin startup, `createCanonicalBrandTools(bridge, config)` registers all 45 canonical tools plus three compatibility shims (`brand_search`, `brand_execute`, `brand_status`). Context injection and heartbeat logic live in `packages/brand-gen-core`.
 - **OpenClaw plugin** (`packages/openclaw-brand-gen`): same canonical registration pattern; OpenClaw's tool execute signature is `(toolCallId, params) → result` vs Pi's `(args) → result`, so there's a small adapter but the tool name + schema identical.
 
 ## Setting up a new host (≤100 lines of adapter code)
@@ -60,7 +60,7 @@ That's the whole contract. No business logic in the adapter.
 Every `.claude/agents/brand-*.md` file:
 
 - Has a `tools:` frontmatter field listing only canonical tool names from `brand_gen/agent_specialization.py::AGENT_SPECIALIZATIONS`.
-- Describes the agent's specialization + stop-reason handling in ≤80 lines.
+- Describes the agent's specialization + stop-reason handling in a compact prompt (target ≤100 lines for orchestrator, much shorter for Pi specialists).
 - Does **not** contain procedural `bgen` bash sequences. The tool surface IS the contract.
 - Does **not** instruct the agent to edit JSON or markdown files directly. Every mutation goes through a typed tool.
 
@@ -72,15 +72,15 @@ Declared once in `brand_gen/agent_specialization.py`:
 
 | Agent | Tools granted |
 |---|---|
-| `brand-orchestrator` | 34 tools: 7 run/orchestration verbs + 18 inspection/policy-read verbs + critic/feedback/policy mutations |
-| `brand-explorer` | 18 inspection/policy-read verbs (read-only) |
-| `brand-router` | 18 inspection/policy-read verbs (read-only) |
-| `brand-planner` | 23 tools: `brand_plan_run`, `brand_validate_run`, 18 inspection/policy-read verbs, 3 prep mutations |
-| `brand-critic` | 25 tools: `brand_validate_run`, `brand_review_run`, 18 inspection/policy-read verbs, 5 critic/feedback verbs |
+| `brand-orchestrator` | 36 tools: orchestration verbs + 19 inspection/policy-read verbs + critic/feedback/policy mutations |
+| `brand-explorer` | 19 inspection/policy-read verbs (read-only) |
+| `brand-router` | 19 inspection/policy-read verbs (read-only) |
+| `brand-planner` | 23 tools: `brand_plan_run`, `brand_validate_run`, 19 inspection/policy-read verbs, 3 prep mutations |
+| `brand-critic` | 25 tools: `brand_validate_run`, `brand_review_run`, 19 inspection/policy-read verbs, 5 critic/feedback verbs |
 | `brand-generator` | 4 tools: `brand_execute_run` + core inspection verbs |
-| `brand-philosopher` | 26 tools: 8 philosopher/prep mutations + 18 inspection/policy-read verbs |
+| `brand-philosopher` | 26 tools: 8 philosopher/prep mutations + 19 inspection/policy-read verbs |
 | `brand-cinematographer` | 6 tools: `brand_execute_run`, `brand_build_generation_scratchpad`, motion grammar + core inspection verbs |
-| `brand-interviewer` | 22 tools: 4 interview mutations + 18 inspection/policy-read verbs |
+| `brand-interviewer` | 22 tools: 4 interview mutations + 19 inspection/policy-read verbs |
 
 Adding a new tool to an agent: edit `AGENT_SPECIALIZATIONS` in `agent_specialization.py`, re-sync the three markdown mirrors, and run `tests/test_host_consistency.py`.
 
@@ -122,4 +122,4 @@ For hosts that want a direct tool surface over stdio:
 python3 -m brand_gen.brand_iterate_mcp
 ```
 
-Exposes bridged CLI commands for backward compatibility plus the 44 canonical verbs as native MCP tools.
+Exposes bridged CLI commands for backward compatibility plus the 45 canonical verbs as native MCP tools.

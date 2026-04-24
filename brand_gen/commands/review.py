@@ -485,6 +485,16 @@ def _maybe_log_disagreement(brand_dir: Path, vid: str, entry: dict, args) -> Non
         "rubric_version": vlm_critique.get("rubric_version") or "",
         "scorer_version": vlm_critique.get("scorer_version") or "",
         "vlm_provider": vlm_critique.get("provider") or vlm_critique.get("vlm_provider") or "",
+        # Reflection-rich fields for DSPy/GEPA optimization. GEPA is most
+        # sample-efficient when the evaluator returns textual feedback and
+        # traces, not just scalar scores. Keep these compact but complete
+        # enough to diagnose why the scorer/user disagreed.
+        "axis_scores": vlm_critique.get("axis_scores") or vlm_critique.get("scores") or {},
+        "axis_rationales": vlm_critique.get("axis_rationales") or {},
+        "disqualifier_triggered": bool(vlm_critique.get("disqualifier_triggered", False)),
+        "disqualifier_rule": vlm_critique.get("disqualifier_rule") or "",
+        "why_user_might_dislike_if_polished": vlm_critique.get("why_user_might_dislike_if_polished") or "",
+        "before_after_diffs": vlm_critique.get("before_after_diffs") or [],
     }
     append_disagreement(brand_dir, record)
     append_run_event(

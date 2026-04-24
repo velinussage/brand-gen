@@ -114,6 +114,11 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       workflow_id: { type: "string" },
       max_iterations: { type: "integer", minimum: 1, maximum: 3, default: 1 },
       max_retries: { type: "integer", minimum: 0, maximum: 2, default: 1 },
+      allow_blocking: {
+        type: "boolean",
+        default: false,
+        description: "Record an explicit bypass and continue despite blocking critique/scratchpad findings. Use only when the user explicitly authorizes a bypass.",
+      },
     }, ["plan_draft"], "Arguments for brand_execute_run"),
   },
   {
@@ -154,10 +159,19 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     requiredParams: ["plan"],
     parameterSchema: objectSchema({
       plan: { type: "string", description: "Material plan JSON or plan-draft JSON." },
-      prompt: { type: "string" },
+      prompt: { type: "string", description: "Validated prompt override; for video this is the six-element Seedance prompt." },
       material_type: { type: "string" },
       mode: { type: "string", enum: ["auto", "reference", "inspiration", "hybrid"], default: "auto" },
+      generation_mode: { type: "string", enum: ["auto", "image", "video"], default: "auto" },
       model: { type: "string" },
+      aspect_ratio: { type: "string" },
+      resolution: { type: "string" },
+      duration: { type: "integer", minimum: 1 },
+      source_version: { type: "string", description: "Prior version id for lineage / derive-video workflows." },
+      reference_assets: { type: "array", items: { type: "string" }, description: "Image references; bridged to repeated --image flags." },
+      motion_reference: { type: "string", description: "Motion/video reference asset path." },
+      base_image: { type: "string", description: "Authoritative base image or screenshot to preserve/edit." },
+      negative_prompt: { type: "string" },
       render_backend: { type: "string", enum: ["native", "html"], default: "native" },
       allow_blocking: { type: "boolean", default: false },
     }, ["plan"], "Arguments for brand_build_generation_scratchpad"),
@@ -336,6 +350,17 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     category: "inspection",
     description:
       "Canonical machine-readable workspace snapshot — active brand, blackboard summary, recent versions, capabilities. Use this at the start of any agent session.",
+  },
+  {
+    name: "brand_source_knowledge",
+    category: "inspection",
+    description:
+      "Search brand-scoped Obsidian/docs markdown configured in source_knowledge and return bounded excerpts for product truth before planning.",
+    parameterSchema: objectSchema({
+      query: { type: "string", description: "Keyword query such as governed skill network, RLM, DAO, MCP, libraries." },
+      limit: { type: "integer", minimum: 1, maximum: 20, default: 8 },
+      max_chars: { type: "integer", minimum: 120, maximum: 2000, default: 900 },
+    }, [], "Arguments for brand_source_knowledge"),
   },
   {
     name: "brand_show_blackboard",

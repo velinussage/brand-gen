@@ -15,6 +15,10 @@ compatibility:
 
 # Brand Content Ideation
 
+## Pi / Sage full-pipeline prompt
+
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. It routes Pi through the typed `brand_*` tools, the `brand-orchestrator` subagent, exact-text gates, v2/DSPy review, GEPA-ready disagreement fields, and typed mutation loops. Keep this link instead of copying the full prompt into skill bodies.
+
 Turn brand truth into publishable content. This skill bridges the gap between "we have a brand identity" and "we have content worth posting."
 
 ## The problem this solves

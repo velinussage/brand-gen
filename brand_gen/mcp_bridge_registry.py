@@ -80,6 +80,7 @@ COMMAND_OVERRIDES: dict[str, McpBridgeOverride] = {
     "orchestrate-material": McpBridgeOverride(argv_defaults={"format": "json"}),
     "show-session-summary": McpBridgeOverride(argv_defaults={"format": "json"}),
     "context-snapshot": McpBridgeOverride(argv_defaults={"format": "json"}),
+    "source-knowledge": McpBridgeOverride(argv_defaults={"format": "json"}),
     "capabilities": McpBridgeOverride(argv_defaults={"format": "json"}),
     "workspace-status": McpBridgeOverride(argv_defaults={"format": "json"}),
     "improvement-questions": McpBridgeOverride(argv_defaults={"format": "json"}),

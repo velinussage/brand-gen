@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import {
   parsePluginConfig,
@@ -19,7 +19,8 @@ import {
   repoRootFromModuleUrl,
   resolvePiRuntimePaths,
 } from '../src/runtime-paths.ts';
-import { createBrandSearchTool } from '../src/tool.ts';
+import { createBrandSearchTool, createCanonicalBrandTools } from '../src/tool.ts';
+import { CANONICAL_TOOLS } from '../../brand-gen-core/src/index.ts';
 import { defaultLearnings, saveLearnings, appendJournal, getRecentEntries, journalPathForWorkspace } from '../src/memory.ts';
 
 class FakeBridge {
@@ -39,6 +40,45 @@ class FakeBridge {
     return [{ name: 'brand_pipeline' }, { name: 'brand_show_blackboard' }];
   }
 }
+
+test('Pi canonical tool registration exposes all 45 brand verbs', () => {
+  const cfg = parsePluginConfig({ brandGenDir: '/tmp/brand-gen' });
+  const bridge = new FakeBridge({});
+  const tools = createCanonicalBrandTools(bridge as any, cfg);
+  const names = tools.map((tool) => tool.name).sort();
+  const canonicalNames = CANONICAL_TOOLS.map((tool) => tool.name).sort();
+  assert.equal(canonicalNames.length, 45);
+  assert.deepEqual(names, canonicalNames);
+  assert.ok(tools.every((tool) => tool.name.startsWith('brand_')));
+  const scratchpad = tools.find((tool) => tool.name === 'brand_build_generation_scratchpad');
+  assert.ok(scratchpad);
+  assert.deepEqual((scratchpad!.parameters as any).required, ['plan']);
+  const props = (scratchpad!.parameters as any).properties;
+  for (const key of ['prompt', 'generation_mode', 'aspect_ratio', 'duration', 'source_version', 'reference_assets', 'motion_reference', 'base_image']) {
+    assert.ok(props[key], `scratchpad schema missing ${key}`);
+  }
+  const execute = tools.find((tool) => tool.name === 'brand_execute_run');
+  assert.ok(execute);
+  assert.ok((execute!.parameters as any).properties.allow_blocking, 'execute schema missing allow_blocking');
+  assert.ok(tools.find((tool) => tool.name === 'brand_source_knowledge'));
+});
+
+test('Pi brand-agent frontmatter only references registered canonical tools', () => {
+  const repoRoot = resolve(repoRootFromModuleUrl(import.meta.url));
+  const agentsDir = join(repoRoot, '.pi', 'agents');
+  const registered = new Set(CANONICAL_TOOLS.map((tool) => tool.name));
+  const offenders: string[] = [];
+  for (const file of readdirSync(agentsDir).filter((name) => name.startsWith('brand-') && name.endsWith('.md'))) {
+    const text = readFileSync(join(agentsDir, file), 'utf8');
+    const match = text.match(/^tools:\s*"([^"]*)"/m);
+    if (!match) continue;
+    const declared = match[1].split(',').map((part) => part.trim()).filter(Boolean);
+    for (const tool of declared) {
+      if (!registered.has(tool)) offenders.push(`${file}: ${tool}`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+});
 
 test('parsePluginConfig applies pi defaults', () => {
   const cfg = parsePluginConfig({});

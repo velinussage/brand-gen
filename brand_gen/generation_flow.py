@@ -286,12 +286,19 @@ def assemble_generation_scratchpad(
         plan.get("selected_reference_ids")
         or ((plan.get("inspiration_board") or {}).get("selected_reference_ids") or [])
     )
+    selected_source_records = list(
+        prompt_context.get("selected_inspiration_source_records")
+        or plan.get("selected_inspiration_sources")
+        or []
+    )
     selected_inspiration_ids, inspiration_board_path = persist_inspiration_source_selection(
         brand_dir,
-        list(prompt_context.get("inspiration_source_records") or []),
+        selected_source_records,
         workflow_id=workflow_id,
         direction_id=((plan.get("inspiration_board") or {}).get("direction_id") if isinstance(plan, dict) else None),
     )
+    prompt_context["selected_inspiration_ids"] = selected_inspiration_ids or list(prompt_context.get("selected_inspiration_ids") or [])
+    prompt_context["selected_inspiration_source_records"] = selected_source_records
 
     role_pack_paths = [Path(path) for path in prompt_context.get("reference_role_pack_paths", [])]
     role_pack_motion_paths = [Path(path) for path in prompt_context.get("reference_role_pack_motion_paths", [])]

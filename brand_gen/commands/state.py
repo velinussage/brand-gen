@@ -9,6 +9,7 @@ from ..generation_flow import *
 from ..session_summary import *
 from ..media_board import *
 from ..brand_scaffold import build_profile_from_brief, deep_merge_defaults, load_brand_profile_template
+from ..brand_prompt_pack import ensure_brand_prompt_pack
 from ..material_taxonomy_migration import (
     find_saved_workspaces,
     migrate_workspace as migrate_taxonomy_workspace,
@@ -88,8 +89,14 @@ def cmd_create_brand(args):
     for item in args.value_prop or []:
         cmd += ["--value-prop", item]
     run_child_script(REPO_ROOT / "scripts" / "init_brand_gen.py", cmd)
+    active = resolve_active_brand_key(brand_gen_dir=brand_gen_dir, repo_root=REPO_ROOT)
+    if active:
+        brand_dir = brand_gen_dir / "brands" / active
+        profile = load_json_file(brand_dir / "brand-profile.json")
+        identity = load_json_file(brand_dir / "brand-identity.json")
+        if profile:
+            ensure_brand_prompt_pack(brand_dir, profile=profile, identity=identity)
     if getattr(args, "consolidate_inspiration", False) or getattr(args, "inspiration_image", None):
-        active = resolve_active_brand_key(brand_gen_dir=brand_gen_dir, repo_root=REPO_ROOT)
         if not active:
             return
         brand_dir = brand_gen_dir / "brands" / active
@@ -170,6 +177,7 @@ def cmd_start_testing(args):
 
     profile = load_json_file(profile_path)
     identity = load_json_file(identity_path)
+    ensure_brand_prompt_pack(brand_dir, profile=profile, identity=identity)
     board = load_blackboard(brand_dir, profile, identity)
     append_blackboard_decision(
         board,

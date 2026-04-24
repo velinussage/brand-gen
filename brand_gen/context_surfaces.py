@@ -177,6 +177,180 @@ def _load_plugin_markers(brand_gen_root: Path | None) -> list[dict[str, Any]]:
     return items
 
 
+def _load_local_workspace_config() -> dict[str, Any]:
+    """Load repo-local machine config without failing context snapshots.
+
+    `.brand-gen-local.json` is intentionally untracked and may contain
+    machine-specific Obsidian/doc paths. The snapshot exposes only path
+    existence/freshness metadata so Pi agents can decide whether a brand has
+    configured knowledge bases without embedding personal paths in shared docs.
+    """
+    path = REPO_ROOT / ".brand-gen-local.json"
+    if not path.exists():
+        return {}
+    payload = load_json_file(path)
+    return payload if isinstance(payload, dict) else {}
+
+
+def _knowledge_base_paths_for_brand(active_brand: str, profile: dict) -> list[dict[str, Any]]:
+    local = _load_local_workspace_config()
+    brand_key = str(active_brand or "").strip()
+    raw_paths: list[Any] = []
+
+    # Backward-compatible global paths. These are useful when a checkout is
+    # dedicated to one brand, but the brand-specific maps below should be used
+    # for multi-brand installs.
+    raw_paths.extend(local.get("vault_paths") or [])
+
+    for map_key in ("brand_vault_paths", "brand_knowledge_base_paths"):
+        mapping = local.get(map_key) or {}
+        if isinstance(mapping, dict) and brand_key:
+            raw_paths.extend(mapping.get(brand_key) or [])
+
+    creative_context = profile.get("creative_context") if isinstance(profile, dict) else {}
+    if isinstance(creative_context, dict):
+        raw_paths.extend(creative_context.get("knowledge_base_paths") or [])
+        raw_paths.extend(creative_context.get("source_vault_paths") or [])
+
+    seen: set[str] = set()
+    paths: list[dict[str, Any]] = []
+    for raw in raw_paths:
+        text = str(raw or "").strip()
+        if not text:
+            continue
+        resolved = str(Path(text).expanduser().resolve())
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        info = _path_info(Path(resolved))
+        md_count = 0
+        latest_mtime = info.get("mtime") or ""
+        if info.get("exists"):
+            try:
+                path = Path(resolved)
+                md_files = list(path.rglob("*.md")) if path.is_dir() else ([path] if path.suffix.lower() == ".md" else [])
+                md_count = len(md_files)
+                mtimes = [candidate.stat().st_mtime for candidate in md_files if candidate.exists()]
+                if mtimes:
+                    latest_mtime = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(max(mtimes)))
+            except OSError:
+                md_count = 0
+        paths.append(
+            {
+                "path": resolved,
+                "exists": bool(info.get("exists")),
+                "mtime": info.get("mtime") or "",
+                "markdown_file_count": md_count,
+                "latest_markdown_mtime": latest_mtime,
+            }
+        )
+    return paths
+
+
+def _markdown_excerpt(text: str, query_tokens: list[str], *, max_chars: int) -> str:
+    normalized = text.replace("\r\n", "\n").strip()
+    if not normalized:
+        return ""
+    lowered = normalized.lower()
+    idx = -1
+    for token in query_tokens:
+        idx = lowered.find(token)
+        if idx >= 0:
+            break
+    if idx < 0:
+        idx = 0
+    start = max(0, idx - max_chars // 3)
+    end = min(len(normalized), start + max_chars)
+    excerpt = normalized[start:end].strip()
+    if start > 0:
+        excerpt = "…" + excerpt
+    if end < len(normalized):
+        excerpt += "…"
+    return excerpt
+
+
+def _title_from_markdown(path: Path, text: str) -> str:
+    for line in text.splitlines()[:20]:
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            return stripped.lstrip("#").strip() or path.stem
+    return path.stem.replace("-", " ").replace("_", " ").strip() or path.name
+
+
+def build_source_knowledge_payload(
+    brand_dir: Path,
+    profile: dict,
+    identity: dict,
+    *,
+    query: str = "",
+    limit: int = 8,
+    max_chars: int = 900,
+) -> dict[str, Any]:
+    """Return bounded local knowledge excerpts for the active brand.
+
+    This is intentionally a local, read-only surface. It lets typed-tool-only
+    agents inspect configured Obsidian/docs folders without embedding private
+    paths or source contents in repo-tracked prompts.
+    """
+    snapshot = build_context_snapshot_payload(brand_dir, profile, identity, limit=3)
+    source_knowledge = snapshot.get("source_knowledge") or {}
+    paths = [item for item in (source_knowledge.get("paths") or []) if item.get("exists")]
+    query_tokens = [token.lower() for token in str(query or "").split() if len(token.strip()) > 2]
+    candidates: list[dict[str, Any]] = []
+    max_scan_files = 500
+    scanned = 0
+    for info in paths:
+        root = Path(str(info.get("path") or "")).expanduser()
+        if not root.exists():
+            continue
+        md_files = sorted(root.rglob("*.md")) if root.is_dir() else ([root] if root.suffix.lower() == ".md" else [])
+        for path in md_files[: max(0, max_scan_files - scanned)]:
+            scanned += 1
+            try:
+                text = path.read_text(errors="ignore")
+            except OSError:
+                continue
+            lowered = text.lower()
+            if query_tokens:
+                score = sum(lowered.count(token) for token in query_tokens)
+                name_score = sum(path.name.lower().count(token) for token in query_tokens)
+                if score + name_score <= 0:
+                    continue
+            else:
+                score = 0
+                name_score = 0
+            try:
+                relpath = path.relative_to(root).as_posix()
+            except ValueError:
+                relpath = path.name
+            candidates.append(
+                {
+                    "path": str(path.resolve()),
+                    "source_root": str(root.resolve()),
+                    "relpath": relpath,
+                    "title": _title_from_markdown(path, text),
+                    "score": int(score + name_score * 5),
+                    "mtime": _path_info(path).get("mtime") or "",
+                    "excerpt": _markdown_excerpt(text, query_tokens, max_chars=max(120, int(max_chars or 900))),
+                }
+            )
+            if scanned >= max_scan_files:
+                break
+    if query_tokens:
+        candidates.sort(key=lambda item: (item.get("score") or 0, item.get("mtime") or ""), reverse=True)
+    else:
+        candidates.sort(key=lambda item: item.get("mtime") or "", reverse=True)
+    return {
+        "brand": (snapshot.get("workspace") or {}).get("active_brand") or "",
+        "configured": bool(paths),
+        "query": query,
+        "paths": source_knowledge.get("paths") or [],
+        "scanned_markdown_files": scanned,
+        "results": candidates[: max(1, int(limit or 8))],
+        "instruction": "Use excerpts as brand-specific source truth. Do not apply them to other brands.",
+    }
+
+
 def _material_capabilities() -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for material_type, config in sorted(MATERIAL_CONFIG.items()):
@@ -295,6 +469,7 @@ def build_context_snapshot_payload(brand_dir: Path, profile: dict, identity: dic
     if active_brand and brand_gen_root:
         inspirations_path = brand_gen_root / "brands" / active_brand / "inspirations.json"
     inspirations = load_inspirations_config(active_brand, brand_gen_root) if active_brand and brand_gen_root else {"sources": [], "mergeStrategy": "concat"}
+    knowledge_base_paths = _knowledge_base_paths_for_brand(active_brand, profile)
     latest_scratchpad_path = _latest_generation_scratchpad_path(brand_dir, board)
     latest_scratchpad = load_json_file(latest_scratchpad_path) if latest_scratchpad_path else {}
     prompt_context = latest_scratchpad.get("prompt_context") or {}
@@ -338,6 +513,15 @@ def build_context_snapshot_payload(brand_dir: Path, profile: dict, identity: dic
             "sources": list(inspirations.get("sources") or []),
             "merge_strategy": inspirations.get("mergeStrategy") or "concat",
             "mode": inspirations.get("mode") or "principles",
+        },
+        "source_knowledge": {
+            "configured": bool(knowledge_base_paths),
+            "paths": knowledge_base_paths,
+            "instruction": (
+                "If configured paths exist, brand-philosopher/interviewer should inspect the relevant "
+                "markdown files before planning and convert brand-specific facts into typed prompt seeds, "
+                "approved copy, or scratchpad notes. Do not assume these paths apply to other brands."
+            ),
         },
         "counts": {
             "manifest": {"count": len(versions), "latest_id": latest_version},
@@ -477,6 +661,7 @@ def format_workspace_status_text(payload: dict[str, Any]) -> str:
 __all__ = [
     "build_capabilities_payload",
     "build_context_snapshot_payload",
+    "build_source_knowledge_payload",
     "build_workspace_status_payload",
     "format_workspace_status_text",
     "get_prompt_resource",

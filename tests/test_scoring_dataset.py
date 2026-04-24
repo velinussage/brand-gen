@@ -10,8 +10,10 @@ import json
 import tempfile
 import threading
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 
+from brand_gen.commands.review import _maybe_log_disagreement
 from brand_gen.scoring.calibration import (
     compute_agreement_stats,
     raw_agreement_rate,
@@ -155,6 +157,60 @@ class TestAppendAndLoad(unittest.TestCase):
             split = partition_split_observed(records)
             total = split["scorer_training"] + split["iteration_memory"] + split["unknown"]
             self.assertEqual(total, 10)
+
+    def test_feedback_disagreement_preserves_reflection_ready_fields(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            critique = {
+                "rubric_version": "v2.1",
+                "scorer_version": "dspy-gepa-candidate-7",
+                "provider": "test-vlm",
+                "overall_score": 4,
+                "axis_scores": {"brand_fit": 4, "product_truth": 3},
+                "axis_rationales": {
+                    "brand_fit": "Palette and restraint align with the identity.",
+                    "product_truth": "Readable product proof is present but too small.",
+                },
+                "disqualifier_triggered": True,
+                "disqualifier_rule": "invented-copy",
+                "why_user_might_dislike_if_polished": "It looks finished but invents a headline the user never approved.",
+                "before_after_diffs": [
+                    {
+                        "principle": "copy fidelity",
+                        "before": "invented visible headline",
+                        "after": "use deterministic approved copy only",
+                    }
+                ],
+            }
+            entry = {
+                "score": 2,
+                "status": "rejected",
+                "material_type": "social-card",
+                "mode": "hybrid",
+                "model": "test-model",
+                "workflow_id": "wf-gepa",
+                "vlm_critique": critique,
+            }
+
+            _maybe_log_disagreement(
+                brand_dir,
+                "v123",
+                entry,
+                SimpleNamespace(notes="Text is wrong even though the layout is polished."),
+            )
+
+            loaded = load_disagreements(brand_dir)
+            self.assertEqual(len(loaded), 1)
+            record = loaded[0]
+            self.assertEqual(record["axis_scores"], critique["axis_scores"])
+            self.assertEqual(record["axis_rationales"], critique["axis_rationales"])
+            self.assertTrue(record["disqualifier_triggered"])
+            self.assertEqual(record["disqualifier_rule"], "invented-copy")
+            self.assertEqual(
+                record["why_user_might_dislike_if_polished"],
+                "It looks finished but invents a headline the user never approved.",
+            )
+            self.assertEqual(record["before_after_diffs"], critique["before_after_diffs"])
 
 
 class TestConcurrentAppend(unittest.TestCase):

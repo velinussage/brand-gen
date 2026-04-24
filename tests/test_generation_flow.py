@@ -277,6 +277,95 @@ class PipelineQaOrderingTests(unittest.TestCase):
             self.assertEqual(ref_ctx["authoritative_reference_paths"], [str(base_image.resolve())])
             self.assertEqual(ref_ctx["model_transport_reference_paths"], [])
 
+    def test_scratchpad_persists_only_selected_inspiration_sources(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir).resolve()
+            args = type(
+                "Args",
+                (),
+                {
+                    "material_type": "social",
+                    "tag": "social",
+                    "prompt": "Create a Sage social card.",
+                    "plan": "",
+                    "image": [],
+                    "reference_dir": None,
+                    "mode": "hybrid",
+                    "generation_mode": "image",
+                    "profile": None,
+                    "identity": None,
+                    "skip_extraction": False,
+                    "refresh_reference_analysis": False,
+                    "disable_brand_guardrails": False,
+                    "motion_reference": None,
+                    "model": None,
+                    "aspect_ratio": None,
+                    "resolution": None,
+                    "duration": None,
+                    "preset": None,
+                    "negative_prompt": None,
+                    "style": None,
+                    "make_gif": False,
+                    "base_image": None,
+                    "source_version": None,
+                    "branch_id": None,
+                    "parent_branch_id": None,
+                    "selected_direction_id": None,
+                    "motion_mode": None,
+                    "character_orientation": None,
+                    "keep_original_sound": False,
+                },
+            )()
+            selected = [{"source_key": "pentagram", "source_name": "Pentagram"}]
+            all_sources = selected + [{"source_key": "gretel-work", "source_name": "Gretel"}]
+            plan = {
+                "material_type": "social",
+                "mode": "hybrid",
+                "selected_inspiration_sources": selected,
+                "inspiration_board": {"direction_id": "direction_123"},
+            }
+            persisted_records: list[dict] = []
+
+            def fake_persist(_brand_dir, source_records, **_kwargs):
+                persisted_records.extend(source_records)
+                return ["reference_selected"], "board.json"
+
+            with patch("brand_gen.generation_flow.load_brand_memory", return_value=(brand_dir / "brand-profile.json", brand_dir / "brand-identity.json", {}, {})), \
+                 patch("brand_gen.generation_flow.ensure_reference_analysis", return_value={"reference_set_hash": "abc", "warnings": [], "per_image": []}), \
+                 patch("brand_gen.generation_flow.build_effective_prompt", return_value={
+                     "material_prompt_key": "social",
+                     "material_prompt_variant": "default",
+                     "reference_role_pack": [],
+                     "reference_role_pack_paths": [],
+                     "reference_role_pack_motion_paths": [],
+                     "reference_role_pack_required_roles": [],
+                     "reference_role_pack_missing_required_roles": [],
+                     "reference_role_pack_priority": [],
+                     "reference_role_pack_prefer_unique_sources": True,
+                     "reference_role_assignment_warnings": [],
+                     "token_block": "",
+                     "resolved_prompt": "Create a Sage social card.",
+                     "selected_inspiration_source_records": selected,
+                     "selected_inspiration_ids": ["pentagram"],
+                     "inspiration_source_records": all_sources,
+                 }), \
+                 patch("brand_gen.generation_flow.persist_inspiration_source_selection", side_effect=fake_persist), \
+                 patch("brand_gen.generation_flow.resolve_default_model", return_value="flux-2-pro"), \
+                 patch("brand_gen.generation_flow.resolve_default_aspect_ratio", return_value="1:1"), \
+                 patch("brand_gen.generation_flow.review_prompt_architecture", return_value={"refined_prompt": "refined", "execution_prompt": "exec", "recommendations": [], "issues": []}), \
+                 patch("brand_gen.generation_flow.check_inspiration_pipeline_status", return_value={"ok": True, "warnings": [], "suggestions": []}):
+                payload = __import__("brand_gen.generation_flow", fromlist=["assemble_generation_scratchpad"]).assemble_generation_scratchpad(
+                    args,
+                    brand_dir=brand_dir,
+                    plan_wrapper={},
+                    plan=plan,
+                )
+
+            self.assertEqual(persisted_records, selected)
+            self.assertEqual(payload["selected_inspiration_ids"], ["reference_selected"])
+            self.assertEqual(payload["prompt_context"]["selected_inspiration_ids"], ["reference_selected"])
+            self.assertEqual(payload["prompt_context"]["selected_inspiration_source_records"], selected)
+
 
 class StructuralAutoCriticTests(unittest.TestCase):
     """Tests for build_structural_auto_critic P2 hardening."""

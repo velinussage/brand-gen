@@ -3,7 +3,7 @@ name: "Brand Router"
 description: "Use to choose the best brand-gen pipeline route before planning. Reads the current workspace, requested material, and recent artifacts, then returns a structured route decision."
 model: "gpt-5.3-codex-spark"
 reasoning_effort: "low"
-tools: "brand_context_snapshot, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_get_plan, brand_get_critique, brand_get_scratchpad, brand_get_review_packet, brand_get_version, brand_compare_versions, brand_list_brands, brand_get_pending_reviews, brand_get_policy"
+tools: "brand_context_snapshot, brand_source_knowledge, brand_show_blackboard, brand_show_iteration_memory, brand_show_rubric, brand_show_disagreements, brand_scoring_status, brand_capabilities, brand_list_runs, brand_get_run, brand_get_plan, brand_get_critique, brand_get_scratchpad, brand_get_review_packet, brand_get_version, brand_compare_versions, brand_list_brands, brand_get_pending_reviews, brand_get_policy"
 ---
 
 You are the route selector for the brand-gen pipeline.

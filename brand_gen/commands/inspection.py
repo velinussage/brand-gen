@@ -4,6 +4,7 @@ from ..inspiration_board import build_inspiration_board_summary, inspiration_boa
 from ..context_surfaces import (
     build_capabilities_payload,
     build_context_snapshot_payload,
+    build_source_knowledge_payload,
     build_workspace_status_payload,
     format_workspace_status_text,
     get_prompt_resource,
@@ -421,6 +422,28 @@ def cmd_context_snapshot(args):
     next_commands = payload.get("next_suggested_commands") or []
     if next_commands:
         print("Next commands: " + ", ".join(next_commands))
+
+
+def cmd_source_knowledge(args):
+    brand_dir = get_brand_dir()
+    _, _, profile, identity = load_brand_memory(brand_dir, getattr(args, "profile", None), getattr(args, "identity", None))
+    payload = build_source_knowledge_payload(
+        brand_dir,
+        profile,
+        identity,
+        query=getattr(args, "query", "") or "",
+        limit=max(1, int(getattr(args, "limit", 8) or 8)),
+        max_chars=max(120, int(getattr(args, "max_chars", 900) or 900)),
+    )
+    if args.format == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    print(f"Source knowledge for brand: {payload.get('brand') or 'n/a'}")
+    print(f"Configured: {'yes' if payload.get('configured') else 'no'}")
+    print(f"Scanned markdown files: {payload.get('scanned_markdown_files') or 0}")
+    for item in payload.get("results") or []:
+        print(f"\n- {item.get('title') or item.get('relpath')} ({item.get('relpath')})")
+        print(str(item.get("excerpt") or "").strip())
 
 
 def cmd_capabilities(args):

@@ -14,6 +14,10 @@ compatibility:
 
 # Brand Gen Logo
 
+## Pi / Sage full-pipeline prompt
+
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. It routes Pi through the typed `brand_*` tools, the `brand-orchestrator` subagent, exact-text gates, v2/DSPy review, GEPA-ready disagreement fields, and typed mutation loops. Keep this link instead of copying the full prompt into skill bodies.
+
 Use this instead of the main brand-gen skill when the artifact is primarily a logo, wordmark, or lockup. Logo work has different constraints than standard brand materials.
 
 ## How logo work differs

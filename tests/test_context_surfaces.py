@@ -7,6 +7,7 @@ from unittest.mock import patch
 from brand_gen.context_surfaces import (
     build_capabilities_payload,
     build_context_snapshot_payload,
+    build_source_knowledge_payload,
     build_workspace_status_payload,
     get_prompt_resource,
     list_prompt_resources,
@@ -39,7 +40,20 @@ class ContextSurfaceTests(unittest.TestCase):
             (brand_dir / "scratchpads" / "generation").mkdir(parents=True, exist_ok=True)
             (brand_dir / "reviews").mkdir(parents=True, exist_ok=True)
             (brand_gen_root / "runtime-status" / "plugins").mkdir(parents=True, exist_ok=True)
+            knowledge_dir = repo_root / "knowledge" / "acme"
+            knowledge_dir.mkdir(parents=True, exist_ok=True)
+            (knowledge_dir / "strategy.md").write_text("# Strategy\n\nConcrete brand source truth.\n")
             (brand_gen_root / "config.json").write_text(json.dumps({"active": "acme", "brandGenDir": str(brand_gen_root), "inspirationMode": True}) + "\n")
+            (repo_root / ".brand-gen-local.json").write_text(
+                json.dumps(
+                    {
+                        "repo_root": str(repo_root),
+                        "brand_vault_paths": {"acme": [str(knowledge_dir)]},
+                        "brand_knowledge_base_paths": {"other": [str(repo_root / "knowledge" / "other")]},
+                    }
+                )
+                + "\n"
+            )
             (brand_dir / "brand-profile.json").write_text(json.dumps({"brand_name": "Acme", "description": "Brand summary"}) + "\n")
             (brand_dir / "brand-identity.json").write_text(json.dumps({"brand": {"name": "Acme", "summary": "Brand summary"}}) + "\n")
             (brand_dir / "inspirations.json").write_text(json.dumps({"sources": ["ramotion"], "mergeStrategy": "concat"}) + "\n")
@@ -79,8 +93,27 @@ class ContextSurfaceTests(unittest.TestCase):
             self.assertEqual(payload["counts"]["runs"]["latest_id"], "wf-123")
             self.assertEqual(payload["prompt_sizes"]["execution_prompt_chars"], len("do something"))
             self.assertEqual(payload["inspirations"]["sources"], ["ramotion"])
+            self.assertTrue(payload["source_knowledge"]["configured"])
+            self.assertEqual(len(payload["source_knowledge"]["paths"]), 1)
+            self.assertEqual(payload["source_knowledge"]["paths"][0]["path"], str(knowledge_dir.resolve()))
+            self.assertEqual(payload["source_knowledge"]["paths"][0]["markdown_file_count"], 1)
             self.assertTrue(payload["pointers"]["latest_review_packet"].endswith("v001-review.md"))
             self.assertIn("compare", payload["next_suggested_commands"])
+
+            with patch("brand_gen.context_surfaces.REPO_ROOT", repo_root), patch("brand_gen.context_surfaces.get_brand_gen_dir", return_value=brand_gen_root):
+                source_payload = build_source_knowledge_payload(
+                    brand_dir,
+                    profile,
+                    identity,
+                    query="source truth",
+                    limit=3,
+                    max_chars=240,
+                )
+
+            self.assertEqual(source_payload["brand"], "acme")
+            self.assertEqual(source_payload["scanned_markdown_files"], 1)
+            self.assertEqual(len(source_payload["results"]), 1)
+            self.assertIn("Concrete brand source truth", source_payload["results"][0]["excerpt"])
 
     def test_workspace_status_reports_plugin_root_divergence(self):
         with tempfile.TemporaryDirectory() as tmpdir:

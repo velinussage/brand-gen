@@ -265,6 +265,15 @@ def build_prompts_get_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def build_source_knowledge_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--query", default="", help="Optional keyword query over configured brand source markdown")
+    parser.add_argument("--limit", type=int, default=8, help="Maximum matching markdown excerpts to return")
+    parser.add_argument("--max-chars", type=int, default=900, help="Maximum characters per excerpt")
+    parser.add_argument("--profile", help="Optional path to brand-profile.json")
+    parser.add_argument("--identity", help="Optional path to brand-identity.json")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
 def build_reference_rubric_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -619,6 +628,7 @@ def build_build_generation_scratchpad_cli(parser: argparse.ArgumentParser, *, in
     parser.add_argument("--aspect-ratio", "-ar")
     parser.add_argument("--resolution")
     parser.add_argument("--duration", "-d", type=int)
+    parser.add_argument("--source-version", help="Version ID this scratchpad derives from; used for lineage and text-failure learning checks")
     parser.add_argument("--tag", "-t")
     parser.add_argument("-i", "--image", action="append")
     parser.add_argument("--reference-dir")
@@ -1187,6 +1197,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-reference-analysis': build_show_reference_analysis_cli,
     'prompts-list': build_prompts_list_cli,
     'prompts-get': build_prompts_get_cli,
+    'source-knowledge': build_source_knowledge_cli,
     'reference-rubric': build_reference_rubric_cli,
     'submit-reference-analysis': build_submit_reference_analysis_cli,
     'route-request': build_route_request_cli,

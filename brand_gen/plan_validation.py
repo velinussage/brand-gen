@@ -253,6 +253,26 @@ _EXACT_TEXT_REQUEST_PHRASES = (
     "preserve the exact",
     "render the exact",
     "verbatim",
+    "must say",
+    "should say",
+    "text reads",
+    "copy reads",
+    "headline reads",
+    "tagline reads",
+    "visible text reads",
+    "include the words",
+    "use the words",
+)
+
+_EXACT_TEXT_NEGATION_HINTS = (
+    "no ",
+    "not ",
+    "avoid ",
+    "without ",
+    "do not ",
+    "don't ",
+    "must not ",
+    "should not ",
 )
 
 _DETERMINISTIC_TEXT_STRATEGY_VALUES = {
@@ -264,6 +284,12 @@ _DETERMINISTIC_TEXT_STRATEGY_VALUES = {
     "post_composite",
     "post-composite",
     "overlay",
+    "typographic_overlay",
+    "typographic-overlay",
+    "browser_rendered",
+    "browser-rendered",
+    "server_rendered",
+    "server-rendered",
     "deterministic_overlay",
     "deterministic-overlay",
 }
@@ -385,7 +411,14 @@ def detect_exact_text_request(plan_or_text: dict | str | None) -> bool:
         haystack = _plan_text_haystack(plan_or_text)
     else:
         haystack = str(plan_or_text or "").lower()
-    return any(phrase in haystack for phrase in _EXACT_TEXT_REQUEST_PHRASES)
+    for phrase in _EXACT_TEXT_REQUEST_PHRASES:
+        start = haystack.find(phrase)
+        while start != -1:
+            prefix = haystack[max(0, start - 18):start]
+            if not any(hint in prefix for hint in _EXACT_TEXT_NEGATION_HINTS):
+                return True
+            start = haystack.find(phrase, start + 1)
+    return False
 
 
 def plan_declares_deterministic_text_strategy(plan: dict) -> bool:

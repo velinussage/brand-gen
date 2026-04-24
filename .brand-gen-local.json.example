@@ -1,4 +1,10 @@
 {
   "repo_root": "/path/to/your/brand-gen",
-  "vault_paths": []
+  "vault_paths": [],
+  "brand_vault_paths": {
+    "example-brand": ["/path/to/example/obsidian-vault"]
+  },
+  "brand_knowledge_base_paths": {
+    "example-brand": ["/path/to/example/docs-or-knowledge-base"]
+  }
 }

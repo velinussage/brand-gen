@@ -32,6 +32,7 @@ class OnboardingTests(unittest.TestCase):
             brand_dir = brand_gen_dir / 'brands' / 'acme-cloud'
             self.assertTrue((brand_dir / 'brand-profile.json').exists())
             self.assertTrue((brand_dir / 'brand-identity.json').exists())
+            self.assertTrue((brand_dir / 'prompts' / 'pi-full-pipeline.md').exists())
             self.assertTrue((brand_gen_dir / 'brands' / 'index.json').exists())
             profile = json.loads((brand_dir / 'brand-profile.json').read_text())
             config = json.loads((brand_gen_dir / 'config.json').read_text())
@@ -92,6 +93,10 @@ class OnboardingTests(unittest.TestCase):
             self.assertIn('calm', profile['identity']['tone_words'])
             self.assertIn('Clearer operational visibility', profile['messaging']['value_propositions'])
             self.assertEqual(identity.get('brand', {}).get('name'), 'Orbit Ops')
+            prompt_text = (brand_dir / 'prompts' / 'pi-full-pipeline.md').read_text()
+            self.assertIn('Orbit Ops brand-gen full pipeline', prompt_text)
+            self.assertIn('Operational intelligence software for distributed teams.', prompt_text)
+            self.assertNotIn('Sage visuals', prompt_text)
 
     def test_start_testing_uses_canonical_profile_template_for_new_sessions(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -122,6 +127,7 @@ class OnboardingTests(unittest.TestCase):
             self.assertIn('identity', profile)
             self.assertEqual(profile['session_context']['type'], 'testing-session')
             self.assertEqual(config['activeSession'], 'scratch-test')
+            self.assertTrue((session_dir / 'prompts' / 'pi-full-pipeline.md').exists())
 
     def test_start_testing_only_patches_missing_schema_in_session_copy(self):
         with tempfile.TemporaryDirectory() as tmpdir:

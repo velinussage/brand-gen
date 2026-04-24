@@ -19,6 +19,11 @@ from brand_scaffold import (
     write_json,
 )
 
+try:
+    from brand_gen.brand_prompt_pack import ensure_brand_prompt_pack
+except Exception:  # pragma: no cover - direct script fallback when package import is unavailable
+    ensure_brand_prompt_pack = None
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BUILD_IDENTITY_PY = REPO_ROOT / "scripts" / "build_brand_identity.py"
 DEFAULT_CONFIG = {
@@ -201,6 +206,8 @@ def main() -> int:
             "description": args.description or read_json(profile_path).get("description") or "",
             "homepage_url": args.homepage_url or read_json(profile_path).get("homepage_url") or "",
         })
+        if ensure_brand_prompt_pack:
+            ensure_brand_prompt_pack(brand_dir, profile=read_json(profile_path), identity=read_json(identity_path))
 
     config_path.write_text(json.dumps(config, indent=2) + "\n")
     print(f"Brand-gen dir: {brand_gen_dir}")

@@ -151,6 +151,25 @@ class IntegrationWithValidateMaterialPlanDict(unittest.TestCase):
         self.assertTrue(detect_exact_text_request(plan))
         self.assertTrue(plan_declares_deterministic_text_strategy(plan))
 
+    def test_exact_text_detects_read_wording_variants(self):
+        self.assertTrue(detect_exact_text_request('The visible text reads "Join now".'))
+        self.assertTrue(detect_exact_text_request('The badge must say approved by curators.'))
+        self.assertTrue(detect_exact_text_request('Include the words Protocol Owned by Builders.'))
+
+    def test_exact_text_ignores_negated_phrases(self):
+        self.assertFalse(detect_exact_text_request('Avoid exact text; use abstract marks only.'))
+        self.assertFalse(detect_exact_text_request('Do not use the words as labels.'))
+
+    def test_exact_text_allows_typographic_overlay_strategy(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            prompt_seed='The headline reads "Own your prompts".',
+            text_rendering_strategy='typographic-overlay',
+        )
+        report = validate_material_plan_dict(plan)
+        self.assertTrue(report['ok'], report['errors'])
+        self.assertTrue(plan_declares_deterministic_text_strategy(plan))
+
 
 
 class ComplexityTierTests(unittest.TestCase):

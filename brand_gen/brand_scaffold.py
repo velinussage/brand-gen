@@ -98,6 +98,8 @@ def load_brand_profile_template() -> dict:
         "brand_guardrail_prelude": "",
         "creative_context": {
             "quality_benchmarks": ["Stripe", "Aesop", "Criterion", "Muji"],
+            "knowledge_base_paths": [],
+            "source_vault_paths": [],
             "concept_categories": [],
             "metaphor_vocabulary": [],
         },
@@ -188,6 +190,7 @@ def ensure_brand_structure(brand_dir: Path) -> None:
         "product-screens",
         "inspiration",
         "motion-references",
+        "prompts",
     ]:
         (brand_dir / child).mkdir(parents=True, exist_ok=True)
 
