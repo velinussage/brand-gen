@@ -594,12 +594,20 @@ def check_inspiration_pipeline_status(
         suggestions.append("Run: bgen inspiration-mode on")
 
     pending = []
+    inspiration_root = resolved / "inspiration"
     for source in sources:
         source_key = str(source.get("key") or source.get("source") or "").strip()
         if not source_key:
             continue
-        dm_dir = resolved / "inspiration" / source.get("category", "") / source_key / ".design-memory"
-        if not dm_dir.exists():
+        category = str(source.get("category") or "").strip()
+        candidate_dirs = []
+        if category:
+            candidate_dirs.append(inspiration_root / category / source_key / ".design-memory")
+        else:
+            candidate_dirs.append(inspiration_root / source_key / ".design-memory")
+            if inspiration_root.exists():
+                candidate_dirs.extend(inspiration_root.glob(f"*/{source_key}/.design-memory"))
+        if not any(dm_dir.exists() for dm_dir in candidate_dirs):
             pending.append(source_key)
     if pending:
         warnings.append("Inspiration sources are configured but not extracted yet: " + ", ".join(pending[:4]))

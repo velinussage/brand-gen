@@ -30,6 +30,7 @@ from .critique_policy import build_critique_policy
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
 from .learnings_memory import load_learnings_memory
 from .aesthetic_archetypes import list_archetypes, pick_rotating_archetype
+from .aesthetic_curation import build_aesthetic_direction_brief, select_aesthetic_capsule
 from .plan_validation import (
     normalize_aesthetic_commitment,
     normalize_complexity_tier,
@@ -199,6 +200,8 @@ def create_material_plan(
     complexity_tier: str | None = None,
     visual_density: int | str | None = None,
     aesthetic_commitment: str | None = None,
+    aesthetic_capsule: str | None = None,
+    style_handle: str | None = None,
     prompt_subject: str | None = None,
     prompt_style_descriptors: str | None = None,
     prompt_lighting: str | None = None,
@@ -361,6 +364,24 @@ def create_material_plan(
     # defaults). Read rotation window from iteration memory.
     _archetype_memory = load_iteration_memory(brand_dir)
     _resolved_archetype = pick_rotating_archetype(material_type, _archetype_memory)
+    _style_text = " ".join(
+        str(item or "").strip()
+        for item in [style_handle, prompt_style_descriptors, aesthetic_commitment, prompt_seed, purpose, target_surface, briefing]
+        if str(item or "").strip()
+    )
+    _capsule_selection = select_aesthetic_capsule(
+        brand_dir=brand_dir,
+        material_type=material_type,
+        requested_capsule=aesthetic_capsule,
+        style_text=_style_text,
+    )
+    _resolved_capsule = _capsule_selection.get("capsule") if isinstance(_capsule_selection, dict) else None
+    _aesthetic_direction_brief = build_aesthetic_direction_brief(
+        brand_dir=brand_dir,
+        material_type=material_type,
+        style_text=_style_text,
+        count=3,
+    )
     strategy_context = recommend_surface_strategies(
         material_type=material_type,
         entity_type=resolved_entity_type,
@@ -437,6 +458,17 @@ def create_material_plan(
         "complexity_tier": resolved_complexity_tier,
         "visual_density": resolved_visual_density,
         "aesthetic_commitment": resolved_aesthetic_commitment or "",
+        "aesthetic_capsule": _resolved_capsule or None,
+        "aesthetic_capsule_id": (_resolved_capsule or {}).get("id") or "",
+        "aesthetic_capsule_selection": {
+            "source": (_capsule_selection or {}).get("source") or "none",
+            "score": (_capsule_selection or {}).get("score") or 0,
+            "reasons": list((_capsule_selection or {}).get("reasons") or []),
+            "warnings": list((_capsule_selection or {}).get("warnings") or []),
+        },
+        "aesthetic_direction_brief": _aesthetic_direction_brief,
+        "aesthetic_style_strength": (_resolved_capsule or {}).get("style_strength_default"),
+        "aesthetic_reference_roles": dict(((_resolved_capsule or {}).get("reference_roles") or {})),
         "aesthetic_archetype": _resolved_archetype or None,
         "aesthetic_archetype_id": (_resolved_archetype or {}).get("id") or "",
         "prompt_subject": (prompt_subject or "").strip(),
@@ -541,6 +573,8 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
         visual_density=getattr(args, "visual_density", None),
         aesthetic_commitment=getattr(args, "aesthetic_commitment", None),
         prompt_subject=getattr(args, "prompt_subject", None),
+        aesthetic_capsule=getattr(args, "aesthetic_capsule", None),
+        style_handle=getattr(args, "style_handle", None),
         prompt_style_descriptors=getattr(args, "prompt_style_descriptors", None),
         prompt_lighting=getattr(args, "prompt_lighting", None),
         prompt_camera=getattr(args, "prompt_camera", None),

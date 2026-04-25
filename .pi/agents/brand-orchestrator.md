@@ -19,6 +19,8 @@ brand_orchestrate_material({
   purpose?: "...",
   target_surface?: "...",
   prompt_seed?: "...",
+  style_handle?: "...",        // user shorthand for look; compiled to safe capsule
+  aesthetic_capsule?: "...",   // explicit curated capsule id when known
   preserve?: [...], push?: [...], ban?: [...],
 })
 ```
@@ -57,6 +59,8 @@ Only when `brand_orchestrate_material` cannot complete a single step (e.g., the 
 Each stage tool's `next_action` is a direct hint to the next tool call.
 
 ## Current typed runtime argument rules
+
+- If the user names a visual look/style, pass it as `style_handle`; if a curated direction is known, pass `aesthetic_capsule`. Do not tell the image model to copy a protected studio/artist. The runtime resolves safe aesthetic descriptors.
 
 - Never call `brand_plan_run` with `{}`. Required minimum:
   ```json

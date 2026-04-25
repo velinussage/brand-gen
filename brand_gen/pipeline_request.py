@@ -11,6 +11,8 @@ PIPELINE_MCP_PROPERTIES: dict[str, dict[str, Any]] = {
     "mode": {"type": "string", "enum": ["reference", "inspiration", "hybrid"], "default": "hybrid", "description": "Workflow mode for the plan"},
     "tag": {"type": "string", "description": "Optional short output tag for filenames and version metadata."},
     "prompt_seed": {"type": "string", "description": "Optional explicit prompt seed; otherwise one is generated"},
+    "style_handle": {"type": "string", "description": "Optional human shorthand for an aesthetic moodboard/style reference. The planner compiles it into a safe curated aesthetic capsule (for example, a named-animation shorthand becomes storybook-animation descriptors rather than a copy request)."},
+    "aesthetic_capsule": {"type": "string", "description": "Optional curated aesthetic capsule id/label. Overrides automatic capsule selection for the material."},
     "mechanic": {"type": "string", "description": "The one system mechanic or reveal move to emphasize"},
     "purpose": {"type": "string", "description": "What job this material should do"},
     "target_surface": {"type": "string", "description": "Where this material will be used"},
@@ -117,6 +119,8 @@ class PipelineRequest:
     mode: str = "hybrid"
     tag: str | None = None
     prompt_seed: str | None = None
+    style_handle: str | None = None
+    aesthetic_capsule: str | None = None
     mechanic: str | None = None
     purpose: str | None = None
     target_surface: str | None = None
@@ -183,6 +187,8 @@ class PipelineRequest:
             mode=_pipeline_mode(args.get("mode")),
             tag=_optional_str(args.get("tag")),
             prompt_seed=_optional_str(args.get("prompt_seed")),
+            style_handle=_optional_str(args.get("style_handle")),
+            aesthetic_capsule=_optional_str(args.get("aesthetic_capsule")),
             mechanic=_optional_str(args.get("mechanic")),
             purpose=_optional_str(args.get("purpose")),
             target_surface=_optional_str(args.get("target_surface")),

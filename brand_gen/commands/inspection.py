@@ -476,6 +476,66 @@ def cmd_capabilities(args):
         print(f"- {item['command']}: {mode}, {shape}")
 
 
+def cmd_list_aesthetic_capsules(args):
+    from ..aesthetic_curation import list_aesthetic_capsules, load_aesthetic_preferences, render_capsule_prompt
+
+    brand_dir = get_brand_dir()
+    material_type = getattr(args, "material_type", None) or ""
+    capsules = list_aesthetic_capsules(material_type or None)
+    prefs = load_aesthetic_preferences(brand_dir)
+    payload = {
+        "schema_type": "aesthetic_capsule_list",
+        "schema_version": 1,
+        "material_type": material_type,
+        "preferences_path": str(brand_dir / "aesthetic-preferences.json"),
+        "preferences": prefs,
+        "capsules": [
+            {
+                "id": item.get("id"),
+                "label": item.get("label"),
+                "safe_handle": item.get("safe_handle"),
+                "material_types": item.get("material_types") or [],
+                "use_when": item.get("use_when") or [],
+                "avoid_when": item.get("avoid_when") or [],
+                "style_strength_default": item.get("style_strength_default"),
+                "negative_prompt_terms": item.get("negative_prompt_terms") or [],
+                "prompt_preview": render_capsule_prompt(item),
+            }
+            for item in capsules
+        ],
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    print("Aesthetic capsules\n")
+    for item in payload["capsules"]:
+        print(f"- {item['id']}: {item['label']} — {item['safe_handle']}")
+
+
+def cmd_suggest_aesthetic_directions(args):
+    from ..aesthetic_curation import build_aesthetic_direction_brief
+
+    brand_dir = get_brand_dir()
+    payload = build_aesthetic_direction_brief(
+        brand_dir=brand_dir,
+        material_type=getattr(args, "material_type", None) or "",
+        style_text=getattr(args, "style_handle", None) or "",
+        count=getattr(args, "count", 3) or 3,
+    )
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(payload, indent=2))
+        return
+    print("Aesthetic direction branches\n")
+    print(payload.get("selection_rule") or "")
+    for item in payload.get("variants") or []:
+        print(f"\n{item.get('rank')}. {item.get('capsule_id')} — {item.get('visual_thesis')}")
+        axes = ", ".join(item.get("difference_axes") or [])
+        if axes:
+            print(f"   Axes: {axes}")
+        if item.get("exploration_role"):
+            print(f"   Role: {item['exploration_role']}")
+
+
 def cmd_workspace_status(args):
     brand_dir = get_brand_dir()
     brand_dir.mkdir(parents=True, exist_ok=True)

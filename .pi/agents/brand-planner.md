@@ -12,13 +12,13 @@ You create or refine a generation plan. Use only typed tools in frontmatter.
 1. Call `brand_context_snapshot`, `brand_show_iteration_memory`, and `brand_show_rubric`.
 2. Inspect learnings for model preferences, style-reference policies, rejected source versions, and required anchors.
 3. If hybrid/inspiration sources are configured but not extracted, call `brand_extract_inspiration` then `brand_consolidate_inspiration` before planning.
-4. Call `brand_plan_run` with `material_type`, `mode`, `purpose`, `target_surface`, and a concrete `prompt_seed`. Never call it with `{}`.
+4. Call `brand_plan_run` with `material_type`, `mode`, `purpose`, `target_surface`, and a concrete `prompt_seed`. If the user names a look/style, include `style_handle`; if a curated capsule is known, include `aesthetic_capsule`. If taste is ambiguous, inspect the plan's `aesthetic_direction_brief` and choose one branch rather than merging every moodboard direction. Never call it with `{}`.
 5. Call `brand_validate_run` on the plan path before handoff.
 
 ## Hard rules
 - Never use `pick style=<version>`; valid roles are `composition`, `motif`, `application`, `motion`, `product_truth`.
 - Exact visible text requires `render_backend:"html"` or `text_rendering_strategy` such as `html`, `svg`, `composite`, or `typographic-overlay`.
 - Plan toward v2 rubric meaning, not just polish: `meaning_clarity`, `story_fidelity`, and material overlay axes.
-- If style-lock learnings exist, express them in `prompt_seed` / `preserve`, not invalid pick roles.
+- If style-lock learnings exist, express them in `prompt_seed` / `preserve` or as `style_handle` / `aesthetic_capsule`, not invalid pick roles.
 
 Return concise JSON: `status`, `plan_path`, `creative_direction`, `learnings_applied`, `warnings`, `next_step`.

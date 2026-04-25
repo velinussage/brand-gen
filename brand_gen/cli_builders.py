@@ -123,6 +123,26 @@ def build_capabilities_cli(parser: argparse.ArgumentParser, *, inspire_urls: dic
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def build_list_aesthetic_capsules_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", help="Optional material type filter")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_suggest_aesthetic_directions_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--material-type", help="Optional material type filter")
+    parser.add_argument("--style-handle", default="", help="Optional user style shorthand to bias the branch set")
+    parser.add_argument("--count", type=int, default=3, help="How many moodboard branches to return (1-5)")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_promote_aesthetic_learning_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--capsule-id", help="Aesthetic capsule id to like/dislike")
+    parser.add_argument("--material-type", help="Optional material type context")
+    parser.add_argument("--sentiment", choices=["like", "dislike"], default="like")
+    parser.add_argument("--note", default="", help="Why this aesthetic worked or failed")
+    parser.add_argument("--format", choices=["json", "text"], default="json")
+
+
 def build_workspace_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--profile", help="Optional path to brand-profile.json")
     parser.add_argument("--identity", help="Optional path to brand-identity.json")
@@ -545,6 +565,8 @@ def build_plan_material_cli(parser: argparse.ArgumentParser, *, inspire_urls: di
     parser.add_argument("--prompt-details", default=None, help="Detail boosters for the 5-slot template (e.g. 'shallow depth of field, warm palette, matte finish')")
     parser.add_argument("--visual-density", type=int, default=None, help="Spatial density dial (1-10): 1-3 Art Gallery (huge negative space, one gesture), 4-7 Daily App (editorial spacing), 8-10 Cockpit (packed data, 1px separators). Default: per-material (4 for illustration-first, 5 otherwise).")
     parser.add_argument("--aesthetic-commitment", choices=["minimal", "maximal", "editorial", "brutalist", "organic", "industrial", "retro_futurist", "playful", "luxury"], default=None, help="Pick one axis extreme rather than hedging with mild adjectives. Required for distinctive output. Commitment (not intensity) separates specific aesthetics from generic premium-AI-brand mood.")
+    parser.add_argument("--aesthetic-capsule", default=None, help="Curated aesthetic capsule id or label (e.g. warm-editorial-system-illustration). Overrides automatic capsule selection.")
+    parser.add_argument("--style-handle", default=None, help="Human style shorthand to compile into a capsule (e.g. 'ghibli aesthetic' -> safe storybook-animation descriptors).")
     parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
     parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
     parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
@@ -577,6 +599,8 @@ def build_plan_draft_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[
     parser.add_argument("--prompt-details", default=None, help="Detail boosters for the 5-slot template (e.g. 'shallow depth of field, warm palette, matte finish')")
     parser.add_argument("--visual-density", type=int, default=None, help="Spatial density dial (1-10): 1-3 Art Gallery (huge negative space, one gesture), 4-7 Daily App (editorial spacing), 8-10 Cockpit (packed data, 1px separators). Default: per-material (4 for illustration-first, 5 otherwise).")
     parser.add_argument("--aesthetic-commitment", choices=["minimal", "maximal", "editorial", "brutalist", "organic", "industrial", "retro_futurist", "playful", "luxury"], default=None, help="Pick one axis extreme rather than hedging with mild adjectives. Required for distinctive output. Commitment (not intensity) separates specific aesthetics from generic premium-AI-brand mood.")
+    parser.add_argument("--aesthetic-capsule", default=None, help="Curated aesthetic capsule id or label (e.g. warm-editorial-system-illustration). Overrides automatic capsule selection.")
+    parser.add_argument("--style-handle", default=None, help="Human style shorthand to compile into a capsule (e.g. 'ghibli aesthetic' -> safe storybook-animation descriptors).")
     parser.add_argument("--preserve", action="append", help="Thing that must stay fixed; repeat as needed")
     parser.add_argument("--push", action="append", help="Thing that can be pushed or explored; repeat as needed")
     parser.add_argument("--ban", action="append", help="Thing that must not appear; repeat as needed")
@@ -664,6 +688,8 @@ def build_build_generation_scratchpad_cli(parser: argparse.ArgumentParser, *, in
     parser.add_argument("--prompt-details", default=None, help="Detail boosters for the 5-slot template (e.g. 'shallow depth of field, warm palette, matte finish')")
     parser.add_argument("--visual-density", type=int, default=None, help="Spatial density dial (1-10): 1-3 Art Gallery (huge negative space, one gesture), 4-7 Daily App (editorial spacing), 8-10 Cockpit (packed data, 1px separators). Default: per-material (4 for illustration-first, 5 otherwise).")
     parser.add_argument("--aesthetic-commitment", choices=["minimal", "maximal", "editorial", "brutalist", "organic", "industrial", "retro_futurist", "playful", "luxury"], default=None, help="Pick one axis extreme rather than hedging with mild adjectives. Required for distinctive output. Commitment (not intensity) separates specific aesthetics from generic premium-AI-brand mood.")
+    parser.add_argument("--aesthetic-capsule", default=None, help="Curated aesthetic capsule id or label (e.g. warm-editorial-system-illustration). Overrides automatic capsule selection.")
+    parser.add_argument("--style-handle", default=None, help="Human style shorthand to compile into a capsule (e.g. 'ghibli aesthetic' -> safe storybook-animation descriptors).")
     parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
     parser.add_argument("--skip-extraction", action="store_true", help="Skip cached reference analysis during scratchpad assembly")
     parser.add_argument("--refresh-reference-analysis", action="store_true", help="Recompute cached reference analysis even if a cache entry exists")
@@ -975,6 +1001,8 @@ def _add_pipeline_core_args(parser: argparse.ArgumentParser, *, require_material
     parser.add_argument("--prompt-details", default=None, help="Detail boosters for the 5-slot template (e.g. 'shallow depth of field, warm palette, matte finish')")
     parser.add_argument("--visual-density", type=int, default=None, help="Spatial density dial (1-10): 1-3 Art Gallery (huge negative space, one gesture), 4-7 Daily App (editorial spacing), 8-10 Cockpit (packed data, 1px separators). Default: per-material (4 for illustration-first, 5 otherwise).")
     parser.add_argument("--aesthetic-commitment", choices=["minimal", "maximal", "editorial", "brutalist", "organic", "industrial", "retro_futurist", "playful", "luxury"], default=None, help="Pick one axis extreme rather than hedging with mild adjectives. Required for distinctive output. Commitment (not intensity) separates specific aesthetics from generic premium-AI-brand mood.")
+    parser.add_argument("--aesthetic-capsule", default=None, help="Curated aesthetic capsule id or label (e.g. warm-editorial-system-illustration). Overrides automatic capsule selection.")
+    parser.add_argument("--style-handle", default=None, help="Human style shorthand to compile into a capsule (e.g. 'ghibli aesthetic' -> safe storybook-animation descriptors).")
     parser.add_argument("--layout-spec", type=json.loads, default=None, help='JSON layout spec override, e.g. \'{"columns":2,"alignment":"left"}\'')
     parser.add_argument("--set-scope", action="store_true", help="Route as a set orchestration brief, even though generation remains single-material")
     parser.add_argument("--skip-proof", action="store_true", help="Skip the proof module in HTML share cards")
@@ -1175,6 +1203,9 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-session-summary': build_show_session_summary_cli,
     'context-snapshot': build_context_snapshot_cli,
     'capabilities': build_capabilities_cli,
+    'list-aesthetic-capsules': build_list_aesthetic_capsules_cli,
+    'suggest-aesthetic-directions': build_suggest_aesthetic_directions_cli,
+    'promote-aesthetic-learning': build_promote_aesthetic_learning_cli,
     'workspace-status': build_workspace_status_cli,
     'improvement-questions': build_improvement_questions_cli,
     'show-workflow-lineage': build_show_workflow_lineage_cli,

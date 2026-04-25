@@ -56,6 +56,20 @@ class RuntimeFallbackTests(unittest.TestCase):
         self.assertTrue(status["suggestions"])
         self.assertTrue(all("bgen " in item for item in status["suggestions"]))
 
+    def test_inspiration_pipeline_status_finds_uncategorized_sources_in_any_category(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            brand_gen_dir = root / ".brand-gen"
+            brand_dir = brand_gen_dir / "brands" / "sage"
+            brand_dir.mkdir(parents=True)
+            (brand_dir / "inspirations.json").write_text('{"sources":["pentagram"]}')
+            (brand_gen_dir / "inspiration" / "premium-branding" / "pentagram" / ".design-memory").mkdir(parents=True)
+
+            status = check_inspiration_pipeline_status(brand_gen_dir, "sage", "hybrid")
+
+            self.assertTrue(status["ok"])
+            self.assertEqual(status["warnings"], [])
+
     def test_workflow_router_rules_next_commands_use_module_entrypoint(self):
         rules = load_workflow_router_rules()
         for route in rules.get("routes") or []:

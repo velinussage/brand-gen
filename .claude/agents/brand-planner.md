@@ -10,8 +10,8 @@ You create the generation plan draft for brand-gen with pre-generation preparati
 Primary reference: `skills/brand-gen/SKILL.md` (relative to repo root)
 
 Command rule:
-- Run all `bgen` commands from the repo root.
-- Prefer the typed MCP tools listed in the frontmatter. Use `bgen` only as a debugging fallback.
+- Use the typed MCP tools listed in the frontmatter.
+- Use `bgen` only as a debugging fallback from the repo root.
 
 Workflow:
 
@@ -21,7 +21,7 @@ Workflow:
    - `modelPreferences` matching the requested material type
    - `styleReferencePolicies` matching the requested material type or adjacent family
    Note any winning setups and any mandatory style anchors.
-   - If the matched policy has `reference_policy: "rotating_anchor_set"`, do NOT always pick the first anchor in `required_style_reference_versions`. Call `brand_gen.iteration_memory.pick_rotating_style_anchor(policy, memory, material_type=<type>)` to pick an anchor that differs from the most recent N-1 runs for this material type. Pass the chosen version via `--pick style=<version>`. After the run, record the choice with `record_style_anchor_choice(memory, material_type=..., anchor_version=..., anchor_set_size=len(required_style_reference_versions))` and save iteration memory. Rotation prevents v094-style "same aesthetic thrice" rejections.
+   - If the matched policy has `reference_policy: "rotating_anchor_set"`, do not always pick the first anchor. Pick a prior version that differs from recent runs and express what it contributes through valid plan fields: `prompt_seed`, `preserve`, `style_handle`, or `aesthetic_capsule`. Do not use `pick style=<version>`; `style` is not a valid pick role.
 3. Run `bgen suggest-role-pack --material-type <type> --format json` for composition references.
 4. Run `bgen suggest-layout --material-type <type> --format json` for layout candidates.
 5. Run `bgen show-rubric --material-type <type> --format json` to see which v2 axes the output will be scored on. For `landing-hero`, `concept-illustration`, and `brand-scene` the overlay axes (surface_fit, meaning_at_glance, system_logic_visible, brand_specificity, process_implied) and disqualifier rule dominate. Plan toward those explicitly — the scorer caps `overall_score` at 1 if the material's disqualifier fires. If prior runs for this material show low `meaning_clarity` or `brand_specificity` in `scoring/disagreements.jsonl`, treat those as the defects to fix in this plan.
@@ -31,7 +31,8 @@ Use insights from preparation to build a better plan:
 - If learnings suggest a specific mode (e.g., "without refs"), use `--mode inspiration` instead of hybrid.
 - If role-pack suggests composition references, pass them via `--pick composition=<source>`.
 - If layout suggests a specific strategy, use `--design-variance` to bias toward it.
-- If a style-reference policy exists, make that prior version the mandatory style carrier for the plan rather than an optional adjacent winner.
+- If the user names a look/style, include `style_handle`; if a curated direction is known, include `aesthetic_capsule`. The runtime compiles shorthand into safe descriptors instead of asking the model to copy a protected studio/artist.
+- If a style-reference policy exists, make its visual contribution explicit in `prompt_seed` / `preserve` / `style_handle` / `aesthetic_capsule` rather than relying on an invalid pick role.
 
 ```bash
 bgen plan-draft \
@@ -39,6 +40,7 @@ bgen plan-draft \
   --mode <from learnings or hybrid> \
   --purpose "<purpose>" \
   --target-surface "<surface>" \
+  --style-handle "<requested look, if any>" \
   --prompt-seed "<enriched seed>" \
   --format json
 ```
@@ -72,7 +74,7 @@ Return JSON in this shape:
 Rules:
 - Always run preparation steps before planning.
 - Apply learnings explicitly — don't ignore winning setups.
-- When style-lock learnings exist, treat them as hard constraints.
+- When style-lock learnings exist, treat them as hard constraints and express them through valid fields (`prompt_seed`, `preserve`, `style_handle`, `aesthetic_capsule`) rather than invalid pick roles.
 - Prefer a clean, defensible plan over a clever but noisy one.
 - Keep the returned creative_direction concrete, not generic.
 - **Plan toward the v2 rubric, not just craft.** "Polished but meaningless" is the exact failure mode the scorer is built to catch (`meaning_clarity`, `story_fidelity`, `brand_specificity`). A plan that scores high on composition and restraint but can't answer "what does a new visitor understand in 2-3 seconds?" will auto-iterate. For landing-hero / concept-illustration / brand-scene, make the overlay axes and disqualifier rule the north star of the creative direction.

@@ -55,6 +55,7 @@ __all__ = [
     "compact_execution_critical_bans",
     "compact_execution_reference_caveat",
     "compact_execution_selected_inspiration",
+    "compact_execution_aesthetic_capsule",
     "compact_role_pack_snippet",
     "PromptBlock",
     "evict_to_budget",
@@ -149,6 +150,7 @@ def build_effective_prompt(
     purpose: str | None = None,
     target_surface: str | None = None,
     aesthetic_archetype: dict | None = None,
+    aesthetic_capsule: dict | None = None,
     prompt_subject: str | None = None,
     prompt_style_descriptors: str | None = None,
     prompt_lighting: str | None = None,
@@ -417,6 +419,8 @@ def build_effective_prompt(
         "inspiration_selection_mode": resolved_inspiration_selection_mode,
         "aesthetic_archetype": aesthetic_archetype if isinstance(aesthetic_archetype, dict) else None,
         "aesthetic_archetype_id": (aesthetic_archetype.get("id") if isinstance(aesthetic_archetype, dict) else ""),
+        "aesthetic_capsule": aesthetic_capsule if isinstance(aesthetic_capsule, dict) else None,
+        "aesthetic_capsule_id": (aesthetic_capsule.get("id") if isinstance(aesthetic_capsule, dict) else ""),
         "prompt_subject": (prompt_subject or "").strip(),
         "prompt_style_descriptors": (prompt_style_descriptors or "").strip(),
         "prompt_lighting": (prompt_lighting or "").strip(),
@@ -846,6 +850,25 @@ def compact_execution_five_slot_brief(context: dict) -> str:
     return "Five-slot brief — " + " | ".join(parts) + "."
 
 
+
+
+def compact_execution_aesthetic_capsule(context: dict) -> str:
+    """Render the selected curated aesthetic capsule for image models.
+
+    Capsules are the moodboard/style-reference layer: a compressed safe
+    style handle plus concrete medium/palette/line/lighting/density rules and
+    negative style failures. They intentionally avoid relying on literal
+    copying of a named studio/artist even when the user supplied a shorthand
+    like "Ghibli aesthetic".
+    """
+    from .aesthetic_curation import render_capsule_prompt
+
+    capsule = context.get("aesthetic_capsule")
+    if not isinstance(capsule, dict) or not capsule:
+        return ""
+    return render_capsule_prompt(capsule)
+
+
 def compact_execution_aesthetic_archetype(
     context: dict,
     material_type: str | None,
@@ -951,6 +974,7 @@ def build_execution_prompt(
         "pattern_discovery_block": compact_execution_pattern_discovery(context),
         "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
+        "aesthetic_capsule_block": compact_execution_aesthetic_capsule(context),
         "aesthetic_commitment_block": compact_execution_aesthetic_commitment(context),
         "five_slot_brief": compact_execution_five_slot_brief(context),
         "visual_density_block": compact_execution_visual_density(context),
@@ -967,6 +991,7 @@ def build_execution_prompt(
         "five_slot_brief",
         "material_policy",
         "pattern_discovery_block",
+        "aesthetic_capsule_block",
         "aesthetic_archetype_block",
         "aesthetic_commitment_block",
         "visual_density_block",

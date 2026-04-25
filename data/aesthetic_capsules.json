@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "description": "Curated aesthetic capsules for brand-gen. Capsules are broader than per-material archetypes: they are reusable art-direction handles compiled into concrete image-model style grammar plus negative style rules. Use them as moodboard/style-reference equivalents, not as literal copying instructions.",
+  "capsules": [
+    {
+      "id": "warm-editorial-system-illustration",
+      "label": "Warm editorial system illustration",
+      "safe_handle": "restrained institutional product diagram",
+      "internal_handles": [
+        "warm editorial",
+        "soft product diagram",
+        "institutional illustration"
+      ],
+      "material_types": [
+        "social",
+        "x-feed",
+        "proof-poster",
+        "system-explainer-illustration",
+        "concept-illustration",
+        "feature-illustration"
+      ],
+      "use_when": [
+        "product truth needs to feel calm and legible",
+        "brand-led social/proof material",
+        "system explanation without fake UI chrome"
+      ],
+      "avoid_when": [
+        "exact product screenshot preservation",
+        "high-energy launch campaign",
+        "luxury photographic scene"
+      ],
+      "style_strength_default": 0.72,
+      "style_description": {
+        "medium": "flat editorial digital illustration with slight paper warmth",
+        "palette": "warm cream ground, terracotta mass, charcoal line, one muted blue or ember accent",
+        "line": "clean geometric linework, low-detail, no sketchiness",
+        "lighting": "soft ambient field, no glossy highlights",
+        "composition": "one dominant product/proof object with sparse supporting marks and generous negative space",
+        "density": "low to medium; readable from thumbnail distance",
+        "texture": "matte paper or screenprint feel, not realistic stone/parchment texture",
+        "motifs": [
+          "library cards",
+          "skill artifacts",
+          "routing lines",
+          "proof stamps",
+          "curation shelves"
+        ]
+      },
+      "positive_prompt_terms": [
+        "warm editorial product diagram",
+        "matte paper field",
+        "clean geometric routing lines",
+        "single proof object",
+        "calm institutional hierarchy"
+      ],
+      "negative_prompt_terms": [
+        "DAO theater",
+        "generic AI node diagram",
+        "oversized logo",
+        "busy icon grid",
+        "fake UI chrome",
+        "gibberish labels",
+        "glossy 3D render"
+      ],
+      "style_axes": [
+        "warmth_vs_austerity",
+        "editorial_spacing",
+        "diagrammatic_clarity"
+      ],
+      "reference_roles": {
+        "style": "matte editorial illustration",
+        "composition": "single proof object with routing lines",
+        "brand": "palette/mark/proof copy stay authoritative",
+        "negative": "no DAO theater, no generic AI node graph"
+      },
+      "iteration_policy": {
+        "exploration_role": "safe default",
+        "strength_range": [
+          0.55,
+          0.78
+        ],
+        "when_low_score": "lower density first, then swap to screenprinted-proof-poster if output feels washed out"
+      }
+    },
+    {
+      "id": "calm-product-wireframe-editorial",
+      "label": "Calm product wireframe editorial",
+      "safe_handle": "low-fidelity product walkthrough illustration",
+      "internal_handles": [
+        "wireframe editorial",
+        "simplified product cards",
+        "calm UI illustration"
+      ],
+      "material_types": [
+        "feature-illustration",
+        "browser-illustration",
+        "product-banner",
+        "landing-hero",
+        "social"
+      ],
+      "use_when": [
+        "source screenshots are product truth",
+        "readability matters more than atmosphere",
+        "avoid full-fidelity screenshot recreation"
+      ],
+      "avoid_when": [
+        "no product state is available",
+        "the user asked for pure illustration",
+        "text must be fully exact without deterministic rendering"
+      ],
+      "style_strength_default": 0.62,
+      "style_description": {
+        "medium": "simplified interface illustration, between wireframe and finished product visual",
+        "palette": "brand neutrals with one restrained accent and soft warm shadows",
+        "line": "thin structural outlines, rounded cards, no decorative squiggle lines",
+        "lighting": "subtle flat depth only; no dramatic studio light",
+        "composition": "one large product/proof frame plus at most one inset",
+        "density": "medium-low; few large modules instead of many tiny panels",
+        "texture": "clean matte interface surfaces",
+        "motifs": [
+          "search fields",
+          "library cards",
+          "copy/use buttons",
+          "provenance chips",
+          "CLI/MCP blocks"
+        ]
+      },
+      "positive_prompt_terms": [
+        "simplified product wireframe",
+        "large readable UI modules",
+        "one proof frame",
+        "quiet editorial spacing"
+      ],
+      "negative_prompt_terms": [
+        "full-fidelity webpage recreation",
+        "tiny noisy screenshot",
+        "invented dashboard chrome",
+        "fake navigation",
+        "placeholder text",
+        "person illustration"
+      ],
+      "style_axes": [
+        "product_literalness",
+        "wireframe_abstraction",
+        "screenshot_weight"
+      ],
+      "reference_roles": {
+        "style": "low-fidelity product walkthrough",
+        "composition": "one large product frame plus one inset",
+        "brand": "real source screenshots and brand UI tokens dominate",
+        "negative": "no full-fidelity fake webpage recreation"
+      },
+      "iteration_policy": {
+        "exploration_role": "product-truth anchor",
+        "strength_range": [
+          0.45,
+          0.68
+        ],
+        "when_low_score": "increase source screenshot weight or reroute to deterministic HTML if text matters"
+      }
+    },
+    {
+      "id": "pastoral-storybook-animation",
+      "label": "Pastoral storybook animation warmth",
+      "safe_handle": "hand-painted pastoral storybook animation background",
+      "internal_handles": [
+        "ghibli-like warmth",
+        "storybook anime pastoral",
+        "painted animation still"
+      ],
+      "material_types": [
+        "concept-illustration",
+        "system-explainer-illustration",
+        "brand-scene",
+        "editorial-metaphor-illustration"
+      ],
+      "use_when": [
+        "the user asks for a Ghibli-like feeling",
+        "brand wants warmth and wonder without tech chrome",
+        "metaphor can be natural or craft-based"
+      ],
+      "avoid_when": [
+        "product proof must stay literal",
+        "brand needs austere institutional seriousness",
+        "exact UI/text is required"
+      ],
+      "style_strength_default": 0.68,
+      "style_description": {
+        "medium": "hand-painted animated-film background feel, compiled as broad storybook warmth rather than studio copying",
+        "palette": "soft greens, warm creams, terracotta/brown earth tones, low-saturation sky or blue accent",
+        "line": "gentle hand-drawn edges with painterly softness, not vector-perfect",
+        "lighting": "golden diffused light, atmospheric but restrained",
+        "composition": "small human-scale artifact or workshop moment inside a larger calm environment",
+        "density": "medium; lived-in details around one clear focal story",
+        "texture": "watercolor/gouache softness, visible brush warmth, no photorealism",
+        "motifs": [
+          "craft tables",
+          "paper libraries",
+          "quiet paths",
+          "small useful tools",
+          "warm windows"
+        ]
+      },
+      "positive_prompt_terms": [
+        "pastoral storybook animation warmth",
+        "hand-painted gouache softness",
+        "golden diffused light",
+        "human-scale artifact",
+        "gentle environment"
+      ],
+      "negative_prompt_terms": [
+        "copy a named studio",
+        "recognizable copyrighted characters",
+        "anime fan art",
+        "tech dashboard chrome",
+        "DAO council scene",
+        "oversized logo"
+      ],
+      "style_axes": [
+        "wonder_vs_institutional",
+        "craft_materiality",
+        "environmental_warmth"
+      ],
+      "reference_roles": {
+        "style": "hand-painted pastoral storybook warmth",
+        "composition": "small artifact/workshop moment inside calm environment",
+        "brand": "product truth appears as artifact/proof, not fantasy lore",
+        "negative": "no named-studio copy, no copyrighted characters, no DAO council scene"
+      },
+      "iteration_policy": {
+        "exploration_role": "warmth/wonder branch",
+        "strength_range": [
+          0.48,
+          0.72
+        ],
+        "when_low_score": "reduce fantasy/environment and re-anchor around one concrete product artifact"
+      }
+    },
+    {
+      "id": "screenprinted-proof-poster",
+      "label": "Screenprinted proof poster",
+      "safe_handle": "bold screenprinted evidence poster",
+      "internal_handles": [
+        "screenprint poster",
+        "risograph proof",
+        "chunky graphic proof"
+      ],
+      "material_types": [
+        "proof-poster",
+        "campaign-poster",
+        "social",
+        "x-feed",
+        "pattern-system"
+      ],
+      "use_when": [
+        "one proof object should dominate",
+        "the design needs more graphic conviction",
+        "prior output felt washed out"
+      ],
+      "avoid_when": [
+        "many small data points are required",
+        "the surface is a literal product screenshot",
+        "the brand rejects print texture"
+      ],
+      "style_strength_default": 0.78,
+      "style_description": {
+        "medium": "two-to-four color screenprint or risograph poster",
+        "palette": "brand cream and charcoal with terracotta or blue ink blocks",
+        "line": "chunky vector silhouettes and confident hard-edged shapes",
+        "lighting": "flat print-field, no environmental light",
+        "composition": "one large proof payload, cropped assertively, with supporting brand mark small",
+        "density": "medium; bold areas over tiny detail",
+        "texture": "slight ink misregistration, paper tooth, matte finish",
+        "motifs": [
+          "proof stamp",
+          "artifact card",
+          "library seal",
+          "routing stripe",
+          "small metadata chips"
+        ]
+      },
+      "positive_prompt_terms": [
+        "screenprinted evidence poster",
+        "large proof payload",
+        "chunky ink blocks",
+        "matte paper tooth",
+        "small supporting mark"
+      ],
+      "negative_prompt_terms": [
+        "washed-out low contrast",
+        "tiny unreadable panels",
+        "glossy mockup",
+        "logo as centerpiece",
+        "quadrant layout"
+      ],
+      "style_axes": [
+        "graphic_force",
+        "print_texture",
+        "proof_scale"
+      ],
+      "reference_roles": {
+        "style": "bold screenprint/risograph evidence poster",
+        "composition": "large proof payload with small supporting mark",
+        "brand": "approved palette and one proof object dominate",
+        "negative": "no tiny quadrant panels, no logo centerpiece"
+      },
+      "iteration_policy": {
+        "exploration_role": "high-conviction branch",
+        "strength_range": [
+          0.62,
+          0.84
+        ],
+        "when_low_score": "raise proof hierarchy, lower texture if it competes with legibility"
+      }
+    },
+    {
+      "id": "archival-civic-documentary",
+      "label": "Archival civic documentary",
+      "safe_handle": "quiet archival institutional photography",
+      "internal_handles": [
+        "archival proof photo",
+        "civic documentary",
+        "library documentary"
+      ],
+      "material_types": [
+        "brand-scene",
+        "landing-hero",
+        "product-banner",
+        "campaign-poster"
+      ],
+      "use_when": [
+        "brand trust should feel real and institutional",
+        "show process or stewardship without cartooning",
+        "avoid abstract diagram aesthetics"
+      ],
+      "avoid_when": [
+        "user rejects realistic texture",
+        "the material must be a pure illustration",
+        "product UI must be the hero"
+      ],
+      "style_strength_default": 0.58,
+      "style_description": {
+        "medium": "documentary photograph / archival campaign image",
+        "palette": "warm neutral interiors, restrained brand accents, natural darks",
+        "line": "real object edges; no drawn outlines",
+        "lighting": "window light or soft editorial key, not studio glamour",
+        "composition": "one believable stewardship or creation moment, cropped with editorial restraint",
+        "density": "medium-low; evidence of work without clutter",
+        "texture": "subtle film grain and real material surfaces, avoid fantasy textures",
+        "motifs": [
+          "printed manifests",
+          "library shelves",
+          "hands at work",
+          "CLI terminal card",
+          "artifact review table"
+        ]
+      },
+      "positive_prompt_terms": [
+        "quiet archival documentary",
+        "believable stewardship moment",
+        "warm institutional interior",
+        "soft editorial crop"
+      ],
+      "negative_prompt_terms": [
+        "fantasy temple",
+        "DAO courtroom",
+        "photorealistic parchment texture",
+        "heroic crypto council",
+        "stock photo people"
+      ],
+      "style_axes": [
+        "documentary_realism",
+        "institutional_trust",
+        "human_process"
+      ],
+      "reference_roles": {
+        "style": "quiet archival institutional photography",
+        "composition": "believable stewardship or review moment",
+        "brand": "real artifacts/product screenshots must be visible if claimed",
+        "negative": "no fantasy temple, no crypto council, no photoreal parchment"
+      },
+      "iteration_policy": {
+        "exploration_role": "real-world trust branch",
+        "strength_range": [
+          0.35,
+          0.62
+        ],
+        "when_low_score": "use only if user accepts realism; otherwise switch to warm-editorial-system-illustration"
+      }
+    }
+  ]
+}

@@ -13,6 +13,7 @@ The 45-tool surface is split into smaller docs for agent/human review:
 - `source-knowledge.md`
 - `social-prompt-tuning.md`
 - `gepa-dspy-optimization.md`
+- `aesthetic-curation.md`
 
 ## Runtime root
 
@@ -30,6 +31,13 @@ The 45-tool surface is split into smaller docs for agent/human review:
   3. `brand_gen/policy.py::POLICY_CLASSES_BY_TOOL`
   4. `brand_gen/agent_specialization.py` if any specialist should call it
   5. mirrored agent frontmatter in `.claude/agents/`, `.pi/agents/`, and `skills/brand-gen/claude-agents/`
+
+
+## Aesthetic curation
+
+Style is a first-class planned input. If the user names a look (for example, “storybook animation warmth” or “screenprinted poster”), pass it as `style_handle` to `brand_orchestrate_material` / `brand_plan_run`; if an exact curated direction is known, pass `aesthetic_capsule`. The planner stores the resolved `aesthetic_capsule_id` and scratchpad assembly injects an `aesthetic_capsule_block` before material archetype instructions.
+
+Agents must not ask models to copy a protected studio, artist, or exact work. `internal_handles` may be used for matching, but execution prompts render only the safe handle and concrete descriptors. See `aesthetic-curation.md`.
 
 ## GEPA/DSPy disagreement records
 

@@ -11,5 +11,6 @@ This directory is the repo-local architecture home for brand-gen runtime contrac
 - `source-knowledge.md` — brand-scoped Obsidian/docs ingestion contract.
 - `social-prompt-tuning.md` — v123 Sage social prompt tuning notes.
 - `gepa-dspy-optimization.md` — GEPA/DSPy optimization plan and disagreement-record schema.
+- `aesthetic-curation.md` — curated style/moodboard capsules and brand-local aesthetic preferences.
 
 When agent prompts need to stay short, link here instead of copying long procedures into `.pi/agents/*.md`.

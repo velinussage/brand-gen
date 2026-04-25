@@ -33,6 +33,7 @@ from .reference_analysis import (
 )
 from .media_board import generate_compare_board
 from .agent_review import write_agent_visual_review_packet
+from .aesthetic_curation import select_aesthetic_capsule
 from .pipeline_qa import write_pipeline_qa_report
 from .run_ledger import append_run_event
 from .vlm_critique import (
@@ -241,6 +242,25 @@ def assemble_generation_scratchpad(
     reference_analysis_mode = _reference_analysis_mode(reference_analysis)
     reference_analysis_confidence = _reference_analysis_confidence(reference_analysis)
     render_backend = "html" if str(getattr(args, "render_backend", None) or "").strip().lower() == "html" else "native"
+    aesthetic_capsule = plan.get("aesthetic_capsule") if isinstance(plan.get("aesthetic_capsule"), dict) else None
+    if getattr(args, "aesthetic_capsule", None) or getattr(args, "style_handle", None):
+        _selection = select_aesthetic_capsule(
+            brand_dir=brand_dir,
+            material_type=material_type,
+            requested_capsule=getattr(args, "aesthetic_capsule", None),
+            style_text=getattr(args, "style_handle", None) or "",
+        )
+        if isinstance(_selection.get("capsule"), dict):
+            aesthetic_capsule = _selection["capsule"]
+            plan["aesthetic_capsule"] = aesthetic_capsule
+            plan["aesthetic_capsule_id"] = _selection.get("capsule_id") or ""
+            plan["aesthetic_capsule_selection"] = {
+                "source": _selection.get("source") or "",
+                "score": _selection.get("score") or 0,
+                "reasons": list(_selection.get("reasons") or []),
+                "warnings": list(_selection.get("warnings") or []),
+            }
+
     prompt_context = build_effective_prompt(
         profile_data,
         identity_data,
@@ -267,6 +287,7 @@ def assemble_generation_scratchpad(
         purpose=plan.get("purpose") or "",
         target_surface=plan.get("target_surface") or "",
         aesthetic_archetype=plan.get("aesthetic_archetype") if isinstance(plan.get("aesthetic_archetype"), dict) else None,
+        aesthetic_capsule=aesthetic_capsule,
         prompt_subject=str(plan.get("prompt_subject") or ""),
         prompt_style_descriptors=str(plan.get("prompt_style_descriptors") or ""),
         prompt_lighting=str(plan.get("prompt_lighting") or ""),

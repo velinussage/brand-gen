@@ -110,6 +110,12 @@ class MaterialPlan:
     has_motion_reference: bool = False
     set_scope: bool = False
     design_variance: int = 5
+    aesthetic_capsule: dict[str, Any] | None = None
+    aesthetic_capsule_id: str = ""
+    aesthetic_capsule_selection: dict[str, Any] = field(default_factory=dict)
+    aesthetic_direction_brief: dict[str, Any] = field(default_factory=dict)
+    aesthetic_style_strength: float | int | None = None
+    aesthetic_reference_roles: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> list[str]:
         errors: list[str] = []

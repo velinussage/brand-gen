@@ -76,7 +76,7 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     name: "brand_plan_run",
     category: "orchestration",
     description:
-      "Phase 2 — draft a material plan (material_type, mode, prompt_seed, archetype). Returns PlanRunResponse with plan_id + next_action.",
+      "Phase 2 — draft a material plan (material_type, mode, prompt_seed, style_handle/aesthetic_capsule). Returns PlanRunResponse with plan_id + next_action.",
     requiredParams: ["material_type"],
     parameterSchema: objectSchema({
       material_type: { type: "string", description: "Material type to generate." },
@@ -84,6 +84,8 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       purpose: { type: "string" },
       target_surface: { type: "string" },
       prompt_seed: { type: "string" },
+      style_handle: { type: "string", description: "Human shorthand for the desired look; the planner compiles it into a safe curated aesthetic capsule." },
+      aesthetic_capsule: { type: "string", description: "Curated aesthetic capsule id/label; overrides automatic capsule selection." },
       render_backend: { type: "string", enum: ["native", "html"], default: "native" },
       workflow_id: { type: "string" },
     }, ["material_type"], "Arguments for brand_plan_run"),
@@ -148,6 +150,20 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
     description:
       "Convenience: run all six phases end-to-end until a blocking condition. Returns OrchestrateMaterialResponse with stages_completed + stop_reason + next_action + artifacts.",
     policy_class: "costly_generation",
+    requiredParams: ["material_type"],
+    parameterSchema: objectSchema({
+      material_type: { type: "string", description: "Material type to generate." },
+      mode: { type: "string", enum: ["reference", "inspiration", "hybrid"], default: "hybrid" },
+      purpose: { type: "string" },
+      target_surface: { type: "string" },
+      prompt_seed: { type: "string" },
+      style_handle: { type: "string", description: "Human shorthand for the desired look; the planner compiles it into a safe curated aesthetic capsule." },
+      aesthetic_capsule: { type: "string", description: "Curated aesthetic capsule id/label; overrides automatic capsule selection." },
+      render_backend: { type: "string", enum: ["native", "html"], default: "native" },
+      max_iterations: { type: "integer", minimum: 1, maximum: 3, default: 1 },
+      max_retries: { type: "integer", minimum: 0, maximum: 2, default: 1 },
+      allow_blocking: { type: "boolean", default: false },
+    }, ["material_type"], "Arguments for brand_orchestrate_material"),
   },
 
   {
@@ -171,6 +187,8 @@ export const CANONICAL_TOOLS: readonly CanonicalTool[] = [
       reference_assets: { type: "array", items: { type: "string" }, description: "Image references; bridged to repeated --image flags." },
       motion_reference: { type: "string", description: "Motion/video reference asset path." },
       base_image: { type: "string", description: "Authoritative base image or screenshot to preserve/edit." },
+      style_handle: { type: "string", description: "Optional scratchpad-level aesthetic shorthand override; compiles to a safe capsule block." },
+      aesthetic_capsule: { type: "string", description: "Optional scratchpad-level curated aesthetic capsule override." },
       negative_prompt: { type: "string" },
       render_backend: { type: "string", enum: ["native", "html"], default: "native" },
       allow_blocking: { type: "boolean", default: false },

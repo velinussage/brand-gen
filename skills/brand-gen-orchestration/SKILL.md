@@ -31,7 +31,7 @@ Every phase exists for a reason. Preparation prevents repeating mistakes. Planni
 
 After the typed-agentic-runtime refactor (Phases 1-6 of the 2026-04 plan), the entire 6-phase pipeline is exposed as **typed MCP/CLI tools with structured responses**. Pin to these verbs instead of scripting the legacy chain below — the legacy chain is the fallback for CI/scripting, not the primary path.
 
-Architecture docs live in `docs/architecture/`; GEPA/DSPy optimization and disagreement-record fields are documented in `docs/architecture/gepa-dspy-optimization.md`.
+Architecture docs live in `docs/architecture/`; GEPA/DSPy optimization and disagreement-record fields are documented in `docs/architecture/gepa-dspy-optimization.md`, and curated aesthetic capsules are documented in `docs/architecture/aesthetic-curation.md`.
 
 ### Orchestration (8 verbs — run the pipeline)
 
@@ -67,6 +67,11 @@ bgen evolve-run    # Phase 6 → {learnings_promoted, disagreements_logged, impr
 ```
 
 Each response's `next_action` is a direct hint to the next tool. Follow it unless you're intentionally A/B-testing a stage.
+
+
+### Aesthetic capsule rule
+
+If the user names a recognizable look, do **not** describe it from scratch only and do **not** ask the model to copy a protected studio/artist. Pass it as `--style-handle` / `style_handle` (or pass `--aesthetic-capsule` / `aesthetic_capsule` when known). The planner resolves it into a safe `aesthetic_capsule_block` with concrete medium, palette, line, lighting, composition, density, texture, positive terms, and negative terms. Use `bgen list-aesthetic-capsules --material-type <type> --format json` to inspect options, `bgen suggest-aesthetic-directions --material-type <type> --style-handle "..." --format json` to compare 2-3 moodboard branches when taste is ambiguous, and `bgen promote-aesthetic-learning` after user feedback to store brand-local likes/dislikes.
 
 ### v2 review decision rule (thresholds)
 

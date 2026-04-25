@@ -105,6 +105,7 @@ Use the Pi brand-gen typed-tool runtime only. Do not run shell commands and do n
 - docs/architecture/runtime-agent-contract.md
 - docs/architecture/source-knowledge.md
 - docs/architecture/gepa-dspy-optimization.md
+- docs/architecture/aesthetic-curation.md
 - docs/architecture/tool-groups/orchestration.md
 - docs/architecture/tool-groups/mutation.md
 - docs/architecture/tool-groups/inspection-policy.md
@@ -115,7 +116,7 @@ Use this sequence:
 0. Schema discipline: use only canonical typed `brand_*` tools and pass only schema-supported arguments. Put extra creative detail into accepted free-text fields (`task`, `brief`, `prompt`, `user_request`, or equivalent) or into the `/run brand-orchestrator` instruction.
 1. Preflight: call `brand_context_snapshot`, `brand_source_knowledge`, `brand_list_brands`, `brand_capabilities`, `brand_show_blackboard`, `brand_show_iteration_memory`, and `brand_scoring_status`. Confirm the active brand/session is `{resolved_key}` / {brand_name}; if not, use `brand_switch_brand` for `{resolved_key}`. If `source_knowledge` is configured, query `brand_source_knowledge` with `{query}` and convert concrete source facts into prompt seeds or scratchpad notes before planning. Do not use another brand's vault as truth for {brand_name}.
 2. Pipeline: run `/run brand-orchestrator "Create/iterate the requested {brand_name} brand material using prepare → plan → validate → execute → review → evolve. Use typed brand_* tools only. Stop on blocking findings or needs_user_input."`
-3. Planning: use `brand_orchestrate_material` for the normal path, or `brand_prepare_run`, `brand_plan_run`, and `brand_validate_run` for stage-level fall-through. If no surface/material type is implied, ask one concise question. For exact visible copy, require deterministic HTML/SVG/composite/text overlay rendering.
+3. Planning: use `brand_orchestrate_material` for the normal path, or `brand_prepare_run`, `brand_plan_run`, and `brand_validate_run` for stage-level fall-through. If the user names a look/style, pass it as `style_handle`; if a curated direction is known, pass `aesthetic_capsule`. Do not ask the image model to copy a protected studio/artist — brand-gen compiles shorthand into safe aesthetic descriptors. If no surface/material type is implied, ask one concise question. For exact visible copy, require deterministic HTML/SVG/composite/text overlay rendering.
 4. Generation: use `brand_build_generation_scratchpad` / `brand_execute_run` with explicit cinematographer fields when supported: `generation_mode`, `aspect_ratio`, `resolution`, `duration`, `source_version`, `reference_assets`, `motion_reference`, `base_image`, and `negative_prompt`. Do not bypass blocking findings (`allow_blocking`) unless the user explicitly authorizes it.
 5. Review: use the v2/DSPy scorer path when available. Always pass the required `version_id`/`version` from the previous tool's `next_action`. `disqualifier_triggered == true` rejects; otherwise `overall_score < 3` iterates; otherwise approve. `decision: pending` or empty `axis_scores` means the artifact is not reviewed.
 6. GEPA/DSPy trace quality: preserve `axis_scores`, `axis_rationales`, `disqualifier_triggered`, `disqualifier_rule`, `why_user_might_dislike_if_polished`, and `before_after_diffs` in disagreement records.
@@ -141,6 +142,7 @@ Creative vocabulary:
 
 - Use source knowledge as brand-specific truth, not universal style guidance.
 - Borrow inspiration as mechanics only: hierarchy, pacing, composition, materiality.
+- Use `style_handle` for requested looks and let the planner resolve brand-local aesthetic capsules; record likes/dislikes with aesthetic learning rather than hard-coding another brand's style.
 - Avoid generic AI slop: floating orbs, robot brains, fake dashboards, unreadable pseudo-text, and abstract diagrams with no artifact proof.
 - If exact visible copy is required, use deterministic rendering. Do not ask an image model to invent readable text.
 """

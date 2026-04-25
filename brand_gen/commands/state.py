@@ -552,6 +552,34 @@ def cmd_append_custom_scratchpad_note(args):
     print(json.dumps(result, indent=2))
 
 
+def cmd_promote_aesthetic_learning(args):
+    from ..aesthetic_curation import promote_aesthetic_learning
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    result = promote_aesthetic_learning(
+        brand_dir,
+        capsule_id=getattr(args, "capsule_id", None) or "",
+        material_type=getattr(args, "material_type", None) or "",
+        sentiment=getattr(args, "sentiment", "like") or "like",
+        note=getattr(args, "note", "") or "",
+    )
+    append_run_event(
+        brand_dir,
+        uuid.uuid4().hex[:12],
+        stage="mutation",
+        event_type="aesthetic_learning_promoted",
+        material_type=getattr(args, "material_type", None) or "",
+        status=result.get("status") or "recorded",
+        notes=getattr(args, "note", "") or "",
+        data={"capsule_id": getattr(args, "capsule_id", None) or "", "sentiment": getattr(args, "sentiment", "like") or "like"},
+    )
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{result.get('status')}: {result.get('entry', {}).get('capsule_id')}")
+
+
 def cmd_set_motion_grammar(args):
     from ..motion_grammar import set_motion_grammar
     from ..custom_scratchpad import custom_scratchpad_json_path, custom_scratchpad_md_path

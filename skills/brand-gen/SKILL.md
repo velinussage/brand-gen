@@ -29,7 +29,7 @@ brand-gen is a **multi-agent system**. The intended entry point for any brand ma
 
 After the typed-agentic-runtime refactor, brand-gen exposes a **45-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
 
-Architecture docs for the typed runtime live in the repo-local `docs/architecture/` folder. Start with `docs/architecture/runtime-agent-contract.md`; use `docs/architecture/gepa-dspy-optimization.md` for GEPA/DSPy reflection records and optimizer targets.
+Architecture docs for the typed runtime live in the repo-local `docs/architecture/` folder. Start with `docs/architecture/runtime-agent-contract.md`; use `docs/architecture/gepa-dspy-optimization.md` for GEPA/DSPy reflection records and optimizer targets, and `docs/architecture/aesthetic-curation.md` for style/moodboard capsule selection.
 
 ### Orchestration (8 verbs)
 
@@ -89,6 +89,11 @@ bgen show-disagreements --format json     # agent-vs-user score disagreements (c
 bgen scoring-status --format json         # weighted Cohen's kappa + agreement rate
 bgen capabilities --format json           # available tools + material types
 ```
+
+
+### Aesthetic capsule rule
+
+If the user names a recognizable look, do **not** describe it from scratch only and do **not** ask the model to copy a protected studio/artist. Pass it as `--style-handle` / `style_handle` (or pass `--aesthetic-capsule` / `aesthetic_capsule` when known). The planner resolves it into a safe `aesthetic_capsule_block` with concrete medium, palette, line, lighting, composition, density, texture, positive terms, and negative terms. Use `bgen list-aesthetic-capsules --material-type <type> --format json` to inspect options, `bgen suggest-aesthetic-directions --material-type <type> --style-handle "..." --format json` to compare 2-3 moodboard branches when taste is ambiguous, and `bgen promote-aesthetic-learning` after user feedback to store brand-local likes/dislikes.
 
 ### v2 review decision rule (thresholds)
 
