@@ -5,7 +5,7 @@
     "motif": "Use this reference only for system logic: repeat tiles, bands, badges, icon families, and how identity primitives evolve.",
     "application": "Use this reference only for how the identity lands on posters, merch, stickers, signage, or campaign surfaces.",
     "motion": "Use this reference only for reveal attitude, pacing, masking, rhythm, and final-hold confidence.",
-    "product_truth": "Use this reference as the authoritative source of real product UI — exact nav structure, page layout, button labels, and information architecture. Do not invent or simplify the interface."
+    "product_truth": "Use this reference as the authoritative source of real product UI \u2014 exact nav structure, page layout, button labels, and information architecture. Do not invent or simplify the interface."
   },
   "packs": {
     "browser_illustration": {
@@ -39,14 +39,15 @@
     },
     "landing_hero": {
       "priority": [
+        "motion",
         "composition",
-        "application"
+        "application",
+        "product_truth"
       ],
       "required_roles": [
-        "composition",
-        "application"
+        "composition"
       ],
-      "selection_note": "Use homepage-grade references for headline/product balance and application confidence. The hero must still read as the source product, not the reference brand.",
+      "selection_note": "Use homepage-grade references for hero-media framing and motion references for reveal/settle pacing. The output is the animated hero visual plate beside external copy, not a full webpage with nav/headline/CTA. Product-truth refs define the real capability/workflow; composition/application refs define crop and whitespace only.",
       "composition": [
         "clay",
         "ramotion",
@@ -64,6 +65,10 @@
       "motion": [
         "buck-playgrounds-in-motion",
         "buck-zapier-motion-library"
+      ],
+      "product_truth": [
+        "sage-product",
+        "sage-webapp"
       ]
     },
     "product_banner": {
@@ -257,7 +262,7 @@
       "required_roles": [
         "product_truth"
       ],
-      "selection_note": "The product_truth reference is mandatory — it defines the real UI structure (nav, sidebar, cards, labels). Composition and application references control framing and presentation only. Never let external references override the actual product layout.",
+      "selection_note": "The product_truth reference is mandatory \u2014 it defines the real UI structure (nav, sidebar, cards, labels). Composition and application references control framing and presentation only. Never let external references override the actual product layout.",
       "product_truth": [
         "sage-product",
         "sage-webapp"

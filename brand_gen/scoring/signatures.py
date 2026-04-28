@@ -94,7 +94,10 @@ class Synthesize(dspy.Signature):
     material_type: str = dspy.InputField()
 
     decision: Literal["approve", "iterate", "reject"] = dspy.OutputField(
-        desc="Final decision. Min-biased aggregation: any axis <2 => iterate; disqualifier_triggered => reject"
+        desc=(
+            "Final decision. Min-biased aggregation: any axis <2 => iterate; "
+            "disqualifier_triggered => reject; value_proposition_fidelity=1 is a hard user-calibrated failure"
+        )
     )
     top_failure_reasons: list[str] = dspy.OutputField(
         desc="2-3 concrete reasons this might miss (not a restatement of rationales)"

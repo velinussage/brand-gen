@@ -48,13 +48,15 @@ class MaterialTaxonomyMigrationTests(unittest.TestCase):
         payload = {
             "materials": [
                 {"material_type": "campaign-poster"},
+                {"material_type": "bumper-animation"},
                 {"material_type": "pattern-system", "briefing": "one subtle site background pattern"},
             ]
         }
         out, changes = migrate_set_manifest_payload(payload)
-        self.assertEqual(changes, 2)
+        self.assertEqual(changes, 3)
         self.assertEqual(out["materials"][0]["material_type"], "proof-poster")
-        self.assertEqual(out["materials"][1]["material_type"], "site-pattern-tile")
+        self.assertEqual(out["materials"][1]["material_type"], "feature-animation")
+        self.assertEqual(out["materials"][2]["material_type"], "site-pattern-tile")
 
     def test_manifest_payload_migrates_entries(self):
         payload = {

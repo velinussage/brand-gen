@@ -8,8 +8,9 @@ from unittest.mock import patch
 from brand_gen.cli_builders import build_pipeline_cli
 from brand_gen.html_share_cards import evaluate_html_layout_warnings, execute_html_share_card_scratchpad
 from brand_gen.pipeline_request import PIPELINE_MCP_PROPERTIES, PipelineRequest
-from brand_gen.card_engine import LayoutSpec, ShareCardPayload, _verify_render, default_layout_spec
+from brand_gen.card_engine import LayoutSpec, ShareCardPayload, _surface_size, _verify_render, compose_share_card_html, default_layout_spec
 from brand_gen.card_builder import build_web_app_share_card_payload
+from brand_gen.custom_scratchpad import html_share_card_block_reason
 
 
 class PipelineRequestHtmlTests(unittest.TestCase):
@@ -39,7 +40,128 @@ class PipelineRequestHtmlTests(unittest.TestCase):
             parser.parse_args(["--material-type", "announcement-card", "--stitch-model", "GEMINI_3_1_PRO"])
 
 
+class HtmlShareCardPolicyTests(unittest.TestCase):
+    def test_brand_policy_blocks_redundant_html_variants_but_allows_proof_poster(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            brand_dir = Path(tmp)
+            (brand_dir / "custom-scratchpad.json").write_text(
+                "{"
+                '"html_share_card_policy": {'
+                '"status": "retired_except_proof_poster",'
+                '"allowed_material_types": ["proof-poster"],'
+                '"reason": "social/editorial html variants duplicate proof poster"'
+                "}"
+                "}"
+            )
+
+            self.assertIn("duplicate proof poster", html_share_card_block_reason(brand_dir, "social"))
+            self.assertIn("duplicate proof poster", html_share_card_block_reason(brand_dir, "editorial-card"))
+            self.assertEqual(html_share_card_block_reason(brand_dir, "proof-poster"), "")
+
+
 class ShareCardPayloadTests(unittest.TestCase):
+    @patch("brand_gen.card_builder.resolve_brand_asset_paths")
+    @patch("brand_gen.card_builder.load_brand_memory")
+    @patch("brand_gen.card_builder.validate_brand_workspace_dir")
+    @patch("brand_gen.card_builder.fetch_card_page_data")
+    def test_no_source_proof_poster_does_not_inherit_prompt_share_template(
+        self,
+        mock_fetch_sage,
+        mock_validate,
+        mock_load_memory,
+        mock_resolve_assets,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            brand_dir = Path(tmp)
+            mock_validate.return_value = brand_dir
+            mock_load_memory.return_value = (
+                None,
+                None,
+                {"brand_name": "Sage"},
+                {
+                    "web_artifact_share_templates": {
+                        "prompt": {
+                            "selected_surface_strategy": "editorial_poster",
+                            "preferred_composition_mode": "detail_matrix",
+                            "detail_label": "Prompt structure",
+                        }
+                    }
+                },
+            )
+            mock_resolve_assets.return_value = []
+            mock_fetch_sage.return_value = {"title": "", "description": "", "h1": "", "h2": "", "lines": []}
+            card = build_web_app_share_card_payload(
+                {
+                    "brand_dir": str(brand_dir),
+                    "material_type": "proof-poster",
+                    "render_backend": "html",
+                    "plan": {
+                        "purpose": "Proof poster about Sage Manifests as the concrete value artifact.",
+                        "target_surface": "X / web share proof poster",
+                        "product_truth_expression": "Sage Manifest packages prompts, skills, MCP tools, and behaviors for agents.",
+                    },
+                    "raw_prompt": "Make a Sage Manifest proof poster, not a prompt share card.",
+                    "design_variance": 5,
+                }
+            )
+
+        self.assertEqual(card.entity_type, "artifact")
+        self.assertEqual(card.selected_surface_strategy, "operator_proof_board")
+        self.assertEqual(card.composition_mode, "operator_workflow")
+        self.assertEqual(card.proof_title, "Sage Manifest")
+        self.assertIn("prompts, skills, MCP tools, and behaviors", card.proof_excerpt)
+        self.assertNotEqual(card.proof_title, "Prompt Coverage")
+        self.assertNotIn("Reusable prompts and capabilities distributed", card.proof_excerpt)
+
+    @patch("brand_gen.card_builder.resolve_brand_asset_paths")
+    @patch("brand_gen.card_builder.load_brand_memory")
+    @patch("brand_gen.card_builder.validate_brand_workspace_dir")
+    @patch("brand_gen.card_builder.fetch_card_page_data")
+    def test_no_source_social_uses_material_strategy_instead_of_prompt_template(
+        self,
+        mock_fetch_sage,
+        mock_validate,
+        mock_load_memory,
+        mock_resolve_assets,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            brand_dir = Path(tmp)
+            mock_validate.return_value = brand_dir
+            mock_load_memory.return_value = (
+                None,
+                None,
+                {"brand_name": "Sage"},
+                {
+                    "web_artifact_share_templates": {
+                        "prompt": {
+                            "selected_surface_strategy": "editorial_poster",
+                            "preferred_composition_mode": "detail_matrix",
+                        }
+                    }
+                },
+            )
+            mock_resolve_assets.return_value = []
+            mock_fetch_sage.return_value = {"title": "", "description": "", "h1": "", "h2": "", "lines": []}
+            card = build_web_app_share_card_payload(
+                {
+                    "brand_dir": str(brand_dir),
+                    "material_type": "social",
+                    "render_backend": "html",
+                    "plan": {
+                        "purpose": "Square social capability-family card with deterministic labels.",
+                        "target_surface": "X/social square",
+                        "product_truth_expression": "Prompts, skills, MCP tools, and behaviors as reusable capabilities.",
+                    },
+                    "raw_prompt": "Prompts / Skills / MCP tools / Behaviors capability family card.",
+                    "design_variance": 5,
+                }
+            )
+
+        self.assertEqual(card.entity_type, "artifact")
+        self.assertEqual(card.selected_surface_strategy, "capability_card")
+        self.assertNotEqual(card.composition_mode, "detail_matrix")
+        self.assertNotEqual(card.proof_title, "Prompt Coverage")
+
     @patch("brand_gen.card_builder.resolve_brand_asset_paths")
     @patch("brand_gen.card_builder.load_brand_memory")
     @patch("brand_gen.card_builder.validate_brand_workspace_dir")
@@ -89,6 +211,82 @@ class ShareCardPayloadTests(unittest.TestCase):
         self.assertNotEqual(card.proof_excerpt.strip(), "")
         self.assertIn(card.composition_mode, {"statement_poster", "prompt_sheet", "artifact_monolith", "reference_sheet"})
         self.assertEqual(card.logo_path, str(logo_path))
+
+    @patch("brand_gen.card_builder.resolve_brand_asset_paths")
+    @patch("brand_gen.card_builder.load_brand_memory")
+    @patch("brand_gen.card_builder.validate_brand_workspace_dir")
+    @patch("brand_gen.card_builder.fetch_card_page_data")
+    def test_proof_poster_curates_workflow_board_payload(
+        self,
+        mock_fetch_sage,
+        mock_validate,
+        mock_load_memory,
+        mock_resolve_assets,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            brand_dir = Path(tmp)
+            mock_validate.return_value = brand_dir
+            mock_load_memory.return_value = (None, None, {"brand_name": "Sage"}, {})
+            mock_resolve_assets.return_value = []
+            mock_fetch_sage.return_value = {"title": "", "description": "", "h1": "", "h2": "", "lines": []}
+            card = build_web_app_share_card_payload(
+                {
+                    "brand_dir": str(brand_dir),
+                    "material_type": "proof-poster",
+                    "render_backend": "html",
+                    "entity_type": "skill",
+                    "source_url": "https://app.sageprotocol.io",
+                    "headline": "Create a high-signal Sage brand proof poster that turns the supplied X Intel Briefing / x-feed-parser / x-query-expansion skill bundle into a crisp operator-facing visual: artifact-led search, signal scoring, corroboration, deduplication, and concise action-oriented briefing output.",
+                    "proof_title": "X Intel Briefing",
+                    "proof_meta": ["Sage Protocol · Private Preview", "Access password", "Enter your preview code to continue."],
+                    "proof_excerpt": "Timeline + bookmarks + targeted search → artifact extraction → scored claims → repo/docs corroboration → operator brief.",
+                    "proof_row": "What matters · what to try · what to ignore",
+                    "raw_prompt": "Create a proof poster for X Intel Briefing. Use five evidence rows: Ingest, Clean, Extract, Score, Corroborate.",
+                }
+            )
+        self.assertEqual(card.headline, "Artifact-led intelligence beats feed noise.")
+        self.assertEqual(card.selected_surface_strategy, "operator_proof_board")
+        self.assertEqual(card.composition_mode, "operator_workflow")
+        self.assertEqual(card.layout_spec.canvas_preset, "wide")
+        self.assertIn("Clean:", card.proof_excerpt)
+        self.assertIn("Corroborate:", card.proof_excerpt)
+        self.assertNotIn("Private Preview", " ".join(card.proof_meta))
+        self.assertNotIn("Access password", " ".join(card.proof_meta))
+        self.assertNotIn("Procedure", " ".join(card.proof_meta))
+
+    @patch("brand_gen.card_builder._local_sage_skill_keys", return_value=["x-intel-briefing", "x-feed-parser"])
+    @patch("brand_gen.card_builder.resolve_brand_asset_paths")
+    @patch("brand_gen.card_builder.load_brand_memory")
+    @patch("brand_gen.card_builder.validate_brand_workspace_dir")
+    @patch("brand_gen.card_builder.fetch_card_page_data")
+    def test_proof_poster_auto_links_named_skill_source_for_qr(
+        self,
+        mock_fetch_sage,
+        mock_validate,
+        mock_load_memory,
+        mock_resolve_assets,
+        _mock_local_keys,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            brand_dir = Path(tmp)
+            mock_validate.return_value = brand_dir
+            mock_load_memory.return_value = (None, None, {"brand_name": "Sage"}, {})
+            mock_resolve_assets.return_value = []
+            mock_fetch_sage.return_value = {"title": "", "description": "", "h1": "", "h2": "", "lines": []}
+            card = build_web_app_share_card_payload(
+                {
+                    "brand_dir": str(brand_dir),
+                    "material_type": "proof-poster",
+                    "render_backend": "html",
+                    "entity_type": "skill",
+                    "source_url": "",
+                    "proof_title": "X Intel Briefing",
+                    "raw_prompt": "Make an operator proof poster for the x-intel skill bundle.",
+                }
+            )
+
+        self.assertEqual(card.source_url, "https://app.sageprotocol.io/skills/x-intel-briefing")
+        mock_fetch_sage.assert_called_once_with("https://app.sageprotocol.io/skills/x-intel-briefing", "skill")
 
     def test_layout_warning_flags_dense_prompt_cards(self):
         card = ShareCardPayload(
@@ -204,6 +402,77 @@ class ExecuteHtmlScratchpadTests(unittest.TestCase):
             self.assertTrue((brand_dir / entry["files"][0]).exists())
             self.assertTrue(Path(entry["html_path"]).exists())
 
+    @patch("brand_gen.html_share_cards.write_pipeline_qa_report", return_value=("report", "/tmp/qa.md"))
+    @patch("brand_gen.html_share_cards.write_agent_visual_review_packet", return_value=({}, "/tmp/review.json"))
+    @patch("brand_gen.html_share_cards._verify_render", return_value={"passed": True})
+    @patch("brand_gen.html_share_cards.build_web_app_share_card_payload")
+    @patch("brand_gen.html_share_cards.render_html_to_png")
+    @patch("brand_gen.html_share_cards.validate_brand_workspace_dir")
+    def test_execute_html_share_card_supports_carousel_slide(
+        self,
+        mock_validate,
+        mock_render,
+        mock_build_card,
+        _mock_verify,
+        _mock_review,
+        _mock_qa,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            brand_dir = Path(tmp)
+            mock_validate.return_value = brand_dir
+            mock_build_card.return_value = ShareCardPayload(
+                material_type="carousel-slide",
+                surface="carousel slide",
+                entity_type="",
+                source_url="",
+                source_domain="app.sageprotocol.io",
+                page_title="Sage",
+                headline="The library becomes the agent toolkit.",
+                subhead="Reusable capabilities move from Sage libraries into agent runtimes.",
+                cta="",
+                logo_path="",
+                proof_title="",
+                proof_meta=["Skills", "Prompts", "MCP", "Workflows"],
+                proof_excerpt="A curated library turns into reusable capability cards.",
+                proof_row="",
+                proof_crop_path="",
+                proof_weight_guidance="",
+                support_crop_path="",
+                composition_mode="split_editorial",
+                composition_summary="Wide carousel slide",
+                layout_spec=default_layout_spec("carousel-slide"),
+            )
+
+            def _fake_render(html_path: Path, png_path: Path, *, width: int, height: int) -> bool:
+                self.assertEqual((width, height), (1600, 900))
+                Path(png_path).write_bytes(b"fakepng")
+                return True
+
+            mock_render.side_effect = _fake_render
+            vid = execute_html_share_card_scratchpad(
+                {
+                    "schema_type": "generation_scratchpad",
+                    "brand_dir": str(brand_dir),
+                    "material_type": "carousel-slide",
+                    "workflow_mode": "hybrid",
+                    "workflow_id": "wf-carousel",
+                    "tag": "carousel-slide",
+                    "headline": "The library becomes the agent toolkit.",
+                    "execution_prompt": "render html slide",
+                    "effective_prompt": "render html slide",
+                    "raw_prompt": "render html slide",
+                    "selected_reference_ids": [],
+                    "selected_inspiration_ids": [],
+                },
+                workflow_id="wf-carousel",
+            )
+
+            manifest = __import__("brand_gen.runtime", fromlist=["load_manifest"]).load_manifest(brand_dir)
+            entry = manifest["versions"][vid]
+            self.assertEqual(entry["material_type"], "carousel-slide")
+            self.assertEqual(entry["render_backend"], "html")
+            self.assertEqual(_surface_size("carousel-slide", layout_spec=default_layout_spec("carousel-slide")), (1600, 900))
+
 
 class LayoutSpecTests(unittest.TestCase):
     def test_default_social_is_two_column_left(self):
@@ -219,6 +488,14 @@ class LayoutSpecTests(unittest.TestCase):
         self.assertEqual(spec.columns, 2)
         self.assertEqual(spec.canvas_preset, "wide")
         self.assertEqual(spec.padding, "normal")
+
+    def test_default_proof_poster_is_landscape_operator_board(self):
+        spec = default_layout_spec("proof-poster")
+        self.assertEqual(spec.columns, 2)
+        self.assertEqual(spec.proof_position, "right")
+        self.assertEqual(spec.proof_style, "operator")
+        self.assertEqual(spec.canvas_preset, "wide")
+        self.assertEqual(_surface_size("proof-poster", layout_spec=spec), (1600, 900))
 
     def test_default_announcement_low_var_is_centered(self):
         spec = default_layout_spec("announcement-card", 4)
@@ -238,6 +515,18 @@ class LayoutSpecTests(unittest.TestCase):
         self.assertEqual(spec.canvas_preset, "document")
         self.assertEqual(spec.proof_style, "document")
 
+    def test_default_carousel_slide_is_wide_two_column(self):
+        spec = default_layout_spec("carousel-slide")
+        self.assertEqual(spec.columns, 2)
+        self.assertEqual(spec.canvas_preset, "wide")
+        self.assertEqual(_surface_size("carousel-slide", layout_spec=spec), (1600, 900))
+
+    def test_default_content_card_square_stays_square(self):
+        spec = default_layout_spec("content-card-square")
+        self.assertEqual(spec.columns, 2)
+        self.assertEqual(spec.canvas_preset, "square")
+        self.assertEqual(_surface_size("content-card-square", layout_spec=spec), (1200, 1200))
+
     def test_to_dict_from_dict_roundtrip(self):
         original = LayoutSpec(columns=2, alignment="center", accent_style="top-bar", canvas_preset="wide")
         reconstructed = LayoutSpec.from_dict(original.to_dict())
@@ -252,6 +541,141 @@ class LayoutSpecTests(unittest.TestCase):
     def test_from_dict_handles_none(self):
         spec = LayoutSpec.from_dict(None)
         self.assertEqual(spec.columns, 1)
+
+
+class ProofPosterHtmlTests(unittest.TestCase):
+    def test_proof_poster_renders_deterministic_step_tiles_with_source_qr(self):
+        card = ShareCardPayload(
+            material_type="proof-poster",
+            surface="deterministic proof poster",
+            entity_type="skill",
+            source_url="https://app.sageprotocol.io/skills/x-intel",
+            source_domain="app.sageprotocol.io",
+            page_title="X Intel Briefing",
+            headline="Artifact-led intelligence beats feed noise.",
+            subhead="A field workflow for turning X into verified agent-tooling signal.",
+            cta="Open skill",
+            logo_path="",
+            proof_title="X Intel Briefing",
+            proof_meta=["Sage Protocol · Private Preview", "Skill", "Composable"],
+            proof_excerpt="Ingest: timeline + bookmarks + targeted search → Clean: dedupe and normalize source noise → Extract: artifact extraction → Score: scored claims → Corroborate: repo/docs corroboration.",
+            proof_row="What matters · what to try · what to ignore",
+            proof_crop_path="",
+            proof_weight_guidance="",
+            support_crop_path="",
+            detail_label="Skill snapshot",
+            composition_mode="operator_workflow",
+            composition_summary="Landscape operator proof board",
+            selected_surface_strategy="operator_proof_board",
+            layout_spec=default_layout_spec("proof-poster"),
+        )
+        html = compose_share_card_html(card, material_type="proof-poster", asset_names={})
+
+        for label in ["Ingest", "Clean", "Extract", "Score", "Corroborate"]:
+            self.assertIn(label, html)
+        self.assertIn("Skill share card", html)
+        self.assertIn("Sage skill", html)
+        self.assertIn("Use when", html)
+        self.assertIn("Core action", html)
+        self.assertIn("Outcome", html)
+        self.assertIn("Open skill", html)
+        self.assertIn('alt="QR code', html)
+        self.assertNotIn("No native-image text", html)
+        self.assertNotIn("Proof poster", html)
+        self.assertNotIn('class="workflow-step"', html)
+        self.assertNotIn('class="workflow-steps"', html)
+        self.assertNotIn("Landscape operator proof board</div>", html)
+        self.assertNotIn("Private Preview", html)
+
+    def test_proof_poster_does_not_invent_qr_without_source_url(self):
+        card = ShareCardPayload(
+            material_type="proof-poster",
+            surface="deterministic proof poster",
+            entity_type="skill",
+            source_url="",
+            source_domain="app.sageprotocol.io",
+            page_title="X Intel Briefing",
+            headline="Artifact-led intelligence beats feed noise.",
+            subhead="A field workflow for turning X into verified agent-tooling signal.",
+            cta="Open skill",
+            logo_path="",
+            proof_title="X Intel Briefing",
+            proof_meta=["Skill", "Composable"],
+            proof_excerpt="Ingest: timeline + bookmarks → Clean: dedupe feed noise → Extract: claims → Score: confidence → Corroborate: repo/docs.",
+            proof_row="What matters · what to try · what to ignore",
+            proof_crop_path="",
+            proof_weight_guidance="",
+            support_crop_path="",
+            detail_label="Skill snapshot",
+            composition_mode="operator_workflow",
+            composition_summary="Landscape operator proof board",
+            selected_surface_strategy="operator_proof_board",
+            layout_spec=default_layout_spec("proof-poster"),
+        )
+        html = compose_share_card_html(card, material_type="proof-poster", asset_names={})
+
+        self.assertNotIn('alt="QR code', html)
+        self.assertNotIn("Open skill", html)
+        self.assertIn("Deterministic text", html)
+
+    def test_proof_poster_standardizes_different_skill_types(self):
+        cases = [
+            (
+                "Sage P2P",
+                "Direct Sage-to-Sage peer sync with connection strings and trusted machines.",
+                "Private capabilities sync across trusted agents.",
+                "sync trusted machines",
+                "Host",
+            ),
+            (
+                "Sage Library Publishing",
+                "Publish Sage libraries to IPFS and optionally promote the result after verification.",
+                "Libraries become reusable agent capabilities.",
+                "local Sage library is ready",
+                "Push",
+            ),
+            (
+                "Sage Governance Participation",
+                "Governance workflow for DAO discovery, proposal review, voting, and execution.",
+                "Governed capabilities move with consensus.",
+                "DAO/proposal/library decision",
+                "Discover",
+            ),
+        ]
+        for title, excerpt, headline, signal, step in cases:
+            with self.subTest(title=title):
+                card = ShareCardPayload(
+                    material_type="proof-poster",
+                    surface="deterministic skill card",
+                    entity_type="skill",
+                    source_url=f"https://app.sageprotocol.io/skills/{title.lower().replace(' ', '-')}",
+                    source_domain="app.sageprotocol.io",
+                    page_title=title,
+                    headline=headline,
+                    subhead="",
+                    cta="Open skill",
+                    logo_path="",
+                    proof_title=title,
+                    proof_meta=["Skill", "Composable", "Agent-ready"],
+                    proof_excerpt=excerpt,
+                    proof_row="",
+                    proof_crop_path="",
+                    proof_weight_guidance="",
+                    support_crop_path="",
+                    detail_label="Skill snapshot",
+                    composition_mode="operator_workflow",
+                    selected_surface_strategy="operator_proof_board",
+                    layout_spec=default_layout_spec("proof-poster"),
+                )
+                html = compose_share_card_html(card, material_type="proof-poster", asset_names={})
+
+                self.assertIn("Skill share card", html)
+                self.assertIn("Use when", html)
+                self.assertIn("Core action", html)
+                self.assertIn("Outcome", html)
+                self.assertIn(signal, html)
+                self.assertIn(step, html)
+                self.assertNotIn("Proof poster", html)
 
 
 def _make_valid_png(width: int, height: int, *, body_size: int = 8192) -> bytes:
@@ -410,6 +834,29 @@ class CardPluginTests(unittest.TestCase):
         plugin = SageCardPlugin()
         self.assertTrue(plugin.can_handle("https://app.sageprotocol.io/prompts/test", "prompt"))
         self.assertFalse(plugin.can_handle("https://example.com/page", "prompt"))
+
+    def test_sage_plugin_reads_direct_local_skill_for_share_cards(self):
+        from brand_gen.card_plugins.sage import _try_sage_local_skill
+
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            skill_dir = home / ".local/share/sage/skills/sage-p2p"
+            skill_dir.mkdir(parents=True)
+            (skill_dir / "SKILL.md").write_text(
+                "---\n"
+                "name: sage-p2p\n"
+                "description: >\n"
+                "  Direct peer sync for trusted Sage machines.\n"
+                "---\n\n"
+                "# Sage P2P\n\nUse this skill to connect peer daemons.\n"
+            )
+            with patch("brand_gen.card_plugins.sage.Path.home", return_value=home):
+                local = _try_sage_local_skill("sage-p2p")
+
+        self.assertIsNotNone(local)
+        self.assertEqual(local["name"], "sage-p2p")
+        self.assertIn("Direct peer sync", local["description"])
+        self.assertIn("connect peer daemons", local["content"])
 
     def test_plugin_web_fallback_always_handles(self):
         from brand_gen.card_plugins.web import WebCardPlugin

@@ -37,13 +37,14 @@ def _build_derived_video_prompt(source_version: str, source_entry: dict, sidecar
         or ""
     ).strip()
     motion_goal = {
+        "landing-hero": "Animate the approved still into a deployable landing-page hero background/sidecar loop with external hero copy.",
         "short-video": "Create a short branded motion piece from the approved still.",
         "feature-animation": "Animate the approved still into a polished feature reveal.",
         "motion-loop": "Animate the approved still into a seamless branded loop.",
     }.get(material_type, "Animate the approved still into a branded motion derivative.")
     preserve = (
         "Preserve brand palette, composition, visible logos or marks, and product-truth structure. "
-        "Use subtle production-friendly motion and avoid morphing, hallucinated UI, or rewritten text."
+        "Use subtle production-friendly motion and avoid morphing, hallucinated UI, rewritten text, or page chrome."
     )
     return f"{motion_goal} Source still context: {seed} {preserve}".strip() if seed else f"{motion_goal} {preserve}".strip()
 

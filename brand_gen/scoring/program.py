@@ -29,6 +29,9 @@ The output shape exactly matches the v2 critique packet that
 Disqualifier detection in v1: a small separate LM call that reads
 `disqualifier.detection_prompt` and returns a boolean. Isolated from
 axis scoring so a false positive here doesn't poison axis rationales.
+The universal `value_proposition_fidelity` axis is the user-calibrated guard
+for polished-but-wrong Sage outputs; a score of 1 should be treated as a hard
+iteration/rejection signal through min-biased aggregation.
 """
 from __future__ import annotations
 

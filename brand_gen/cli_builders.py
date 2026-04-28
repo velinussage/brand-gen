@@ -883,7 +883,7 @@ def build_create_video_cli(parser: argparse.ArgumentParser, *, inspire_urls: dic
 
 def build_derive_video_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--source-version", required=True, help="Approved still version to animate (e.g. v012)")
-    parser.add_argument("--material-type", choices=["short-video", "feature-animation", "motion-loop"], default="short-video")
+    parser.add_argument("--material-type", choices=["landing-hero", "short-video", "feature-animation", "motion-loop"], default="short-video")
     parser.add_argument("--prompt", help="Optional prompt override for the derivative video")
     parser.add_argument("-m", "--model", help="Optional video model override")
     parser.add_argument("--aspect-ratio", "-ar")

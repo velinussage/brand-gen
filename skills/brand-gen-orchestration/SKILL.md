@@ -31,7 +31,7 @@ Every phase exists for a reason. Preparation prevents repeating mistakes. Planni
 
 After the typed-agentic-runtime refactor (Phases 1-6 of the 2026-04 plan), the entire 6-phase pipeline is exposed as **typed MCP/CLI tools with structured responses**. Pin to these verbs instead of scripting the legacy chain below — the legacy chain is the fallback for CI/scripting, not the primary path.
 
-Architecture docs live in `docs/architecture/`; GEPA/DSPy optimization and disagreement-record fields are documented in `docs/architecture/gepa-dspy-optimization.md`, and curated aesthetic capsules are documented in `docs/architecture/aesthetic-curation.md`.
+Architecture docs live in `docs/architecture/`; GEPA/DSPy optimization and disagreement-record fields are documented in `docs/architecture/gepa-dspy-optimization.md`, and curated aesthetic capsules are documented in `docs/architecture/aesthetic-curation.md`, and per-material prompt profiles are documented in `docs/architecture/material-prompt-profiles.md`.
 
 ### Orchestration (8 verbs — run the pipeline)
 
@@ -68,6 +68,15 @@ bgen evolve-run    # Phase 6 → {learnings_promoted, disagreements_logged, impr
 
 Each response's `next_action` is a direct hint to the next tool. Follow it unless you're intentionally A/B-testing a stage.
 
+
+
+### Material profile rule
+
+Every testing-batch material has a `material_prompt_profile` from `data/material_prompt_profiles.json`. Plans and scratchpads should preserve its job-to-be-done, exact-text policy, allowed reference roles, failure bans, and review focus. If a material behaves poorly, patch the profile instead of adding another long generic agent instruction.
+
+### Sage product-truth rule
+
+For Sage capability materials, lead with agents gaining trusted reusable capabilities from governed skill/prompt libraries. Use allowed nouns such as skill libraries, prompt libraries, skills, prompts, MCP tools, agents, library manifests, curated capabilities, reusable capabilities, and agent workflows. Governance/review/promotion is a trust substrate or badge, not the visual hero, unless the ask explicitly requests governance education or a proposal snapshot. Avoid invented taxonomy (`Prompt Pack`, `System of Provenance`, `Approved Library Update`), fake product modules/screens, and logo-as-content substitutes.
 
 ### Aesthetic capsule rule
 

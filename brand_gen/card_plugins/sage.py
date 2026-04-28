@@ -52,7 +52,10 @@ def _try_sage_local_skill(key: str) -> dict[str, Any] | None:
     import glob as glob_mod
     home = Path.home()
     patterns = [
+        str(home / ".local/share/sage/skills" / key / "SKILL.md"),
         str(home / ".local/share/sage/skills/versions" / key / "*/SKILL.md"),
+        str(home / ".codex/skills" / key / "SKILL.md"),
+        str(home / ".pi/agent/skills" / key / "SKILL.md"),
         str(home / ".claude/plugins/marketplaces/sage-marketplace/plugins" / key / "SKILL.md"),
     ]
     skill_md = ""
@@ -71,14 +74,30 @@ def _try_sage_local_skill(key: str) -> dict[str, Any] | None:
     description = ""
     body_start = 0
     if lines and lines[0].strip() == "---":
+        frontmatter: list[str] = []
         for i, line in enumerate(lines[1:], 1):
             if line.strip() == "---":
                 body_start = i + 1
                 break
+            frontmatter.append(line)
             if line.startswith("name:"):
                 name = line.split(":", 1)[1].strip() or name
-            elif line.startswith("description:"):
-                description = line.split(":", 1)[1].strip()
+        for idx, line in enumerate(frontmatter):
+            if not line.startswith("description:"):
+                continue
+            value = line.split(":", 1)[1].strip()
+            if value and value not in {"|", ">", "|-", ">-"}:
+                description = value
+                break
+            collected: list[str] = []
+            for following in frontmatter[idx + 1:]:
+                if re.match(r"^[A-Za-z0-9_-]+:", following):
+                    break
+                cleaned = following.strip()
+                if cleaned:
+                    collected.append(cleaned)
+            description = " ".join(collected).strip()
+            break
     body = "\n".join(lines[body_start:]).strip()
     return {"name": name, "description": description, "content": body}
 

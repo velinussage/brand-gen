@@ -319,7 +319,7 @@ class PromptUpdateTests(unittest.TestCase):
 
         self.assertTrue(any('Policy/setup risk:' in item for item in payload['policy_setup_risks']))
         self.assertTrue(any('lacks a selected `product_truth` role' in item for item in payload['policy_setup_risks']))
-        self.assertTrue(any('requires an approved logo/mark asset' in item for item in payload['policy_setup_risks']))
+        self.assertFalse(any('requires an approved logo/mark asset' in item for item in payload['policy_setup_risks']))
 
     def test_create_material_plan_records_selected_inspiration_metadata(self):
         with tempfile.TemporaryDirectory() as tmpdir, \

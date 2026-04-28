@@ -19,7 +19,12 @@ import argparse
 import time
 from pathlib import Path
 
-from .blackboard import build_blackboard_learning_context, get_blackboard_learning_warnings
+from .blackboard import (
+    build_blackboard_feedback_directives,
+    build_blackboard_learning_context,
+    get_blackboard_learning_warnings,
+)
+from .card_engine import ALLOWED_HTML_MATERIALS
 from .brand_policy import (
     load_inspiration_prompt_context,
     normalize_material_brand_policy,
@@ -27,11 +32,28 @@ from .brand_policy import (
 )
 from .capability_focus import build_capability_focus_context
 from .critique_policy import build_critique_policy
+from .custom_scratchpad import html_share_card_block_reason
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
 from .learnings_memory import load_learnings_memory
 from .aesthetic_archetypes import list_archetypes, pick_rotating_archetype
 from .aesthetic_curation import build_aesthetic_direction_brief, select_aesthetic_capsule
+from .material_prompt_profiles import get_material_prompt_profile
+from .product_truth import (
+    build_product_truth_metadata,
+    render_product_truth_contract,
+    is_sage_capability_context,
+    sage_product_truth_prompt_moves,
+    validate_product_truth_plan,
+)
+from .sage_generation_contract import (
+    apply_sage_brand_anchor_policy,
+    build_sage_vault_brief,
+    repair_stale_sage_plan_contract,
+    resolve_sage_capability_material_type,
+    sage_generation_contract_seed,
+)
 from .plan_validation import (
+    detect_deterministic_text_surface_request,
     normalize_aesthetic_commitment,
     normalize_complexity_tier,
     normalize_visual_density,
@@ -222,6 +244,26 @@ def create_material_plan(
         briefing=briefing or "",
         product_truth_expression=product_truth_expression or "",
     )
+    sage_material_type, sage_material_note = resolve_sage_capability_material_type(
+        material_type,
+        brand_dir=brand_dir,
+        identity=identity,
+        purpose=purpose or "",
+        target_surface=target_surface or "",
+        prompt_seed=prompt_seed or "",
+        briefing=briefing or "",
+        product_truth_expression=product_truth_expression or "",
+        render_backend=render_backend,
+        source_url=source_url,
+        entity_type=entity_type,
+    )
+    if sage_material_type != material_type:
+        material_type = sage_material_type
+        material_type_resolution_note = " ".join(
+            part.strip()
+            for part in [material_type_resolution_note, sage_material_note]
+            if part and part.strip()
+        )
 
     candidates = suggest_reference_role_pack(brand_dir, material_type)
     configured_required_roles = list(candidates.get("required_roles") or [])
@@ -309,6 +351,7 @@ def create_material_plan(
     missing_required = [role for role in enforced_required_roles if role not in selected_role_names]
     role_pack_requirement_mode = "advisory_inspiration_fallback" if relaxed_role_pack_gate else "strict"
     learning_context = build_blackboard_learning_context(brand_dir, material_type)
+    feedback_directives = build_blackboard_feedback_directives(brand_dir, material_type)
     illustration_inspiration_required = bool(
         illustration_only
         or role_pack_material_key(material_type) in {
@@ -328,10 +371,17 @@ def create_material_plan(
         source_version="",
         board=None,
     )
+    learned_setup_warnings = dedupe_keep_order(
+        list(learned_setup_warnings) + list(feedback_directives.get("warnings") or [])
+    )
     policy = normalize_material_brand_policy(material_type, identity=identity)
     preserve = preserve or [policy.get("product_truth_expression") or "stored brand palette, mark recognition, and real product truth"]
     push = push or ["clear focal hierarchy and one stronger composition move"]
     ban = ban or ["generic off-brand decoration or invented product chrome"]
+    if feedback_directives.get("push"):
+        push = dedupe_keep_order(list(push or []) + list(feedback_directives["push"]))
+    if feedback_directives.get("ban"):
+        ban = dedupe_keep_order(list(ban or []) + list(feedback_directives["ban"]))
     if purpose:
         policy["purpose"] = purpose
     if target_surface:
@@ -351,14 +401,108 @@ def create_material_plan(
         push = dedupe_keep_order(list(push or []) + [capability_focus["directive"]])
     if capability_focus.get("avoid_repeating_linear_story"):
         ban = dedupe_keep_order(list(ban or []) + ["single repeated linear process diagram as the whole story"])
+    _truth_seed_plan = {
+        "brand_dir": str(brand_dir),
+        "material_type": material_type,
+        "purpose": policy.get("purpose") or "",
+        "target_surface": policy.get("target_surface") or "",
+        "product_truth_expression": policy.get("product_truth_expression") or "",
+        "prompt_seed": prompt_seed or briefing or "",
+    }
+    _truth_moves = sage_product_truth_prompt_moves(_truth_seed_plan, identity=identity)
+    if _truth_moves.get("push"):
+        push = dedupe_keep_order(list(push or []) + list(_truth_moves["push"]))
+    if _truth_moves.get("ban"):
+        ban = dedupe_keep_order(list(ban or []) + list(_truth_moves["ban"]))
+
+    profile_for_vault = load_json_file(brand_dir / "brand-profile.json")
+    if not isinstance(profile_for_vault, dict):
+        profile_for_vault = {}
+    sage_vault_brief = build_sage_vault_brief(
+        brand_dir=brand_dir,
+        profile=profile_for_vault,
+        identity=identity,
+        material_type=material_type,
+        purpose=policy.get("purpose") or "",
+        target_surface=policy.get("target_surface") or "",
+        product_truth_expression=policy.get("product_truth_expression") or product_truth_expression or "",
+        prompt_seed=prompt_seed or "",
+        briefing=briefing or "",
+    )
+    if sage_vault_brief.get("applies"):
+        policy = apply_sage_brand_anchor_policy(policy, sage_vault_brief)
+        contract_expression = " — ".join(
+            item
+            for item in [
+                str(sage_vault_brief.get("source_truth_phrase") or "").strip(),
+                str(sage_vault_brief.get("adoption_scene") or "").strip(),
+            ]
+            if item
+        )
+        current_truth = str(policy.get("product_truth_expression") or "").strip()
+        if not product_truth_expression or current_truth.lower().startswith(
+            (
+                "one explicit brand metaphor",
+                "one specific product or protocol mechanic",
+                "the brand's work should still feel implied",
+                "one actual workflow",
+                "a concrete brand theme",
+            )
+        ):
+            policy["product_truth_expression"] = contract_expression or current_truth
+        elif contract_expression and sage_vault_brief.get("source_truth_phrase") not in current_truth:
+            policy["product_truth_expression"] = f"{current_truth}; {contract_expression}"
+        push = dedupe_keep_order(
+            list(push or [])
+            + [
+                f"Use vault-sourced Sage phrase: {sage_vault_brief.get('source_truth_phrase')}.",
+                f"Make the adoption/use scene concrete: {sage_vault_brief.get('adoption_scene')}.",
+            ]
+        )
+        ban = dedupe_keep_order(list(ban or []) + list(sage_vault_brief.get("hard_bans") or []))
 
     resolved_render_backend = "html" if str(render_backend or "").strip().lower() == "html" else "native"
     resolved_entity_type = str(entity_type or "").strip().lower()
     resolved_source_url = str(source_url or "").strip()
+    if resolved_render_backend == "html" and not resolved_entity_type and not resolved_source_url:
+        resolved_entity_type = "artifact"
     resolved_design_variance = max(1, min(int(design_variance or 5), 10))
     resolved_complexity_tier = normalize_complexity_tier(complexity_tier, material_type=material_type)
     resolved_visual_density = normalize_visual_density(visual_density, material_type=material_type)
+    if visual_density in (None, "") and feedback_directives.get("visual_density_cap"):
+        resolved_visual_density = min(resolved_visual_density, int(feedback_directives["visual_density_cap"]))
+    if not complexity_tier and feedback_directives.get("complexity_tier_hint"):
+        hinted_tier = normalize_complexity_tier(str(feedback_directives["complexity_tier_hint"]), material_type=material_type)
+        if hinted_tier:
+            resolved_complexity_tier = hinted_tier
     resolved_aesthetic_commitment = normalize_aesthetic_commitment(aesthetic_commitment)
+    material_prompt_profile = get_material_prompt_profile(material_type) or {}
+    text_rendering_strategy = ""
+    html_policy_block = (
+        ""
+        if resolved_render_backend == "html"
+        else html_share_card_block_reason(brand_dir, material_type)
+    )
+    if (
+        resolved_render_backend != "html"
+        and not html_policy_block
+        and material_type in ALLOWED_HTML_MATERIALS
+        and detect_deterministic_text_surface_request(
+            {
+                "material_type": material_type,
+                "prompt_seed": prompt_seed or briefing or "",
+                "purpose": policy.get("purpose") or "",
+                "target_surface": policy.get("target_surface") or "",
+                "product_truth_expression": policy.get("product_truth_expression") or "",
+                "preserve": preserve or [],
+                "push": push or [],
+                "ban": ban or [],
+            },
+            material_type=material_type,
+        )
+    ):
+        resolved_render_backend = "html"
+        text_rendering_strategy = "html"
     # Aesthetic archetype: rotate across the material's archetype library so
     # no single paradigm fossilizes (addresses v181/v182 "same mood prose"
     # defaults). Read rotation window from iteration memory.
@@ -424,6 +568,20 @@ def create_material_plan(
         seed = f"{seed} {capability_focus['directive']}".strip()
     if not prompt_seed and memory_seed_prompt:
         seed = f"{seed} {memory_seed_prompt}".strip()
+    contract_seed = sage_generation_contract_seed(sage_vault_brief)
+    if contract_seed and contract_seed not in seed:
+        seed = f"{seed} {contract_seed}".strip()
+    _product_truth_plan = {
+        **_truth_seed_plan,
+        "product_truth_expression": policy.get("product_truth_expression") or "",
+        "prompt_seed": seed,
+        "preserve": preserve or [],
+        "push": push or [],
+        "ban": ban or [],
+    }
+    product_truth_contract = render_product_truth_contract(_product_truth_plan, identity=identity)
+    product_truth_metadata = build_product_truth_metadata(_product_truth_plan, identity=identity)
+    product_truth_validation = validate_product_truth_plan(_product_truth_plan, identity=identity)
 
     plan = {
         "version": 2,
@@ -439,6 +597,7 @@ def create_material_plan(
         },
         "mode": mode,
         "render_backend": resolved_render_backend,
+        "text_rendering_strategy": text_rendering_strategy,
         "source_url": resolved_source_url,
         "entity_type": resolved_entity_type,
         "purpose": policy.get("purpose") or "",
@@ -457,6 +616,12 @@ def create_material_plan(
         "design_variance": resolved_design_variance,
         "complexity_tier": resolved_complexity_tier,
         "visual_density": resolved_visual_density,
+        "material_prompt_profile": material_prompt_profile,
+        "product_truth_contract": product_truth_contract,
+        "product_truth_metadata": product_truth_metadata,
+        "product_truth_validation": product_truth_validation,
+        "sage_vault_brief": sage_vault_brief if sage_vault_brief.get("applies") else {},
+        "sage_generation_contract": sage_vault_brief if sage_vault_brief.get("applies") else {},
         "aesthetic_commitment": resolved_aesthetic_commitment or "",
         "aesthetic_capsule": _resolved_capsule or None,
         "aesthetic_capsule_id": (_resolved_capsule or {}).get("id") or "",
@@ -519,6 +684,7 @@ def create_material_plan(
         "inspiration_memory_summary": str(inspiration_memory.get("summary") or ""),
         "inspiration_memory_seed_prompt": memory_seed_prompt,
         "learning_context": learning_context,
+        "feedback_directives": feedback_directives,
         "learned_setup_warnings": learned_setup_warnings,
         "prompt_seed": seed,
         "inspiration_translation": build_inspiration_translation_summary(selected_roles),
@@ -540,6 +706,12 @@ def create_material_plan(
     }
     if set_membership:
         plan["set_membership"] = set_membership
+    if is_sage_capability_context(identity=identity, plan=plan):
+        plan, repair_warnings = repair_stale_sage_plan_contract(plan)
+        if repair_warnings:
+            plan["learned_setup_warnings"] = dedupe_keep_order(
+                list(plan.get("learned_setup_warnings") or []) + repair_warnings
+            )
     return plan, missing_required
 
 
@@ -709,7 +881,7 @@ def build_route_payload(args, brand_dir: Path, profile: dict, identity: dict) ->
     # default route doesn't match intent.  Re-run with --route <key>.
     if illustration_only and role_pack_material_key(getattr(args, "material_type", None)) in {"browser_illustration", "feature_illustration", "landing_hero", "product_banner", "terminal_hero", "command_illustration"}:
         result.setdefault("warnings", []).append(
-            "Illustration-only intent conflicts with an interface/page-adjacent material type. Prefer a standalone illustration material such as system-explainer-illustration or editorial-metaphor-illustration unless the user explicitly wants the page/UI itself."
+            "Illustration-only intent conflicts with an interface/page-adjacent material type. For static hero sidecar art, prefer website-hero-illustration or another standalone illustration material. Use landing-hero when the desired output is the deployable hero background/sidecar animation, not a full page/UI mockup."
         )
     if route_info.get("method") != "agent_override":
         result["route_candidates"] = build_route_candidates(

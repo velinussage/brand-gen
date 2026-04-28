@@ -12,5 +12,6 @@ This directory is the repo-local architecture home for brand-gen runtime contrac
 - `social-prompt-tuning.md` — v123 Sage social prompt tuning notes.
 - `gepa-dspy-optimization.md` — GEPA/DSPy optimization plan and disagreement-record schema.
 - `aesthetic-curation.md` — curated style/moodboard capsules and brand-local aesthetic preferences.
+- `material-prompt-profiles.md` — per-material prompt contracts, exact-text policies, product-truth/value gates, capsules, bans, and review focus.
 
 When agent prompts need to stay short, link here instead of copying long procedures into `.pi/agents/*.md`.

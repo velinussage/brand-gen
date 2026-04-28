@@ -18,7 +18,8 @@
     "prompt_sheet": "prompt_sheet",
     "statement_poster": "statement_poster",
     "split_editorial": "split_editorial",
-    "ledger_snapshot": "utility_sidebar"
+    "ledger_snapshot": "utility_sidebar",
+    "operator_workflow": "operator_workflow"
   },
   "composition_profiles": {
     "statement_poster": {
@@ -140,6 +141,19 @@
         "top-left logo",
         "top-right QR",
         "stacked reading sheets"
+      ]
+    },
+    "operator_workflow": {
+      "summary": "Landscape operator proof board with concise title field and a deterministic five-step workflow module.",
+      "asset_slots": [
+        "logo_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "reserved_zones": [
+        "top-left logo",
+        "right workflow proof module",
+        "bottom provenance rail"
       ]
     }
   },
@@ -354,9 +368,67 @@
         5,
         10
       ]
+    },
+    "operator_proof_board": {
+      "label": "Operator proof board",
+      "summary": "Use a landscape board for workflow/product-truth-sensitive proof: concise title on the left, deterministic five-step proof module on the right, with a small source QR only when a real source URL exists.",
+      "layout_family": "operator_workflow",
+      "composition_modes": [
+        "operator_workflow",
+        "detail_matrix",
+        "split_editorial"
+      ],
+      "asset_slots": [
+        "logo_block",
+        "qr_block",
+        "brand_motif",
+        "accent_rule"
+      ],
+      "prompt_directive": "For workflow proof, choose a landscape operator board: concise headline, one large deterministic proof module, five readable step tiles, and no footer chrome. Include a small QR/source affordance only when a real source URL is supplied; never invent QR/private-access chrome.",
+      "best_for_material_types": [
+        "proof-poster"
+      ],
+      "best_for_entity_types": [
+        "skill",
+        "prompt",
+        "library",
+        "update"
+      ],
+      "preferred_source_shapes": [
+        "product_detail",
+        "source_resolved_text",
+        "governed_text",
+        "generic"
+      ],
+      "supports_exact_text": true,
+      "experimental_range": [
+        1,
+        10
+      ]
     }
   },
   "matches": [
+    {
+      "when": {
+        "render_backends": [
+          "html"
+        ],
+        "material_types": [
+          "proof-poster"
+        ],
+        "entity_types": [
+          "prompt",
+          "skill",
+          "library",
+          "update"
+        ]
+      },
+      "strategies": [
+        "operator_proof_board",
+        "compact_proof_card",
+        "editorial_poster"
+      ]
+    },
     {
       "when": {
         "render_backends": [

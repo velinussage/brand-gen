@@ -456,7 +456,7 @@ bgen critique-rubric v12 --dspy-scorer --format json
 
 The v2 packet includes:
 
-- `axis_scores` — universal 5 + material overlay axes (`surface_fit`, `system_logic_visible`, etc.)
+- `axis_scores` — universal 6 + material overlay axes (`value_proposition_fidelity`, `surface_fit`, `system_logic_visible`, etc.)
 - `axis_rationales` — 1-2 sentence explanation per axis
 - `overall_score` — min-biased aggregation
 - `decision` — `approve` / `iterate` / `reject`
@@ -513,4 +513,3 @@ Use Sonnet 4.5 when Haiku plateaus on calibration (rising `calibration_failure` 
       open(path, 'w').write(new)
   "
   ```
-

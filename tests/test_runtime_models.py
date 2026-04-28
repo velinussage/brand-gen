@@ -5,8 +5,11 @@ from pathlib import Path
 
 from brand_gen.runtime_models import (
     COPY_BEARING_MATERIALS,
+    DEPRECATED_MATERIAL_TYPES,
     MATERIAL_CONFIG,
+    MATERIAL_SET_TEMPLATES,
     MODELS,
+    SOCIAL_SPECS,
     material_uses_canonical_gpt_image_2,
     recommend_text_model,
     resolve_default_model,
@@ -86,6 +89,32 @@ class CopyBearingDefaultModelTests(unittest.TestCase):
             "device-mockup", "image", "hybrid", [Path("ref.png")]
         )
         self.assertEqual(model, "flux-2-flex")
+
+    def test_landing_hero_is_seedance_video_background_asset(self):
+        self.assertEqual(MATERIAL_CONFIG["landing-hero"]["generation_mode"], "video")
+        self.assertEqual(MATERIAL_CONFIG["landing-hero"]["default_model"], "seedance-2-pro")
+        self.assertEqual(MATERIAL_CONFIG["landing-hero"]["default_aspect_ratio"], "16:9")
+        self.assertEqual(MATERIAL_CONFIG["landing-hero"]["default_resolution"], "720p")
+        self.assertEqual(MATERIAL_CONFIG["landing-hero"]["default_duration"], 5)
+        self.assertEqual(SOCIAL_SPECS["landing-hero"]["width"], 1600)
+        self.assertEqual(SOCIAL_SPECS["landing-hero"]["height"], 900)
+        self.assertIn("MP4", SOCIAL_SPECS["landing-hero"]["notes"])
+
+    def test_bumper_animation_is_deprecated_and_not_recommended_in_sets(self):
+        self.assertEqual(DEPRECATED_MATERIAL_TYPES["bumper-animation"]["prefer"], "feature-animation")
+        for template in MATERIAL_SET_TEMPLATES.values():
+            material_types = [item.get("material_type") for item in template.get("materials", [])]
+            self.assertNotIn("bumper-animation", material_types)
+
+    def test_proof_poster_defaults_to_landscape_operator_board(self):
+        self.assertEqual(MATERIAL_CONFIG["proof-poster"]["default_aspect_ratio"], "16:9")
+        self.assertEqual(SOCIAL_SPECS["proof-poster"]["width"], 1600)
+        self.assertEqual(SOCIAL_SPECS["proof-poster"]["height"], 900)
+        self.assertEqual(SOCIAL_SPECS["proof-poster"]["aspect_ratio"], "16:9")
+
+    def test_x_feed_variants_are_copy_bearing_for_text_safe_defaults(self):
+        for material_type in ("x-feed", "x-feed-square", "x-feed-portrait", "linkedin-feed", "linkedin-feed-square", "linkedin-feed-portrait"):
+            self.assertIn(material_type, COPY_BEARING_MATERIALS)
 
 
 class RecommendTextModelTests(unittest.TestCase):

@@ -36,6 +36,16 @@ from .pattern_discovery import discover_prompt_patterns
 from .prompt_block import PromptBlock, blocks_from_sections, evict_to_budget
 from .runtime import *
 from .runtime_brand import load_material_snippets, load_prompt_budget, load_prompt_fragments
+from .material_prompt_profiles import get_material_prompt_profile, render_material_prompt_profile
+from .product_truth import (
+    build_product_truth_metadata,
+    render_product_truth_contract,
+    validate_product_truth_plan,
+)
+from .sage_generation_contract import (
+    render_sage_generation_contract,
+    rewrite_sage_explanatory_brand_prelude,
+)
 
 __all__ = [
     # Prompt building
@@ -49,7 +59,10 @@ __all__ = [
     "material_group_for_prompt_review",
     # Execution prompt
     "build_execution_prompt",
+    "compact_execution_product_truth_contract",
+    "compact_execution_sage_generation_contract",
     "compact_execution_material_policy",
+    "compact_execution_material_profile",
     "compact_execution_brand_anchor",
     "compact_execution_copy_rule",
     "compact_execution_critical_bans",
@@ -151,6 +164,9 @@ def build_effective_prompt(
     target_surface: str | None = None,
     aesthetic_archetype: dict | None = None,
     aesthetic_capsule: dict | None = None,
+    material_prompt_profile: dict | None = None,
+    sage_generation_contract: dict | None = None,
+    product_truth_expression: str | None = None,
     prompt_subject: str | None = None,
     prompt_style_descriptors: str | None = None,
     prompt_lighting: str | None = None,
@@ -161,11 +177,49 @@ def build_effective_prompt(
     aesthetic_commitment: str | None = None,
 ) -> dict:
     reference_analysis = reference_analysis or {}
+    product_truth_plan = {
+        "brand_dir": str(brand_dir or ""),
+        "material_type": material_type or "",
+        "purpose": purpose or "",
+        "target_surface": target_surface or "",
+        "product_truth_expression": product_truth_expression or "",
+        "prompt_seed": body or "",
+    }
+    product_truth_contract = "" if disable_brand_guardrails else render_product_truth_contract(product_truth_plan, identity=identity)
+    product_truth_validation = (
+        {"applies": False, "errors": [], "warnings": [], "counts": {}}
+        if disable_brand_guardrails
+        else validate_product_truth_plan(product_truth_plan, identity=identity)
+    )
+    product_truth_metadata = (
+        {"applies": False}
+        if disable_brand_guardrails
+        else build_product_truth_metadata(product_truth_plan, identity=identity)
+    )
+    sage_contract_payload = sage_generation_contract if isinstance(sage_generation_contract, dict) else {}
+    sage_contract_block = "" if disable_brand_guardrails else render_sage_generation_contract(sage_contract_payload)
     analysis_mode = reference_analysis_mode(reference_analysis)
     analysis_confidence = reference_analysis_confidence(reference_analysis)
     brand_policy = normalize_material_brand_policy(material_type, identity=identity)
+    resolved_material_prompt_profile = material_prompt_profile if isinstance(material_prompt_profile, dict) and material_prompt_profile else (get_material_prompt_profile(material_type) or {})
     brand_prelude = "" if disable_brand_guardrails else get_base_brand_guardrail_prelude(profile, identity, material_type)
+    if sage_contract_block:
+        brand_prelude = rewrite_sage_explanatory_brand_prelude(brand_prelude, sage_contract_payload)
     material_key, material_variant, material_snippet = ("", "", "") if disable_brand_guardrails else resolve_material_prompt_snippet(profile, identity, material_type, workflow_mode)
+    product_truth_prelude_contract = ""
+    if product_truth_metadata.get("applies"):
+        # Keep product truth as structured metadata instead of a long contract
+        # in the broad resolved_prompt. The execution prompt renders a compact
+        # contract from this same metadata; the full contract remains available
+        # in context for audits/validation.
+        product_truth_prelude_contract = (
+            "Sage product-truth metadata: "
+            f"hero={product_truth_metadata.get('hero_value')}; "
+            "proof=library manifest/skill card/MCP tool/workflow card; "
+            "avoid=fake taxonomy/screens/logo-as-hero."
+        )
+    elif product_truth_contract:
+        product_truth_prelude_contract = cap_text_at_sentence(product_truth_contract, 240)
     iteration_memory_snippet = "" if disable_brand_guardrails or not brand_dir else build_iteration_memory_snippet(brand_dir, material_type)
     custom_scratchpad_snippet = "" if disable_brand_guardrails or not brand_dir else build_custom_scratchpad_snippet(brand_dir, material_type)
     if role_pack_override is not None:
@@ -193,7 +247,7 @@ def build_effective_prompt(
             )
         elif analysis_mode == "unavailable":
             reference_analysis_warning = (
-                "Reference analysis is unavailable; treat reference-role guidance as low-confidence until analysis is attached."
+                "Reference analysis unavailable; using explicit reference paths without role-analysis detail."
             )
     inspiration = load_inspiration_prompt_context(
         brand_gen_dir=brand_gen_dir,
@@ -353,13 +407,15 @@ def build_effective_prompt(
             iteration_memory_snippet.strip(),
             custom_scratchpad_snippet.strip(),
             blackboard_learning_snippet.strip(),
+            sage_contract_block.strip(),
+            product_truth_prelude_contract.strip(),
+            image_safety_snippet.strip(),
             material_snippet.strip(),
             role_pack_snippet.strip(),
             reference_analysis_snippet.strip(),
             inspiration_memory_snippet.strip(),
             selected_inspiration_translation.strip(),
             doctrine.strip(),
-            image_safety_snippet.strip(),
             non_interface_quality_snippet.strip(),
         ]
         if part and part.strip()
@@ -381,6 +437,13 @@ def build_effective_prompt(
         "material_prompt_key": material_key,
         "material_prompt_variant": material_variant,
         "material_prompt_snippet": material_snippet,
+        "material_prompt_profile": resolved_material_prompt_profile,
+        "sage_generation_contract": sage_contract_payload,
+        "sage_generation_contract_block": sage_contract_block,
+        "product_truth_expression": product_truth_expression or "",
+        "product_truth_contract": product_truth_contract,
+        "product_truth_metadata": product_truth_metadata,
+        "product_truth_validation": product_truth_validation,
         "render_backend": str(render_backend or ""),
         "source_url": str(source_url or ""),
         "entity_type": str(entity_type or ""),
@@ -656,7 +719,74 @@ def compact_execution_material_policy(material_snippet: str, material_key: str) 
     return "Material policy: " + " ".join(selected[:2]).strip()
 
 
+def compact_execution_product_truth_contract(context: dict) -> str:
+    text = str(context.get("product_truth_contract") or "").strip()
+    metadata = context.get("product_truth_metadata") if isinstance(context.get("product_truth_metadata"), dict) else {}
+    if not text and not metadata.get("applies"):
+        return ""
+    validation = context.get("product_truth_validation") if isinstance(context.get("product_truth_validation"), dict) else {}
+    if validation.get("applies") or metadata.get("applies"):
+        def _short(value: str, limit: int) -> str:
+            cleaned = re.sub(r"\s+", " ", str(value or "").strip())
+            return cap_text_at_sentence(cleaned, limit).rstrip(".")
+
+        hero = _short(
+            metadata.get("hero_value")
+            or "agents gaining trusted reusable capabilities from governed skill/prompt libraries",
+            96,
+        )
+        artifacts = [
+            _short(str(item), 34)
+            for item in (metadata.get("proof_artifacts") or [])
+            if str(item).strip()
+        ]
+        artifact_clause = ", ".join(artifacts[:3]) if artifacts else "manifest, skill/tool card, workflow card"
+        trust_role = _short(metadata.get("trust_role") or "governance supports trust; do not make it the visual hero", 72)
+        avoid = [
+            _short(str(item), 34)
+            for item in (metadata.get("avoid") or [])
+            if str(item).strip()
+        ]
+        avoid_clause = ", ".join(avoid[:3]) if avoid else "fake taxonomy/screens, logo-as-hero"
+        logo_rule = _short(metadata.get("logo_rule") or "small/subordinate logo", 56)
+        text_rule = str(metadata.get("text_rule") or "").strip()
+        material_key = str(context.get("material_prompt_key") or "")
+        copy_clause = ""
+        if text_rule:
+            copy_clause = " copy=" + _short(text_rule, 90) + "."
+        elif material_key in {"social", "campaign_poster", "proof_poster", "data_card", "process_card", "content_card", "quote_card"}:
+            copy_clause = " copy=exact labels via deterministic overlay, not native image text."
+        return cap_text_at_sentence(
+            f"Sage product-truth: show={hero}; proof={artifact_clause}; "
+            f"trust={trust_role}; avoid={avoid_clause}; logo={logo_rule}."
+            f"{copy_clause}",
+            360,
+        )
+    return cap_text_at_sentence(text, 260)
+
+
+def compact_execution_sage_generation_contract(context: dict) -> str:
+    text = str(context.get("sage_generation_contract_block") or "").strip()
+    if not text:
+        text = render_sage_generation_contract(context.get("sage_generation_contract") or {})
+    if not text:
+        return ""
+    return cap_text_at_sentence(text, 520)
+
+
+def compact_execution_material_profile(context: dict) -> str:
+    return render_material_prompt_profile(context.get("material_prompt_profile") or {})
+
+
 def compact_execution_brand_anchor(context: dict, material_key: str) -> str:
+    sage_contract = context.get("sage_generation_contract") if isinstance(context.get("sage_generation_contract"), dict) else {}
+    if sage_contract.get("applies") and sage_contract.get("logo_rule"):
+        anchors = sage_contract.get("brand_anchor_sources") or []
+        anchor_clause = sentence_join([str(item) for item in anchors[:5]]) if anchors else "palette, motifs, source object, and adoption/use scene"
+        return (
+            "Brand anchor: Sage explanatory assets brand themselves through "
+            f"{anchor_clause}; logo rule: {str(sage_contract.get('logo_rule')).rstrip('.')}."
+        )
     anchor = first_sentence_matching_keywords(
         context.get("brand_prelude") or "",
         [
@@ -701,6 +831,9 @@ def compact_execution_output_spec(context: dict) -> str:
 
 def compact_execution_critical_bans(context: dict, material_key: str) -> str:
     bans: list[str] = []
+    sage_contract = context.get("sage_generation_contract") if isinstance(context.get("sage_generation_contract"), dict) else {}
+    if sage_contract.get("applies"):
+        bans.extend(str(item).strip() for item in (sage_contract.get("hard_bans") or []) if str(item).strip())
     if material_key in INTERFACE_MATERIAL_KEYS:
         bans.append("Do not redraw the product UI or invent extra interface chrome around the real proof.")
     bans.append(
@@ -712,7 +845,7 @@ def compact_execution_critical_bans(context: dict, material_key: str) -> str:
     )
     if explicit:
         bans.insert(0, explicit.rstrip(".") + ".")
-    return "Critical bans: " + " ".join(dedupe_keep_order(bans)[:2]).strip()
+    return "Critical bans: " + " ".join(dedupe_keep_order(bans)[:5]).strip()
 
 
 def compact_execution_reference_caveat(context: dict) -> str:
@@ -724,7 +857,7 @@ def compact_execution_reference_caveat(context: dict) -> str:
             "borrow transferable mechanics only, not literal layout or copy."
         )
     if mode == "unavailable":
-        return "Reference caveat: reference analysis unavailable; keep reference translation conservative."
+        return "Reference caveat: analysis unavailable; use explicit reference paths conservatively."
     if mode == "vlm_augmented" and confidence in {"low", "medium"}:
         return f"Reference caveat: {confidence}-confidence reference analysis; keep translation conservative."
     return ""
@@ -750,8 +883,8 @@ def compact_execution_pattern_discovery(context: dict) -> str:
 # axis definition, because the prompt is push/ban, not rubric prose.
 _OVERLAY_AXIS_PUSH_CLAUSES = {
     # landing-hero
-    "surface_fit": "prove surface_fit: compose like a landing hero (not a social card or ad) — left-column copy supported by right-column art, or full-bleed with clean headline overlay",
-    "meaning_at_glance": "prove meaning_at_glance: a visitor understands the product category in 2-3 seconds; the image does the work, the headline only seals it",
+    "surface_fit": "prove surface_fit: create a landing-page hero media plate, not a social card/ad/full webpage; reserve clean space for external hero copy and keep nav/headline/CTA out of the native asset",
+    "meaning_at_glance": "prove meaning_at_glance: a visitor understands the product category in 2-3 seconds from one purposeful product/workflow motion idea; external headline only seals it",
     # concept/system-explainer
     "system_logic_visible": "prove system_logic_visible: show a visible system (nodes+edges, strata+flow, parts+whole) — not a single symbol floating in space",
     "brand_specificity": "prove brand_specificity: carry THIS brand's declared metaphor vocabulary and material palette, not interchangeable premium-AI-brand art",
@@ -969,10 +1102,13 @@ def build_execution_prompt(
     role_pack = context.get("reference_role_pack") or []
     sections = {
         "intended_output": compact_execution_intended_output(context, material_type),
+        "sage_generation_contract": compact_execution_sage_generation_contract(context),
+        "product_truth_contract": compact_execution_product_truth_contract(context),
         "material_policy": compact_execution_material_policy(context.get("material_prompt_snippet") or "", material_key),
+        "material_profile_block": compact_execution_material_profile(context),
         "brand_anchor_rule": compact_execution_brand_anchor(context, material_key),
         "pattern_discovery_block": compact_execution_pattern_discovery(context),
-        "role_pack_block": compact_role_pack_snippet(role_pack[:1]),
+        "role_pack_block": compact_role_pack_snippet(role_pack[:2]),
         "selected_inspiration_block": compact_execution_selected_inspiration(context),
         "aesthetic_capsule_block": compact_execution_aesthetic_capsule(context),
         "aesthetic_commitment_block": compact_execution_aesthetic_commitment(context),
@@ -989,7 +1125,10 @@ def build_execution_prompt(
     execution_order = [
         "intended_output",
         "five_slot_brief",
+        "sage_generation_contract",
+        "product_truth_contract",
         "material_policy",
+        "material_profile_block",
         "pattern_discovery_block",
         "aesthetic_capsule_block",
         "aesthetic_archetype_block",
@@ -1039,10 +1178,14 @@ def build_execution_prompt(
         prompt_parts.append(sections["intended_output"])
     if sections.get("five_slot_brief"):
         prompt_parts.append(sections["five_slot_brief"])
+    if sections.get("sage_generation_contract"):
+        prompt_parts.append(sections["sage_generation_contract"])
+    if sections.get("product_truth_contract"):
+        prompt_parts.append(sections["product_truth_contract"])
     if compact_body:
         prompt_parts.append(compact_body)
     for section_id in active_prompt_section_ids:
-        if section_id in {"intended_output", "five_slot_brief"}:
+        if section_id in {"intended_output", "five_slot_brief", "sage_generation_contract", "product_truth_contract"}:
             continue
         section_text = sections.get(section_id) or ""
         if section_text:
@@ -1078,6 +1221,20 @@ def build_execution_prompt(
         "body_original_chars": len(raw_prompt.strip()),
         "body_compressed_chars": len(compact_body),
         "prelude_chars": len(prelude),
+        "execution_prompt_metadata": {
+            "product_truth_metadata": context.get("product_truth_metadata") or {},
+            "selected_inspiration_ids": list(context.get("selected_inspiration_ids") or []),
+            "selected_mechanic_ids": list(context.get("selected_mechanic_ids") or []),
+            "reference_roles": [
+                {
+                    "role": item.get("role") or "",
+                    "source_key": item.get("source_key") or "",
+                    "source_name": item.get("source_name") or "",
+                }
+                for item in role_pack
+                if isinstance(item, dict)
+            ],
+        },
     }
 
 
@@ -1247,6 +1404,15 @@ def review_prompt_architecture(
     analysis_confidence = str(context.get("reference_analysis_confidence") or reference_analysis_confidence(context.get("reference_analysis") or {}))
     analysis_warning = str(context.get("reference_analysis_warning") or "").strip()
     issues, recommendations = evaluate_prompt_review_rules(material_key, raw_prompt, context)
+    product_truth_validation = context.get("product_truth_validation") if isinstance(context.get("product_truth_validation"), dict) else {}
+    for issue in product_truth_validation.get("errors") or []:
+        issue = str(issue).strip()
+        if issue and issue not in issues:
+            issues.append(issue)
+    for warning in product_truth_validation.get("warnings") or []:
+        warning = str(warning).strip()
+        if warning and warning not in recommendations:
+            recommendations.append(warning)
     ref_issues, ref_recommendations = reference_analysis_review_notes(context.get("reference_analysis") or {})
     for issue in ref_issues:
         if issue not in issues:

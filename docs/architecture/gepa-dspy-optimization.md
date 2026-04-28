@@ -45,6 +45,7 @@ Track candidate prompt/policy changes with at least these objectives:
 - **Disqualifier precision:** how often hard failures are true blockers rather than over-strict false positives.
 - **Before/after usefulness:** fraction of `before_after_diffs` rows that translate into durable `append-forbidden-pattern` or scratchpad-note mutations.
 - **Exact-text gate precision/recall:** whether exact-text requests are blocked only when deterministic rendering is missing.
+- **Value proposition fidelity:** whether Sage materials show agents gaining trusted reusable capabilities, rather than proposal/governance process, invented taxonomy, generic trust imagery, or logo-as-content substitutes.
 - **Cost/runtime:** total generation + review cost per accepted artifact.
 - **User rejection rate:** post-polish user rejection rate, especially for “looks good but wrong” cases.
 
@@ -56,6 +57,31 @@ Track candidate prompt/policy changes with at least these objectives:
 4. Cinematographer seven-rule validation wording and scratchpad arguments.
 5. Tool schema descriptions for high-error verbs.
 6. Short `.pi` typed-tool-only agent bodies.
+
+## User-calibrated Sage value failure
+
+The current v2 rubric includes `value_proposition_fidelity` as a universal axis. For Sage work:
+
+- **5** — clearly shows agents gaining trusted reusable capabilities from skill/prompt libraries, MCP tools, library manifests, or curated capability artifacts.
+- **3** — hints at capabilities but uses vague trust/provenance imagery or fuzzy terms.
+- **1** — focuses on proposal/governance/review/publish process instead of capability distribution, invents product taxonomy, or uses the logo as the content substitute.
+
+GEPA/DSPy candidates should treat `value_proposition_fidelity=1` like a hard user-calibrated failure even if craft/composition axes look polished.
+
+### v176-v179 Sage calibration rows
+
+The local Sage disagreement dataset has a manual calibration batch for
+`v176`-`v179` (`rubric_version:
+2026-04-27-v176-v179-calibration`):
+
+- Reward `v178` (`editorial-metaphor-illustration`, 4/5): crafted routing
+  loom, Behavior into thin harness, and a visible adoption/use outcome.
+- Penalize `v176`, `v177`, and `v179` (1/5): repeated Sage logos, generic
+  adoption scenes that do not feel sourced, weak vault-language usage, and
+  poster/card/default routes for capability explanation.
+
+Future GEPA runs should preserve the `v178` direction while treating repeated
+logos and missing Sage vault specificity as explicit disqualifier evidence.
 
 ## Implementation rule
 

@@ -27,6 +27,15 @@ Use this only when choosing a model or execution path.
 | Motion-specific step-by-step flow | Debugging motion refs, pacing, or motion-only routing | Use when routing or execution details need inspection. |
 | Deterministic still first, then motion | Most branded motion work | Still-before-motion remains the safer rule. |
 
+### Landing hero animation default
+
+For `landing-hero`, the pipeline default is a web hero background/sidecar animation, not a full hero-section mockup:
+
+- Model: `seedance-2-pro` for coherent short motion and 720p source suitable for lightweight hero loops.
+- Surface: 16:9, 1600×900 display target; primary export `.mp4`, optional `.webm` transcode for delivery.
+- Runtime: 4–5 seconds, muted loop, `playsinline`, with a poster/static fallback for `prefers-reduced-motion`.
+- Copy: no nav/headline/CTA/body copy inside the native video; page copy belongs in HTML or deterministic overlay outside the generated media.
+
 ## Selection heuristics
 
 - **Need product truth preserved?** Bias toward the default pipeline image path or `nano-banana-2` style reference-preserving runs.

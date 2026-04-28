@@ -14,6 +14,7 @@ The 45-tool surface is split into smaller docs for agent/human review:
 - `social-prompt-tuning.md`
 - `gepa-dspy-optimization.md`
 - `aesthetic-curation.md`
+- `material-prompt-profiles.md`
 
 ## Runtime root
 
@@ -32,6 +33,11 @@ The 45-tool surface is split into smaller docs for agent/human review:
   4. `brand_gen/agent_specialization.py` if any specialist should call it
   5. mirrored agent frontmatter in `.claude/agents/`, `.pi/agents/`, and `skills/brand-gen/claude-agents/`
 
+
+
+## Material prompt profiles
+
+Every supported testing-batch material has a profile in `data/material_prompt_profiles.json`. Planning stores it as `material_prompt_profile`; prompt assembly injects a compact `material_profile_block` with job-to-be-done, exact-text policy, reference roles, failure bans, and review focus. Agents should not memorize per-material details in long prompts; inspect the plan profile or the architecture doc when a material-specific decision is unclear.
 
 ## Aesthetic curation
 

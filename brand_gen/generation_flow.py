@@ -8,8 +8,12 @@ import sys
 import time
 
 from .blackboard import get_blackboard_learning_warnings
+from .card_engine import ALLOWED_HTML_MATERIALS
 from .critique_policy import build_critique_policy, normalize_critique_policy
-from .custom_scratchpad import resolve_model_override as _resolve_custom_scratchpad_model_override
+from .custom_scratchpad import (
+    html_share_card_block_reason,
+    resolve_model_override as _resolve_custom_scratchpad_model_override,
+)
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
 from .iteration_memory import (
     add_iteration_note,
@@ -20,7 +24,13 @@ from .iteration_memory import (
 from .runtime import *
 from .runtime_models import recommend_text_model
 from .material_planning import *
-from .plan_validation import detect_exact_text_request, plan_declares_deterministic_text_strategy
+from .plan_validation import (
+    detect_deterministic_text_surface_request,
+    detect_exact_text_request,
+    plan_declares_deterministic_text_strategy,
+)
+from .product_truth import is_sage_capability_context
+from .sage_generation_contract import repair_stale_sage_plan_contract
 from .reference_analysis import (
     build_reference_analysis_inputs as _build_reference_analysis_inputs,
     build_reference_analysis_snippet as _build_reference_analysis_snippet,
@@ -174,9 +184,146 @@ def ensure_base_image_reference_role(
     return override, True
 
 
+def build_auto_product_truth_reference_role(path: Path) -> dict:
+    resolved = Path(path).expanduser().resolve()
+    is_motion_start = "motion-start" in str(resolved).lower() or resolved.name.lower().startswith("sage-motion-start")
+    return {
+        "role": "product_truth",
+        "role_help": (
+            "Use this freshly generated Sage motion start frame as current product-truth structure: "
+            "library/manifest selects a capability, installs it into a thin agent harness, and the agent completes work. "
+            "Do not copy it as an old screenshot, do not use the logo as the opener, and do not turn the selected route into a light-bulb icon."
+            if is_motion_start
+            else "Use this deterministic Sage capability proof as product-truth structure; do not let logo-only assets define the composition."
+        ),
+        "source_key": "auto_sage_motion_start_frame" if is_motion_start else "auto_sage_capability_proof",
+        "source_name": "Fresh Sage motion start-frame reference" if is_motion_start else "Auto Sage capability proof reference",
+        "notes": (
+            "fresh current motion start frame: library/manifest -> selected capability -> thin agent harness -> completed work"
+            if is_motion_start
+            else "deterministic library-manifest / skill / MCP-tool proof reference"
+        ),
+        "path": str(resolved),
+        "asset_kind": "image",
+        "used_role_asset": True,
+        "reference_quality": "product-proof",
+        "borrow_mechanics": (
+            [
+                "fresh Sage capability-adoption structure",
+                "library/manifest -> selected capability -> thin agent harness -> completed output",
+            ]
+            if is_motion_start
+            else [
+                "Sage capability proof structure",
+                "library manifest / skill / MCP-tool artifacts as product truth",
+            ]
+        ),
+        "avoid_literal": (
+            ["old screenshot UI/nav", "centered logo or light-bulb idea icon"]
+            if is_motion_start
+            else ["old screenshot UI/nav", "logo-only framing"]
+        ),
+        "reference_quality_reasons": (
+            ["freshly generated for this motion run", "prevents stale screenshot or logo-only opening frame"]
+            if is_motion_start
+            else ["auto-attached so reference mode is not logo-only"]
+        ),
+    }
+
+
+def ensure_product_truth_reference_role(
+    role_pack_override: dict | None,
+    reference_paths: list[Path],
+) -> tuple[dict | None, bool]:
+    if not reference_paths:
+        return role_pack_override, False
+    roles = [dict(item) for item in ((role_pack_override or {}).get("roles") or [])]
+    if any(str(item.get("role") or "").strip() == "product_truth" for item in roles):
+        return role_pack_override, False
+    override = dict(role_pack_override or {})
+    override["roles"] = roles + [build_auto_product_truth_reference_role(reference_paths[0])]
+    priority = list(override.get("priority") or [])
+    if "product_truth" not in priority:
+        override["priority"] = ["product_truth"] + priority
+    # Keep advisory role packs advisory: adding this proof role should satisfy
+    # product-truth routing without turning every generated brand asset into a
+    # hard base-image requirement.
+    return override, True
+
+
+_PRODUCT_TRUTH_REFERENCE_MATERIAL_KEYS = {
+    "social",
+    "landing_hero",
+    "website_hero_illustration",
+    "campaign_poster",
+    "proof_poster",
+    "data_card",
+    "process_card",
+    "content_card",
+    "editorial_card",
+    # Motion/video materials need a product/workflow start frame just as much
+    # as stills do.  Without this, Sage capability animations frequently became
+    # "reference-backed" only by the logo asset, so video models used the mark
+    # as the opening frame even when the brief said not to.
+    "feature_animation",
+}
+
+
+def should_attach_product_truth_reference(
+    *,
+    material_type: str,
+    plan: dict,
+    identity: dict,
+    disable_brand_guardrails: bool = False,
+) -> bool:
+    if disable_brand_guardrails:
+        return False
+    material_key = role_pack_material_key(material_type) or str(material_type or "").strip().lower().replace("-", "_")
+    if material_key not in _PRODUCT_TRUTH_REFERENCE_MATERIAL_KEYS:
+        return False
+    return is_sage_capability_context(identity=identity, plan=plan)
+
+
+def _resolve_render_backend(args, plan: dict, material_type: str) -> tuple[str, str]:
+    requested = str(getattr(args, "render_backend", None) or plan.get("render_backend") or "").strip().lower()
+    if requested == "html":
+        return "html", ""
+    if (
+        is_sage_capability_context(identity=None, plan=plan)
+        and material_type != "proof-poster"
+        and (
+            detect_exact_text_request(plan)
+            or detect_deterministic_text_surface_request(plan, material_type=material_type)
+        )
+    ):
+        return (
+            "native",
+            "Sage capability/explanatory material kept on native illustration backend; exact labels/copy should be handled by a separate deterministic overlay or by proof-poster, not by generic HTML share-card routing.",
+        )
+    if material_type in ALLOWED_HTML_MATERIALS and detect_deterministic_text_surface_request(plan, material_type=material_type):
+        return (
+            "html",
+            "Text-heavy material requests visible labels/CLI/footer/copy; render_backend auto-promoted to html for deterministic text.",
+        )
+    return "native", ""
+
+
+_REFERENCE_ANALYSIS_UNAVAILABLE_WARNING = (
+    "Reference analysis unavailable; using explicit reference paths without role-analysis detail."
+)
+
+
+def _is_generic_reference_analysis_unavailable_warning(value: str) -> bool:
+    lower = str(value or "").strip().lower()
+    return "reference analysis" in lower and "unavailable" in lower
+
+
 def _is_non_bypassable_generation_blocker(issue: str) -> bool:
     lower = str(issue or "").strip().lower()
-    return "requires at least one reference asset" in lower
+    return (
+        "requires at least one reference asset" in lower
+        or lower.startswith("html share-card policy block:")
+    )
 
 
 def assemble_generation_scratchpad(
@@ -212,8 +359,8 @@ def assemble_generation_scratchpad(
     reference_paths = dedupe_paths(reference_paths + plan_reference_paths)
     requested_mode = args.mode if getattr(args, "mode", "auto") != "auto" else (plan.get("mode") or "auto")
     mode_requested_explicitly = str(getattr(args, "mode", "auto") or "").strip().lower() != "auto"
-    workflow_mode = resolve_workflow_mode(requested_mode, reference_paths)
     generation_mode = resolve_generation_mode(material_type, getattr(args, "generation_mode", "auto"))
+    material_key = role_pack_material_key(material_type) or str(material_type or "").strip().lower().replace("-", "_")
 
     profile_path, identity_path, profile_data, identity_data = load_brand_memory(brand_dir, getattr(args, "profile", None), getattr(args, "identity", None))
     brand_gen_dir = get_brand_gen_dir()
@@ -225,6 +372,45 @@ def assemble_generation_scratchpad(
         identity=identity_data,
         brand_gen_dir=brand_gen_dir,
     )
+    stale_contract_repair_warnings: list[str] = []
+    if is_sage_capability_context(identity=identity_data, plan=plan):
+        plan, stale_contract_repair_warnings = repair_stale_sage_plan_contract(plan)
+        raw_prompt = args.prompt or plan.get("prompt_seed") or raw_prompt
+    # Auto-inject product-truth proof references before mode resolution and
+    # reference analysis. Brand marks alone should not make Sage capability
+    # materials count as reference-backed.
+    auto_product_truth_reference_paths: list[Path] = []
+    auto_product_truth_reference_role_added = False
+    if should_attach_product_truth_reference(
+        material_type=material_type,
+        plan=plan,
+        identity=identity_data,
+        disable_brand_guardrails=getattr(args, "disable_brand_guardrails", False),
+    ):
+        auto_product_truth_reference_paths = resolve_product_truth_reference_paths(
+            brand_dir,
+            identity_data,
+            limit=1,
+            create_fallback=True,
+            material_type=material_type,
+            generation_mode=generation_mode,
+            plan=plan,
+            workflow_id=workflow_id,
+            fresh_motion_frame=(material_key == "feature_animation" and generation_mode == "video"),
+        )
+        if auto_product_truth_reference_paths:
+            reference_paths = dedupe_paths(list(reference_paths) + auto_product_truth_reference_paths)
+            plan_role_pack_override, auto_product_truth_reference_role_added = ensure_product_truth_reference_role(
+                plan_role_pack_override,
+                auto_product_truth_reference_paths,
+            )
+    # Auto-inject brand assets (logo/icon/wordmark) as reference images so the
+    # model can see the actual brand mark, but keep them after proof refs.
+    brand_asset_paths = resolve_brand_asset_paths(profile_data, identity_data, brand_dir=brand_dir)
+    if brand_asset_paths:
+        reference_paths = dedupe_paths(list(reference_paths) + brand_asset_paths)
+
+    workflow_mode = resolve_workflow_mode(requested_mode, reference_paths)
     pre_prompt_reference_paths = dedupe_paths(
         list(reference_paths)
         + [Path(item["path"]).expanduser().resolve() for item in ((plan_role_pack_override or {}).get("roles") or []) if path_media_kind(item.get("path", "")) == "image"]
@@ -241,7 +427,7 @@ def assemble_generation_scratchpad(
     )
     reference_analysis_mode = _reference_analysis_mode(reference_analysis)
     reference_analysis_confidence = _reference_analysis_confidence(reference_analysis)
-    render_backend = "html" if str(getattr(args, "render_backend", None) or "").strip().lower() == "html" else "native"
+    render_backend, render_backend_note = _resolve_render_backend(args, plan, material_type)
     aesthetic_capsule = plan.get("aesthetic_capsule") if isinstance(plan.get("aesthetic_capsule"), dict) else None
     if getattr(args, "aesthetic_capsule", None) or getattr(args, "style_handle", None):
         _selection = select_aesthetic_capsule(
@@ -288,6 +474,9 @@ def assemble_generation_scratchpad(
         target_surface=plan.get("target_surface") or "",
         aesthetic_archetype=plan.get("aesthetic_archetype") if isinstance(plan.get("aesthetic_archetype"), dict) else None,
         aesthetic_capsule=aesthetic_capsule,
+        material_prompt_profile=plan.get("material_prompt_profile") if isinstance(plan.get("material_prompt_profile"), dict) else None,
+        sage_generation_contract=plan.get("sage_generation_contract") if isinstance(plan.get("sage_generation_contract"), dict) else None,
+        product_truth_expression=plan.get("product_truth_expression") or "",
         prompt_subject=str(plan.get("prompt_subject") or ""),
         prompt_style_descriptors=str(plan.get("prompt_style_descriptors") or ""),
         prompt_lighting=str(plan.get("prompt_lighting") or ""),
@@ -328,17 +517,13 @@ def assemble_generation_scratchpad(
     missing_required_roles = [role for role in required_roles if role not in selected_role_names]
     motion_reference = Path(args.motion_reference).expanduser().resolve() if getattr(args, "motion_reference", None) else None
 
-    # Auto-inject brand assets (logo/icon/wordmark) as reference images
-    # so the model can see the actual brand mark, not just a text description.
-    brand_asset_paths = resolve_brand_asset_paths(profile_data, identity_data, brand_dir=brand_dir)
-    if brand_asset_paths:
-        # Prepend brand assets so they appear first in the reference list
-        reference_paths = dedupe_paths(brand_asset_paths + list(reference_paths))
-
     all_context_refs = dedupe_paths(list(reference_paths) + role_pack_paths)
 
     blocking_issues: list[str] = []
     warnings: list[str] = []
+    warnings.extend(stale_contract_repair_warnings)
+    if render_backend_note:
+        warnings.append(render_backend_note)
     _identity_messaging = (identity_data or {}).get("messaging") or {}
     _forbidden_claims = [str(item).strip() for item in (_identity_messaging.get("forbidden_claims") or []) if str(item).strip()]
     if _forbidden_claims and raw_prompt:
@@ -349,8 +534,24 @@ def assemble_generation_scratchpad(
                 blocking_issues.append(
                     f"Prompt contains a forbidden messaging claim: '{_claim}'. Remove or rephrase before generating."
                 )
+    _product_truth_validation = prompt_context.get("product_truth_validation") if isinstance(prompt_context.get("product_truth_validation"), dict) else {}
+    for _issue in _product_truth_validation.get("errors") or []:
+        blocking_issues.append(str(_issue))
+    for _warning in _product_truth_validation.get("warnings") or []:
+        warnings.append(str(_warning))
     if base_image_role_added:
         warnings.append("Base image auto-registered as a `product_truth` reference so reference analysis and QA can see the carrier proof.")
+    if auto_product_truth_reference_paths:
+        if any("motion-start" in str(path).lower() or Path(path).name.lower().startswith("sage-motion-start") for path in auto_product_truth_reference_paths):
+            warnings.append(
+                "Generated a fresh Sage motion start-frame reference; stale saved screenshots and logo-only assets are not used as the video opener."
+            )
+        else:
+            warnings.append(
+                "Auto-attached product-truth reference so Sage capability work is not reference-backed by logo-only assets."
+            )
+    if auto_product_truth_reference_role_added:
+        warnings.append("Auto-registered product-truth reference role for the capability proof asset.")
     if workflow_mode == "reference" and not reference_paths and not mode_requested_explicitly:
         workflow_mode = "inspiration"
         warnings.append(
@@ -404,7 +605,11 @@ def assemble_generation_scratchpad(
                 warnings.append(f"Inspiration: {w}")
             for s in inspiration_status.get("suggestions", []):
                 warnings.append(f"  → {s}")
+    skipped_generic_reference_unavailable_warning = False
     for warning in (reference_analysis.get("warnings") or []):
+        if _is_generic_reference_analysis_unavailable_warning(str(warning)):
+            skipped_generic_reference_unavailable_warning = True
+            continue
         warnings.append(f"Reference analysis: {warning}")
     for warning in (prompt_context.get("reference_role_assignment_warnings") or []):
         warnings.append(f"Reference-role assignment: {warning}")
@@ -422,7 +627,9 @@ def assemble_generation_scratchpad(
                 f"Reference analysis is deterministic-only (confidence: {reference_analysis_confidence}); treat reference-role translation as approximate."
             )
     elif reference_analysis_mode == "unavailable":
-        warnings.append("Reference analysis is unavailable; treat reference-role guidance as low-confidence.")
+        warnings.append(_REFERENCE_ANALYSIS_UNAVAILABLE_WARNING)
+    elif skipped_generic_reference_unavailable_warning:
+        warnings.append(_REFERENCE_ANALYSIS_UNAVAILABLE_WARNING)
 
     # --- Self-referential composition drift: block when all composition refs come
     # from prior internal versions (v\d+-*) AND external inspiration is configured
@@ -500,7 +707,15 @@ def assemble_generation_scratchpad(
             pass
 
     base_image = getattr(args, "base_image", None) or ""
-    render_backend = "html" if str(getattr(args, "render_backend", None) or "").strip().lower() == "html" else "native"
+    render_backend, _render_backend_note_late = _resolve_render_backend(args, plan, material_type)
+    if render_backend == "html" and not getattr(args, "disable_brand_guardrails", False):
+        _html_policy_block = html_share_card_block_reason(brand_dir, material_type)
+        if _html_policy_block:
+            blocking_issues.append(
+                "HTML share-card policy block: "
+                f"{_html_policy_block} Use proof-poster for deterministic proof cards, "
+                "or switch this material to the native/composite path."
+            )
     _custom_override = _resolve_custom_scratchpad_model_override(brand_dir, material_type)
     _custom_model = _custom_override.get("model") if not args.model else None
     if _custom_override.get("mode") and not mode_requested_explicitly:
@@ -549,9 +764,12 @@ def assemble_generation_scratchpad(
     elif motion_reference and not model_supports_motion_reference(model_config):
         blocking_issues.append(f"Model '{model}' does not support motion references.")
 
+    material_defaults = MATERIAL_CONFIG.get(material_type, {}) if isinstance(MATERIAL_CONFIG.get(material_type, {}), dict) else {}
     aspect_ratio = resolve_default_aspect_ratio(material_type, getattr(args, "aspect_ratio", None), model_config or {})
+    execution_resolution = getattr(args, "resolution", None) or material_defaults.get("default_resolution")
+    execution_duration = getattr(args, "duration", None) or material_defaults.get("default_duration")
     prompt_context["output_aspect_ratio"] = aspect_ratio or ""
-    prompt_context["output_resolution"] = str(getattr(args, "resolution", None) or "")
+    prompt_context["output_resolution"] = str(execution_resolution or "")
     prompt_review = review_prompt_architecture(
         profile_data,
         identity_data,
@@ -605,7 +823,7 @@ def assemble_generation_scratchpad(
     if generation_mode == "video" and len(passed_refs) > 1:
         warnings.append("Video generation supports one start frame; only the first reference asset will be passed to the model.")
         passed_refs = passed_refs[:1]
-    if generation_mode == "video" and getattr(args, "duration", None) and model_config and not (model_config.get("field_map", {}) or {}).get("duration") and "duration" not in (model_config.get("defaults", {}) or {}):
+    if generation_mode == "video" and execution_duration and model_config and not (model_config.get("field_map", {}) or {}).get("duration") and "duration" not in (model_config.get("defaults", {}) or {}):
         warnings.append(f"Model '{model}' does not expose duration control; --duration will be ignored.")
     profile_assets = (
         (identity_data.get("brand_assets") or {})
@@ -633,8 +851,12 @@ def assemble_generation_scratchpad(
     )
     warnings.extend(policy_setup_risks)
     if render_backend == "html":
-        if material_type not in {"social", "x-feed", "announcement-card"}:
-            blocking_issues.append("HTML share-card backend currently supports only social, x-feed, and announcement-card materials.")
+        if material_type not in ALLOWED_HTML_MATERIALS:
+            blocking_issues.append(
+                "HTML share-card backend currently supports only these materials: "
+                + ", ".join(sorted(ALLOWED_HTML_MATERIALS))
+                + "."
+            )
         if not (getattr(args, "source_url", None) or getattr(args, "headline", None) or getattr(args, "proof_title", None)):
             warnings.append("HTML share-card mode works best when a real source_url or explicit headline/proof fields are provided; otherwise product truth may stay generic.")
         warnings.append(
@@ -736,8 +958,8 @@ def assemble_generation_scratchpad(
         "execution": {
             "model": model,
             "aspect_ratio": aspect_ratio,
-            "resolution": getattr(args, "resolution", None),
-            "duration": getattr(args, "duration", None),
+            "resolution": execution_resolution,
+            "duration": execution_duration,
             "preset": getattr(args, "preset", None),
             "negative_prompt": getattr(args, "negative_prompt", None),
             "style": getattr(args, "style", None),
@@ -1269,22 +1491,39 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         selected_direction_id=payload.get("selected_direction_id") or ((payload.get("inspiration_board") or {}).get("direction_id") or ""),
         data={"files": list(files), "scratchpad_path": payload.get("_scratchpad_path") or ""},
     )
+    image_artifact_names = [
+        name
+        for name in files
+        if Path(str(name)).suffix.lower() in SUPPORTED_IMAGE_EXTS
+    ]
     agent_review_path = ""
     agent_review_ok = False
-    try:
-        _, agent_review_output = write_agent_visual_review_packet(brand_dir, vid, manifest=manifest)
-        agent_review_path = str(agent_review_output)
-        agent_review_ok = True
-    except Exception as exc:
-        print(f"WARNING: failed to build agent review packet for {vid}: {exc}", file=sys.stderr)
+    agent_review_status = "pending"
+    agent_review_event_status = "failed"
+    agent_review_note = ""
+    if image_artifact_names:
+        try:
+            _, agent_review_output = write_agent_visual_review_packet(brand_dir, vid, manifest=manifest)
+            agent_review_path = str(agent_review_output)
+            agent_review_ok = True
+            agent_review_event_status = "ok"
+        except Exception as exc:
+            print(f"WARNING: failed to build agent review packet for {vid}: {exc}", file=sys.stderr)
+            agent_review_status = ""
+            agent_review_note = str(exc)
+    else:
+        agent_review_status = "not_applicable"
+        agent_review_event_status = "skipped"
+        agent_review_note = "Skipped agent still-image review because this generation produced no image artifact."
     manifest, _ = _update_manifest_version(
         brand_dir,
         vid,
         {
             "agent_review_path": agent_review_path if agent_review_ok else "",
             "agent_review_kind": "critique_rubric" if agent_review_ok else "",
-            "visual_review_status": "pending" if agent_review_ok else "",
+            "visual_review_status": agent_review_status if (agent_review_ok or agent_review_status == "not_applicable") else "",
             "visual_review_provider": "agent" if agent_review_ok else "",
+            "agent_review_note": agent_review_note,
         },
     )
     auto_review_path, auto_review_ok = run_auto_brand_review(brand_dir, vid)
@@ -1306,9 +1545,13 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         mode=payload.get("workflow_mode") or "",
         model=model,
         output_version=vid,
-        status="ok" if agent_review_ok else "failed",
+        status=agent_review_event_status,
         provider="agent",
-        data={"agent_review_path": agent_review_path, "agent_review_kind": "critique_rubric" if agent_review_ok else ""},
+        data={
+            "agent_review_path": agent_review_path,
+            "agent_review_kind": "critique_rubric" if agent_review_ok else "",
+            "agent_review_note": agent_review_note,
+        },
     )
     append_run_event(
         brand_dir,

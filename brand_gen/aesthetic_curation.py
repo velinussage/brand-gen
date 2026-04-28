@@ -23,6 +23,19 @@ from .runtime_paths import SCRIPT_DIR
 
 _CAPSULES_PATH = SCRIPT_DIR.parent / "data" / "aesthetic_capsules.json"
 _PREFS_FILENAME = "aesthetic-preferences.json"
+_GENERIC_STYLE_MATCH_TOKENS = {
+    "poster",
+    "design",
+    "brand",
+    "system",
+    "product",
+    "interface",
+    "motion",
+    "image",
+    "visual",
+    "graphic",
+    "campaign",
+}
 
 _MATERIAL_ALIASES = {
     "system_explainer_illustration": "system-explainer-illustration",
@@ -136,7 +149,7 @@ def _matches_handle(capsule: dict[str, Any], text: str) -> bool:
             return True
         # Allow a single rare style shorthand token (e.g. "ghibli") to match
         # an internal handle while still rendering only the safe_handle.
-        if any(len(token) >= 6 and token in overlap for token in handle_tokens):
+        if any(len(token) >= 6 and token not in _GENERIC_STYLE_MATCH_TOKENS and token in overlap for token in handle_tokens):
             return True
     return False
 
@@ -153,6 +166,18 @@ def _capsule_score(capsule: dict[str, Any], *, material_type: str | None, prefs:
     if selected and selected == capsule.get("id"):
         score += 5.0
         reasons.append("brand_selected_for_material")
+    try:
+        from .material_prompt_profiles import get_material_prompt_profile
+
+        profile = get_material_prompt_profile(material_key)
+    except Exception:
+        profile = None
+    recommended_capsules = list((profile or {}).get("best_aesthetic_capsules") or [])
+    if capsule.get("id") in recommended_capsules:
+        # Earlier profile entries are stronger defaults.
+        rank = recommended_capsules.index(capsule.get("id"))
+        score += max(1.0, 3.0 - rank * 0.75)
+        reasons.append("material_profile_recommended")
     if capsule.get("id") in (prefs.get("preferred_capsules") or []):
         score += 2.5
         reasons.append("brand_preferred")

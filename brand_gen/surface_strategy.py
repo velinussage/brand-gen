@@ -158,10 +158,35 @@ def _rule_matches(ctx: StrategyContext, rule: dict[str, Any]) -> bool:
 def _surface_keywords(text: str) -> set[str]:
     value = str(text or "").strip().lower()
     hits = set()
-    for token in ("poster", "portrait", "story", "instagram", "feed", "square", "preview", "scan", "qr"):
+    for token in ("poster", "portrait", "story", "instagram", "feed", "square", "preview", "scan", "qr", "wide", "landscape", "workflow", "operator", "brief"):
         if token in value:
             hits.add(token)
     return hits
+
+
+def _seed_material_strategy_keys(ctx: StrategyContext) -> list[str]:
+    """Material-first candidates for HTML requests without a source entity.
+
+    Entity templates are useful once a real prompt/skill/library source exists.
+    For generic deterministic cards, material intent should lead so proof
+    posters, socials, and editorial cards do not all inherit the same prompt
+    share-card template.
+    """
+    if ctx.render_backend != "html":
+        return []
+    if ctx.material_type == "proof-poster":
+        return ["operator_proof_board", "compact_proof_card", "editorial_poster"]
+    if ctx.material_type in {"social", "x-feed"}:
+        blob = " ".join(
+            str(item or "").lower()
+            for item in [ctx.purpose, ctx.target_surface, ctx.product_truth_expression]
+        )
+        if any(token in blob for token in ("capability", "skill", "mcp", "behavior", "workflow", "manifest")):
+            return ["capability_card", "compact_proof_card", "editorial_poster"]
+        return ["compact_proof_card", "capability_card", "editorial_poster"]
+    if ctx.material_type in {"editorial-card", "content-card", "content-card-square", "info-card", "data-card", "process-card", "quote-card", "linkedin-card", "og-card", "carousel-slide"}:
+        return ["editorial_poster", "compact_proof_card"]
+    return []
 
 
 def _score_strategy(
@@ -203,6 +228,15 @@ def _score_strategy(
     if key == "qr_spotlight" and surface_hits & {"scan", "qr"}:
         score += 2.0
         reasons.append("scan-forward surface requested")
+    if key == "operator_proof_board" and ctx.material_type == "proof-poster":
+        score += 4.0
+        reasons.append("proof poster benefits from a workflow board")
+    if key == "operator_proof_board" and surface_hits & {"wide", "landscape", "workflow", "operator", "brief"}:
+        score += 2.5
+        reasons.append("matches landscape/operator workflow intent")
+    if key == "operator_proof_board" and any(token in (ctx.product_truth_expression or "").lower() for token in ("workflow", "proof", "operator", "skill", "tool")):
+        score += 1.5
+        reasons.append("product truth is workflow/proof sensitive")
     if key == "capability_card" and ctx.entity_type == "skill":
         score += 3.0
         reasons.append("skill artifact benefits from capability framing")
@@ -236,7 +270,7 @@ def _score_strategy(
     else:
         score -= 0.5
 
-    if template_selected and key == template_selected:
+    if template_selected and key == template_selected and ctx.material_type != "proof-poster":
         score += 8.0
         reasons.insert(0, "matches selected session template")
     elif key in {str(item or "").strip() for item in (template_preferred or []) if str(item or "").strip()}:
@@ -282,6 +316,9 @@ def recommend_surface_strategies(
     )
 
     seeded_keys: list[str] = []
+    for key in _seed_material_strategy_keys(ctx):
+        if key and key in definitions and key not in seeded_keys:
+            seeded_keys.append(key)
     for key in list(template.get("preferred_strategies") or []) + [template.get("selected_surface_strategy")]:
         strategy_key = str(key or "").strip()
         if strategy_key and strategy_key in definitions and strategy_key not in seeded_keys:

@@ -11,6 +11,11 @@ Two files live next to iteration-memory.json and learnings.json:
 - `custom-scratchpad.json` — machine-read structured sidecar:
     {
       "model_overrides_by_material": {"<material>": {"model": "...", "mode": "..."}},
+      "html_share_card_policy": {
+        "status": "retired_except_proof_poster",
+        "allowed_material_types": ["proof-poster"],
+        "reason": "..."
+      },
       "forbidden_patterns": [
         {"pattern": "purple gradients", "reason": "slop tell", "source_version": "v032"}
       ]
@@ -35,6 +40,7 @@ DEFAULT_CUSTOM_SCRATCHPAD_JSON = {
     "schema_version": 1,
     "model_overrides_by_material": {},
     "forbidden_patterns": [],
+    "html_share_card_policy": {},
     "motion_grammar": {},
 }
 
@@ -106,8 +112,50 @@ def load_custom_scratchpad_json(brand_dir: Path) -> dict:
     merged.update(data)
     merged["model_overrides_by_material"] = _coerce_dict(merged.get("model_overrides_by_material"))
     merged["forbidden_patterns"] = _normalize_forbidden_patterns(_coerce_list(merged.get("forbidden_patterns")))
+    merged["html_share_card_policy"] = _coerce_dict(merged.get("html_share_card_policy"))
     merged["motion_grammar"] = _coerce_dict(merged.get("motion_grammar"))
     return merged
+
+
+def html_share_card_block_reason(brand_dir: Path, material_type: str | None) -> str:
+    """Return a brand-specific block reason for HTML/share-card generation.
+
+    The HTML renderer is intentionally available for many brands, but some
+    brand workspaces retire it after learning that deterministic share-card
+    chrome is harming the brand.  Keep that choice in the brand scratchpad
+    instead of hard-coding it into the global renderer.
+    """
+    data = load_custom_scratchpad_json(brand_dir)
+    policy = data.get("html_share_card_policy") if isinstance(data.get("html_share_card_policy"), dict) else {}
+    status = str(policy.get("status") or "").strip().lower().replace("-", "_")
+    if not status:
+        # Back-compat for pre-policy Sage scratchpads: the markdown carried the
+        # retired-flow rule before the JSON field existed.
+        md = load_custom_scratchpad_markdown(brand_dir).lower()
+        if "retire the artifact/share-card flow" in md or "avoid `--render-backend html`" in md:
+            status = "retired_except_proof_poster"
+            policy = {
+                "allowed_material_types": ["proof-poster"],
+                "reason": "Brand scratchpad retires the artifact/share-card flow; only explicit proof-poster proof work may use the deterministic HTML renderer.",
+            }
+    if status not in {"retired", "retired_except_proof_poster", "disabled", "block"}:
+        return ""
+
+    material = str(material_type or "").strip().lower()
+    allowed = [
+        str(item or "").strip().lower()
+        for item in (policy.get("allowed_material_types") or [])
+        if str(item or "").strip()
+    ]
+    if status == "retired_except_proof_poster" and not allowed:
+        allowed = ["proof-poster"]
+    if material and material in allowed:
+        return ""
+
+    reason = str(policy.get("reason") or "").strip()
+    if not reason:
+        reason = "Brand scratchpad retires the artifact/share-card flow for this material."
+    return reason
 
 
 def build_custom_scratchpad_snippet(brand_dir: Path, material_type: str | None) -> str:

@@ -61,7 +61,7 @@ Inspect `bgen show-rubric --material-type <type> --format json` to see the full 
 
 <!-- BEGIN rubric_registry.to_markdown() — regenerated from brand_gen/scoring/rubric_registry.py. Do NOT hand-edit. Edits go into the Python module; then re-run `python3 -c "from brand_gen.scoring import to_markdown; open('.claude/agents/brand-critic.md','w').write(to_markdown())"` (and update the two mirrors). -->
 
-# Scoring rubric (rubric_version: 2026-04-20)
+# Scoring rubric (rubric_version: 2026-04-26)
 
 This section is regenerated from `brand_gen/scoring/rubric_registry.py`. Do not edit by hand. Edits go into the Python module; then regenerate.
 
@@ -87,9 +87,12 @@ Does this tell the intended story for this specific surface? Given the plan's go
 ### meaning_clarity
 Would a new visitor understand what this is about in 2–3 seconds? Meaning_clarity is what separates 'tasteful but meaningless' from 'tasteful and legible.' It does NOT mean explicit text labels — a strong symbolic image can have high meaning_clarity if the symbol is decoded fast. It DOES mean generic aesthetic choices that could belong to any brand score low.
 
+### value_proposition_fidelity
+Does the artifact show the correct product value, especially for Sage work? Score 5 when the image clearly shows agents gaining trusted reusable capabilities from skill/prompt libraries, MCP tools, library manifests, or curated capability artifacts. Score 3 when it hints at capabilities but uses vague trust/provenance imagery or fuzzy terms. Score 1 when it focuses on proposal/governance/review/publish process instead of capability distribution, invents product taxonomy, or uses the logo as a content substitute.
+
 ## v2 material-specific overlays
 
-Overlays ADD axes on top of the universal 5. They do not replace. The material's overlay also declares a disqualifier: if the disqualifier triggers, the overall decision is auto-fail regardless of axis scores.
+Overlays ADD axes on top of the universal 6. They do not replace. The material's overlay also declares a disqualifier: if the disqualifier triggers, the overall decision is auto-fail regardless of axis scores.
 
 ### landing-hero
 
@@ -109,18 +112,64 @@ The hero does not communicate a product category. A visitor lands, looks at the 
 **Disqualifier (`concept-illustration-generic-abstract-metaphor`):**
 The illustration is a generic abstract metaphor (floating cubes, glowing nodes, gradient orbs, faceless figures in a lit room) with no connection to the brand's declared philosophy or vocabulary.
 
-### brand-scene
+### system-explainer-illustration
 
 **Overlay axes:**
-- **process_implied** — Does the environment imply the brand's actual process or work, or is it just a tasteful architectural / interior mood piece? Brand scenes should feel like the kind of room where the brand's work happens — the textures, tools, materials, posture all carry evidence of process.
-- **brand_specificity** — Same definition as concept-illustration. Scenes that feel like generic premium interior design score low. Scenes that carry the brand's declared material vocabulary (rammed earth, aged stone, specific typographic signage, brand palette in the lighting) score high.
+- **system_logic_visible** — Can a viewer see one explicit mechanism, flow, or causal structure at work? System explainers should make the product or protocol logic feel legible, not merely atmospheric.
+- **brand_specificity** — Does the explainer still feel uniquely tied to this brand's visual language, metaphor vocabulary, and material palette rather than a generic premium SaaS diagram?
 
-**Disqualifier (`brand-scene-pure-mood-no-process`):**
-The scene is pure architectural mood — tasteful interior with no implied process, activity, tools, or evidence that the brand's work would happen in this space.
+**Disqualifier (`system-explainer-illustration-no-mechanism`):**
+The image claims to explain a system but shows only atmospheric or decorative symbolism with no visible mechanism, flow, or structure.
+
+### editorial-metaphor-illustration
+
+**Overlay axes:**
+- **metaphor_clarity** — Is there one clear metaphor carrying the image, or does it feel like a collage of symbols, props, and mood cues? Editorial metaphor illustrations should be singular and legible, not encyclopedic.
+- **brand_specificity** — Could this metaphor belong only to this brand's declared vocabulary, or could any tasteful AI brand have used it?
+
+**Disqualifier (`editorial-metaphor-illustration-collage-no-single-metaphor`):**
+The illustration is a collage of symbols or ambience with no single metaphor doing the communicative work.
+
+### illustrated-brand-world
+
+**Overlay axes:**
+- **process_implied** — Does the environment imply the brand's actual process or work, or is it just a tasteful architectural / interior mood piece? The world should still feel inhabited by the brand's work.
+- **brand_specificity** — Does the world carry the brand's declared material vocabulary, mark logic, and narrative environment rather than generic premium mood?
+
+**Disqualifier (`illustrated-brand-world-pure-mood-no-process`):**
+The world is pure architectural or atmospheric mood with no process, activity, or evidence that the brand's work happens there.
+
+### proof-poster
+
+**Overlay axes:**
+- **information_hierarchy** — Is the hierarchy led by the proof payload — quote, screenshot, stat, or claim — with the mark supporting it? If the logo is the biggest thing and the message is secondary, the poster scores low.
+- **proof_payload_visible** — Is there an actual payload carrying meaning: visible quote, real screenshot, stat, or proof module? Proof posters without a proof payload collapse into generic brand ads.
+
+**Disqualifier (`proof-poster-logo-dominant-no-proof`):**
+The poster is dominated by the brand mark with no clear quote, proof, or screenshot payload doing the communicative work.
+
+### site-pattern-tile
+
+**Overlay axes:**
+- **deployability** — Does this read like one repeatable, low-contrast tile that could sit behind UI on a real site, or like a presentation board / poster / motif collage?
+- **brand_specificity** — Is the repeat logic clearly derived from this brand's mark anatomy or system language, not a generic abstract wallpaper?
+
+**Disqualifier (`site-pattern-tile-board-not-tile`):**
+The output is a board of multiple treatments or a motif collage instead of one deployable repeatable tile.
+
+### pattern-board
+
+**Overlay axes:**
+- **system_coherence** — Do the explored modules all belong to one repeat grammar, or does the board feel like unrelated motifs collected together?
+- **brand_specificity** — Are the board's pattern moves clearly derived from this brand's mark anatomy and system logic rather than generic geometric exercises?
+
+**Disqualifier (`pattern-board-unrelated-motif-collage`):**
+The board mixes unrelated motifs without a single coherent repeat grammar.
 
 ## v2 aggregation
 
 Overall score uses min-biased aggregation across all scored axes (universal + overlay). If any axis is <2, overall <=2. If the disqualifier triggers, overall = 1 (auto-fail). Surface `approve` when overall >=3 and no disqualifier triggered.
+Treat `value_proposition_fidelity=1` as a hard user-calibrated failure: invented product taxonomy, wrong value hero, or logo-as-content substitute should iterate/reject even when craft and composition look polished.
 
 ## v1 narrative rubric (for packets without rubric_version)
 
@@ -285,7 +334,7 @@ Return JSON in one of these two shapes (pick based on `rubric_version` on the in
 ```json
 {
   "decision": "ITERATE",
-  "rubric_version": "2026-04-20",
+  "rubric_version": "2026-04-26",
   "scorer_version": "v1-handwritten",
   "material_rubric_key": "concept-illustration",
   "overall_score": 1,
@@ -295,6 +344,7 @@ Return JSON in one of these two shapes (pick based on `rubric_version` on the in
     "restraint": 2,
     "story_fidelity": 2,
     "meaning_clarity": 2,
+    "value_proposition_fidelity": 1,
     "system_logic_visible": 4,
     "brand_specificity": 2
   },

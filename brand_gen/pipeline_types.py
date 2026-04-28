@@ -110,6 +110,11 @@ class MaterialPlan:
     has_motion_reference: bool = False
     set_scope: bool = False
     design_variance: int = 5
+    material_prompt_profile: dict[str, Any] = field(default_factory=dict)
+    product_truth_contract: str = ""
+    product_truth_validation: dict[str, Any] = field(default_factory=dict)
+    sage_vault_brief: dict[str, Any] = field(default_factory=dict)
+    sage_generation_contract: dict[str, Any] = field(default_factory=dict)
     aesthetic_capsule: dict[str, Any] | None = None
     aesthetic_capsule_id: str = ""
     aesthetic_capsule_selection: dict[str, Any] = field(default_factory=dict)

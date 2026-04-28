@@ -17,31 +17,42 @@ class PromptBlock:
 
 SECTION_PRIORITY: dict[str, int] = {
     "brand_anchor_rule": 0,
+    "sage_generation_contract": 1,
     "intended_output": 2,
+    "product_truth_contract": 3,
     "critical_bans": 5,
+    # Reference, inspiration, and concrete style blocks are the high-signal
+    # creative instructions most likely to prevent generic output.  Earlier
+    # versions treated them as expendable "examples", so prompt compression
+    # often dropped the real reference/inspiration guidance while retaining
+    # redundant policy prose.
+    "role_pack_block": 8,
+    "selected_inspiration_block": 9,
+    "aesthetic_capsule_block": 10,
+    "aesthetic_archetype_block": 11,
+    "material_profile_block": 12,
     "explicit_copy_rule": 10,
     "output_spec": 12,
     "five_slot_brief": 14,
-    "pattern_discovery_block": 15,
-    "aesthetic_capsule_block": 16,
-    "aesthetic_archetype_block": 17,
-    "material_policy": 18,
-    "aesthetic_commitment_block": 20,
-    "visual_density_block": 22,
-    "rubric_overlay_push": 30,
-    "reference_analysis_caveat": 35,
-    "role_pack_block": 80,
-    "selected_inspiration_block": 85,
+    "pattern_discovery_block": 18,
+    "aesthetic_commitment_block": 24,
+    "material_policy": 30,
+    "rubric_overlay_push": 35,
+    "visual_density_block": 40,
+    "reference_analysis_caveat": 80,
 }
 
 SECTION_STAGE: dict[str, str] = {
     "brand_anchor_rule": "system",
+    "sage_generation_contract": "system",
     "intended_output": "system",
     "critical_bans": "system",
     "explicit_copy_rule": "system",
     "output_spec": "system",
     "pattern_discovery_block": "brief",
+    "product_truth_contract": "contract",
     "material_policy": "contract",
+    "material_profile_block": "contract",
     "aesthetic_commitment_block": "contract",
     "rubric_overlay_push": "contract",
     "reference_analysis_caveat": "contract",
@@ -55,7 +66,9 @@ SECTION_STAGE: dict[str, str] = {
 
 SECTION_CONSTRAINT: dict[str, str] = {
     "brand_anchor_rule": "hard",
+    "sage_generation_contract": "hard",
     "intended_output": "hard",
+    "product_truth_contract": "hard",
     "critical_bans": "hard",
     "explicit_copy_rule": "hard",
     "output_spec": "hard",

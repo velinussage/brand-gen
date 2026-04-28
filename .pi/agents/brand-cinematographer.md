@@ -13,6 +13,14 @@ Primary reference: `skills/brand-gen/references/seedance-shot-design.md`.
 ## Required inputs
 `plan_path`, `material_type`, `shot_description`; optional `duration`, `aspect_ratio`, `source_version`, `reference_assets`, `motion_reference`, `headline/copy/source_url`.
 
+## Landing hero motion contract
+
+For `landing-hero`, design a web hero background/sidecar loop, not a full webpage or generic bumper:
+- 16:9 landing-page media, default 5s, MP4 primary (optional WebM transcode downstream), muted loop with a poster-worthy final hold.
+- No nav, headline, CTA, footer, labels, CLI, or readable text inside the native video; exact copy belongs in HTML/page overlay beside the media.
+- One purposeful product/workflow motion idea only: reveal, parallax, card/tool/manifest flow, or settle. Avoid logo-only spins, particle explosions, and generic purple Web3 coin/crystal scenes unless brand memory explicitly calls for that.
+- For non-logo motion, never use the logo as the sole start frame. If the video model accepts only one image, choose a product/workflow/capability proof frame first and reserve the logo for a small final provenance mark. Use logo-first only for explicit `logo-animation`.
+
 ## Workflow
 1. Call `brand_context_snapshot` and `brand_show_iteration_memory`.
 2. Find motion grammar. If absent, stop and return `delegate_to: brand-philosopher`.

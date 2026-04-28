@@ -27,7 +27,25 @@ from .card_text import (
 )
 
 
-ALLOWED_HTML_MATERIALS = {"social", "x-feed", "announcement-card"}
+ALLOWED_HTML_MATERIALS = {
+    "social",
+    "x-feed",
+    "announcement-card",
+    "proof-poster",
+    # Text-led editorial/social variants that should use deterministic layout
+    # instead of falling through to native image text when the prompt contains
+    # exact labels, stats, or CTA copy.
+    "carousel-slide",
+    "content-card",
+    "content-card-square",
+    "editorial-card",
+    "info-card",
+    "data-card",
+    "process-card",
+    "quote-card",
+    "linkedin-card",
+    "og-card",
+}
 DEFAULT_HTML_MODEL = "html:chromium"
 DEFAULT_DESIGN_VARIANCE = 5
 
@@ -259,10 +277,27 @@ def default_layout_spec(
     entity_type: str = "",
     selected_strategy: str = "",
 ) -> LayoutSpec:
+    if material_type == "proof-poster":
+        return LayoutSpec(
+            columns=2,
+            alignment="left",
+            proof_position="right",
+            accent_style="none",
+            headline_size="lg",
+            padding="normal",
+            proof_style="operator",
+            canvas_preset="wide",
+        )
     if material_type == "social":
         return LayoutSpec(columns=2, alignment="left", proof_position="right", accent_style="none", headline_size="xl", padding="generous", canvas_preset="square")
     if material_type == "x-feed":
         return LayoutSpec(columns=2, alignment="left", proof_position="right", accent_style="none", headline_size="lg", padding="normal", canvas_preset="wide")
+    if material_type == "carousel-slide":
+        return LayoutSpec(columns=2, alignment="left", proof_position="right", accent_style="none", headline_size="lg", padding="normal", canvas_preset="wide")
+    if material_type in {"content-card-square", "data-card", "quote-card"}:
+        return LayoutSpec(columns=2, alignment="left", proof_position="right", accent_style="none", headline_size="lg", padding="normal", canvas_preset="square")
+    if material_type in {"content-card", "editorial-card", "info-card", "process-card", "linkedin-card", "og-card"}:
+        return LayoutSpec(columns=1, alignment="left", proof_position="below", accent_style="left-strip", headline_size="lg", padding="generous", canvas_preset="portrait")
     if material_type == "announcement-card" and entity_type in {"prompt", "skill", "library"}:
         return LayoutSpec(
             columns=2,
@@ -375,6 +410,7 @@ def _surface_label(material_type: str, *, entity_type: str = "", layout_spec: La
         "social": "social share card",
         "x-feed": "wide share card",
         "announcement-card": "portrait announcement card",
+        "proof-poster": "deterministic proof poster",
     }.get(material_type, material_type.replace("-", " "))
 
 
@@ -387,6 +423,7 @@ def _entity_proof_title(entity_type: str) -> str:
         "community": "Community Snapshot",
         "dao": "DAO Snapshot",
         "update": "Update Snapshot",
+        "artifact": "Capability Proof",
     }.get(entity_type, "Artifact Snapshot")
 
 
@@ -425,6 +462,326 @@ def _headline_font_size(text: str, *, base: int = 82) -> int:
 
 def _escape_list(items: list[str]) -> str:
     return "".join(f"<span class=\"meta-pill\">{html.escape(item)}</span>" for item in items if item)
+
+
+_PROOF_META_BANNED_RE = re.compile(
+    r"\b(private\s+preview|preview\s+code|access\s+password|password|sign\s*in|log\s*in|login|auth|authentication)\b",
+    re.IGNORECASE,
+)
+
+
+def _safe_proof_meta(items: list[str], *, material_type: str = "") -> list[str]:
+    """Drop accidental app/auth chrome from deterministic proof chips."""
+    out: list[str] = []
+    for item in items or []:
+        text = str(item or "").strip()
+        if not text or _PROOF_META_BANNED_RE.search(text):
+            continue
+        if material_type == "proof-poster" and len(text) > 34:
+            continue
+        if text not in out:
+            out.append(text)
+    return out
+
+
+_WORKFLOW_SPLIT_RE = re.compile(r"\s*(?:→|->|⇒|=>|➜|\n+|;)\s*")
+_WORKFLOW_LABEL_SEQUENCE = ["Ingest", "Clean", "Extract", "Score", "Corroborate"]
+_WORKFLOW_STEP_BODIES = {
+    "Ingest": "source set + saved context",
+    "Clean": "dedupe + normalize noisy inputs",
+    "Extract": "claims + artifacts",
+    "Score": "relevance + confidence",
+    "Corroborate": "repo/docs evidence check",
+    "Brief": "operator-ready summary",
+}
+
+
+def _compact_step_body(text: str, *, limit: int = 64) -> str:
+    cleaned = re.sub(r"\s+", " ", str(text or "").strip(" .•·—-"))
+    if len(cleaned) <= limit:
+        return cleaned
+    return cleaned[: max(1, limit - 1)].rstrip(" ,.;:") + "…"
+
+
+def _workflow_step_label(fragment: str, index: int) -> str:
+    text = fragment.lower()
+    if any(token in text for token in ("clean", "dedupe", "de-dupe", "normaliz", "remove noise")):
+        return "Clean"
+    if any(token in text for token in ("timeline", "bookmark", "search", "source", "ingest", "feed")):
+        return "Ingest"
+    if any(token in text for token in ("score", "scored", "rank", "priorit")):
+        return "Score"
+    if any(token in text for token in ("extract", "artifact", "claim", "parse")):
+        return "Extract"
+    if any(token in text for token in ("corrobor", "verify", "repo", "docs", "evidence")):
+        return "Corroborate"
+    if any(token in text for token in ("brief", "output", "summary", "action")):
+        return "Brief"
+    return _WORKFLOW_LABEL_SEQUENCE[min(index, 4)]
+
+
+def _workflow_step_label_and_body(fragment: str, index: int) -> tuple[str, str]:
+    """Preserve explicit deterministic step labels such as ``Clean: dedupe``."""
+    cleaned = _compact_step_body(fragment, limit=96)
+    match = re.match(r"^\s*([A-Za-z][A-Za-z /+-]{2,24})\s*(?::|—|–|-)\s*(.+?)\s*$", cleaned)
+    if match:
+        candidate = re.sub(r"\s+", " ", match.group(1)).strip()
+        normalized = candidate[:1].upper() + candidate[1:].lower()
+        canonical = {
+            "ingest": "Ingest",
+            "clean": "Clean",
+            "extract": "Extract",
+            "score": "Score",
+            "corroborate": "Corroborate",
+            "brief": "Brief",
+        }.get(normalized.lower(), normalized)
+        if len(canonical) <= 18:
+            return canonical, _compact_step_body(match.group(2), limit=72)
+    label = _workflow_step_label(cleaned, index)
+    body = cleaned
+    if body.strip().lower() == label.lower():
+        body = _WORKFLOW_STEP_BODIES.get(label, "")
+    return label, _compact_step_body(body, limit=72)
+
+
+def _workflow_step_fragments(*texts: str, max_steps: int = 5) -> list[str]:
+    fragments: list[str] = []
+    for text in texts:
+        value = str(text or "").strip()
+        if not value:
+            continue
+        parts = [part.strip() for part in _WORKFLOW_SPLIT_RE.split(value) if part.strip()]
+        if len(parts) <= 1 and (" · " in value or " • " in value):
+            parts = [part.strip() for part in re.split(r"\s+[·•]\s+", value) if part.strip()]
+        if len(parts) > 1:
+            for part in parts:
+                cleaned = _compact_step_body(part)
+                if cleaned and cleaned not in fragments:
+                    fragments.append(cleaned)
+                    if len(fragments) >= max_steps:
+                        return fragments
+    return fragments[:max_steps]
+
+
+def _skill_card_kind(blob: str) -> str:
+    text = str(blob or "").lower()
+    if any(token in text for token in ("x intel", "x/twitter", "twitter", "feed noise", "x-feed")):
+        return "x_intel"
+    if "p2p" in text or "peer" in text or "connection string" in text:
+        return "p2p"
+    if "publish" in text or "ipfs" in text or "library push" in text:
+        return "publish"
+    if "governance" in text or "dao" in text or "proposal" in text or "vote" in text:
+        return "governance"
+    if "discover" in text or "adopt" in text or "install" in text or "expose" in text:
+        return "discover"
+    if "prompt builder" in text or "behavior" in text or "compose" in text:
+        return "builder"
+    return "generic"
+
+
+def _default_workflow_steps(entity_type: str, *, blob: str = "") -> list[str]:
+    kind = _skill_card_kind(blob)
+    if entity_type == "skill":
+        if kind == "x_intel":
+            return [
+                "Ingest: timeline, bookmarks, targeted source set",
+                "Clean: dedupe and normalize feed noise",
+                "Extract: claims, artifacts, capability clues",
+                "Score: relevance, confidence, operator priority",
+                "Corroborate: repo/docs evidence check",
+            ]
+        if kind == "p2p":
+            return [
+                "Host: create connection string",
+                "Connect: peer daemon joins trusted sync",
+                "Sync: receive library or skill inventory",
+                "Adopt: choose what becomes active locally",
+                "Verify: status and received capabilities",
+            ]
+        if kind == "publish":
+            return [
+                "Check: wallet and daemon are ready",
+                "Preview: dry-run library contents",
+                "Push: upload prompts and skills to IPFS",
+                "Verify: inspect manifest CID",
+                "Promote: move toward governed/public reuse",
+            ]
+        if kind == "governance":
+            return [
+                "Discover: find the target DAO",
+                "Inspect: proposals, voting power, operator status",
+                "Decide: choose personal, team, or community path",
+                "Act: create, vote, queue, or promote",
+                "Verify: execution and manifest state",
+            ]
+        if kind == "discover":
+            return [
+                "Search: local and remote Sage surfaces",
+                "Inspect: candidate skill or prompt",
+                "Install: add to a local library",
+                "Expose: wire into the target IDE",
+                "Verify: confirm active capability",
+            ]
+        if kind == "builder":
+            return [
+                "Classify: prompt, skill, behavior, or one-off",
+                "Search: reuse existing Sage assets first",
+                "Compose: package the missing capability",
+                "Validate: check schema and references",
+                "Publish: prepare for library reuse",
+            ]
+        return [
+            "Identify: the reusable capability need",
+            "Load: skill instructions and requirements",
+            "Run: the prescribed workflow",
+            "Verify: output and safety checks",
+            "Reuse: keep the capability available",
+        ]
+    if entity_type == "library":
+        return [
+            "Manifest source",
+            "Skill and tool cards",
+            "Versioned library",
+            "Runtime adoption",
+            "Agent execution",
+        ]
+    return [
+        "Source proof",
+        "Relevant artifacts",
+        "Scored evidence",
+        "Corroborated context",
+        "Readable output",
+    ]
+
+
+def _render_workflow_steps_html(card: ShareCardPayload) -> str:
+    blob = " ".join(
+        str(value or "")
+        for value in [card.headline, card.subhead, card.proof_title, card.proof_excerpt, card.proof_row]
+    )
+    fragments = _workflow_step_fragments(card.proof_excerpt, card.proof_row)
+    explicit_labels = sum(1 for fragment in fragments if re.match(r"^\s*[A-Za-z][A-Za-z /+-]{2,24}\s*(?::|—|–|-)", fragment))
+    if len(fragments) < 4 or (card.entity_type == "skill" and explicit_labels < 3):
+        fragments = _default_workflow_steps(card.entity_type, blob=blob)
+    items: list[str] = []
+    for index, fragment in enumerate(fragments[:5]):
+        label, body = _workflow_step_label_and_body(fragment, index)
+        items.append(
+            '<article class="workflow-segment">'
+            f'<div class="workflow-index">{index + 1:02d}</div>'
+            f'<div class="workflow-label">{html.escape(label)}</div>'
+            f'<div class="workflow-body">{html.escape(body)}</div>'
+            '</article>'
+        )
+    return f'<div class="workflow-rail">{"".join(items)}</div>'
+
+
+def _render_output_pills_html(text: str) -> str:
+    parts = [part.strip(" .•·—-") for part in re.split(r"\s+[·•]\s+|,\s+|\s+\|\s+", str(text or "")) if part.strip(" .•·—-")]
+    parts = parts[:3] or ["What matters", "What to try", "What to ignore"]
+    return '<div class="output-pills">' + "".join(f'<span>{html.escape(_compact_step_body(part, limit=30))}</span>' for part in parts) + "</div>"
+
+
+def _proof_flow_html(card: ShareCardPayload) -> str:
+    blob = " ".join(
+        str(value or "")
+        for value in [card.headline, card.subhead, card.proof_title, card.proof_excerpt, card.proof_row]
+    ).lower()
+    kind = _skill_card_kind(blob)
+    if kind == "x_intel":
+        items = [
+            ("Use when", "track X/Twitter signals and agent-tooling changes"),
+            ("Core action", "fetch, clean, score, and corroborate claims"),
+            ("Outcome", "brief: what matters, what to try, what to ignore"),
+        ]
+    elif kind == "p2p":
+        items = [
+            ("Use when", "sync trusted machines or private agent fleets"),
+            ("Core action", "connect peers, sync inventory, choose adoption"),
+            ("Outcome", "shared skills and libraries stay reachable"),
+        ]
+    elif kind == "publish":
+        items = [
+            ("Use when", "a local Sage library is ready to distribute"),
+            ("Core action", "push to IPFS, verify CID, handle auth/rate limits"),
+            ("Outcome", "published library ready for reuse or promotion"),
+        ]
+    elif kind == "governance":
+        items = [
+            ("Use when", "a DAO/proposal/library decision needs governance"),
+            ("Core action", "inspect posture, choose path, vote or promote"),
+            ("Outcome", "governed capability state is explicit"),
+        ]
+    elif kind == "discover":
+        items = [
+            ("Use when", "the right reusable capability is not yet active"),
+            ("Core action", "search, inspect, install, expose, verify"),
+            ("Outcome", "a skill/prompt becomes usable in the agent"),
+        ]
+    elif kind == "builder":
+        items = [
+            ("Use when", "a repeatable capability should become an asset"),
+            ("Core action", "classify, search, compose, validate"),
+            ("Outcome", "prompt, skill, or behavior ready for reuse"),
+        ]
+    else:
+        items = [
+            ("Use when", "a task needs repeatable agent know-how"),
+            ("Core action", "load guidance, follow steps, verify output"),
+            ("Outcome", "capability is reusable across sessions"),
+        ]
+    return '<div class="proof-flow">' + "".join(
+        '<article class="proof-flow-item">'
+        f'<div class="proof-flow-label">{html.escape(label)}</div>'
+        f'<div class="proof-flow-body">{html.escape(body)}</div>'
+        '</article>'
+        for label, body in items
+    ) + "</div>"
+
+
+def _proof_poster_lead(card: ShareCardPayload) -> str:
+    text = str(card.proof_excerpt or "").strip()
+    blob = " ".join([str(card.headline or ""), str(card.subhead or ""), str(card.proof_title or ""), text]).lower()
+    kind = _skill_card_kind(blob)
+    if kind == "x_intel":
+        return "For operators tracking X/Twitter, Sage turns noisy posts into a scored, corroborated briefing."
+    if kind == "p2p":
+        return "For trusted fleets, Sage moves skills and libraries between peer daemons without public publishing."
+    if kind == "publish":
+        return "For library authors, Sage turns a local collection into an IPFS-backed artifact ready for reuse."
+    if kind == "governance":
+        return "For stewards, Sage makes proposal and library decisions inspectable before any governed action."
+    if kind == "discover":
+        return "For agents, Sage turns task intent into a verified, installed, and exposed reusable capability."
+    if kind == "builder":
+        return "For prompt authors, Sage turns repeated working patterns into prompts, skills, or behavior graphs."
+    if "→" in text or "->" in text or "=>" in text:
+        return "Source noise becomes ranked evidence and an operator-ready brief."
+    if text:
+        return _truncate_multiline_copy(text, max_lines=2, max_chars=150)
+    return "A deterministic proof module explains the product value before decoration."
+
+
+def _proof_poster_subhead(card: ShareCardPayload) -> str:
+    text = str(card.subhead or "").strip()
+    blob = " ".join([str(card.headline or ""), text, str(card.proof_title or ""), str(card.proof_excerpt or "")]).lower()
+    kind = _skill_card_kind(blob)
+    if kind == "x_intel" and (
+        not text or any(token in text.lower() for token in ("agent-tooling signal", "artifact-led", "verified"))
+    ):
+        return "For analysts and operators: turn noisy X/Twitter sources into a scored briefing."
+    if kind == "p2p" and (not text or "workflow" in text.lower()):
+        return "Share capabilities privately across trusted machines and agents."
+    if kind == "publish" and (not text or "workflow" in text.lower()):
+        return "Push a local Sage library to a verifiable manifest and reuse surface."
+    if kind == "governance" and (not text or "workflow" in text.lower()):
+        return "Inspect proposals, choose the right governance path, and verify outcomes."
+    if kind == "discover" and (not text or "workflow" in text.lower()):
+        return "Search, inspect, install, expose, and verify a reusable capability."
+    if kind == "builder" and (not text or "workflow" in text.lower()):
+        return "Package repeated agent know-how into prompts, skills, or behaviors."
+    return text
 
 
 _DIV_TOKEN_RE = re.compile(r"<div\b|</div>")
@@ -540,7 +897,18 @@ def _surface_size(material_type: str, *, layout_spec: LayoutSpec | None = None, 
     return {
         "social": (1200, 1200),
         "x-feed": (1600, 900),
+        "carousel-slide": (1600, 900),
+        "content-card-square": (1200, 1200),
+        "data-card": (1200, 1200),
+        "quote-card": (1200, 1200),
         "announcement-card": (1200, 1500),
+        "proof-poster": (1600, 900),
+        "content-card": (1200, 1500),
+        "editorial-card": (1200, 1500),
+        "info-card": (1200, 1500),
+        "process-card": (1200, 1500),
+        "linkedin-card": (1200, 1500),
+        "og-card": (1200, 630),
     }.get(material_type, (1200, 1200))
 
 
@@ -569,9 +937,10 @@ def compose_share_card_html(card: ShareCardPayload, *, material_type: str, asset
     proof_label = "" if card.skip_proof else html.escape(_entity_proof_label(card.entity_type))
     if material_type == "announcement-card" and card.entity_type in {"prompt", "skill", "library", "profile", "community", "dao"}:
         proof_label = ""
-    meta_html = "" if card.skip_proof else _escape_list(card.proof_meta)
+    safe_meta = _safe_proof_meta(card.proof_meta, material_type=material_type)
+    meta_html = "" if card.skip_proof else _escape_list(safe_meta)
     qr_url = html.escape(_qr_code_url(card.source_url))
-    use_qr = card.entity_type in {"prompt", "skill", "library"}
+    use_qr = bool(card.source_url) and card.entity_type in {"prompt", "skill", "library"}
     qr_html = (
         f'<div class="qr-wrap"><img src="{qr_url}" alt="QR code linking to source" class="qr-code" />'
         f'<div class="qr-caption">{cta}</div></div>'
@@ -682,6 +1051,17 @@ body {{ font-family:Manrope,'Geist',sans-serif; text-rendering:optimizeLegibilit
 .qr-inline-label {{ color:rgba(42,35,26,.62); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }}
 .strategy-chip {{ display:inline-flex; align-items:center; padding:9px 12px; border-radius:999px; background:rgba(42,35,26,.06); color:rgba(42,35,26,.62); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }}
 .strategy-note {{ color:rgba(42,35,26,.56); font-size:12px; line-height:1.45; max-width:28ch; text-align:right; }}
+.workflow-rail {{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin-top:20px; padding-top:14px; border-top:1px solid rgba(42,35,26,.08); }}
+.workflow-segment {{ min-height:104px; padding:12px 12px 11px; border-radius:16px; background:rgba(244,235,217,.64); border:1px solid rgba(42,35,26,.075); box-shadow:inset 0 1px 0 rgba(255,255,255,.48); display:flex; flex-direction:column; justify-content:flex-start; }}
+.workflow-index {{ color:rgba(198,123,92,.72); font-size:12px; font-weight:800; letter-spacing:.14em; }}
+.workflow-label {{ color:var(--ink); font-size:15px; line-height:1.05; font-weight:800; letter-spacing:-.02em; margin-top:9px; }}
+.workflow-body {{ color:rgba(42,35,26,.66); font-size:12px; line-height:1.32; font-weight:600; margin-top:7px; }}
+.proof-flow {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:22px; }}
+.proof-flow-item {{ border-radius:18px; border:1px solid rgba(42,35,26,.075); background:rgba(255,255,255,.48); padding:13px 14px 14px; }}
+.proof-flow-label {{ color:rgba(198,123,92,.82); font-size:10px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }}
+.proof-flow-body {{ color:rgba(42,35,26,.74); font-size:13px; line-height:1.34; font-weight:700; margin-top:7px; }}
+.output-pills {{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }}
+.output-pills span {{ display:inline-flex; align-items:center; border-radius:999px; padding:9px 12px; background:rgba(42,35,26,.055); color:rgba(42,35,26,.64); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }}
 </style>
 </head>
 <body>'''
@@ -702,6 +1082,71 @@ body {{ font-family:Manrope,'Geist',sans-serif; text-rendering:optimizeLegibilit
         pad_h = max(pad_h, 96)  # extra left padding for accent strip
     elif spec.accent_style == "top-bar":
         accent_html = '<div style="position:absolute;left:0;right:0;top:0;height:5px;background:var(--rust);opacity:.18;"></div>'
+
+    if material_type == "proof-poster":
+        width, height = _surface_size(material_type, layout_spec=spec, entity_type=card.entity_type)
+        bg_overlay = (
+            "linear-gradient(135deg, rgba(255,255,255,.56), rgba(255,255,255,0) 42%), "
+            "radial-gradient(circle at 12% 16%, rgba(156,175,153,.20), transparent 21%), "
+            "radial-gradient(circle at 88% 18%, rgba(198,123,92,.12), transparent 24%)"
+        )
+        proof_lead = html.escape(_proof_poster_lead(card))
+        proof_subhead = html.escape(_proof_poster_subhead(card))
+        proof_flow_html = _proof_flow_html(card)
+        workflow_steps_html = _render_workflow_steps_html(card)
+        proof_title_display = proof_title or html.escape(card.detail_label or "Operator workflow")
+        poster_label = html.escape(card.detail_label or "Workflow proof")
+        proof_header_right = source_domain if source_url else "Deterministic text"
+        utility_chip = "Source-linked skill" if use_qr else "Skill workflow"
+        proof_poster_utility_html = (
+            f'''<div style="display:flex;align-items:center;gap:14px;">
+        <div class="strategy-chip">{utility_chip}</div>
+        <div class="qr-inline" style="align-items:center;gap:10px;">
+          <img src="{qr_url}" alt="QR code linking to source" class="qr-inline-code" style="width:74px;height:74px;border-radius:14px;padding:6px;" />
+          <div class="qr-inline-copy" style="gap:4px;">
+            <div class="qr-inline-label" style="font-size:10px;">{cta}</div>
+            <a class="source-link" href="{source_url}" style="font-size:12px;">{source_domain} →</a>
+          </div>
+        </div>
+      </div>'''
+            if use_qr
+            else f'<div class="strategy-chip">{utility_chip}</div>'
+        )
+        return _finalize_share_card_html(common_head + f'''
+<div class="frame" style="width:{width}px;height:{height}px;margin:0 auto;">
+  <div style="position:absolute;inset:0;background:{bg_overlay};"></div>
+  {composition_support_html}
+  {accent_html}
+  <div style="position:absolute;left:{pad_h}px;top:{pad_v}px;right:{pad_h}px;bottom:{max(pad_v - 16, 56)}px;display:grid;grid-template-columns:minmax(0,.74fr) minmax(0,1.26fr);grid-template-rows:auto minmax(0,1fr);gap:28px 44px;">
+    <div style="grid-column:1 / span 2;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        {f'<img src="{assets_base}{logo}" alt="{brand_label}" class="logo-plain" style="width:58px;height:58px;border-radius:17px;" />' if logo else '<div class="logo-tile" style="width:58px;height:58px;border-radius:17px;">'+logo_html+'</div>'}
+        <div>
+          <div class="kicker" style="font-size:12px;">{brand_label}</div>
+          <div class="domain" style="font-size:12px;">Skill share card</div>
+        </div>
+      </div>
+      {proof_poster_utility_html}
+    </div>
+    <section style="display:flex;flex-direction:column;justify-content:center;align-self:stretch;min-width:0;">
+      <div class="kicker">Sage skill</div>
+      <h1 class="headline serif" style="font-size:{max(min(hl_size, 78), 58)}px;margin-top:14px;max-width:560px;">{headline}</h1>
+      <p class="subhead" style="font-size:22px;max-width:550px;margin-top:20px;">{proof_subhead or subhead}</p>
+      <div class="output-pills" style="margin-top:30px;">{meta_html or '<span>Skill</span><span>Workflow</span><span>Proof</span>'}</div>
+    </section>
+    <section class="proof" style="align-self:center;padding:30px 32px 28px;border-radius:30px;min-height:520px;max-height:100%;display:flex;flex-direction:column;justify-content:center;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;">
+        <div class="proof-label">{poster_label}</div>
+        <div class="domain" style="font-size:12px;">{proof_header_right}</div>
+      </div>
+      <h2 class="proof-title serif" style="font-size:36px;margin-top:16px;max-width:680px;">{proof_title_display}</h2>
+      <p class="proof-excerpt" style="font-size:18px;line-height:1.48;max-width:720px;margin-top:14px;">{proof_lead}</p>
+      {proof_flow_html}
+      {workflow_steps_html}
+    </section>
+  </div>
+</div>
+</body></html>''', card)
 
     if spec.columns == 2:
         if material_type == "announcement-card" and card.entity_type in {"prompt", "skill", "library", "profile", "community", "dao"}:

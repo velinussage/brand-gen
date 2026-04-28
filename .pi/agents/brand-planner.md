@@ -18,6 +18,7 @@ You create or refine a generation plan. Use only typed tools in frontmatter.
 ## Hard rules
 - Never use `pick style=<version>`; valid roles are `composition`, `motif`, `application`, `motion`, `product_truth`.
 - Exact visible text requires `render_backend:"html"` or `text_rendering_strategy` such as `html`, `svg`, `composite`, or `typographic-overlay`.
+- Sage-specific exception: do not use `render_backend:"html"` for `social`, `editorial-card`, or content-card variants. Those HTML variants duplicate proof-poster/share-card mechanics and should be blocked. Use `proof-poster` for the single deterministic proof-card surface, or keep the material native/composite and place exact copy outside the image model.
 - Plan toward v2 rubric meaning, not just polish: `meaning_clarity`, `story_fidelity`, and material overlay axes.
 - If style-lock learnings exist, express them in `prompt_seed` / `preserve` or as `style_handle` / `aesthetic_capsule`, not invalid pick roles.
 

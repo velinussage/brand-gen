@@ -3,8 +3,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from brand_gen.blackboard import DEFAULT_BLACKBOARD, build_blackboard_learning_snippet, update_blackboard_learning_summary
+from brand_gen.blackboard import (
+    DEFAULT_BLACKBOARD,
+    build_blackboard_feedback_directives,
+    build_blackboard_learning_snippet,
+    get_blackboard_learning_warnings,
+    update_blackboard_learning_summary,
+)
 from brand_gen.learnings_memory import promote_blackboard_lessons_to_learnings
+from brand_gen.plan_builder import create_material_plan
 from brand_gen.prompt_assembly import build_effective_prompt, evaluate_prompt_review_rules
 from brand_gen.session_summary import build_session_summary_payload
 
@@ -147,6 +154,206 @@ class LearningLoopTests(unittest.TestCase):
             self.assertIn("blackboard_learning_snippet", payload)
             self.assertIn("Recent blackboard preferred setup", payload["blackboard_learning_snippet"])
             self.assertIn("Keep one real product crop", payload["resolved_prompt"])
+
+    def test_feedback_directives_normalize_user_design_notes(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            board = dict(DEFAULT_BLACKBOARD)
+            board = update_blackboard_learning_summary(
+                board,
+                material_type="x-feed-square",
+                version_id="v148",
+                entry={"material_type": "x-feed-square", "mode": "reference", "score": 2, "status": "rejected"},
+                source="feedback",
+                notes=(
+                    "Pretty busy; text is hard to read; colors are not working. "
+                    "Premise is liked, but the agent hyper-focuses on one specific feature."
+                ),
+                score=2,
+                status="rejected",
+            )
+
+            directives = build_blackboard_feedback_directives(brand_dir, "x-feed-square", board=board)
+            joined_push = " ".join(directives["push"]).lower()
+            joined_ban = " ".join(directives["ban"]).lower()
+            self.assertIn("simplify", joined_push)
+            self.assertIn("deterministic", joined_push)
+            self.assertIn("brand palette", joined_push)
+            self.assertIn("fresh angle", joined_push)
+            self.assertIn("busy", joined_ban)
+            self.assertEqual(directives["visual_density_cap"], 4)
+            self.assertEqual(directives["complexity_tier_hint"], "simple")
+
+    def test_feedback_directives_force_style_shift_for_repetitive_sage_runs(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            board = dict(DEFAULT_BLACKBOARD)
+            for idx, note in enumerate(
+                [
+                    "User score: 3/5. Better than the animations, but the image generation is copying the same style too closely.",
+                    "User score: 3/5. Do not keep repeating the same terracotta/isometric/exchange-node look.",
+                    "User score: 3/5. Too stylistically repetitive; next pass must deliberately vary generation style.",
+                ],
+                start=189,
+            ):
+                board = update_blackboard_learning_summary(
+                    board,
+                    material_type="editorial-metaphor-illustration",
+                    version_id=f"v{idx}",
+                    entry={"material_type": "editorial-metaphor-illustration", "mode": "reference", "score": 3},
+                    source="feedback",
+                    notes=note,
+                    score=3,
+                )
+
+            directives = build_blackboard_feedback_directives(brand_dir, "editorial-metaphor-illustration", board=board)
+            joined_push = " ".join(directives["push"]).lower()
+            joined_ban = " ".join(directives["ban"]).lower()
+            joined_warnings = " ".join(directives["warnings"]).lower()
+            self.assertIn("different art-direction branch", joined_push)
+            self.assertIn("terracotta/isometric/exchange-node", joined_ban)
+            self.assertIn("v189-v191", joined_warnings)
+
+    def test_website_hero_feedback_directives_force_sidecar_not_full_section(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            board = dict(DEFAULT_BLACKBOARD)
+            board = update_blackboard_learning_summary(
+                board,
+                material_type="website-hero-illustration",
+                version_id="v149",
+                entry={"material_type": "website-hero-illustration", "mode": "reference", "score": 1, "status": "rejected"},
+                source="feedback",
+                notes="This should not be a full hero section; it should be a supporting illustration on the right or left side of hero text.",
+                score=1,
+                status="rejected",
+            )
+
+            directives = build_blackboard_feedback_directives(brand_dir, "website-hero-illustration", board=board)
+            self.assertTrue(any("sidecar hero illustration" in item for item in directives["push"]))
+            self.assertTrue(any("full hero section" in item for item in directives["ban"]))
+            self.assertEqual(directives["visual_density_cap"], 4)
+
+    def test_proof_poster_feedback_preserves_illustration_but_reduces_density(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            board = dict(DEFAULT_BLACKBOARD)
+            board = update_blackboard_learning_summary(
+                board,
+                material_type="proof-poster",
+                version_id="v150",
+                entry={"material_type": "proof-poster", "mode": "reference", "score": 4},
+                source="feedback",
+                notes="User score 3.8/5. Liked the illustration and poster craft, but it is a bit too busy.",
+                score=4,
+            )
+
+            directives = build_blackboard_feedback_directives(brand_dir, "proof-poster", board=board)
+            self.assertTrue(any("Preserve the illustrated proof-poster craft" in item for item in directives["push"]))
+            self.assertTrue(any("many competing text blocks" in item for item in directives["ban"]))
+            self.assertEqual(directives["visual_density_cap"], 4)
+
+    def test_material_plan_applies_feedback_directives_to_push_ban_and_density(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            identity = {"brand": {"name": "Sage"}}
+            identity_path = brand_dir / "brand-identity.json"
+            identity_path.write_text(json.dumps(identity))
+            board = dict(DEFAULT_BLACKBOARD)
+            board = update_blackboard_learning_summary(
+                board,
+                material_type="x-feed-square",
+                version_id="v148",
+                entry={"material_type": "x-feed-square", "mode": "reference", "score": 2, "status": "rejected"},
+                source="feedback",
+                notes="Pretty busy; text is hard to read; colors are not working.",
+                score=2,
+                status="rejected",
+            )
+            (brand_dir / "blackboard.json").write_text(json.dumps(board))
+
+            plan, missing = create_material_plan(
+                brand_dir=brand_dir,
+                identity_path=identity_path,
+                identity=identity,
+                material_type="x-feed-square",
+                mode="reference",
+                mechanic="",
+                preserve=[],
+                push=[],
+                ban=[],
+                picks={},
+                product_truth_expression="Sage libraries distribute reusable capabilities to agents.",
+            )
+
+            self.assertEqual(missing, [])
+            self.assertEqual(plan["visual_density"], 4)
+            self.assertEqual(plan["complexity_tier"], "simple")
+            self.assertTrue(any("Simplify hierarchy" in item for item in plan["push"]))
+            self.assertTrue(any("tiny native image text" in item for item in plan["ban"]))
+            self.assertTrue(plan["feedback_directives"]["warnings"])
+
+    def test_underperforming_warning_requires_distinct_losses_without_recent_win(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            board = dict(DEFAULT_BLACKBOARD)
+            for source in ("feedback", "submit_critique"):
+                board = update_blackboard_learning_summary(
+                    board,
+                    material_type="social",
+                    version_id="v001",
+                    entry={"material_type": "social", "mode": "reference", "score": 1, "status": "rejected"},
+                    source=source,
+                    notes="Same rejected version recorded twice.",
+                    score=1,
+                    status="rejected",
+                )
+            warnings = get_blackboard_learning_warnings(
+                brand_dir,
+                "social",
+                proposed_mode="reference",
+                has_reference_roles=True,
+                board=board,
+            )
+            self.assertFalse(any("underperforming" in item for item in warnings))
+
+            board = update_blackboard_learning_summary(
+                board,
+                material_type="social",
+                version_id="v002",
+                entry={"material_type": "social", "mode": "reference", "score": 1, "status": "rejected"},
+                source="feedback",
+                notes="Second distinct rejected version.",
+                score=1,
+                status="rejected",
+            )
+            warnings = get_blackboard_learning_warnings(
+                brand_dir,
+                "social",
+                proposed_mode="reference",
+                has_reference_roles=True,
+                board=board,
+            )
+            self.assertTrue(any("underperforming" in item for item in warnings))
+
+            board = update_blackboard_learning_summary(
+                board,
+                material_type="social",
+                version_id="v003",
+                entry={"material_type": "social", "mode": "reference", "score": 4, "status": "favorite"},
+                source="feedback",
+                notes="Recent reference-mode win.",
+                score=4,
+                status="favorite",
+            )
+            warnings = get_blackboard_learning_warnings(
+                brand_dir,
+                "social",
+                proposed_mode="reference",
+                has_reference_roles=True,
+                board=board,
+            )
+            self.assertFalse(any("underperforming" in item for item in warnings))
 
     def test_prompt_review_rules_consume_learning_signals(self):
         issues, recommendations = evaluate_prompt_review_rules(

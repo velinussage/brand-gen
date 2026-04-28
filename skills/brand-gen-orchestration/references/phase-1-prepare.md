@@ -372,16 +372,21 @@ without it.
 
 ## Logo Resolution
 
-**Why:** The brand logo must be passed as a reference image for all generation types to
-ensure brand mark consistency. The pipeline auto-injects it for `bgen pipeline` and
-`bgen build-generation-scratchpad`, but direct `generate.py` calls need it explicitly.
+**Why:** The brand logo is a brand anchor, not a universal opening frame. The pipeline
+auto-injects brand assets after product-truth references for `bgen pipeline` and
+`bgen build-generation-scratchpad`, but direct `generate.py` calls must preserve the
+same ordering discipline.
 
 Resolve the logo path:
 1. Check `.brand-gen/brands/<active>/logo.png` (local workspace copy)
 2. Fall back to `brand_assets.icon` in `brand-identity.json`, resolved via `project_root`
 
-Store the resolved absolute path. When calling `bgen image` directly,
-always include `-i <logo-path>` as one of the reference images.
+Store the resolved absolute path. When calling `bgen image` directly, include
+`-i <logo-path>` as a secondary brand reference when the model supports multiple refs.
+For non-logo motion (`feature-animation`, `stinger-animation`, `bumper-animation`,
+`landing-hero`, `motion-loop`, `short-video`), the first/start-frame reference must be
+a product, workflow, capability, or source-still proof. Do **not** pass the logo as the
+sole video reference unless the requested material is explicitly `logo-animation`.
 
 ---
 

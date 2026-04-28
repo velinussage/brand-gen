@@ -51,6 +51,24 @@ class CritiquePolicyTests(unittest.TestCase):
         self.assertFalse(policy["bypass_recorded"])
         self.assertEqual(payload["state"]["status"], "blocked")
 
+    def test_html_share_card_policy_block_cannot_be_bypassed(self):
+        payload = {
+            "state": {"status": "blocked"},
+            "checks": {
+                "blocking": [
+                    "HTML share-card policy block: Sage social/editorial HTML share-card variants duplicate proof-poster."
+                ],
+                "warnings": [],
+            },
+        }
+
+        policy = apply_generation_critique_policy(payload, entrypoint="pipeline", allow_blocking=True)
+
+        self.assertTrue(policy["blocks_generation"])
+        self.assertEqual(policy["blocking_policy"], "block_generation")
+        self.assertFalse(policy["bypass_recorded"])
+        self.assertEqual(payload["state"]["status"], "blocked")
+
 
 if __name__ == "__main__":
     unittest.main()

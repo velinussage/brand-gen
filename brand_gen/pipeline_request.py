@@ -6,7 +6,7 @@ from typing import Any, Mapping
 
 
 PIPELINE_MCP_PROPERTIES: dict[str, dict[str, Any]] = {
-    "material_type": {"type": "string", "description": "Material type to generate (e.g. social, browser-illustration, landing-hero, logo)"},
+    "material_type": {"type": "string", "description": "Material type to generate (e.g. social, browser-illustration, landing-hero for 16:9 hero animation, website-hero-illustration for static sidecar art, logo)"},
     "render_backend": {"type": "string", "enum": ["native", "html"], "default": "native", "description": "Rendering backend. Use html for share-card oriented HTML/layout generation backed by structured page payloads."},
     "mode": {"type": "string", "enum": ["reference", "inspiration", "hybrid"], "default": "hybrid", "description": "Workflow mode for the plan"},
     "tag": {"type": "string", "description": "Optional short output tag for filenames and version metadata."},
@@ -47,7 +47,8 @@ PIPELINE_MCP_PROPERTIES: dict[str, dict[str, Any]] = {
             "accent_style": {"type": "string", "enum": ["left-strip", "top-bar", "none"]},
             "headline_size": {"type": "string", "enum": ["xl", "lg", "md", "sm"]},
             "padding": {"type": "string", "enum": ["tight", "normal", "generous"]},
-            "proof_style": {"type": "string", "enum": ["card", "inline", "minimal"]},
+            "proof_style": {"type": "string", "enum": ["card", "inline", "minimal", "operator"]},
+            "canvas_preset": {"type": "string", "enum": ["auto", "portrait", "wide", "square", "document"]},
         },
     },
     "set_scope": {"type": "boolean", "default": False, "description": "Route as a set orchestration brief, even though generation remains single-material"},
@@ -243,7 +244,8 @@ class PipelineRequest:
         material_type = str(self.material_type or "").strip().lower()
         entity_type = str(self.entity_type or "").strip().lower()
         source_url = str(self.source_url or "").strip()
-        if render_backend != "html" or not source_url:
+        has_structured_html_input = bool(source_url or self.headline or self.proof_title or self.proof_excerpt or self.proof_row)
+        if render_backend != "html" or not has_structured_html_input:
             return self
 
         if not self.product_truth_expression:
@@ -255,6 +257,7 @@ class PipelineRequest:
         if not self.target_surface:
             self.target_surface = {
                 "announcement-card": "portrait social poster / story-style share",
+                "proof-poster": "landscape operator proof board / workflow briefing visual",
                 "social": "square social feed share",
                 "x-feed": "wide feed preview card",
             }.get(material_type, "social share card")
@@ -267,6 +270,8 @@ class PipelineRequest:
             }.get(entity_type, "share a governed artifact as a branded social card")
             if material_type == "announcement-card":
                 base = base.replace("social card", "portrait poster card")
+            if material_type == "proof-poster":
+                base = base.replace("social card", "landscape operator proof board")
             self.purpose = base
 
         return self

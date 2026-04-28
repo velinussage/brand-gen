@@ -243,7 +243,9 @@
       "internal_handles": [
         "screenprint poster",
         "risograph proof",
-        "chunky graphic proof"
+        "chunky graphic proof",
+        "screenprinted poster",
+        "screenprinted proof"
       ],
       "material_types": [
         "proof-poster",
@@ -386,6 +388,1044 @@
           0.62
         ],
         "when_low_score": "use only if user accepts realism; otherwise switch to warm-editorial-system-illustration"
+      }
+    },
+    {
+      "id": "brand-system-vector-kit",
+      "label": "Brand system vector kit",
+      "safe_handle": "precise modular identity system sheet",
+      "internal_handles": [
+        "logo system",
+        "icon kit",
+        "brand system",
+        "vector identity kit",
+        "sticker system"
+      ],
+      "material_types": [
+        "icon",
+        "icon-family",
+        "badge-family",
+        "sticker-family",
+        "motif-system",
+        "site-pattern-tile",
+        "pattern-board",
+        "pattern-system",
+        "lockup",
+        "logo",
+        "poster",
+        "merch-poster"
+      ],
+      "use_when": [
+        "identity primitives need consistency",
+        "system assets must feel deployable",
+        "avoid illustrative drift in marks/icons"
+      ],
+      "avoid_when": [
+        "needs photographic emotion",
+        "real product proof should dominate",
+        "exact final logo approval is required without human review"
+      ],
+      "style_strength_default": 0.64,
+      "style_description": {
+        "medium": "clean vector identity-system sheet with production-ready geometry",
+        "palette": "brand neutrals plus one controlled accent; no rainbow palettes",
+        "line": "crisp monoline or filled geometric primitives with consistent stroke weight",
+        "lighting": "flat vector field, no lighting effects",
+        "composition": "organized specimen grid or one centered lockup with construction spacing",
+        "density": "medium; enough variations to show system, not a cluttered sticker dump",
+        "texture": "flat matte vector, no 3D bevels or glossy app-icon shine",
+        "motifs": [
+          "mark anatomy",
+          "badge seals",
+          "repeat primitives",
+          "sticker silhouettes",
+          "construction guides"
+        ]
+      },
+      "positive_prompt_terms": [
+        "modular identity system",
+        "consistent vector geometry",
+        "deployable icon set",
+        "specimen grid",
+        "controlled brand palette"
+      ],
+      "negative_prompt_terms": [
+        "random mascot dump",
+        "glossy app icon",
+        "fake final trademark",
+        "gradient blobs",
+        "inconsistent stroke weights",
+        "too many unrelated symbols",
+        "AI brain icon"
+      ],
+      "style_axes": [
+        "system_consistency",
+        "mark_geometry",
+        "deployability"
+      ],
+      "reference_roles": {
+        "style": "precise modular vector identity language",
+        "composition": "specimen grid or centered construction layout",
+        "brand": "approved mark geometry and palette dominate",
+        "negative": "no fake trademark finalization, no random symbol collage"
+      },
+      "iteration_policy": {
+        "exploration_role": "identity-system branch",
+        "strength_range": [
+          0.45,
+          0.75
+        ],
+        "when_low_score": "reduce motif count, enforce one geometry rule, and avoid treating a generated logo as final approval"
+      }
+    },
+    {
+      "id": "editorial-content-card",
+      "label": "Editorial content card",
+      "safe_handle": "quiet editorial information card",
+      "internal_handles": [
+        "editorial card",
+        "content card",
+        "magazine info card",
+        "quote card",
+        "data card"
+      ],
+      "material_types": [
+        "content-card",
+        "content-card-square",
+        "editorial-card",
+        "info-card",
+        "data-card",
+        "state-card",
+        "quote-card",
+        "process-card",
+        "event-poster",
+        "podcast-cover",
+        "podcast-banner",
+        "carousel-slide",
+        "announcement-card",
+        "linkedin-card",
+        "linkedin-feed",
+        "linkedin-feed-square",
+        "linkedin-feed-portrait",
+        "x-feed-square",
+        "x-feed-portrait",
+        "og-card"
+      ],
+      "use_when": [
+        "copy or information hierarchy matters",
+        "social/editorial surface needs structure",
+        "native generation should avoid text clutter"
+      ],
+      "avoid_when": [
+        "pure icon system work",
+        "literal product screenshot should dominate",
+        "motion pacing is the main requirement"
+      ],
+      "style_strength_default": 0.6,
+      "style_description": {
+        "medium": "editorial layout card with disciplined typographic hierarchy",
+        "palette": "brand background, restrained type color, one quiet accent panel",
+        "line": "clean rules, panels, and chips rather than decorative illustration lines",
+        "lighting": "flat print/digital layout; no dramatic scene lighting",
+        "composition": "headline/proof/data module first, brand mark secondary, generous margins",
+        "density": "medium-low for feed cards; medium for data/process cards",
+        "texture": "matte editorial surface, optional subtle paper grain",
+        "motifs": [
+          "proof module",
+          "quote block",
+          "data chip",
+          "numbered step",
+          "small brand seal"
+        ]
+      },
+      "positive_prompt_terms": [
+        "editorial information card",
+        "clear headline hierarchy",
+        "proof module",
+        "generous margins",
+        "small brand seal"
+      ],
+      "negative_prompt_terms": [
+        "gibberish body copy",
+        "tiny unreadable table",
+        "fake chart labels",
+        "oversized logo",
+        "busy icon wallpaper",
+        "decorative orb",
+        "invented event details"
+      ],
+      "style_axes": [
+        "information_hierarchy",
+        "typographic_restraint",
+        "proof_weight"
+      ],
+      "reference_roles": {
+        "style": "quiet editorial card system",
+        "composition": "headline/proof/data hierarchy",
+        "brand": "approved copy and mark usage override decoration",
+        "negative": "no pseudo-text or invented data"
+      },
+      "iteration_policy": {
+        "exploration_role": "copy/information branch",
+        "strength_range": [
+          0.4,
+          0.68
+        ],
+        "when_low_score": "switch exact text to deterministic HTML/composite, reduce modules, and increase proof hierarchy"
+      }
+    },
+    {
+      "id": "terminal-cli-proof",
+      "label": "Terminal CLI proof",
+      "safe_handle": "developer terminal proof interface",
+      "internal_handles": [
+        "terminal hero",
+        "cli recording",
+        "command illustration",
+        "developer proof"
+      ],
+      "material_types": [
+        "terminal-hero",
+        "cli-recording",
+        "command-illustration",
+        "browser-illustration",
+        "feature-illustration",
+        "product-visual"
+      ],
+      "use_when": [
+        "developer/CLI proof is the product truth",
+        "terminal output or command flow should carry the story",
+        "avoid generic SaaS dashboard imagery"
+      ],
+      "avoid_when": [
+        "non-technical audience needs a metaphor first",
+        "exact terminal text must be native-generated rather than deterministic",
+        "logo/identity asset work"
+      ],
+      "style_strength_default": 0.56,
+      "style_description": {
+        "medium": "clean terminal/product proof composition with editorial framing",
+        "palette": "dark or warm-neutral terminal surface plus brand accent and readable monospace",
+        "line": "thin terminal chrome, command rows, caret/cursor, subtle dividers",
+        "lighting": "flat screen light or matte product-card depth",
+        "composition": "one terminal/proof window dominates, supporting annotations are minimal",
+        "density": "medium; fewer readable commands over many fake lines",
+        "texture": "clean digital surface, no hacker neon or matrix rain",
+        "motifs": [
+          "command prompt",
+          "MCP tool row",
+          "package/library sync line",
+          "status badge",
+          "copyable command block"
+        ]
+      },
+      "positive_prompt_terms": [
+        "developer terminal proof",
+        "readable command block",
+        "single terminal window",
+        "monospace hierarchy",
+        "small status badge"
+      ],
+      "negative_prompt_terms": [
+        "matrix rain",
+        "neon hacker aesthetic",
+        "fake command spam",
+        "unreadable terminal text",
+        "invented stack trace",
+        "cyberpunk glow",
+        "random code wall"
+      ],
+      "style_axes": [
+        "developer_legibility",
+        "proof_literalness",
+        "terminal_density"
+      ],
+      "reference_roles": {
+        "style": "developer terminal/product proof",
+        "composition": "single terminal or command window as hero",
+        "brand": "real command/source truth beats decoration",
+        "negative": "no hacker/cyberpunk clich\u00e9s or fake command spam"
+      },
+      "iteration_policy": {
+        "exploration_role": "developer-proof branch",
+        "strength_range": [
+          0.35,
+          0.62
+        ],
+        "when_low_score": "prefer deterministic terminal capture or HTML if command text must be exact"
+      }
+    },
+    {
+      "id": "kinetic-brand-motion-system",
+      "label": "Kinetic brand motion system",
+      "safe_handle": "clean kinetic brand motion frame",
+      "internal_handles": [
+        "motion brand system",
+        "logo animation",
+        "stinger",
+        "bumper animation",
+        "motion loop"
+      ],
+      "material_types": [
+        "landing-hero",
+        "animation",
+        "feature-animation",
+        "logo-animation",
+        "motion-loop",
+        "gif",
+        "short-video",
+        "stinger-animation",
+        "styleframe",
+        "storyboard"
+      ],
+      "use_when": [
+        "video/motion material needs a clear reveal arc",
+        "brand system should move without excess effects",
+        "final hold must be recognizable"
+      ],
+      "avoid_when": [
+        "static exact text card is enough",
+        "source UI must remain pixel-stable throughout",
+        "unapproved logo morphing would imply a new identity"
+      ],
+      "style_strength_default": 0.58,
+      "style_description": {
+        "medium": "clean motion-design keyframe language rendered as a still/prompt contract",
+        "palette": "brand base field with one accent sweep or mask",
+        "line": "geometric masks, wipes, modular tiles, precise easing cues",
+        "lighting": "flat-to-soft dimensionality; no particle storms",
+        "composition": "three-beat motion arc: setup, transformation, confident final hold",
+        "density": "low to medium; one motion idea per clip",
+        "texture": "clean vector/product motion, optional subtle grain",
+        "motifs": [
+          "mask reveal",
+          "routing line",
+          "tile assembly",
+          "logo final hold",
+          "proof window reveal"
+        ]
+      },
+      "positive_prompt_terms": [
+        "three-beat kinetic reveal",
+        "clean brand motion system",
+        "confident final hold",
+        "geometric mask wipe",
+        "one motion idea"
+      ],
+      "negative_prompt_terms": [
+        "particle explosion",
+        "logo melted beyond recognition",
+        "random camera spin",
+        "too many transitions",
+        "stock intro template",
+        "unreadable motion text",
+        "glitch overload"
+      ],
+      "style_axes": [
+        "motion_clarity",
+        "brand_final_hold",
+        "transition_restraint"
+      ],
+      "reference_roles": {
+        "style": "clean kinetic brand-motion language",
+        "composition": "setup transformation final-hold sequence",
+        "brand": "final frame preserves approved mark/palette",
+        "negative": "no stock intro effects or logo distortion"
+      },
+      "iteration_policy": {
+        "exploration_role": "motion branch",
+        "strength_range": [
+          0.35,
+          0.65
+        ],
+        "when_low_score": "reduce transitions to one reveal mechanic and enforce a clean final hold"
+      }
+    },
+    {
+      "id": "structural-neo-brutalist-blueprint",
+      "label": "Structural neo-brutalist blueprint",
+      "safe_handle": "warm structural blueprint editorial system",
+      "internal_handles": [
+        "neo brutalist blueprint",
+        "brutalist editorial",
+        "blueprint grid",
+        "structured brutalism"
+      ],
+      "material_types": [
+        "landing-hero",
+        "hero-banner",
+        "website-hero-illustration",
+        "data-card",
+        "state-card",
+        "process-card",
+        "info-card",
+        "terminal-hero",
+        "command-illustration",
+        "social",
+        "x-feed",
+        "linkedin-card"
+      ],
+      "use_when": [
+        "the material needs transparent structure and grid confidence",
+        "complex product logic should feel legible",
+        "a tasteful alternative to generic SaaS gradients is needed"
+      ],
+      "avoid_when": [
+        "the brand needs softness or humanity first",
+        "the surface requires photographic emotion",
+        "exact text must be native-generated rather than deterministic"
+      ],
+      "style_strength_default": 0.63,
+      "style_description": {
+        "medium": "editorial blueprint/grid system with restrained neo-brutalist confidence",
+        "palette": "warm off-white, charcoal, one utility blue or signal orange accent",
+        "line": "visible grid, measurement ticks, box rules, strong typographic blocks",
+        "lighting": "flat print/digital field, no glass reflections",
+        "composition": "large structural frame, clear hierarchy, evidence modules snapped to grid",
+        "density": "medium; information-rich but still scannable",
+        "texture": "matte paper/digital blueprint, subtle registration only",
+        "motifs": [
+          "grid rails",
+          "measurement marks",
+          "proof modules",
+          "system map",
+          "terminal block"
+        ]
+      },
+      "positive_prompt_terms": [
+        "warm structural blueprint",
+        "visible grid system",
+        "transparent product logic",
+        "editorial rule lines",
+        "evidence modules"
+      ],
+      "negative_prompt_terms": [
+        "aggressive punk brutalism",
+        "illegible oversized type",
+        "glassmorphism",
+        "purple gradient SaaS",
+        "random node spaghetti",
+        "fake schematic labels"
+      ],
+      "style_axes": [
+        "structure_vs_softness",
+        "grid_visibility",
+        "information_confidence"
+      ],
+      "reference_roles": {
+        "style": "warm structural blueprint/editorial grid",
+        "composition": "modules snap to clear grid and hierarchy",
+        "brand": "product proof and approved palette override brutal decoration",
+        "negative": "no illegible brutalist typography or generic schematics"
+      },
+      "iteration_policy": {
+        "exploration_role": "structure/clarity branch",
+        "strength_range": [
+          0.45,
+          0.72
+        ],
+        "when_low_score": "reduce grid density, promote one proof module, and keep typography deterministic"
+      }
+    },
+    {
+      "id": "tactile-human-collage",
+      "label": "Tactile human collage",
+      "safe_handle": "human-made tactile editorial collage",
+      "internal_handles": [
+        "tactile rebellion",
+        "handmade collage",
+        "human made design",
+        "scanned editorial collage",
+        "35mm campaign collage"
+      ],
+      "material_types": [
+        "announcement-card",
+        "event-poster",
+        "podcast-cover",
+        "podcast-banner",
+        "content-card",
+        "editorial-card",
+        "quote-card",
+        "poster",
+        "merch-poster",
+        "illustrated-brand-world",
+        "social",
+        "linkedin-feed-portrait"
+      ],
+      "use_when": [
+        "output feels too AI-polished or sterile",
+        "campaign/editorial material needs warmth and human evidence",
+        "physicality should counter generic tech aesthetics"
+      ],
+      "avoid_when": [
+        "user rejects realistic texture",
+        "interface proof must stay pixel-clean",
+        "logo/icon system needs pure vector geometry"
+      ],
+      "style_strength_default": 0.57,
+      "style_description": {
+        "medium": "scanned editorial collage with analog production cues",
+        "palette": "warm paper neutrals, ink black, muted brand accent, occasional film color",
+        "line": "cut-paper edges, simple annotation rules, imperfect human spacing",
+        "lighting": "soft natural scan/35mm feel, no glossy studio render",
+        "composition": "one real artifact/photo/proof fragment plus controlled brand/type field",
+        "density": "medium-low; tactile details support one message",
+        "texture": "subtle paper fiber, scanner grain, tape/crop edges kept restrained",
+        "motifs": [
+          "artifact crop",
+          "paper tab",
+          "stamp",
+          "film frame",
+          "hand-set label"
+        ]
+      },
+      "positive_prompt_terms": [
+        "human-made tactile collage",
+        "scanned paper warmth",
+        "artifact crop",
+        "restrained tape edge",
+        "35mm editorial grain"
+      ],
+      "negative_prompt_terms": [
+        "AI hyper-polish",
+        "fake parchment fantasy",
+        "messy scrapbook clutter",
+        "stock photo people",
+        "random stickers",
+        "illegible handwritten copy"
+      ],
+      "style_axes": [
+        "human_texture",
+        "artifact_truth",
+        "collage_restraint"
+      ],
+      "reference_roles": {
+        "style": "human-made tactile editorial collage",
+        "composition": "one artifact/proof fragment anchors the layout",
+        "brand": "approved copy/mark remain crisp, not distressed",
+        "negative": "no messy scrapbook or fake vintage fantasy"
+      },
+      "iteration_policy": {
+        "exploration_role": "human/tactile branch",
+        "strength_range": [
+          0.35,
+          0.62
+        ],
+        "when_low_score": "remove excess texture, keep one artifact, and restore brand crispness"
+      }
+    },
+    {
+      "id": "friendly-line-flat-wayfinding",
+      "label": "Friendly line-flat wayfinding",
+      "safe_handle": "clean line-and-flat wayfinding illustration",
+      "internal_handles": [
+        "line flat illustration",
+        "friendly product illustration",
+        "wayfinding illustration",
+        "clean healthcare illustration"
+      ],
+      "material_types": [
+        "feature-illustration",
+        "browser-illustration",
+        "website-hero-illustration",
+        "editorial-metaphor-illustration",
+        "info-card",
+        "process-card",
+        "icon-family",
+        "badge-family",
+        "sticker-family",
+        "illustrated-brand-world",
+        "social"
+      ],
+      "use_when": [
+        "small-screen clarity matters",
+        "illustration must scale and localize cleanly",
+        "the brand needs friendly guidance without mascot overload"
+      ],
+      "avoid_when": [
+        "the material needs bold campaign energy",
+        "photographic trust is required",
+        "austere institutional tone is preferred"
+      ],
+      "style_strength_default": 0.54,
+      "style_description": {
+        "medium": "flat geometric shapes plus simple line illustration",
+        "palette": "soft brand neutrals, high-contrast ink, one friendly accent",
+        "line": "consistent rounded line weight, simplified anatomy, no sketch clutter",
+        "lighting": "flat color with minimal shadow",
+        "composition": "clear wayfinding scene, one action or path, generous whitespace",
+        "density": "low; scaleable and accessible at thumbnail size",
+        "texture": "clean digital/print surface, no heavy grain",
+        "motifs": [
+          "path lines",
+          "simple people/tools",
+          "signage chips",
+          "product cards",
+          "helpful arrows"
+        ]
+      },
+      "positive_prompt_terms": [
+        "clean line-and-flat illustration",
+        "generous whitespace",
+        "friendly wayfinding scene",
+        "consistent line weight",
+        "accessible contrast"
+      ],
+      "negative_prompt_terms": [
+        "generic mascot characters",
+        "overly cute SaaS people",
+        "busy isometric city",
+        "tiny labels",
+        "low contrast pastel haze",
+        "random decorative icons"
+      ],
+      "style_axes": [
+        "friendliness",
+        "line_consistency",
+        "wayfinding_clarity"
+      ],
+      "reference_roles": {
+        "style": "clean line-and-flat illustration",
+        "composition": "one helpful path or action",
+        "brand": "brand palette and product truth prevent generic SaaS people",
+        "negative": "no mascot overload or pastel haze"
+      },
+      "iteration_policy": {
+        "exploration_role": "friendly clarity branch",
+        "strength_range": [
+          0.38,
+          0.62
+        ],
+        "when_low_score": "remove characters, increase product artifact, and strengthen contrast"
+      }
+    },
+    {
+      "id": "kinetic-typography-campaign",
+      "label": "Kinetic typography campaign",
+      "safe_handle": "bold kinetic typography campaign frame",
+      "internal_handles": [
+        "kinetic typography",
+        "motion typography",
+        "bold type campaign",
+        "typographic poster"
+      ],
+      "material_types": [
+        "announcement-card",
+        "event-poster",
+        "podcast-cover",
+        "podcast-banner",
+        "poster",
+        "merch-poster",
+        "social",
+        "x-feed",
+        "linkedin-feed",
+        "carousel-slide",
+        "stinger-animation",
+        "logo-animation",
+        "gif",
+        "short-video",
+        "motion-loop"
+      ],
+      "use_when": [
+        "headline/campaign message is the hero",
+        "motion or social crop needs instant impact",
+        "brand voice can be expressed through type behavior"
+      ],
+      "avoid_when": [
+        "exact long copy is required in native image/video",
+        "product proof should dominate",
+        "brand typography is not approved yet"
+      ],
+      "style_strength_default": 0.61,
+      "style_description": {
+        "medium": "high-impact typographic campaign frame with motion-ready composition",
+        "palette": "brand base plus one high-contrast accent or reversed type field",
+        "line": "large type blocks, directional motion trails, modular masks",
+        "lighting": "flat graphic, optional subtle motion blur kept controlled",
+        "composition": "one dominant headline shape, secondary proof/mark small, strong safe margins",
+        "density": "low to medium; type reads first",
+        "texture": "clean print/digital type surface, optional ink edge",
+        "motifs": [
+          "type mask",
+          "motion trail",
+          "frame sequence tick",
+          "headline block",
+          "final hold"
+        ]
+      },
+      "positive_prompt_terms": [
+        "bold kinetic typography frame",
+        "one dominant headline shape",
+        "motion-ready type mask",
+        "strong safe margins",
+        "brand final hold"
+      ],
+      "negative_prompt_terms": [
+        "unreadable warped type",
+        "too many fonts",
+        "random 3D chrome letters",
+        "invented long copy",
+        "stock YouTube thumbnail",
+        "text covers proof"
+      ],
+      "style_axes": [
+        "type_impact",
+        "motion_readiness",
+        "copy_legibility"
+      ],
+      "reference_roles": {
+        "style": "bold kinetic typography campaign frame",
+        "composition": "headline/mark/proof hierarchy with final-hold logic",
+        "brand": "only approved or deterministic copy should be readable",
+        "negative": "no unreadable warped type or invented copy"
+      },
+      "iteration_policy": {
+        "exploration_role": "typographic impact branch",
+        "strength_range": [
+          0.4,
+          0.7
+        ],
+        "when_low_score": "shorten copy, use deterministic type overlay, and reduce font count"
+      }
+    },
+    {
+      "id": "animated-infographic-data-story",
+      "label": "Animated infographic data story",
+      "safe_handle": "animated infographic data-story system",
+      "internal_handles": [
+        "animated infographic",
+        "data storytelling",
+        "motion infographic",
+        "explainer data cards"
+      ],
+      "material_types": [
+        "data-card",
+        "state-card",
+        "process-card",
+        "info-card",
+        "carousel-slide",
+        "feature-animation",
+        "short-video",
+        "animation",
+        "gif",
+        "motion-loop",
+        "storyboard",
+        "styleframe"
+      ],
+      "use_when": [
+        "data/process/state should become a story",
+        "motion can explain change over time",
+        "static data cards need clearer hierarchy"
+      ],
+      "avoid_when": [
+        "data values are unknown or invented",
+        "brand wants atmospheric illustration",
+        "exact chart labels must be native-generated"
+      ],
+      "style_strength_default": 0.58,
+      "style_description": {
+        "medium": "clean infographic system designed as keyframes or a static data card",
+        "palette": "brand neutrals with semantic accents for state/change",
+        "line": "simple chart primitives, arrows, counters, step markers",
+        "lighting": "flat UI/print field, no 3D chart gimmicks",
+        "composition": "one metric or state change per frame, annotation hierarchy around it",
+        "density": "medium; readable data over decorative density",
+        "texture": "clean digital surface with subtle editorial grain optional",
+        "motifs": [
+          "counter",
+          "timeline",
+          "state chip",
+          "flow arrow",
+          "before-after module"
+        ]
+      },
+      "positive_prompt_terms": [
+        "animated infographic keyframe",
+        "one metric per frame",
+        "semantic color accents",
+        "clear state change",
+        "data as story"
+      ],
+      "negative_prompt_terms": [
+        "fake precise numbers",
+        "chart junk",
+        "3D pie charts",
+        "tiny unreadable axes",
+        "random dashboard widgets",
+        "unlabeled spaghetti flow"
+      ],
+      "style_axes": [
+        "data_clarity",
+        "state_change",
+        "annotation_hierarchy"
+      ],
+      "reference_roles": {
+        "style": "clean animated-infographic/data-story system",
+        "composition": "one metric or process change per card/frame",
+        "brand": "real data/source truth must be supplied or abstracted honestly",
+        "negative": "no fake numbers or chart junk"
+      },
+      "iteration_policy": {
+        "exploration_role": "data/process branch",
+        "strength_range": [
+          0.35,
+          0.65
+        ],
+        "when_low_score": "reduce to one metric, remove fake labels, and use deterministic chart/text overlay"
+      }
+    },
+    {
+      "id": "heritage-bold-minimal-packaging",
+      "label": "Heritage bold minimal packaging",
+      "safe_handle": "heritage bold-minimal brand package system",
+      "internal_handles": [
+        "heritage minimal",
+        "bold minimal packaging",
+        "retro minimal brand",
+        "modern heritage identity"
+      ],
+      "material_types": [
+        "poster",
+        "merch-poster",
+        "podcast-cover",
+        "podcast-banner",
+        "event-poster",
+        "badge-family",
+        "sticker-family",
+        "lockup",
+        "logo",
+        "pattern-board",
+        "content-card",
+        "announcement-card"
+      ],
+      "use_when": [
+        "brand needs memorable shelf/poster impact",
+        "identity should feel established and durable",
+        "merch or podcast art needs bold recognition"
+      ],
+      "avoid_when": [
+        "complex product proof must be explained",
+        "interface screenshot is the hero",
+        "brand cannot tolerate retro cues"
+      ],
+      "style_strength_default": 0.59,
+      "style_description": {
+        "medium": "bold minimal identity/package composition with heritage confidence",
+        "palette": "limited brand palette, cream/ink base, one saturated heritage accent",
+        "line": "simple emblem geometry, heavy type blocks, strong silhouette",
+        "lighting": "flat packaging/poster field",
+        "composition": "large simple mark/type area with one supporting proof or motif",
+        "density": "low; high recognition at distance",
+        "texture": "matte print or package paper, no fake distress unless requested",
+        "motifs": [
+          "seal",
+          "label panel",
+          "large word block",
+          "simple mascotless emblem",
+          "repeat border"
+        ]
+      },
+      "positive_prompt_terms": [
+        "heritage bold minimal brand system",
+        "large simple silhouette",
+        "limited palette",
+        "matte package field",
+        "distance-readable mark"
+      ],
+      "negative_prompt_terms": [
+        "fake vintage distress",
+        "busy retro collage",
+        "unapproved mascot",
+        "overly nostalgic pastiche",
+        "tiny ornamentation",
+        "generic badge pack"
+      ],
+      "style_axes": [
+        "distance_recognition",
+        "heritage_weight",
+        "minimal_silhouette"
+      ],
+      "reference_roles": {
+        "style": "heritage bold-minimal identity/package system",
+        "composition": "distance-readable mark/type hierarchy",
+        "brand": "approved mark/copy prevent generic retro packaging",
+        "negative": "no fake distress or mascot invention"
+      },
+      "iteration_policy": {
+        "exploration_role": "bold durable identity branch",
+        "strength_range": [
+          0.38,
+          0.66
+        ],
+        "when_low_score": "simplify silhouette, reduce nostalgia, and restore product proof"
+      }
+    },
+    {
+      "id": "soft-dimensional-product-object",
+      "label": "Soft dimensional product object",
+      "safe_handle": "soft dimensional product-object illustration",
+      "internal_handles": [
+        "claymorphism",
+        "soft 3d product",
+        "dimensional object",
+        "product object render"
+      ],
+      "material_types": [
+        "product-visual",
+        "landing-hero",
+        "hero-banner",
+        "website-hero-illustration",
+        "feature-illustration",
+        "social",
+        "og-card",
+        "linkedin-card",
+        "styleframe"
+      ],
+      "use_when": [
+        "a concept needs one tangible product metaphor",
+        "flat layouts feel too dry",
+        "hero art needs depth but not full realism"
+      ],
+      "avoid_when": [
+        "prior outputs drifted into generic 3D blobs",
+        "brand rejects glossy/3D aesthetics",
+        "exact product UI should dominate"
+      ],
+      "style_strength_default": 0.5,
+      "style_description": {
+        "medium": "soft dimensional product-object illustration with restrained depth",
+        "palette": "brand neutrals and accent mapped onto one object family",
+        "line": "rounded solids, crisp silhouette, minimal seams",
+        "lighting": "soft studio gradient kept subtle, no glossy reflections",
+        "composition": "one central object/metaphor plus small proof/context module",
+        "density": "low; one object idea only",
+        "texture": "matte clay/plastic or paper-like surface, not shiny chrome",
+        "motifs": [
+          "artifact cube",
+          "soft card stack",
+          "routing bead",
+          "modular token",
+          "product proof inset"
+        ]
+      },
+      "positive_prompt_terms": [
+        "soft dimensional product object",
+        "matte rounded form",
+        "single tangible metaphor",
+        "subtle depth",
+        "product proof inset"
+      ],
+      "negative_prompt_terms": [
+        "generic 3D blobs",
+        "glossy chrome",
+        "floating purple orbs",
+        "toy-like mascot",
+        "random object pile",
+        "object replaces product truth"
+      ],
+      "style_axes": [
+        "dimensionality",
+        "object_singularity",
+        "product_anchor"
+      ],
+      "reference_roles": {
+        "style": "soft dimensional product-object illustration",
+        "composition": "one object/metaphor plus proof context",
+        "brand": "object must encode real product truth, not decoration",
+        "negative": "no generic 3D blob pile or glossy chrome"
+      },
+      "iteration_policy": {
+        "exploration_role": "tangible object branch",
+        "strength_range": [
+          0.28,
+          0.55
+        ],
+        "when_low_score": "flatten depth, add product proof, and remove generic blobs"
+      }
+    },
+    {
+      "id": "controlled-retro-computing-interface",
+      "label": "Controlled retro computing interface",
+      "safe_handle": "controlled retro-computing product interface",
+      "internal_handles": [
+        "retro computing",
+        "Y2K interface",
+        "terminal retro",
+        "retro futurist UI",
+        "old web aesthetic"
+      ],
+      "material_types": [
+        "terminal-hero",
+        "cli-recording",
+        "command-illustration",
+        "x-feed",
+        "social",
+        "poster",
+        "event-poster",
+        "stinger-animation",
+        "gif",
+        "styleframe"
+      ],
+      "use_when": [
+        "developer nostalgia helps the product truth",
+        "terminal/CLI material needs character",
+        "campaign wants retro-computing flavor without losing legibility"
+      ],
+      "avoid_when": [
+        "the brand must feel timeless/institutional",
+        "copy fidelity is high-stakes",
+        "retro styling would make product look obsolete"
+      ],
+      "style_strength_default": 0.43,
+      "style_description": {
+        "medium": "retro-computing interface cues translated into a modern legible brand surface",
+        "palette": "dark terminal or cream CRT field, phosphor/blue accent used sparingly",
+        "line": "pixel/raster hints, mono panels, chunky cursor, simple window chrome",
+        "lighting": "flat screen glow kept subtle",
+        "composition": "one terminal/product window with retro cues at the edges, not a full old-computer scene",
+        "density": "medium-low; readable command/proof first",
+        "texture": "very subtle scanline or pixel edge, no noisy CRT simulation",
+        "motifs": [
+          "cursor",
+          "mono status bar",
+          "pixel tick",
+          "command prompt",
+          "window border"
+        ]
+      },
+      "positive_prompt_terms": [
+        "controlled retro-computing interface",
+        "readable terminal proof",
+        "subtle pixel edge",
+        "modern brand surface",
+        "mono status panel"
+      ],
+      "negative_prompt_terms": [
+        "full cyberpunk scene",
+        "matrix rain",
+        "obsolete beige computer clich\u00e9",
+        "noisy CRT distortion",
+        "unreadable pixel text",
+        "random hacker code"
+      ],
+      "style_axes": [
+        "retro_flavor",
+        "developer_legibility",
+        "modern_restraint"
+      ],
+      "reference_roles": {
+        "style": "controlled retro-computing interface cues",
+        "composition": "one readable terminal/product proof window",
+        "brand": "modern brand legibility beats nostalgia",
+        "negative": "no noisy CRT/hacker clich\u00e9"
+      },
+      "iteration_policy": {
+        "exploration_role": "developer nostalgia branch",
+        "strength_range": [
+          0.22,
+          0.5
+        ],
+        "when_low_score": "reduce retro effects, preserve command readability, and modernize spacing"
       }
     }
   ]

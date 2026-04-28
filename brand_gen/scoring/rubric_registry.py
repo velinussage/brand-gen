@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Any
 
 
-RUBRIC_VERSION = "2026-04-22"
+RUBRIC_VERSION = "2026-04-26"
 
 
 UNIVERSAL_AXES: list[dict[str, str]] = [
@@ -67,6 +67,19 @@ UNIVERSAL_AXES: list[dict[str, str]] = [
             "mean generic aesthetic choices that could belong to any brand score low."
         ),
     },
+    {
+        "name": "value_proposition_fidelity",
+        "definition": (
+            "Does the artifact show the correct product value, especially for Sage work? "
+            "Score 5 when the image clearly shows agents gaining trusted reusable "
+            "capabilities from skill/prompt libraries, MCP tools, library manifests, "
+            "or curated capability artifacts. Score 3 when it hints at capabilities "
+            "but uses vague trust/provenance imagery or fuzzy terms. Score 1 when it "
+            "focuses on proposal/governance/review/publish process instead of "
+            "capability distribution, invents product taxonomy, or uses the logo as "
+            "a content substitute."
+        ),
+    },
 ]
 
 
@@ -77,19 +90,21 @@ MATERIAL_OVERLAYS: dict[str, dict[str, Any]] = {
             {
                 "name": "surface_fit",
                 "definition": (
-                    "Does the composition respect landing-hero conventions? Left-column "
-                    "copy supported by right-column art, or full-bleed with headline "
-                    "overlay that reads cleanly. Screenshot treatment (if any) is "
-                    "intentional art direction, not an inset proof panel. The hero does "
-                    "not read as a social card or an ad."
+                    "Does the asset work as deployable landing-page hero media rather "
+                    "than a social card, ad, or complete webpage mockup? The generated "
+                    "asset is the visual/background or sidecar animation only: no nav, "
+                    "headline, CTA, footer, or dense copy baked into the native media. "
+                    "It leaves calm space for external hero text and has a usable final "
+                    "hold/poster frame."
                 ),
             },
             {
                 "name": "meaning_at_glance",
                 "definition": (
                     "In 2–3 seconds, does a visitor understand what product category "
-                    "this is in? Landing heroes that need a paragraph to decode score "
-                    "low. The image does most of the work; the headline seals it."
+                    "this is in? Landing hero media that needs a paragraph to decode "
+                    "scores low. The motion/visual metaphor does most of the work; the "
+                    "external headline only seals it."
                 ),
             },
         ],
@@ -98,8 +113,9 @@ MATERIAL_OVERLAYS: dict[str, dict[str, Any]] = {
             "description": (
                 "The hero does not communicate a product category. A visitor lands, "
                 "looks at the hero, and cannot say 'this is an X tool / X platform / "
-                "X product' within 3 seconds. Generic 'premium AI brand' art without "
-                "a specific product reference triggers this rule."
+                "X product' within 3 seconds. Generic 'premium AI brand' or 'purple "
+                "Web3 object' motion without a specific product/workflow reference "
+                "triggers this rule."
             ),
             "detection_prompt": (
                 "Look at this image as if you have never heard of the brand. Can you "
@@ -480,7 +496,7 @@ def to_markdown() -> str:
     lines.append("## v2 material-specific overlays")
     lines.append("")
     lines.append(
-        "Overlays ADD axes on top of the universal 5. They do not replace. "
+        f"Overlays ADD axes on top of the universal {len(UNIVERSAL_AXES)}. They do not replace. "
         "The material's overlay also declares a disqualifier: if the "
         "disqualifier triggers, the overall decision is auto-fail regardless "
         "of axis scores."
@@ -505,6 +521,11 @@ def to_markdown() -> str:
         "(universal + overlay). If any axis is <2, overall <=2. If the "
         "disqualifier triggers, overall = 1 (auto-fail). Surface `approve` "
         "when overall >=3 and no disqualifier triggered."
+    )
+    lines.append(
+        "Treat `value_proposition_fidelity=1` as a hard user-calibrated failure: "
+        "invented product taxonomy, wrong value hero, or logo-as-content substitute "
+        "should iterate/reject even when craft and composition look polished."
     )
     lines.append("")
     lines.append("## v1 narrative rubric (for packets without rubric_version)")

@@ -6,7 +6,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from brand_gen.generation_flow import (
+    _resolve_render_backend,
     _reserve_manifest_version,
+    assemble_generation_scratchpad,
     auto_capture_generation_feedback,
     auto_capture_vlm_feedback,
     build_base_image_reference_role,
@@ -16,7 +18,7 @@ from brand_gen.generation_flow import (
 )
 from brand_gen.iteration_memory import load_iteration_memory
 from brand_gen.runtime_brand import load_manifest
-from brand_gen.runtime_models import recommend_text_model
+from brand_gen.runtime_models import recommend_text_model, role_pack_material_key
 
 
 class SourceCritiqueModelOverrideTests(unittest.TestCase):
@@ -125,6 +127,38 @@ class BaseImageReferenceTests(unittest.TestCase):
 
 
 class PipelineQaOrderingTests(unittest.TestCase):
+    def test_text_card_variants_auto_promote_to_supported_html_backend(self):
+        args = type("Args", (), {"render_backend": "native"})()
+        plan = {
+            "material_type": "carousel-slide",
+            "prompt_seed": "Carousel slide with cards labeled Skills, Prompt Libraries, MCP Tools, Workflows.",
+        }
+        backend, note = _resolve_render_backend(args, plan, "carousel-slide")
+        self.assertEqual(backend, "html")
+        self.assertIn("auto-promoted", note)
+
+    def test_unsupported_text_material_does_not_auto_promote_to_html(self):
+        args = type("Args", (), {"render_backend": "native"})()
+        plan = {
+            "material_type": "product-visual",
+            "prompt_seed": "Product visual with cards labeled Skills, Prompt Libraries, MCP Tools, Workflows.",
+        }
+        backend, note = _resolve_render_backend(args, plan, "product-visual")
+        self.assertEqual(backend, "native")
+        self.assertEqual(note, "")
+
+    def test_sage_capability_native_illustration_does_not_auto_promote_to_html_card(self):
+        args = type("Args", (), {"render_backend": "native"})()
+        plan = {
+            "brand_dir": "/tmp/sage",
+            "material_type": "editorial-metaphor-illustration",
+            "prompt_seed": 'Sage skill layer for AI agents. The exact headline reads "Steer the Default" as an external overlay.',
+            "product_truth_expression": "curated capability selected from library, then used by an agent",
+        }
+        backend, note = _resolve_render_backend(args, plan, "editorial-metaphor-illustration")
+        self.assertEqual(backend, "native")
+        self.assertIn("kept on native illustration backend", note)
+
     def test_execute_generation_scratchpad_writes_agent_review_metadata_before_pipeline_qa(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             brand_dir = Path(tmpdir)
@@ -199,6 +233,83 @@ class PipelineQaOrderingTests(unittest.TestCase):
             self.assertEqual(version_id, "v001")
             self.assertTrue(str(manifest["versions"]["v001"].get("agent_review_path") or "").endswith("v001-agent-review.json"))
             self.assertTrue(str(manifest["versions"]["v001"].get("auto_review_path") or "").endswith("v001-auto-review.md"))
+
+    def test_execute_generation_scratchpad_skips_agent_still_review_for_video(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir)
+            payload = {
+                "schema_type": "generation_scratchpad",
+                "brand_dir": str(brand_dir),
+                "material_type": "landing-hero",
+                "workflow_mode": "hybrid",
+                "generation_mode": "video",
+                "tag": "landing-hero",
+                "raw_prompt": "Create a short landing-page hero background loop.",
+                "effective_prompt": "Create a short landing-page hero background loop.",
+                "execution_prompt": "Create a short landing-page hero background loop.",
+                "selected_reference_ids": [],
+                "selected_inspiration_ids": [],
+                "prompt_context": {
+                    "material_prompt_key": "landing_hero",
+                    "material_prompt_variant": "default",
+                    "reference_role_pack_priority": [],
+                    "reference_role_pack_prefer_unique_sources": True,
+                    "reference_role_pack_required_roles": [],
+                    "reference_role_pack_missing_roles": [],
+                    "brand_prelude": "",
+                    "material_prompt_snippet": "",
+                    "reference_role_pack_snippet": "",
+                    "inspiration_doctrine": "",
+                },
+                "reference_context": {
+                    "passed_reference_paths": [],
+                    "all_context_refs": [],
+                    "missing_required_roles": [],
+                },
+                "execution": {
+                    "model": "seedance-2-pro",
+                    "aspect_ratio": "16:9",
+                    "reference_tags": [],
+                },
+                "checks": {"blocking": [], "warnings": []},
+                "critique_policy": {"blocks_generation": True},
+            }
+
+            def fake_run(cmd, env=None, capture_output=True, text=True):
+                out_file = Path(cmd[cmd.index("-o") + 1])
+                out_file.write_bytes(b"video")
+                class Result:
+                    returncode = 0
+                    stdout = ""
+                    stderr = ""
+                return Result()
+
+            def fake_run_auto_brand_review(current_brand_dir, version_id):
+                manifest = load_manifest(current_brand_dir)
+                entry = manifest["versions"][version_id]
+                self.assertEqual(entry.get("visual_review_status"), "not_applicable")
+                out = Path(current_brand_dir) / "reviews" / f"{version_id}-auto-review.md"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text("ok\n")
+                return str(out), True
+
+            with patch("brand_gen.generation_flow.subprocess.run", side_effect=fake_run), \
+                 patch("brand_gen.generation_flow.validate_brand_workspace_dir", return_value=brand_dir), \
+                 patch("brand_gen.generation_flow.stage_reference_assets", return_value=[]), \
+                 patch("brand_gen.generation_flow.write_agent_visual_review_packet") as mock_review, \
+                 patch("brand_gen.generation_flow.run_auto_brand_review", side_effect=fake_run_auto_brand_review), \
+                 patch("brand_gen.generation_flow.append_run_event"), \
+                 patch("brand_gen.generation_flow.persist_generated_asset_to_blackboard"), \
+                 patch("brand_gen.generation_flow.generate_compare_board"), \
+                 patch("brand_gen.generation_flow.load_brand_memory", return_value=(None, None, {}, {})):
+                version_id = execute_generation_scratchpad(payload)
+
+            manifest = load_manifest(brand_dir)
+            entry = manifest["versions"][version_id]
+            mock_review.assert_not_called()
+            self.assertEqual(entry.get("visual_review_status"), "not_applicable")
+            self.assertIn("no image artifact", entry.get("agent_review_note", ""))
+            self.assertTrue(str(entry.get("auto_review_path") or "").endswith("v001-auto-review.md"))
 
     def test_base_image_reference_context_tracks_authoritative_vs_transport_paths(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -276,6 +387,230 @@ class PipelineQaOrderingTests(unittest.TestCase):
             self.assertEqual(ref_ctx["base_image_reference_path"], str(base_image.resolve()))
             self.assertEqual(ref_ctx["authoritative_reference_paths"], [str(base_image.resolve())])
             self.assertEqual(ref_ctx["model_transport_reference_paths"], [])
+
+    def test_sage_reference_mode_auto_attaches_product_truth_proof_not_logo_only(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir).resolve() / "sage"
+            brand_dir.mkdir()
+            logo = brand_dir / "logo.png"
+            logo.write_bytes(b"\x89PNG\r\n\x1a\n")
+            stale_ref = brand_dir / "references" / "v7-library-canon-proof.png"
+            stale_ref.parent.mkdir(parents=True, exist_ok=True)
+            stale_ref.write_bytes(b"\x89PNG\r\n\x1a\n")
+            args = type(
+                "Args",
+                (),
+                {
+                    "material_type": "x-feed-square",
+                    "tag": "x-feed-square",
+                    "prompt": "Show agents installing trusted skills from a Sage library manifest.",
+                    "plan": "",
+                    "image": [],
+                    "reference_dir": None,
+                    "mode": "reference",
+                    "generation_mode": "image",
+                    "profile": None,
+                    "identity": None,
+                    "skip_extraction": False,
+                    "refresh_reference_analysis": False,
+                    "disable_brand_guardrails": False,
+                    "motion_reference": None,
+                    "model": None,
+                    "aspect_ratio": None,
+                    "resolution": None,
+                    "duration": None,
+                    "preset": None,
+                    "negative_prompt": None,
+                    "style": None,
+                    "make_gif": False,
+                    "base_image": None,
+                    "source_version": None,
+                    "branch_id": None,
+                    "parent_branch_id": None,
+                    "selected_direction_id": None,
+                    "motion_mode": None,
+                    "character_orientation": None,
+                    "keep_original_sound": False,
+                    "render_backend": "native",
+                    "source_url": "",
+                    "entity_type": "",
+                    "headline": "",
+                    "proof_title": "",
+                    "proof_excerpt": "",
+                    "proof_row": "",
+                    "proof_meta": [],
+                    "proof_crop_path": "",
+                    "layout_spec": None,
+                    "skip_proof": False,
+                    "dark_mode": False,
+                    "design_variance": 5,
+                },
+            )()
+            plan = {
+                "brand_dir": str(brand_dir),
+                "material_type": "x-feed-square",
+                "mode": "reference",
+                "prompt_seed": "Show agents installing trusted skills from a Sage library manifest.",
+                "product_truth_expression": "curated Sage libraries distribute trusted reusable capabilities to agents",
+                "brand_anchor_policy": {"product_truth_expression": "trusted capabilities for agents"},
+                "role_pack": {"selected_roles": [], "priority": ["product_truth"]},
+            }
+            captured_reference_paths: list[str] = []
+            captured_role_packs: list[dict] = []
+
+            def fake_ensure_reference_analysis(_brand_dir, **kwargs):
+                captured_reference_paths.extend(str(path) for path in kwargs.get("reference_paths") or [])
+                return {"reference_set_hash": "abc", "warnings": [], "per_image": [{"vlm_available": False}]}
+
+            def fake_build_effective_prompt(*_args, **kwargs):
+                captured_role_packs.append(kwargs.get("role_pack_override") or {})
+                return {
+                    "material_prompt_key": "social",
+                    "material_prompt_variant": "default",
+                    "reference_role_pack": (kwargs.get("role_pack_override") or {}).get("roles") or [],
+                    "reference_role_pack_paths": [],
+                    "reference_role_pack_motion_paths": [],
+                    "reference_role_pack_required_roles": [],
+                    "reference_role_pack_missing_required_roles": [],
+                    "reference_role_pack_priority": ["product_truth"],
+                    "reference_role_pack_prefer_unique_sources": True,
+                    "reference_role_assignment_warnings": [],
+                    "token_block": "",
+                    "resolved_prompt": "Create a Sage card.",
+                    "product_truth_validation": {"applies": True, "errors": [], "warnings": []},
+                }
+
+            with patch("brand_gen.generation_flow.load_brand_memory", return_value=(brand_dir / "brand-profile.json", brand_dir / "brand-identity.json", {"brand_assets": {"icon": str(logo)}}, {"brand": {"name": "Sage"}, "brand_assets": {"icon": str(logo)}})), \
+                 patch("brand_gen.generation_flow.ensure_reference_analysis", side_effect=fake_ensure_reference_analysis), \
+                 patch("brand_gen.generation_flow.build_effective_prompt", side_effect=fake_build_effective_prompt), \
+                 patch("brand_gen.generation_flow.persist_inspiration_source_selection", return_value=([], "")), \
+                 patch("brand_gen.generation_flow.resolve_default_model", return_value="flux-2-pro"), \
+                 patch("brand_gen.generation_flow.resolve_default_aspect_ratio", return_value="1:1"), \
+                 patch("brand_gen.generation_flow.review_prompt_architecture", return_value={"refined_prompt": "refined", "execution_prompt": "exec", "recommendations": [], "issues": []}), \
+                 patch("brand_gen.generation_flow.check_inspiration_pipeline_status", return_value={"ok": True, "warnings": [], "suggestions": []}):
+                payload = assemble_generation_scratchpad(args, brand_dir=brand_dir, plan_wrapper={}, plan=plan)
+
+            self.assertTrue(any("capability-proof" in path or "library-canon-proof" in path for path in captured_reference_paths))
+            self.assertTrue(any(str(logo.resolve()) == path for path in captured_reference_paths))
+            self.assertTrue(any(role.get("role") == "product_truth" for role in (captured_role_packs[-1].get("roles") or [])))
+            self.assertTrue(any("not reference-backed by logo-only" in item for item in payload["checks"]["warnings"]))
+
+    def test_sage_feature_animation_uses_product_truth_start_frame_before_logo(self):
+        self.assertEqual(role_pack_material_key("stinger-animation"), "feature_animation")
+        self.assertEqual(role_pack_material_key("bumper-animation"), "feature_animation")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir).resolve() / "sage"
+            brand_dir.mkdir()
+            logo = brand_dir / "logo.png"
+            logo.write_bytes(b"\x89PNG\r\n\x1a\n")
+            stale_ref = brand_dir / "references" / "v7-library-canon-proof.png"
+            stale_ref.parent.mkdir(parents=True, exist_ok=True)
+            stale_ref.write_bytes(b"\x89PNG\r\n\x1a\n")
+            args = type(
+                "Args",
+                (),
+                {
+                    "material_type": "feature-animation",
+                    "tag": "feature-animation",
+                    "prompt": "Start on a Sage Manifest card, unfold into capability cards, and end with a tiny mark.",
+                    "plan": "",
+                    "image": [],
+                    "reference_dir": None,
+                    "mode": "hybrid",
+                    "generation_mode": "video",
+                    "profile": None,
+                    "identity": None,
+                    "skip_extraction": False,
+                    "refresh_reference_analysis": False,
+                    "disable_brand_guardrails": False,
+                    "motion_reference": None,
+                    "model": None,
+                    "aspect_ratio": None,
+                    "resolution": None,
+                    "duration": None,
+                    "preset": None,
+                    "negative_prompt": None,
+                    "style": None,
+                    "make_gif": False,
+                    "base_image": None,
+                    "source_version": None,
+                    "branch_id": None,
+                    "parent_branch_id": None,
+                    "selected_direction_id": None,
+                    "motion_mode": None,
+                    "character_orientation": None,
+                    "keep_original_sound": False,
+                    "render_backend": "native",
+                    "source_url": "",
+                    "entity_type": "",
+                    "headline": "",
+                    "proof_title": "",
+                    "proof_excerpt": "",
+                    "proof_row": "",
+                    "proof_meta": [],
+                    "proof_crop_path": "",
+                    "layout_spec": None,
+                    "skip_proof": False,
+                    "dark_mode": False,
+                    "design_variance": 5,
+                },
+            )()
+            plan = {
+                "brand_dir": str(brand_dir),
+                "material_type": "feature-animation",
+                "mode": "hybrid",
+                "prompt_seed": "Start on a Sage Manifest card, unfold into capability cards, and end with a tiny mark.",
+                "product_truth_expression": "Sage manifests package reusable capabilities for agents",
+                "brand_anchor_policy": {"product_truth_expression": "trusted capabilities for agents"},
+                "role_pack": {"selected_roles": [], "priority": ["product_truth", "motion"]},
+            }
+
+            def fake_build_effective_prompt(*_args, **kwargs):
+                role_pack = kwargs.get("role_pack_override") or {}
+                return {
+                    "material_prompt_key": "feature_animation",
+                    "material_prompt_variant": "default",
+                    "reference_role_pack": role_pack.get("roles") or [],
+                    "reference_role_pack_paths": [],
+                    "reference_role_pack_motion_paths": [],
+                    "reference_role_pack_required_roles": [],
+                    "reference_role_pack_missing_required_roles": [],
+                    "reference_role_pack_priority": ["product_truth", "motion"],
+                    "reference_role_pack_prefer_unique_sources": True,
+                    "reference_role_assignment_warnings": [],
+                    "token_block": "",
+                    "resolved_prompt": "Start on a Sage Manifest card; tiny logo only at final hold.",
+                    "product_truth_validation": {"applies": True, "errors": [], "warnings": []},
+                }
+
+            with patch("brand_gen.generation_flow.load_brand_memory", return_value=(brand_dir / "brand-profile.json", brand_dir / "brand-identity.json", {"brand_assets": {"icon": str(logo)}}, {"brand": {"name": "Sage"}, "brand_assets": {"icon": str(logo)}})), \
+                 patch("brand_gen.generation_flow.ensure_reference_analysis", return_value={"reference_set_hash": "abc", "warnings": [], "per_image": [{"vlm_available": False}]}), \
+                 patch("brand_gen.generation_flow.build_effective_prompt", side_effect=fake_build_effective_prompt), \
+                 patch("brand_gen.generation_flow.persist_inspiration_source_selection", return_value=([], "")), \
+                 patch("brand_gen.generation_flow.resolve_default_model", return_value="kling"), \
+                 patch("brand_gen.generation_flow.resolve_default_aspect_ratio", return_value="16:9"), \
+                 patch("brand_gen.generation_flow.review_prompt_architecture", return_value={"refined_prompt": "refined", "execution_prompt": "exec", "recommendations": [], "issues": []}), \
+                 patch("brand_gen.generation_flow.check_inspiration_pipeline_status", return_value={"ok": True, "warnings": [], "suggestions": []}):
+                payload = assemble_generation_scratchpad(args, brand_dir=brand_dir, plan_wrapper={}, plan=plan)
+
+            passed = payload["reference_context"]["passed_reference_paths"]
+            all_refs = payload["reference_context"]["all_context_refs"]
+            self.assertEqual(len(passed), 1)
+            self.assertIn("sage-motion-start", passed[0])
+            self.assertNotEqual(passed[0], str(stale_ref.resolve()))
+            self.assertTrue(any(path == str(logo.resolve()) for path in all_refs))
+            self.assertNotEqual(passed[0], str(logo.resolve()))
+            self.assertTrue(any("fresh Sage motion start-frame" in item for item in payload["checks"]["warnings"]))
+            product_truth_roles = [
+                role
+                for role in (payload["prompt_context"]["reference_role_pack"] or [])
+                if role.get("role") == "product_truth"
+            ]
+            self.assertTrue(product_truth_roles)
+            self.assertEqual(product_truth_roles[0]["source_key"], "auto_sage_motion_start_frame")
+            self.assertIn("light-bulb", product_truth_roles[0]["role_help"])
+            self.assertIn("old screenshot UI/nav", product_truth_roles[0]["avoid_literal"])
 
     def test_scratchpad_persists_only_selected_inspiration_sources(self):
         with tempfile.TemporaryDirectory() as tmpdir:

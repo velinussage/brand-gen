@@ -12,7 +12,7 @@ _KEYWORD_CAPABILITIES: list[tuple[tuple[str, ...], str, str]] = [
     (("publish", "author"), "skill publishing", "authoring"),
     (("skill", "skills"), "reusable skills", "skills"),
     (("prompt", "prompts"), "prompt curation", "content"),
-    (("behavior", "behaviors"), "behaviors and prompt packs", "content"),
+    (("behavior", "behaviors"), "agent workflows", "content"),
     (("library", "libraries"), "library discovery", "distribution"),
     (("discover", "discovery", "search"), "discovery and browsing", "discovery"),
     (("review", "reviewed"), "review and provenance", "trust"),

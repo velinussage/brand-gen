@@ -25,12 +25,13 @@ class RoutePredicateTests(unittest.TestCase):
         self.assertIn(result['method'], {'default', 'llm', 'predicate'})
         self.assertIn('generative_explore', result['score_vector'])
 
-    def test_landing_hero_routes_to_generative_explore(self):
-        """After removing deterministic compose, landing_hero should fall through to LLM or explore."""
+    def test_landing_hero_routes_to_motion_specialist(self):
+        """Landing hero is now a purposeful hero-background animation material."""
         result = route_brief(RoutingBrief(material_type='landing-hero', material_key='landing_hero'))
-        self.assertNotEqual(result['route_key'], 'deterministic_compose')
+        self.assertEqual(result['route_key'], 'motion_specialist')
+        self.assertEqual(result['method'], 'predicate')
+        self.assertIn('landing-hero', result['route']['notes'])
         self.assertIn('generative_explore', result['score_vector'])
-        self.assertNotIn('deterministic_compose', result['score_vector'])
 
     def test_illustration_only_request_avoids_reference_translate_for_page_adjacent_materials(self):
         result = route_brief(

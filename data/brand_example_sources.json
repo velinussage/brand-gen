@@ -18,27 +18,32 @@
     {
       "key": "format-poster",
       "label": "Format: Poster Layouts",
-      "description": "Poster composition patterns — type hierarchy, negative space, focal point structure, and large-format layout logic."
+      "description": "Poster composition patterns \u2014 type hierarchy, negative space, focal point structure, and large-format layout logic."
     },
     {
       "key": "format-social",
       "label": "Format: Social Cards",
-      "description": "Social media card patterns — feed-optimized layouts, quote cards, stat callouts, and announcement structures."
+      "description": "Social media card patterns \u2014 feed-optimized layouts, quote cards, stat callouts, and announcement structures."
     },
     {
       "key": "format-banner",
       "label": "Format: Banners & Headers",
-      "description": "Wide-format banner and header patterns — hero strips, email headers, channel banners, and landscape compositions."
+      "description": "Wide-format banner and header patterns \u2014 hero strips, email headers, channel banners, and landscape compositions."
     },
     {
       "key": "format-infographic",
       "label": "Format: Infographics",
-      "description": "Data visualization and infographic patterns — process flows, comparison layouts, timeline structures, and stat-heavy compositions."
+      "description": "Data visualization and infographic patterns \u2014 process flows, comparison layouts, timeline structures, and stat-heavy compositions."
     },
     {
       "key": "format-presentation",
       "label": "Format: Presentations & Decks",
-      "description": "Slide deck and presentation patterns — pitch decks, minimal slide layouts, data-driven slides, and editorial pacing."
+      "description": "Slide deck and presentation patterns \u2014 pitch decks, minimal slide layouts, data-driven slides, and editorial pacing."
+    },
+    {
+      "key": "sage-product-proof",
+      "label": "Sage Product Proof Sources",
+      "description": "Sage-specific product truth, manifests, skill cards, tool/runtime screens, and generated proof artifacts used to keep brand generations grounded."
     }
   ],
   "sources": [
@@ -649,7 +654,7 @@
     },
     {
       "key": "gretel-work",
-      "name": "Gretel — Work",
+      "name": "Gretel \u2014 Work",
       "category": "premium-branding",
       "url": "https://gretelny.com/work/",
       "notes": "Editorial brand systems and high-discipline identity work; useful for type-first pacing, restraint, and curated presentation.",
@@ -681,7 +686,7 @@
     },
     {
       "key": "buck-rebrand",
-      "name": "BUCK — Rebrand",
+      "name": "BUCK \u2014 Rebrand",
       "category": "premium-branding",
       "url": "https://buck.co/work/buck-rebrand",
       "notes": "Systematic identity case study with strong wordmark, glyph, communication, and motion thinking; useful for flexible brand systems.",
@@ -696,7 +701,7 @@
     },
     {
       "key": "mother-design-scribd",
-      "name": "Mother Design — Scribd",
+      "name": "Mother Design \u2014 Scribd",
       "category": "strong-studios",
       "url": "https://www.motherdesign.com/work/scribd",
       "notes": "Product-plus-brand case study showing how story, product framing, and verbal identity can elevate a practical technology product.",
@@ -711,7 +716,7 @@
     },
     {
       "key": "porto-rocha-upwork",
-      "name": "PORTO ROCHA — Upwork",
+      "name": "PORTO ROCHA \u2014 Upwork",
       "category": "premium-branding",
       "url": "https://www.portorocha.com/upwork/",
       "notes": "People-first identity system for the pioneer of remote work; useful for bold graphic systems paired with product-adjacent credibility.",
@@ -726,7 +731,7 @@
     },
     {
       "key": "pentagram-the-wing",
-      "name": "Pentagram — The Wing",
+      "name": "Pentagram \u2014 The Wing",
       "category": "premium-branding",
       "url": "https://www.pentagram.com/work/the-wing",
       "notes": "Integrated brand system spanning environmental graphics, collateral, and web; useful for coherent multi-surface identity thinking.",
@@ -756,7 +761,7 @@
     },
     {
       "key": "wolff-olins-uber",
-      "name": "Wolff Olins — Uber",
+      "name": "Wolff Olins \u2014 Uber",
       "category": "premium-branding",
       "url": "https://wolffolins.com/work/uber",
       "notes": "Large-scale platform brand system and narrative reframing; useful for product ecosystems, design language, and trust-signalling clarity.",
@@ -771,7 +776,7 @@
     },
     {
       "key": "koto-work",
-      "name": "Koto — Work",
+      "name": "Koto \u2014 Work",
       "category": "premium-branding",
       "url": "https://koto.com/work",
       "notes": "Ambitious brand, strategy, digital, and campaign case studies; useful for clean modern tech branding and clear campaign surfaces.",
@@ -803,7 +808,7 @@
     },
     {
       "key": "mother-design-home",
-      "name": "Mother Design — Homepage",
+      "name": "Mother Design \u2014 Homepage",
       "category": "strong-studios",
       "url": "https://www.motherdesign.com/",
       "notes": "Strong story-led portfolio and campaign framing; useful for bolder verbal posture and more opinionated brand worlds.",
@@ -832,7 +837,7 @@
     },
     {
       "key": "buck-playgrounds-in-motion",
-      "name": "BUCK — Playgrounds In Motion",
+      "name": "BUCK \u2014 Playgrounds In Motion",
       "category": "strong-studios",
       "url": "https://buck.co/work/playgrounds-in-motion",
       "notes": "High-quality motion identity reference for restrained but confident reveal behavior.",
@@ -862,7 +867,7 @@
     },
     {
       "key": "buck-zapier-motion-library",
-      "name": "BUCK — Zapier Motion Library",
+      "name": "BUCK \u2014 Zapier Motion Library",
       "category": "strong-studios",
       "url": "https://buck.co/work/zapier-motion-library",
       "notes": "Modular motion system reference with pacing and repeatable branded movement patterns.",
@@ -894,7 +899,7 @@
     },
     {
       "key": "pentagram-jigsaw",
-      "name": "Pentagram — Jigsaw",
+      "name": "Pentagram \u2014 Jigsaw",
       "category": "premium-branding",
       "url": "https://www.pentagram.com/work/jigsaw",
       "notes": "Editorial system with sharp edge play, restrained motion cues, and strong campaign structure.",
@@ -927,7 +932,7 @@
     },
     {
       "key": "koto-pairpoint",
-      "name": "Koto — Pairpoint",
+      "name": "Koto \u2014 Pairpoint",
       "category": "premium-branding",
       "url": "https://koto.studio/work/pairpoint/",
       "notes": "Clear identity system with strong compositional structure and branded applications.",
@@ -945,7 +950,7 @@
     },
     {
       "key": "koto-deezer",
-      "name": "Koto — Deezer",
+      "name": "Koto \u2014 Deezer",
       "category": "premium-branding",
       "url": "https://koto.studio/work/deezer/",
       "notes": "Graphic identity with repeatable motif logic, containers, and energetic brand system behavior.",
@@ -963,7 +968,7 @@
     },
     {
       "key": "pentagram-poster-house",
-      "name": "Pentagram — Poster House",
+      "name": "Pentagram \u2014 Poster House",
       "category": "premium-branding",
       "url": "https://www.pentagram.com/work/poster-house",
       "notes": "Poster-led identity system with bold framing, modular composition, and print-ready application logic.",
@@ -997,7 +1002,7 @@
     },
     {
       "key": "buck-notion-faces",
-      "name": "BUCK — Notion Faces",
+      "name": "BUCK \u2014 Notion Faces",
       "category": "strong-studios",
       "url": "https://buck.co/work/notion-faces",
       "notes": "Family system of expressive identity units; useful for sticker, icon, and badge family logic.",
@@ -1045,7 +1050,7 @@
         "centered-type-stack",
         "asymmetric-split"
       ],
-      "notes": "Minimalist poster layouts — type hierarchy, negative space, focal structure."
+      "notes": "Minimalist poster layouts \u2014 type hierarchy, negative space, focal structure."
     },
     {
       "key": "canva-typographic-posters",
@@ -1063,7 +1068,7 @@
         "stacked-headline",
         "type-as-image"
       ],
-      "notes": "Type-driven poster layouts — letterform as focal element, scale contrast, expressive hierarchy."
+      "notes": "Type-driven poster layouts \u2014 letterform as focal element, scale contrast, expressive hierarchy."
     },
     {
       "key": "canva-event-posters",
@@ -1081,7 +1086,7 @@
         "info-stack",
         "speaker-grid"
       ],
-      "notes": "Event poster layouts — date/time callout patterns, info hierarchy, speaker or lineup grids."
+      "notes": "Event poster layouts \u2014 date/time callout patterns, info hierarchy, speaker or lineup grids."
     },
     {
       "key": "canva-campaign-posters",
@@ -1099,7 +1104,7 @@
         "split-panel-argument",
         "stat-plus-tagline"
       ],
-      "notes": "Campaign poster layouts — message-first compositions, advocacy framing, stat + tagline pairings."
+      "notes": "Campaign poster layouts \u2014 message-first compositions, advocacy framing, stat + tagline pairings."
     },
     {
       "key": "canva-bold-posters",
@@ -1117,7 +1122,7 @@
         "oversized-headline",
         "geometric-block"
       ],
-      "notes": "Bold poster layouts — high-contrast color blocking, oversized type, geometric focal structures."
+      "notes": "Bold poster layouts \u2014 high-contrast color blocking, oversized type, geometric focal structures."
     },
     {
       "key": "canva-modern-posters",
@@ -1135,7 +1140,7 @@
         "photo-plus-type-column",
         "minimal-frame"
       ],
-      "notes": "Modern poster layouts — grid-based compositions, photo + type column splits, clean framing."
+      "notes": "Modern poster layouts \u2014 grid-based compositions, photo + type column splits, clean framing."
     },
     {
       "key": "canva-instagram-posts",
@@ -1153,7 +1158,7 @@
         "photo-overlay-headline",
         "carousel-slide"
       ],
-      "notes": "Instagram post layouts — square-format compositions, quote cards, photo + overlay headline patterns."
+      "notes": "Instagram post layouts \u2014 square-format compositions, quote cards, photo + overlay headline patterns."
     },
     {
       "key": "canva-twitter-posts",
@@ -1171,7 +1176,7 @@
         "thread-opener",
         "pull-quote-strip"
       ],
-      "notes": "Twitter/X post layouts — landscape cards, thread-opener compositions, pull-quote strips."
+      "notes": "Twitter/X post layouts \u2014 landscape cards, thread-opener compositions, pull-quote strips."
     },
     {
       "key": "canva-linkedin-posts",
@@ -1189,7 +1194,7 @@
         "data-callout-square",
         "professional-announcement"
       ],
-      "notes": "LinkedIn post layouts — professional insight cards, data-callout compositions, branded announcements."
+      "notes": "LinkedIn post layouts \u2014 professional insight cards, data-callout compositions, branded announcements."
     },
     {
       "key": "canva-quote-cards",
@@ -1207,7 +1212,7 @@
         "large-quote-mark",
         "minimal-text-field"
       ],
-      "notes": "Quote card layouts — centered attribution stacks, large quotation mark motifs, minimal text-field compositions."
+      "notes": "Quote card layouts \u2014 centered attribution stacks, large quotation mark motifs, minimal text-field compositions."
     },
     {
       "key": "canva-announcement-cards",
@@ -1225,7 +1230,7 @@
         "ribbon-banner",
         "countdown-block"
       ],
-      "notes": "Announcement card layouts — badge + headline pairings, ribbon banners, event countdown blocks."
+      "notes": "Announcement card layouts \u2014 badge + headline pairings, ribbon banners, event countdown blocks."
     },
     {
       "key": "canva-stat-cards",
@@ -1244,7 +1249,7 @@
         "number-plus-context",
         "metric-grid"
       ],
-      "notes": "Statistics card layouts — large-number focal points, number + context pairings, metric grid compositions."
+      "notes": "Statistics card layouts \u2014 large-number focal points, number + context pairings, metric grid compositions."
     },
     {
       "key": "canva-web-banners",
@@ -1262,7 +1267,7 @@
         "product-left-copy-right",
         "full-bleed-gradient"
       ],
-      "notes": "Web banner layouts — CTA-anchored compositions, product + copy splits, gradient-driven display ads."
+      "notes": "Web banner layouts \u2014 CTA-anchored compositions, product + copy splits, gradient-driven display ads."
     },
     {
       "key": "canva-hero-headers",
@@ -1280,7 +1285,7 @@
         "split-hero-panel",
         "nav-integrated-strip"
       ],
-      "notes": "Website header layouts — hero headline over image, split hero panels, nav-integrated header strips."
+      "notes": "Website header layouts \u2014 hero headline over image, split hero panels, nav-integrated header strips."
     },
     {
       "key": "canva-email-headers",
@@ -1298,7 +1303,7 @@
         "branded-color-bar",
         "issue-number-header"
       ],
-      "notes": "Email header layouts — logo + tagline strips, branded color bars, issue/edition number headers."
+      "notes": "Email header layouts \u2014 logo + tagline strips, branded color bars, issue/edition number headers."
     },
     {
       "key": "canva-youtube-banners",
@@ -1316,7 +1321,7 @@
         "photo-montage-strip",
         "gradient-fade-edge"
       ],
-      "notes": "YouTube banner layouts — centered channel lockups, photo montage strips, gradient-fade edge compositions."
+      "notes": "YouTube banner layouts \u2014 centered channel lockups, photo montage strips, gradient-fade edge compositions."
     },
     {
       "key": "canva-data-infographics",
@@ -1334,7 +1339,7 @@
         "stat-grid-vertical",
         "icon-row-with-values"
       ],
-      "notes": "Data infographic layouts — chart + callout pairings, vertical stat grids, icon rows with value labels."
+      "notes": "Data infographic layouts \u2014 chart + callout pairings, vertical stat grids, icon rows with value labels."
     },
     {
       "key": "canva-process-infographics",
@@ -1352,7 +1357,7 @@
         "flowchart-vertical",
         "icon-step-ladder"
       ],
-      "notes": "Process infographic layouts — numbered step columns, vertical flowcharts, icon-based step ladders."
+      "notes": "Process infographic layouts \u2014 numbered step columns, vertical flowcharts, icon-based step ladders."
     },
     {
       "key": "canva-comparison-infographics",
@@ -1370,7 +1375,7 @@
         "feature-checklist-grid",
         "bar-comparison-stack"
       ],
-      "notes": "Comparison infographic layouts — split-panel versus compositions, feature checklist grids, stacked bar comparisons."
+      "notes": "Comparison infographic layouts \u2014 split-panel versus compositions, feature checklist grids, stacked bar comparisons."
     },
     {
       "key": "canva-timeline-infographics",
@@ -1388,7 +1393,7 @@
         "horizontal-milestone-strip",
         "alternating-node-chain"
       ],
-      "notes": "Timeline infographic layouts — vertical spine timelines, horizontal milestone strips, alternating node chains."
+      "notes": "Timeline infographic layouts \u2014 vertical spine timelines, horizontal milestone strips, alternating node chains."
     },
     {
       "key": "canva-pitch-decks",
@@ -1406,7 +1411,7 @@
         "metric-slide-grid",
         "team-slide-headshot-row"
       ],
-      "notes": "Pitch deck layouts — title slide heroes, metric grid slides, team headshot row compositions."
+      "notes": "Pitch deck layouts \u2014 title slide heroes, metric grid slides, team headshot row compositions."
     },
     {
       "key": "canva-minimal-presentations",
@@ -1424,7 +1429,7 @@
         "image-bleed-with-caption",
         "whitespace-dominant"
       ],
-      "notes": "Minimalist presentation layouts — single-point slides, image bleed with caption, whitespace-dominant compositions."
+      "notes": "Minimalist presentation layouts \u2014 single-point slides, image bleed with caption, whitespace-dominant compositions."
     },
     {
       "key": "canva-dark-presentations",
@@ -1442,7 +1447,80 @@
         "accent-color-pop",
         "cinematic-image-slide"
       ],
-      "notes": "Dark presentation layouts — dark-field with light type, accent color pop elements, cinematic image slides."
+      "notes": "Dark presentation layouts \u2014 dark-field with light type, accent color pop elements, cinematic image slides."
+    },
+    {
+      "key": "sage-product",
+      "name": "Sage Product Truth Artifacts",
+      "category": "sage-product-proof",
+      "url": "app.sageprotocol.io",
+      "notes": "Use captured Sage manifests, skills, tools, workflows, proof boards, and capability artifacts as product-truth references; do not treat as generic aesthetic inspiration.",
+      "tags": [
+        "sage",
+        "product-truth",
+        "manifest",
+        "skill",
+        "tool",
+        "workflow",
+        "agent-runtime"
+      ],
+      "role_strengths": [
+        "product_truth"
+      ],
+      "best_for": [
+        "landing_hero",
+        "system_explainer_illustration",
+        "proof_poster",
+        "feature_illustration"
+      ],
+      "borrow_mechanics": [
+        "real artifact hierarchy",
+        "manifest-to-runtime flow",
+        "skill/tool/workflow card relationships"
+      ],
+      "avoid_literal": [
+        "inventing product modules",
+        "fake dashboards",
+        "generic web3 iconography"
+      ],
+      "direct_generation_risk": "low"
+    },
+    {
+      "key": "sage-webapp",
+      "name": "Sage Web App / Runtime Proof Screens",
+      "category": "sage-product-proof",
+      "url": "app.sageprotocol.io",
+      "notes": "Use captured Sage web app or runtime screens only as proof of real UI/content structure; preserve truth and avoid redrawing unreadable or invented UI.",
+      "tags": [
+        "sage",
+        "webapp",
+        "runtime",
+        "ui-proof",
+        "skill-card",
+        "library-manifest"
+      ],
+      "role_strengths": [
+        "product_truth",
+        "application"
+      ],
+      "best_for": [
+        "landing_hero",
+        "website_hero_illustration",
+        "browser_illustration",
+        "device_mockup"
+      ],
+      "borrow_mechanics": [
+        "actual UI hierarchy",
+        "runtime/card layout relationships",
+        "approved app chrome when explicitly requested"
+      ],
+      "avoid_literal": [
+        "fake app screens",
+        "new navigation",
+        "invented labels",
+        "full webpage mockups for sidecar media"
+      ],
+      "direct_generation_risk": "medium"
     }
   ]
 }

@@ -47,7 +47,7 @@ def evaluate_html_layout_warnings(card: Any) -> list[str]:
     if family == "statement_poster" and headline_len < 10:
         warnings.append("Statement poster family works best with a stronger title phrase.")
     if card.entity_type in {"prompt", "skill", "library"} and not str(card.source_url or "").strip():
-        warnings.append("Governed artifact card is missing a source URL; QR and source truth affordance are unavailable.")
+        warnings.append("Governed artifact card is missing a source URL; QR/source truth affordance is unavailable and will not be invented.")
     return warnings
 
 
@@ -207,4 +207,3 @@ def execute_html_share_card_scratchpad(payload: dict, workflow_id: str | None = 
         },
     )
     return vid
-

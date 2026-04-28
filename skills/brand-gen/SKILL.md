@@ -29,7 +29,7 @@ brand-gen is a **multi-agent system**. The intended entry point for any brand ma
 
 After the typed-agentic-runtime refactor, brand-gen exposes a **45-verb canonical tool surface** that every host (Claude Code, Pi, OpenClaw) calls through MCP. Pin to these verbs — they're shorter, discoverable without this skill file, and validated against the Python MCP bridge in `tests/test_mcp_schema_parity.py`.
 
-Architecture docs for the typed runtime live in the repo-local `docs/architecture/` folder. Start with `docs/architecture/runtime-agent-contract.md`; use `docs/architecture/gepa-dspy-optimization.md` for GEPA/DSPy reflection records and optimizer targets, and `docs/architecture/aesthetic-curation.md` for style/moodboard capsule selection.
+Architecture docs for the typed runtime live in the repo-local `docs/architecture/` folder. Start with `docs/architecture/runtime-agent-contract.md`; use `docs/architecture/gepa-dspy-optimization.md` for GEPA/DSPy reflection records and optimizer targets, and `docs/architecture/aesthetic-curation.md` for style/moodboard capsule selection, and `docs/architecture/material-prompt-profiles.md` for per-material prompt contracts.
 
 ### Orchestration (8 verbs)
 
@@ -90,6 +90,15 @@ bgen scoring-status --format json         # weighted Cohen's kappa + agreement r
 bgen capabilities --format json           # available tools + material types
 ```
 
+
+
+### Material profile rule
+
+Every testing-batch material has a `material_prompt_profile` from `data/material_prompt_profiles.json`. Plans and scratchpads should preserve its job-to-be-done, exact-text policy, allowed reference roles, failure bans, and review focus. If a material behaves poorly, patch the profile instead of adding another long generic agent instruction.
+
+### Sage product-truth rule
+
+For Sage capability materials, lead with agents gaining trusted reusable capabilities from governed skill/prompt libraries. Use allowed nouns such as skill libraries, prompt libraries, skills, prompts, MCP tools, agents, library manifests, curated capabilities, reusable capabilities, and agent workflows. Governance/review/promotion is a trust substrate or badge, not the visual hero, unless the ask explicitly requests governance education or a proposal snapshot. Avoid invented taxonomy (`Prompt Pack`, `System of Provenance`, `Approved Library Update`), fake product modules/screens, and logo-as-content substitutes.
 
 ### Aesthetic capsule rule
 
@@ -536,14 +545,15 @@ Universal axes (always scored, 1-5 each):
 - `restraint` — absence of generic premium-AI decoration (no glassmorphism, purple gradients, neon-on-dark, icon-grid clichés, invented text)
 - `story_fidelity` — does the composition serve the stated brief and surface, not just look nice
 - `meaning_clarity` — would a new visitor understand what this is about in 2-3 seconds; rejects "tasteful but meaningless" outputs
+- `value_proposition_fidelity` — does the artifact show the correct product value; for Sage this means agents gaining trusted reusable capabilities, not proposal/governance process or logo-as-content
 
-Material-specific overlay axes (add on top of the universal 5):
+Material-specific overlay axes (add on top of the universal 6):
 
 - **landing-hero** — `surface_fit`, `meaning_at_glance` · disqualifier: no product category legible within 3s
 - **concept-illustration** — `system_logic_visible`, `brand_specificity` · disqualifier: generic abstract metaphor (floating cubes, glowing nodes, etc.) with no brand-specific vocabulary
 - **brand-scene** — `process_implied`, `brand_specificity` · disqualifier: pure architectural mood with no evidence of process
 
-Aggregation is min-biased: any axis <2 caps overall <=2, and any triggered disqualifier hard-fails the material. Plan and generate toward the overlay axes for your material type — `meaning_clarity`, `story_fidelity`, and `brand_specificity` are where generic "premium AI brand" outputs fail most often.
+Aggregation is min-biased: any axis <2 caps overall <=2, and any triggered disqualifier hard-fails the material. Treat `value_proposition_fidelity=1` as a hard user-calibrated failure even when craft looks polished. Plan and generate toward the overlay axes for your material type — `meaning_clarity`, `story_fidelity`, `value_proposition_fidelity`, and `brand_specificity` are where generic "premium AI brand" outputs fail most often.
 
 ### v2 packet contract
 

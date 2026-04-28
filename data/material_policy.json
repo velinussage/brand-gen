@@ -27,9 +27,12 @@
       "default_aspect_ratio": "16:9"
     },
     "landing-hero": {
-      "generation_mode": "image",
-      "default_model": "recraft-v4",
-      "default_aspect_ratio": "16:9"
+      "generation_mode": "video",
+      "default_model": "seedance-2-pro",
+      "default_aspect_ratio": "16:9",
+      "default_duration": 5,
+      "default_resolution": "720p",
+      "delivery_format": "mp4"
     },
     "hero-banner": {
       "generation_mode": "image",
@@ -314,7 +317,7 @@
     "proof-poster": {
       "generation_mode": "image",
       "default_model": "flux-2-pro",
-      "default_aspect_ratio": "4:5"
+      "default_aspect_ratio": "16:9"
     },
     "site-pattern-tile": {
       "generation_mode": "image",
@@ -384,18 +387,24 @@
       "info-card",
       "landing-hero",
       "lifestyle-mockup",
+      "linkedin-feed",
+      "linkedin-feed-portrait",
+      "linkedin-feed-square",
       "merch-poster",
       "og-card",
       "podcast-banner",
       "podcast-cover",
       "process-card",
       "product-banner",
+      "proof-poster",
       "quote-card",
       "social",
       "state-card",
       "terminal-hero",
       "x-card",
-      "proof-poster"
+      "x-feed",
+      "x-feed-portrait",
+      "x-feed-square"
     ]
   },
   "snippet_aliases": {
@@ -446,8 +455,8 @@
     "icon-family": "sticker_family",
     "animation": "feature_animation",
     "logo-animation": "brand_bumper",
-    "bumper-animation": "brand_bumper",
-    "stinger-animation": "brand_bumper",
+    "bumper-animation": "feature_animation",
+    "stinger-animation": "feature_animation",
     "feature-animation": "feature_animation",
     "motion-loop": "feature_animation",
     "gif": "feature_animation",
@@ -696,12 +705,12 @@
       "source": "brand-gen SaaS explainer taxonomy v1"
     },
     "proof-poster": {
-      "label": "Proof poster",
-      "width": 1080,
-      "height": 1350,
-      "aspect_ratio": "4:5",
-      "notes": "Poster-like launch still led by a quote, screenshot, stat, or proof payload. The logo stays subordinate to the information hierarchy.",
-      "source": "brand-gen SaaS explainer taxonomy v1"
+      "label": "Proof poster / operator board",
+      "width": 1600,
+      "height": 900,
+      "aspect_ratio": "16:9",
+      "notes": "Default landscape proof board for operator workflow, skill share, and capability proof. Use portrait only by explicit override for quote/stat-led posters; exact labels and QR/footer copy should be deterministic HTML/SVG/composite.",
+      "source": "brand-gen proof-poster landscape operator board contract v2"
     },
     "site-pattern-tile": {
       "label": "Site pattern tile",
@@ -718,16 +727,32 @@
       "aspect_ratio": "1:1",
       "notes": "Exploration board showing a few coherent pattern applications within one grammar. Use for internal review, not as the default site-output target.",
       "source": "brand-gen SaaS explainer taxonomy v1"
+    },
+    "landing-hero": {
+      "label": "Landing hero background animation",
+      "width": 1600,
+      "height": 900,
+      "aspect_ratio": "16:9",
+      "notes": "Short muted hero visual plate placed beside or behind separate one-line title/body copy. Generate no nav, headline, CTA, footer, or full webpage chrome inside the asset. Export primary MP4; optionally transcode WebM for web delivery.",
+      "source": "brand-gen web hero animation preset informed by MDN/video autoplay and reduced-motion guidance"
+    },
+    "website-hero-illustration": {
+      "label": "Website hero sidecar illustration",
+      "width": 1600,
+      "height": 900,
+      "aspect_ratio": "16:9",
+      "notes": "Static sidecar art that sits next to external hero copy. No headline, nav, CTA, or full-page layout inside the image.",
+      "source": "brand-gen website hero sidecar preset"
     }
   },
   "brand_policies": {
     "landing_hero": {
-      "role": "core explainer",
-      "target_surface": "homepage hero",
-      "purpose": "explain what the product is fast with unmistakable brand presence",
-      "product_truth_expression": "real product proof such as a UI or CLI moment",
-      "abstraction_level": "low",
-      "logo_mode": "required",
+      "role": "hero background animation",
+      "target_surface": "homepage hero visual slot / above-the-fold background or sidecar media",
+      "purpose": "give the landing page a purposeful animated product metaphor beside separate one-line hero copy",
+      "product_truth_expression": "one real product/workflow capability expressed as a clean motion loop, not a full webpage mockup",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
       "clearly_branded_without_logo_min": 3
     },
     "browser_illustration": {
@@ -794,10 +819,10 @@
       "clearly_branded_without_logo_min": 3
     },
     "feature_animation": {
-      "role": "motion proof",
-      "target_surface": "social, hero loop, or launch page",
-      "purpose": "animate a real product or workflow proof without losing the brand",
-      "product_truth_expression": "a real product frame, workflow, or proof sequence",
+      "role": "feature/capability motion proof",
+      "target_surface": "social, hero loop, launch page, or short product explainer",
+      "purpose": "animate a concrete product/workflow/capability proof without defaulting to a logo reveal",
+      "product_truth_expression": "a product frame, capability artifact, workflow, manifest, or proof sequence that starts the motion before any logo appears",
       "abstraction_level": "low",
       "logo_mode": "preferred",
       "clearly_branded_without_logo_min": 3
@@ -866,10 +891,10 @@
       "clearly_branded_without_logo_min": 3
     },
     "brand_bumper": {
-      "role": "identity sting",
-      "target_surface": "video intro, social loop, or product reveal",
-      "purpose": "make the brand memorable in motion while preserving exact mark recognition",
-      "product_truth_expression": "the actual brand mark and one concrete motion attitude",
+      "role": "explicit logo/identity sting",
+      "target_surface": "video intro or mark-preserving identity sting only",
+      "purpose": "make the brand mark memorable in motion when the requested material is explicitly logo-animation",
+      "product_truth_expression": "the actual brand mark and one concrete motion attitude; not for feature/capability animations",
       "abstraction_level": "low",
       "logo_mode": "required",
       "clearly_branded_without_logo_min": 3
@@ -1058,8 +1083,8 @@
           "role": "social launch"
         },
         {
-          "material_type": "feature-animation",
-          "role": "motion proof"
+          "material_type": "feature-illustration",
+          "role": "feature proof still"
         },
         {
           "material_type": "site-pattern-tile",
@@ -1083,8 +1108,8 @@
           "role": "launch card"
         },
         {
-          "material_type": "bumper-animation",
-          "role": "motion identity"
+          "material_type": "feature-animation",
+          "role": "purposeful feature motion"
         },
         {
           "material_type": "site-pattern-tile",
@@ -1108,8 +1133,8 @@
           "role": "family extension"
         },
         {
-          "material_type": "bumper-animation",
-          "role": "motion sting"
+          "material_type": "logo-animation",
+          "role": "mark-preserving logo motion"
         }
       ]
     },
@@ -1161,6 +1186,14 @@
         "editorial-metaphor-illustration"
       ],
       "note": "Deprecated illustration umbrella. Planning now defaults to system-explainer-illustration unless the brief is explicitly metaphor-led."
+    },
+    "bumper-animation": {
+      "prefer": "feature-animation",
+      "alternates": [
+        "landing-hero",
+        "logo-animation"
+      ],
+      "note": "Deprecated generic bumper/sting. Prefer a purposeful feature-animation, the landing-hero background animation for above-the-fold motion, or logo-animation only when the explicit job is mark-preserving logo motion."
     }
   },
   "prompt_snippet_keys": {

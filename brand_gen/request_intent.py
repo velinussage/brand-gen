@@ -231,6 +231,16 @@ def resolve_planner_material_type(
             "proof-poster",
             "Deprecated `campaign-poster` request was upgraded to `proof-poster` so the hierarchy is led by quote, screenshot, stat, or other proof payload rather than a dominant logo.",
         )
+    if key == "bumper-animation":
+        if any(term in haystack for term in ("landing", "hero", "homepage", "above the fold", "background", "website")):
+            return (
+                "landing-hero",
+                "Deprecated `bumper-animation` request was upgraded to `landing-hero` because generic brand stings are no longer a default output; above-the-fold motion should be a purposeful 16:9 hero background/sidecar animation.",
+            )
+        return (
+            "feature-animation",
+            "Deprecated `bumper-animation` request was upgraded to `feature-animation` because generic brand stings are no longer a default output; motion should demonstrate one product capability or workflow.",
+        )
     if key == "pattern-system":
         if any(term in haystack for term in PATTERN_BOARD_HINTS):
             return (

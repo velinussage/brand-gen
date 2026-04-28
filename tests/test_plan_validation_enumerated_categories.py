@@ -12,6 +12,7 @@ from __future__ import annotations
 import unittest
 
 from brand_gen.plan_validation import (
+    detect_deterministic_text_surface_request,
     detect_enumerated_categories,
     detect_exact_text_request,
     plan_declares_deterministic_text_strategy,
@@ -169,6 +170,35 @@ class IntegrationWithValidateMaterialPlanDict(unittest.TestCase):
         report = validate_material_plan_dict(plan)
         self.assertTrue(report['ok'], report['errors'])
         self.assertTrue(plan_declares_deterministic_text_strategy(plan))
+
+    def test_proof_poster_cli_footer_requires_deterministic_strategy(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            material_type="proof-poster",
+            prompt_seed="Create a proof poster with a CLI footer and capability labels.",
+        )
+        report = validate_material_plan_dict(plan)
+        self.assertFalse(report["ok"])
+        self.assertTrue(detect_deterministic_text_surface_request(plan))
+        self.assertTrue(any("Text-heavy material requests visible labels" in item for item in report["errors"]))
+
+    def test_proof_poster_cli_footer_allows_html_strategy(self):
+        from brand_gen.plan_validation import validate_material_plan_dict
+        plan = self._base_plan(
+            material_type="proof-poster",
+            prompt_seed="Create a proof poster with a CLI footer and capability labels.",
+            render_backend="html",
+        )
+        report = validate_material_plan_dict(plan)
+        self.assertTrue(report["ok"], report["errors"])
+        self.assertTrue(plan_declares_deterministic_text_strategy(plan))
+
+    def test_text_surface_detector_uses_word_boundaries(self):
+        plan = self._base_plan(
+            material_type="proof-poster",
+            prompt_seed="Create a static proof composition around the state of agent capability distribution.",
+        )
+        self.assertFalse(detect_deterministic_text_surface_request(plan))
 
 
 

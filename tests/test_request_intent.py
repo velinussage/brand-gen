@@ -14,6 +14,19 @@ class PlannerMaterialTypeResolutionTests(unittest.TestCase):
         self.assertEqual(resolved, "proof-poster")
         self.assertIn("proof-poster", note)
 
+    def test_bumper_animation_upgrades_to_feature_animation_by_default(self):
+        resolved, note = resolve_planner_material_type("bumper-animation")
+        self.assertEqual(resolved, "feature-animation")
+        self.assertIn("Deprecated `bumper-animation`", note)
+
+    def test_bumper_animation_upgrades_to_landing_hero_for_homepage_motion(self):
+        resolved, note = resolve_planner_material_type(
+            "bumper-animation",
+            target_surface="homepage hero background",
+        )
+        self.assertEqual(resolved, "landing-hero")
+        self.assertIn("landing-hero", note)
+
     def test_pattern_system_defaults_to_site_pattern_tile(self):
         resolved, note = resolve_planner_material_type(
             "pattern-system",

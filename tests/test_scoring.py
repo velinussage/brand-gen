@@ -25,8 +25,8 @@ from brand_gen.scoring import (
 
 
 class TestUniversalAxes(unittest.TestCase):
-    def test_has_five_axes(self):
-        self.assertEqual(len(UNIVERSAL_AXES), 5)
+    def test_has_six_axes(self):
+        self.assertEqual(len(UNIVERSAL_AXES), 6)
 
     def test_axis_names(self):
         names = [a["name"] for a in UNIVERSAL_AXES]
@@ -35,6 +35,7 @@ class TestUniversalAxes(unittest.TestCase):
         self.assertIn("restraint", names)
         self.assertIn("story_fidelity", names)
         self.assertIn("meaning_clarity", names)
+        self.assertIn("value_proposition_fidelity", names)
 
     def test_every_axis_has_definition(self):
         for axis in UNIVERSAL_AXES:
@@ -83,8 +84,8 @@ class TestMaterialOverlays(unittest.TestCase):
         for material in self.MATERIALS:
             axes = axes_for(material)
             self.assertEqual(
-                len(axes), 7,
-                f"{material}: expected 5 universal + 2 overlay = 7 axes, got {len(axes)}"
+                len(axes), 8,
+                f"{material}: expected 6 universal + 2 overlay = 8 axes, got {len(axes)}"
             )
 
     def test_axes_for_unknown_material_returns_universal_only(self):
@@ -96,11 +97,11 @@ class TestMaterialOverlays(unittest.TestCase):
         self.assertEqual(len(axes), len(UNIVERSAL_AXES))
 
     def test_underscore_aliases_resolve(self):
-        self.assertEqual(len(axes_for("landing_hero")), 7)
-        self.assertEqual(len(axes_for("concept_illustration")), 7)
-        self.assertEqual(len(axes_for("brand_scene")), 7)
-        self.assertEqual(len(axes_for("campaign_poster")), 7)
-        self.assertEqual(len(axes_for("pattern_system")), 7)
+        self.assertEqual(len(axes_for("landing_hero")), 8)
+        self.assertEqual(len(axes_for("concept_illustration")), 8)
+        self.assertEqual(len(axes_for("brand_scene")), 8)
+        self.assertEqual(len(axes_for("campaign_poster")), 8)
+        self.assertEqual(len(axes_for("pattern_system")), 8)
 
     def test_material_rubric_key(self):
         self.assertEqual(material_rubric_key("landing-hero"), "landing-hero")
@@ -118,14 +119,14 @@ class TestToJsonDict(unittest.TestCase):
         self.assertEqual(payload["rubric_version"], RUBRIC_VERSION)
         self.assertIn("universal_axes", payload)
         self.assertIn("materials", payload)
-        self.assertEqual(len(payload["universal_axes"]), 5)
+        self.assertEqual(len(payload["universal_axes"]), 6)
         self.assertEqual(len(payload["materials"]), len(MATERIAL_OVERLAYS))
 
     def test_material_focused_shape(self):
         payload = to_json_dict("landing-hero")
         self.assertEqual(payload["material_type"], "landing-hero")
         self.assertEqual(payload["material_rubric_key"], "landing-hero")
-        self.assertEqual(len(payload["universal_axes"]), 5)
+        self.assertEqual(len(payload["universal_axes"]), 6)
         self.assertEqual(len(payload["overlay_axes"]), 2)
         self.assertIsNotNone(payload["disqualifier"])
 

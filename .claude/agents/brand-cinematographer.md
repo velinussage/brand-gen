@@ -30,6 +30,8 @@ The orchestrator calls you when `material_type` is one of: `short-video`, `deriv
 - **aspect-ratio** (optional, default 16:9)
 - **source-url / headline / copy** (optional): source-of-truth text for copy-bearing frames
 
+For non-logo motion, never use the logo as the sole start frame. If the video model accepts only one image, choose a product/workflow/capability proof frame first and reserve the logo for a small final provenance mark. Use logo-first only for explicit `logo-animation`.
+
 ## Workflow
 
 ### Step 1: Load the motion grammar

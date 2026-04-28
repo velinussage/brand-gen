@@ -1,0 +1,2859 @@
+{
+  "schema_version": 1,
+  "description": "Material-specific prompt profiles for the brand-gen planning and execution pipeline. Profiles refine each supported material type with job-to-be-done, rendering/text policy, aesthetic recommendations, reference roles, prompt skeleton, bans, and review focus.",
+  "batches": {
+    "core_proof_social": [
+      "social",
+      "x-feed",
+      "x-feed-square",
+      "x-feed-portrait",
+      "x-card",
+      "linkedin-feed",
+      "linkedin-feed-square",
+      "linkedin-feed-portrait",
+      "linkedin-card",
+      "og-card",
+      "announcement-card",
+      "carousel-slide",
+      "proof-poster"
+    ],
+    "product_interface": [
+      "landing-hero",
+      "hero-banner",
+      "banner",
+      "website-hero-illustration",
+      "system-explainer-illustration",
+      "product-banner",
+      "product-visual",
+      "feature-illustration",
+      "browser-illustration",
+      "device-mockup",
+      "lifestyle-mockup",
+      "terminal-hero",
+      "cli-recording",
+      "command-illustration",
+      "storyboard",
+      "styleframe"
+    ],
+    "brand_system": [
+      "icon",
+      "icon-family",
+      "badge-family",
+      "sticker-family",
+      "motif-system",
+      "site-pattern-tile",
+      "pattern-board",
+      "lockup",
+      "logo",
+      "poster",
+      "merch-poster"
+    ],
+    "editorial_content": [
+      "content-card",
+      "content-card-square",
+      "editorial-card",
+      "editorial-metaphor-illustration",
+      "info-card",
+      "data-card",
+      "state-card",
+      "quote-card",
+      "process-card",
+      "event-poster",
+      "podcast-cover",
+      "podcast-banner",
+      "illustrated-brand-world"
+    ],
+    "motion_video": [
+      "animation",
+      "feature-animation",
+      "logo-animation",
+      "motion-loop",
+      "gif",
+      "short-video",
+      "stinger-animation"
+    ]
+  },
+  "profiles": {
+    "social": {
+      "material_type": "social",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a social that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "x-feed": {
+      "material_type": "x-feed",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a x feed that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "x-feed-square": {
+      "material_type": "x-feed-square",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a x feed square that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show the library-manifest-to-agent-runtime premise as one clear value story: a single manifest/proof source distributing at most three skill/tool/workflow cards into one agent runtime. Use large deterministic copy if copy matters, strong negative space, and restrained supporting graphics; no dense grid of microcards.",
+      "negative_prompt_failure_bans": [
+        "hard-to-read native image text",
+        "dense microcard matrix or every feature shown at once",
+        "low-contrast muddy palette or off-brand color drift",
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "text legibility at feed scale",
+        "palette appeal and brand-token contrast",
+        "single-premise clarity without feature overfocus",
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "x-feed-portrait": {
+      "material_type": "x-feed-portrait",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a x feed portrait that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "linkedin-feed": {
+      "material_type": "linkedin-feed",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a linkedin feed that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1.91:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "linkedin-feed-square": {
+      "material_type": "linkedin-feed-square",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a linkedin feed square that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "linkedin-feed-portrait": {
+      "material_type": "linkedin-feed-portrait",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a linkedin feed portrait that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1.91",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "linkedin-card": {
+      "material_type": "linkedin-card",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a linkedin card that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1.91:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "og-card": {
+      "material_type": "og-card",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a og card that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1.91:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "announcement-card": {
+      "material_type": "announcement-card",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a announcement card that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "carousel-slide": {
+      "material_type": "carousel-slide",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a carousel slide that makes one brand/product proof legible in-feed before decoration.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "structural-neo-brutalist-blueprint",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one dominant proof/message module, one small approved brand mark, restrained supporting graphic system, and no invented chrome. If visible copy is exact, use deterministic rendering or keep native image text minimal.",
+      "negative_prompt_failure_bans": [
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage"
+      ],
+      "review_focus": [
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "proof-poster": {
+      "material_type": "proof-poster",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a proof board/poster where one illustrated proof idea carries the piece; use landscape for workflow/operator proof and keep density controlled.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "screenprinted-proof-poster",
+        "structural-neo-brutalist-blueprint",
+        "tactile-human-collage",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Show one strong illustrated proof idea, one readable deterministic proof/message module, and one small approved brand mark. For workflow/operator proof, default to a landscape board with five compact step tiles; use portrait only for quote/stat-led posters. If labels, CLI/footer copy, stats, or proof rows matter, compose them deterministically with HTML/SVG/composite rather than native image text.",
+      "negative_prompt_failure_bans": [
+        "too many competing text blocks or footer strips",
+        "overcrowded poster with multiple proof rows and microcards",
+        "native-image CLI/footer copy",
+        "generic AI orb/node diagram",
+        "DAO/governance theater unless requested",
+        "oversized logo as main idea",
+        "fake UI chrome",
+        "gibberish or pseudo-text",
+        "busy quadrant collage",
+        "portrait-by-default workflow proof",
+        "QR without a real source URL; access/private-preview chrome unless explicitly supplied"
+      ],
+      "review_focus": [
+        "poster craft with controlled density",
+        "deterministic text handling for labels/footer/copy",
+        "proof/message hierarchy",
+        "feed readability",
+        "brand recognition",
+        "copy/text risk",
+        "generic social slop avoidance",
+        "landscape-vs-portrait fit for the proof job",
+        "five-step workflow readability when process proof is requested"
+      ],
+      "review_rubric_key": "proof-poster",
+      "review_rubric_mapping": "material_overlay"
+    },
+    "landing-hero": {
+      "material_type": "landing-hero",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a deployable landing-page hero background/sidecar animation that sits next to a separate one-line title and communicates the product category in 2-3 seconds.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "seedance-2-pro",
+      "default_render_backend": "native-video-background-loop-with-external-hero-copy",
+      "exact_text_policy": {
+        "mode": "external_hero_copy_only",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Do not render hero headline, nav, CTA, labels, CLI, or body copy inside the native video. Place exact title/body/CTA in the webpage/HTML overlay outside the generated animation."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "structural-neo-brutalist-blueprint",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "motion",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Generate only the 16:9 animated hero visual plate, not a full webpage. Reserve calm negative space for a separate one-line title beside or above the media; no nav, headline, CTA, footer, or readable page copy inside the video. Use one product-grounded motion metaphor (capability artifacts, workflow cards, manifests, tools, or approved UI proof moving into an agent/runtime) with a slow parallax/reveal/settle and a poster-worthy final hold. Keep it loopable, muted, and lightweight for web hero use.",
+      "negative_prompt_failure_bans": [
+        "full hero section mockup with nav/headline/CTA",
+        "complete webpage screenshot or browser chrome",
+        "readable native video text, labels, CLI, or footer copy",
+        "fake dashboards, fake app screens, or invented UI taxonomy",
+        "generic purple Web3 crystal/coin hero unless the brand explicitly calls for it",
+        "particle explosions, random camera spins, or stock intro-template effects",
+        "logo-only animation with no product/workflow meaning",
+        "social-card/poster layout instead of landing-page hero media"
+      ],
+      "review_focus": [
+        "deployable hero-background/sidecar animation asset, not a full webpage",
+        "external copy safe space with no native video text",
+        "product category understood in 2-3 seconds",
+        "single purposeful motion idea and final hold",
+        "web delivery fit: 16:9 MP4 primary, optional WebM alternate, muted loop, reduced-motion poster fallback",
+        "brand recognition without defaulting to generic purple Web3 art"
+      ],
+      "review_rubric_key": "landing-hero",
+      "review_rubric_mapping": "material_overlay",
+      "web_delivery": {
+        "primary_file_type": "mp4",
+        "optional_alternate_file_type": "webm",
+        "display_width": 1600,
+        "display_height": 900,
+        "aspect_ratio": "16:9",
+        "duration_seconds": 5,
+        "target_size_mb": "2-5",
+        "html_usage": "<video autoplay muted loop playsinline preload=\"metadata\" poster=\"...\"> with exact hero copy rendered outside the video; respect prefers-reduced-motion with a poster/static fallback."
+      }
+    },
+    "hero-banner": {
+      "material_type": "hero-banner",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a wide hero/banner surface that introduces a product truth without becoming a generic ad strip.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "structural-neo-brutalist-blueprint",
+        "friendly-line-flat-wayfinding",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "website-hero-illustration": {
+      "material_type": "website-hero-illustration",
+      "batch": "product_interface",
+      "job_to_be_done": "Create the illustration sidecar for a website hero: product-grounded art that sits left or right of separate hero text, not a complete hero section.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "native_text_minimal",
+        "deterministic_required_for_exact_copy": false,
+        "guidance": "Native generation may include abstract marks or non-critical labels only; use deterministic rendering if copy becomes part of the acceptance criteria."
+      },
+      "best_aesthetic_capsules": [
+        "structural-neo-brutalist-blueprint",
+        "friendly-line-flat-wayfinding",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Compose a sidecar illustration that can sit beside external hero headline/body copy: one symbolic Sage product moment, clear silhouette, open breathing room toward the text side, and no headline/subheadline/CTA inside the image. Use product proof as concept input, not as a full webpage mockup.",
+      "negative_prompt_failure_bans": [
+        "full hero section mockup",
+        "complete webpage layout with headline and CTA",
+        "illustration pretending to be the whole landing page",
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "sidecar suitability beside separate hero text",
+        "absence of headline/CTA/page chrome inside the illustration",
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "product-banner": {
+      "material_type": "product-banner",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a product banner that packages real product/interface truth with clear hierarchy and brand context.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "structural-neo-brutalist-blueprint",
+        "friendly-line-flat-wayfinding",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "product-visual": {
+      "material_type": "product-visual",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a product visual that packages real product/interface truth with clear hierarchy and brand context.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "gpt-image-2",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "native_text_minimal",
+        "deterministic_required_for_exact_copy": false,
+        "guidance": "Native generation may include abstract marks or non-critical labels only; use deterministic rendering if copy becomes part of the acceptance criteria."
+      },
+      "best_aesthetic_capsules": [
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "structural-neo-brutalist-blueprint",
+        "terminal-cli-proof",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "feature-illustration": {
+      "material_type": "feature-illustration",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a feature illustration that packages real product/interface truth with clear hierarchy and brand context.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "structural-neo-brutalist-blueprint",
+        "friendly-line-flat-wayfinding",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "browser-illustration": {
+      "material_type": "browser-illustration",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a browser/product-window illustration where one real workflow or UI proof remains authoritative.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "structural-neo-brutalist-blueprint",
+        "friendly-line-flat-wayfinding",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "terminal-hero": {
+      "material_type": "terminal-hero",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a developer-facing terminal hero where a command/proof window carries the story.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "nano-banana-2",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "terminal-cli-proof",
+        "controlled-retro-computing-interface",
+        "structural-neo-brutalist-blueprint",
+        "calm-product-wireframe-editorial"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "cli-recording": {
+      "material_type": "cli-recording",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a CLI-recording-style still/frame that looks like a real terminal workflow, not fake hacker code.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "nano-banana-2",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "terminal-cli-proof",
+        "controlled-retro-computing-interface",
+        "structural-neo-brutalist-blueprint"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "command-illustration": {
+      "material_type": "command-illustration",
+      "batch": "product_interface",
+      "job_to_be_done": "Create an explanatory command illustration focused on one real command/action and its effect.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "nano-banana-2",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "terminal-cli-proof",
+        "controlled-retro-computing-interface",
+        "structural-neo-brutalist-blueprint",
+        "calm-product-wireframe-editorial"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "storyboard": {
+      "material_type": "storyboard",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a storyboard frame sheet that shows sequence and pacing, not a poster collage.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "native_text_minimal",
+        "deterministic_required_for_exact_copy": false,
+        "guidance": "Native generation may include abstract marks or non-critical labels only; use deterministic rendering if copy becomes part of the acceptance criteria."
+      },
+      "best_aesthetic_capsules": [
+        "animated-infographic-data-story",
+        "kinetic-brand-motion-system",
+        "structural-neo-brutalist-blueprint",
+        "calm-product-wireframe-editorial",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "styleframe": {
+      "material_type": "styleframe",
+      "batch": "product_interface",
+      "job_to_be_done": "Create one high-quality motion/style keyframe that defines the look for later animation.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "native_text_minimal",
+        "deterministic_required_for_exact_copy": false,
+        "guidance": "Native generation may include abstract marks or non-critical labels only; use deterministic rendering if copy becomes part of the acceptance criteria."
+      },
+      "best_aesthetic_capsules": [
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "structural-neo-brutalist-blueprint",
+        "terminal-cli-proof",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Anchor the image on one real product/interface proof, frame it with brand color/mark hierarchy, and use references for crop/application only. Do not redesign the product or invent UI labels.",
+      "negative_prompt_failure_bans": [
+        "invented dashboard chrome",
+        "redrawn product UI",
+        "fake nav/buttons",
+        "tiny unreadable screenshots",
+        "hacker neon unless requested",
+        "product truth subordinate to decoration"
+      ],
+      "review_focus": [
+        "real product truth preservation",
+        "interface legibility",
+        "brand/product balance",
+        "reference-role discipline",
+        "invented UI risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "icon": {
+      "material_type": "icon",
+      "batch": "brand_system",
+      "job_to_be_done": "Create one deployable icon that follows brand geometry; do not treat it as a final trademark without review.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "icon-family": {
+      "material_type": "icon-family",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a icon family that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "badge-family": {
+      "material_type": "badge-family",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a badge family that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "sticker-family": {
+      "material_type": "sticker-family",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a sticker family that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "motif-system": {
+      "material_type": "motif-system",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a motif system that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "site-pattern-tile": {
+      "material_type": "site-pattern-tile",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a site pattern tile that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "site-pattern-tile",
+      "review_rubric_mapping": "material_overlay"
+    },
+    "pattern-board": {
+      "material_type": "pattern-board",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a pattern board that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "pattern-board",
+      "review_rubric_mapping": "material_overlay"
+    },
+    "lockup": {
+      "material_type": "lockup",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a lockup exploration that preserves mark/word hierarchy and spacing discipline.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "logo": {
+      "material_type": "logo",
+      "batch": "brand_system",
+      "job_to_be_done": "Explore logo directions with strict geometry and review caveats; do not imply final approval automatically.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "vector/composite-preferred-for-final-assets",
+      "exact_text_policy": {
+        "mode": "textless_or_reviewed_vector",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Prefer textless/vector identity exploration. Wordmarks/lockups require deterministic vector/composite handling and human review."
+      },
+      "best_aesthetic_capsules": [
+        "brand-system-vector-kit",
+        "friendly-line-flat-wayfinding",
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "poster": {
+      "material_type": "poster",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a poster that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "native_text_minimal",
+        "deterministic_required_for_exact_copy": false,
+        "guidance": "Native generation may include abstract marks or non-critical labels only; use deterministic rendering if copy becomes part of the acceptance criteria."
+      },
+      "best_aesthetic_capsules": [
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "brand-system-vector-kit"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "merch-poster": {
+      "material_type": "merch-poster",
+      "batch": "brand_system",
+      "job_to_be_done": "Create a merch poster that extends the brand identity system with deployable, consistent geometry.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "recraft-v4",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "heritage-bold-minimal-packaging",
+        "screenprinted-proof-poster",
+        "kinetic-typography-campaign",
+        "tactile-human-collage",
+        "brand-system-vector-kit"
+      ],
+      "allowed_reference_roles": [
+        "motif",
+        "application",
+        "composition"
+      ],
+      "prompt_skeleton": "Use a specimen/system layout: one geometry rule, repeated variants, consistent stroke/fill, approved palette, and clear deployability. Generated marks are explorations until reviewed.",
+      "negative_prompt_failure_bans": [
+        "random unrelated symbols",
+        "glossy app-icon bevels",
+        "fake final trademark claim",
+        "inconsistent stroke weights",
+        "mascot dump",
+        "gradient blob identity"
+      ],
+      "review_focus": [
+        "geometry consistency",
+        "deployability",
+        "brand-system coherence",
+        "identity approval caveat",
+        "motif overproduction risk"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "content-card": {
+      "material_type": "content-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a content card that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "tactile-human-collage",
+        "kinetic-typography-campaign",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "content-card-square": {
+      "material_type": "content-card-square",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a content card square that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "tactile-human-collage",
+        "kinetic-typography-campaign",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "editorial-card": {
+      "material_type": "editorial-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a editorial card that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "tactile-human-collage",
+        "kinetic-typography-campaign",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "editorial-metaphor-illustration": {
+      "material_type": "editorial-metaphor-illustration",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a editorial metaphor illustration that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "gpt-image-2",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "friendly-line-flat-wayfinding",
+        "tactile-human-collage",
+        "pastoral-storybook-animation",
+        "warm-editorial-system-illustration",
+        "editorial-content-card"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "editorial-metaphor-illustration",
+      "review_rubric_mapping": "material_overlay"
+    },
+    "info-card": {
+      "material_type": "info-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a info card that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "tactile-human-collage",
+        "kinetic-typography-campaign",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "data-card": {
+      "material_type": "data-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a data card where one statistic/data point is dominant and all labels are truthful.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "animated-infographic-data-story",
+        "structural-neo-brutalist-blueprint",
+        "editorial-content-card",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "state-card": {
+      "material_type": "state-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a state card that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "animated-infographic-data-story",
+        "structural-neo-brutalist-blueprint",
+        "editorial-content-card",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "quote-card": {
+      "material_type": "quote-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a quote card where the quote is deterministic/legible and brand presence is restrained.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "tactile-human-collage",
+        "kinetic-typography-campaign",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "process-card": {
+      "material_type": "process-card",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a process card that makes one sequence/flow legible without fake steps.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "animated-infographic-data-story",
+        "structural-neo-brutalist-blueprint",
+        "editorial-content-card",
+        "warm-editorial-system-illustration",
+        "pastoral-storybook-animation"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "event-poster": {
+      "material_type": "event-poster",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a event poster that turns one message, quote, state, data point, or editorial idea into a clear branded surface.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-typography-campaign",
+        "heritage-bold-minimal-packaging",
+        "tactile-human-collage",
+        "editorial-content-card",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "podcast-cover": {
+      "material_type": "podcast-cover",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a square podcast cover with strong shelf readability and minimal text.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "1:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-typography-campaign",
+        "heritage-bold-minimal-packaging",
+        "tactile-human-collage",
+        "editorial-content-card",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "podcast-banner": {
+      "material_type": "podcast-banner",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create a wide podcast banner that adapts the cover idea without crowding copy.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-typography-campaign",
+        "heritage-bold-minimal-packaging",
+        "tactile-human-collage",
+        "editorial-content-card",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "illustrated-brand-world": {
+      "material_type": "illustrated-brand-world",
+      "batch": "editorial_content",
+      "job_to_be_done": "Create an illustrated brand world that implies the product/work process, not just mood.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "gpt-image-2",
+      "default_render_backend": "native",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "friendly-line-flat-wayfinding",
+        "tactile-human-collage",
+        "pastoral-storybook-animation",
+        "archival-civic-documentary",
+        "warm-editorial-system-illustration"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use an editorial information hierarchy: one headline/quote/data/process payload, one supporting visual device, clear margins, and brand mark secondary. Exact text belongs in HTML/SVG/composite.",
+      "negative_prompt_failure_bans": [
+        "invented quotes/data/event details",
+        "gibberish body text",
+        "overcrowded type",
+        "fake charts",
+        "logo-dominant layout",
+        "decorative filler icons"
+      ],
+      "review_focus": [
+        "information hierarchy",
+        "truthfulness of copy/data",
+        "thumbnail readability",
+        "brand restraint",
+        "exact-text strategy"
+      ],
+      "review_rubric_key": "illustrated-brand-world",
+      "review_rubric_mapping": "material_overlay"
+    },
+    "animation": {
+      "material_type": "animation",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a animation whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "kling-v2.6",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "feature-animation": {
+      "material_type": "feature-animation",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a feature animation whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "minimax",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "bumper-animation": {
+      "material_type": "bumper-animation",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a bumper animation whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "kling-v2.6",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes",
+      "deprecated": true,
+      "replacement_materials": [
+        "feature-animation",
+        "landing-hero",
+        "logo-animation"
+      ]
+    },
+    "logo-animation": {
+      "material_type": "logo-animation",
+      "batch": "motion_video",
+      "job_to_be_done": "Create an explicit logo animation with one mark-preserving motion idea, readable transformation, and confident final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "kling-v2.6",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat mark motion contract: reveal the approved mark, animate one restrained transformation without redrawing it, and settle on an exact recognizable final hold. Name the reveal mechanic, camera/framing, duration, and final mark state. Avoid stock intro effects.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "exact brand mark preservation",
+        "text/caption strategy",
+        "effect restraint"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "motion-loop": {
+      "material_type": "motion-loop",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a motion loop whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "1:1",
+      "default_model": "luma",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "gif": {
+      "material_type": "gif",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a gif whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "1:1",
+      "default_model": "kling-v2.6",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "short-video": {
+      "material_type": "short-video",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a short video whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "minimax",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "stinger-animation": {
+      "material_type": "stinger-animation",
+      "batch": "motion_video",
+      "job_to_be_done": "Create a stinger animation whose opening beat is a product/workflow/capability state, not a logo card; use one motion idea, a readable transformation, and a confident branded final hold.",
+      "generation_mode": "video",
+      "default_aspect_ratio": "16:9",
+      "default_model": "kling-v2.6",
+      "default_render_backend": "native-video-with-external-text-overlay",
+      "exact_text_policy": {
+        "mode": "external_caption_or_final_hold_text",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Keep exact titles/captions outside the video model or on deterministic overlays; native video text should be minimal/non-critical."
+      },
+      "best_aesthetic_capsules": [
+        "kinetic-brand-motion-system",
+        "kinetic-typography-campaign",
+        "animated-infographic-data-story",
+        "controlled-retro-computing-interface",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "motion",
+        "composition",
+        "application",
+        "product_truth"
+      ],
+      "prompt_skeleton": "Use a three-beat motion contract: (1) start on the product/workflow/capability artifact or source still, (2) transform, route, or reveal the value, and (3) settle into a branded final hold with the logo only as a small provenance mark when needed. Name the reveal mechanic, camera/framing, duration, and final product/workflow state. Avoid stock intro effects and do not use a logo-first opener.",
+      "negative_prompt_failure_bans": [
+        "particle explosions",
+        "logo distortion/melting",
+        "random camera spins",
+        "too many transitions",
+        "unreadable motion text",
+        "stock intro template look",
+        "logo-first opener or centered mark reveal unless the material type is logo-animation",
+        "oversized logo as the motion driver"
+      ],
+      "review_focus": [
+        "single motion idea",
+        "pacing and final hold",
+        "product/workflow value before brand mark",
+        "text/caption strategy",
+        "effect restraint",
+        "logo appears only as final provenance when needed"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "system-explainer-illustration": {
+      "material_type": "system-explainer-illustration",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a mechanism-led Sage explainer illustration that makes one real product/protocol workflow legible at a glance.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "gpt-image-2",
+      "default_render_backend": "native-with-deterministic-labels-if-needed",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "structural-neo-brutalist-blueprint",
+        "calm-product-wireframe-editorial",
+        "friendly-line-flat-wayfinding",
+        "pastoral-storybook-animation",
+        "warm-editorial-system-illustration",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "composition",
+        "application",
+        "motif"
+      ],
+      "prompt_skeleton": "Explain one concrete Sage mechanism as a simple visual system: source artifact or manifest, routing/verification step, and agent/runtime outcome. Use 2-4 large shapes, one directional flow, and generous negative space. Do not turn it into a generic metaphor collage or fake dashboard; if labels matter, reserve them for deterministic overlay.",
+      "negative_prompt_failure_bans": [
+        "ambient brand world with no mechanism",
+        "abstract metaphor that hides the product flow",
+        "fake dashboard/screens/product modules",
+        "dense web3 icon collage",
+        "tiny unreadable labels",
+        "invented capabilities not grounded in references or approved product truth"
+      ],
+      "review_focus": [
+        "one causal mechanism visible at a glance",
+        "real product/protocol truth instead of invented taxonomy",
+        "simple system structure and directional flow",
+        "label/text strategy for deterministic overlay",
+        "brand clarity without mood-only worldbuilding"
+      ],
+      "review_rubric_key": "system-explainer-illustration",
+      "review_rubric_mapping": "material_overlay"
+    },
+    "banner": {
+      "material_type": "banner",
+      "batch": "product_interface",
+      "job_to_be_done": "Create a wide brand/product banner that supports external page or campaign copy without becoming a full hero page mockup.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "16:9",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "calm-product-wireframe-editorial",
+        "soft-dimensional-product-object",
+        "structural-neo-brutalist-blueprint",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Compose a wide banner art plate with one product-grounded visual premise, strong crop, and safe negative space for external copy. Do not include nav, CTA, full webpage chrome, or native exact headline text.",
+      "negative_prompt_failure_bans": [
+        "full landing page mockup",
+        "native headline/CTA text",
+        "fake product screenshots",
+        "overcrowded hero layout",
+        "generic stock SaaS gradients"
+      ],
+      "review_focus": [
+        "wide-crop usability",
+        "external-copy safe space",
+        "single product premise",
+        "brand palette control",
+        "no fake page chrome"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "x-card": {
+      "material_type": "x-card",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a 2:1 X summary-card visual with one proof-led Sage value story and deterministic copy handling.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "2:1",
+      "default_model": "recraft-v4",
+      "default_render_backend": "html-preferred-for-exact-copy",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "screenprinted-proof-poster",
+        "calm-product-wireframe-editorial",
+        "editorial-content-card",
+        "terminal-cli-proof"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "product_truth",
+        "motif"
+      ],
+      "prompt_skeleton": "Use the 2:1 X card as a clean link-preview/share visual: one large proof or artifact, one short deterministic headline zone, and one restrained brand mark. Avoid dense microcards and native image text.",
+      "negative_prompt_failure_bans": [
+        "hard-to-read native image text",
+        "dense grid of tiny cards",
+        "poster layout squeezed into 2:1",
+        "fake app screens",
+        "logo-dominant ad"
+      ],
+      "review_focus": [
+        "legibility in X card crop",
+        "single proof hierarchy",
+        "deterministic text zone",
+        "brand restraint",
+        "product-truth grounding"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "device-mockup": {
+      "material_type": "device-mockup",
+      "batch": "product_interface",
+      "job_to_be_done": "Place approved Sage product/proof artifacts into a device presentation without inventing new screens.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "composite-preferred-for-exact-screen-content",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "structural-neo-brutalist-blueprint"
+      ],
+      "allowed_reference_roles": [
+        "product_truth",
+        "application",
+        "composition",
+        "motif"
+      ],
+      "prompt_skeleton": "Present real approved product imagery or capability artifacts inside one device frame or product object. Preserve screen truth; use the model for framing, lighting, and surrounding brand context only. Use deterministic compositing for exact screen content.",
+      "negative_prompt_failure_bans": [
+        "invented app screens",
+        "fake dashboards",
+        "redrawn UI text",
+        "illegible device content",
+        "device glamour shot with no product proof"
+      ],
+      "review_focus": [
+        "approved product artifact preserved",
+        "device framing quality",
+        "screen/text fidelity strategy",
+        "brand context restraint",
+        "no invented UI"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    },
+    "lifestyle-mockup": {
+      "material_type": "lifestyle-mockup",
+      "batch": "product_interface",
+      "job_to_be_done": "Show Sage product/proof artifacts in a believable operator context without fabricating product UI or claims.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "4:5",
+      "default_model": "flux-2-pro",
+      "default_render_backend": "composite-preferred-for-exact-screen-content",
+      "exact_text_policy": {
+        "mode": "deterministic_required_for_exact_visible_copy",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "If exact visible copy, numbers, quotes, event details, command text, or UI labels matter, use html/svg/composite/typographic overlay; do not trust native image text."
+      },
+      "best_aesthetic_capsules": [
+        "tactile-human-collage",
+        "soft-dimensional-product-object",
+        "calm-product-wireframe-editorial",
+        "archival-civic-documentary"
+      ],
+      "allowed_reference_roles": [
+        "application",
+        "product_truth",
+        "composition",
+        "motif"
+      ],
+      "prompt_skeleton": "Create a grounded usage/context mockup around an approved Sage artifact: operator desk, review wall, device, printed card, or meeting surface. Keep the human/context layer supportive; exact product screens, QR codes, and labels must be composited/deterministic.",
+      "negative_prompt_failure_bans": [
+        "stock office lifestyle with no Sage artifact",
+        "fake UI screens",
+        "invented claims",
+        "generic AI glow",
+        "unreadable product text",
+        "overposed hands/devices"
+      ],
+      "review_focus": [
+        "believable operator context",
+        "real artifact presence",
+        "text/composite strategy",
+        "brand warmth without stock feel",
+        "no invented product details"
+      ],
+      "review_rubric_key": "universal",
+      "review_rubric_mapping": "universal_axes"
+    }
+  }
+}

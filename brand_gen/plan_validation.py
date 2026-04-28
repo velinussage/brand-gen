@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 
 from .brand_policy import normalize_material_brand_policy, summarize_identity
+from .product_truth import validate_product_truth_plan
 from .request_intent import requires_standalone_illustration_material
 from .runtime import *
 
@@ -25,6 +26,7 @@ __all__ = [
     "detect_enumerated_categories",
     "plan_has_text_ban",
     "detect_exact_text_request",
+    "detect_deterministic_text_surface_request",
     "plan_declares_deterministic_text_strategy",
     "normalize_complexity_tier",
     "complexity_tier_enumeration_min_items",
@@ -294,6 +296,59 @@ _DETERMINISTIC_TEXT_STRATEGY_VALUES = {
     "deterministic-overlay",
 }
 
+_DETERMINISTIC_TEXT_SURFACE_MATERIALS = {
+    "campaign_poster",
+    "proof_poster",
+    "data_card",
+    "process_card",
+    "content_card",
+    "editorial_card",
+    "quote_card",
+    "announcement_card",
+    "social",
+}
+
+_DETERMINISTIC_TEXT_SURFACE_PHRASES = (
+    "cli",
+    "command",
+    "commands",
+    "footer",
+    "caption",
+    "captions",
+    "label",
+    "labeled",
+    "labelled",
+    "labels",
+    "badge",
+    "badges",
+    "card copy",
+    "visible copy",
+    "headline",
+    "title",
+    "stat",
+    "stats",
+    "metric",
+    "metrics",
+    "quote",
+    "proof row",
+    "proof title",
+    "copy",
+)
+
+
+def _contains_deterministic_text_surface_phrase(haystack: str) -> bool:
+    text = str(haystack or "").lower()
+    for phrase in _DETERMINISTIC_TEXT_SURFACE_PHRASES:
+        phrase = str(phrase).strip().lower()
+        if not phrase:
+            continue
+        # Use word/phrase boundaries so broad tokens like "stat" do not match
+        # "static" or "status", and "copy" does not match "copywriting".
+        pattern = r"(?<![\w-])" + re.escape(phrase).replace(r"\ ", r"[\s-]+") + r"(?![\w-])"
+        if re.search(pattern, text):
+            return True
+    return False
+
 # Phrases that signal a "no text", "no labels", "no headlines" constraint.
 # When one of these is present AND the prompt seed enumerates ≥4 named
 # categories, the plan is in the v062 / v163-168 / v176-178 failure zone:
@@ -421,6 +476,31 @@ def detect_exact_text_request(plan_or_text: dict | str | None) -> bool:
     return False
 
 
+def detect_deterministic_text_surface_request(
+    plan_or_text: dict | str | None,
+    *,
+    material_type: str | None = None,
+) -> bool:
+    """Return True for text-heavy surfaces that need deterministic type.
+
+    This catches the common proof-poster/data-card case where the brief says
+    "CLI footer", "labels", "stats", or "card copy" without using explicit
+    exact/verbatim wording. Those should route to HTML/SVG/composite instead
+    of native image text.
+    """
+    if isinstance(plan_or_text, dict):
+        material_key = role_pack_material_key(material_type or plan_or_text.get("material_type") or "")
+        haystack = _plan_text_haystack(plan_or_text)
+    else:
+        material_key = role_pack_material_key(material_type or "")
+        haystack = str(plan_or_text or "").lower()
+    if material_key not in _DETERMINISTIC_TEXT_SURFACE_MATERIALS:
+        return False
+    if detect_exact_text_request(plan_or_text):
+        return True
+    return _contains_deterministic_text_surface_phrase(haystack)
+
+
 def plan_declares_deterministic_text_strategy(plan: dict) -> bool:
     """Return True when a plan explicitly routes exact text through a
     deterministic renderer/compositor rather than native image text.
@@ -484,6 +564,8 @@ def validate_material_plan_dict(plan: dict) -> dict:
     checks["role_pack_selected_roles"] = bool(role_pack.get("selected_roles")) or not required_roles
     checks["inspiration_translation"] = bool(translations) or not required_roles
     checks["prompt_seed"] = bool(plan.get("prompt_seed"))
+    product_truth_report = validate_product_truth_plan(plan)
+    checks["product_truth_value_focus"] = not bool(product_truth_report.get("errors"))
 
     artifact_scope = str(plan.get("artifact_scope") or "").strip().lower()
     selected_inspiration_sources = list(plan.get("selected_inspiration_sources") or [])
@@ -595,6 +677,16 @@ def validate_material_plan_dict(plan: dict) -> dict:
             "Exact text request detected, but the plan does not declare a deterministic text rendering strategy. "
             "Route exact headlines/taglines/stats through render_backend=html or a text_rendering_strategy such as html/svg/composite before generation."
         )
+    elif detect_deterministic_text_surface_request(plan) and not plan_declares_deterministic_text_strategy(plan):
+        errors.append(
+            "Text-heavy material requests visible labels, CLI/footer copy, stats, captions, or card copy, but the plan does not declare a deterministic text rendering strategy. "
+            "Route this through render_backend=html or a text_rendering_strategy such as html/svg/composite before native image generation."
+        )
+
+    for issue in product_truth_report.get("errors") or []:
+        errors.append(str(issue))
+    for warning in product_truth_report.get("warnings") or []:
+        warnings.append(str(warning))
 
     # Enumerated-categories detector: catches the v062 / v163-168 / v176-178
     # failure pattern where the brief lists N named categories in parens and

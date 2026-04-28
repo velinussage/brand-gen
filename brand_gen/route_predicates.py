@@ -34,7 +34,7 @@ except ImportError:
 _rules = load_workflow_router_rules()
 _predicates = _rules.get("predicates", {})
 PREDICATE_THRESHOLD = _predicates.get("threshold", 0.5)
-MOTION_MATERIAL_KEYS = set(_predicates.get("motion_material_keys", ["feature_animation", "brand_bumper"]))
+MOTION_MATERIAL_KEYS = set(_predicates.get("motion_material_keys", ["landing_hero", "feature_animation"]))
 TRANSLATE_MATERIAL_KEYS = set(_predicates.get("translate_material_keys", ["browser_illustration", "product_banner", "feature_illustration", "social"]))
 
 # Tunable score values — loaded from data/workflow_router_rules.json

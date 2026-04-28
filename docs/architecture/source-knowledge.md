@@ -52,6 +52,24 @@ For Sage, source knowledge should improve specificity around governed skill
 networks, prompt/knowledge curation, RLM feedback loops, libraries, DAOs,
 trust, and distribution for agent capability.
 
+## Sage planning-stage generation contract
+
+Sage capability/explanatory plans now build a compact `sage_vault_brief` /
+`sage_generation_contract` during planning, not only as optional agent
+scratchpad context. The contract carries:
+
+- one approved source-truth phrase,
+- one concrete adoption/use scene,
+- one style anchor,
+- one logo rule,
+- and a short hard-ban list.
+
+The execution prompt treats this as a high-priority hard block so prompt
+compression drops lower-signal prose before it drops the Sage source truth.
+Branding for these assets should come from palette, routed/lattice/path motifs,
+source/library/manifest objects, agent adoption/use scenes, and deterministic
+typography/approved phrases; the Sage logo is provenance, not the story.
+
 ## Generated brand runtime prompts
 
 `bgen create-brand` and `bgen start-testing` generate

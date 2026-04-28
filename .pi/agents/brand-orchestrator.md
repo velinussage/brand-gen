@@ -76,6 +76,7 @@ Each stage tool's `next_action` is a direct hint to the next tool call.
   ```
 - Valid `pick` roles are only: `composition`, `motif`, `application`, `motion`, `product_truth`. There is no `style` pick role.
 - If the user requests a forced generation model, first verify the tool schema/capabilities. The typed per-stage tools may not accept arbitrary `model` keys at plan time; unsupported keys should not be invented.
+- For Sage, do not route `social`, `editorial-card`, or content-card variants through `render_backend:"html"` just to preserve labels; that retired share-card flow collapses into the same prompt-detail template. Use `proof-poster` for deterministic proof cards, otherwise native/composite brand art with copy outside the image model.
 
 ## Mutation etiquette
 

@@ -136,6 +136,22 @@ Pi/host adapters should pass `style_handle` or `aesthetic_capsule` to `brand_orc
 - Pair positives with negatives. The negative list is where brand-gen bans generic failures like “floating orbs,” “DAO governance theater,” or “fake UI chrome.”
 - Keep exact visible text on deterministic render paths (`html`, SVG, composite, typographic overlay). Aesthetic capsules are not a text-rendering fix.
 
+
+## Additional aesthetic families for material prompts
+
+A follow-up 2026 design-trend scan expanded the capsule library beyond the first proof/social set:
+
+- **Structural neo-brutalist blueprint** — for product logic, data/process cards, terminal/proof surfaces, and hero modules that need transparent structure without generic gradients.
+- **Tactile human collage** — for campaign/editorial materials that should counter AI hyper-polish with controlled human-made texture.
+- **Friendly line-flat wayfinding** — for product education, icon/sticker families, and accessible small-screen illustration.
+- **Kinetic typography campaign** — for announcement, event, podcast, poster, social, and motion materials where the headline/final hold is the hero.
+- **Animated infographic data story** — for data/state/process cards and explainer motion where one metric or state change carries the story.
+- **Heritage bold-minimal packaging** — for posters, merch, podcast covers, badges, and lockups that need distance-readable brand recognition.
+- **Soft dimensional product object** — for hero/product visuals that need one tangible metaphor without sliding into generic 3D blobs.
+- **Controlled retro-computing interface** — for terminal/CLI/developer nostalgia where command readability stays stronger than retro effects.
+
+Research cues used: 2026 trend reports repeatedly emphasize human/tactile warmth over AI hyper-polish, restrained structural/brutalist/editorial grids, clean line-and-flat illustration for legibility, kinetic typography and motion as brand behavior, data storytelling/animated infographics, and logo/identity systems that derive details from brand story rather than generic effects. Sources: Creative Bloq graphic/illustration/logo/typography trend coverage, Graphic Design Junction 2026 trends, Digital Silk kinetic typography guidance, Lummi animation trends, Designity 2D animation trends, and current GitHub skill-search patterns for moodboard/style-reference agents.
+
 ## Adding a new capsule
 
 1. Add an entry to `data/aesthetic_capsules.json`.
