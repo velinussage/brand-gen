@@ -17,6 +17,8 @@ compatibility:
   tools: [Bash, Read, Grep, Glob]
 ---
 
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. Keep this link instead of copying the full prompt into skill bodies.
+
 # Brand-Gen Intent Preservation Trace
 
 **Risk addressed:** `MaterialPlan` (`pipeline_types.py:72`) holds typed fields, but `create_material_plan` returns a dict, and `assemble_generation_scratchpad` reads via `plan.get("aesthetic_capsule")`, `plan.get("selected_inspiration_sources")`, `plan.get("system_mechanic")` etc. Many high-information fields are flattened to strings before generation: `selected_mechanic_labels` becomes `"borrow {a} and {b}; avoid {x}"` (`prompt_assembly.py:670`); `aesthetic_capsule` becomes free-form prose via `render_capsule_prompt`; `surface_strategy_candidates` is computed as a list but only the chosen `selected_surface_strategy_prompt_directive` string survives. Scoring (`scoring/program.py`) gets `brand_dna: str` and `story_objective: str` — the structured plan is gone.

@@ -57,6 +57,10 @@ def append_run_event(
     data: dict[str, Any] | None = None,
     timestamp: str | None = None,
 ) -> Path:
+    data = dict(data or {})
+    resolved_branch_id = branch_id if branch_id is not None else data.get("branch_id")
+    resolved_parent_branch_id = parent_branch_id if parent_branch_id is not None else data.get("parent_branch_id")
+    resolved_selected_direction_id = selected_direction_id if selected_direction_id is not None else data.get("selected_direction_id")
     record = {
         "schema_type": "run_event",
         "schema_version": 1,
@@ -82,13 +86,13 @@ def append_run_event(
         "status": str(status or ""),
         "notes": str(notes or ""),
         "warnings": [str(item) for item in (warnings or []) if str(item).strip()],
-        "branch_id": str(branch_id or ""),
-        "parent_branch_id": str(parent_branch_id or ""),
+        "branch_id": str(resolved_branch_id or ""),
+        "parent_branch_id": str(resolved_parent_branch_id or ""),
         "branch_status": str(branch_status or ""),
-        "selected_direction_id": str(selected_direction_id or ""),
+        "selected_direction_id": str(resolved_selected_direction_id or ""),
         "override_reason": str(override_reason or ""),
         "override_actor": str(override_actor or ""),
-        "data": dict(data or {}),
+        "data": data,
     }
     path = run_ledger_path(brand_dir, workflow_id)
     with path.open("a", encoding="utf-8") as handle:

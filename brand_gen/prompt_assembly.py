@@ -34,6 +34,7 @@ from .reference_role_packs import (
 )
 from .pattern_discovery import discover_prompt_patterns
 from .prompt_block import PromptBlock, blocks_from_sections, evict_to_budget
+from .prompt_telemetry import record_cap, record_compression
 from .runtime import *
 from .runtime_brand import load_material_snippets, load_prompt_budget, load_prompt_fragments
 from .material_prompt_profiles import get_material_prompt_profile, render_material_prompt_profile
@@ -219,7 +220,7 @@ def build_effective_prompt(
             "avoid=fake taxonomy/screens/logo-as-hero."
         )
     elif product_truth_contract:
-        product_truth_prelude_contract = cap_text_at_sentence(product_truth_contract, 240)
+        product_truth_prelude_contract = _cap_with_telemetry(product_truth_contract, 240, block_name="product_truth_prelude_contract", pre_priority=True, stage="full_prompt_prelude")
     iteration_memory_snippet = "" if disable_brand_guardrails or not brand_dir else build_iteration_memory_snippet(brand_dir, material_type)
     custom_scratchpad_snippet = "" if disable_brand_guardrails or not brand_dir else build_custom_scratchpad_snippet(brand_dir, material_type)
     if role_pack_override is not None:
@@ -386,17 +387,17 @@ def build_effective_prompt(
 
     # Apply per-part caps for non-interface materials to prevent prelude bloat
     if material_key not in INTERFACE_MATERIAL_KEYS:
-        brand_prelude = cap_text_at_sentence(brand_prelude, NON_INTERFACE_PRELUDE_CAP)
-        doctrine = cap_text_at_sentence(doctrine, NON_INTERFACE_DOCTRINE_CAP)
-        reference_analysis_snippet = cap_text_at_sentence(reference_analysis_snippet, NON_INTERFACE_REF_ANALYSIS_CAP)
-        selected_inspiration_translation = cap_text_at_sentence(selected_inspiration_translation, _ni("inspiration_translation_cap"))
-        inspiration_memory_snippet = cap_text_at_sentence(inspiration_memory_snippet, _ni("inspiration_memory_cap"))
-        blackboard_learning_snippet = cap_text_at_sentence(blackboard_learning_snippet, _ni("compact_memory_cap"))
-        custom_scratchpad_snippet = cap_text_at_sentence(custom_scratchpad_snippet, _ni("compact_memory_cap"))
+        brand_prelude = _cap_with_telemetry(brand_prelude, NON_INTERFACE_PRELUDE_CAP, block_name="brand_prelude", pre_priority=True, stage="full_prompt_prelude")
+        doctrine = _cap_with_telemetry(doctrine, NON_INTERFACE_DOCTRINE_CAP, block_name="doctrine", pre_priority=True, stage="full_prompt_prelude")
+        reference_analysis_snippet = _cap_with_telemetry(reference_analysis_snippet, NON_INTERFACE_REF_ANALYSIS_CAP, block_name="reference_analysis_snippet", pre_priority=True, stage="full_prompt_prelude")
+        selected_inspiration_translation = _cap_with_telemetry(selected_inspiration_translation, _ni("inspiration_translation_cap"), block_name="selected_inspiration_translation", pre_priority=True, stage="full_prompt_prelude")
+        inspiration_memory_snippet = _cap_with_telemetry(inspiration_memory_snippet, _ni("inspiration_memory_cap"), block_name="inspiration_memory_snippet", pre_priority=True, stage="full_prompt_prelude")
+        blackboard_learning_snippet = _cap_with_telemetry(blackboard_learning_snippet, _ni("compact_memory_cap"), block_name="blackboard_learning_snippet", pre_priority=True, stage="full_prompt_prelude")
+        custom_scratchpad_snippet = _cap_with_telemetry(custom_scratchpad_snippet, _ni("compact_memory_cap"), block_name="custom_scratchpad_snippet", pre_priority=True, stage="full_prompt_prelude")
         if len(token_block) > NON_INTERFACE_TOKEN_BLOCK_CAP:
             token_block = token_block[:NON_INTERFACE_TOKEN_BLOCK_CAP].rstrip() + "…"
     elif blackboard_learning_snippet:
-        blackboard_learning_snippet = cap_text_at_sentence(blackboard_learning_snippet, _iface("ref_analysis_cap"))
+        blackboard_learning_snippet = _cap_with_telemetry(blackboard_learning_snippet, _iface("ref_analysis_cap"), block_name="blackboard_learning_snippet", pre_priority=True, stage="full_prompt_prelude")
 
     combined_prelude = "\n\n".join(
         part
@@ -422,7 +423,7 @@ def build_effective_prompt(
     )
     # Hard cap on total prelude for non-interface materials
     if material_key not in INTERFACE_MATERIAL_KEYS and len(combined_prelude) > NON_INTERFACE_TOTAL_PRELUDE_CAP:
-        combined_prelude = cap_text_at_sentence(combined_prelude, NON_INTERFACE_TOTAL_PRELUDE_CAP)
+        combined_prelude = _cap_with_telemetry(combined_prelude, NON_INTERFACE_TOTAL_PRELUDE_CAP, block_name="combined_prelude", pre_priority=True, stage="full_prompt_prelude")
     resolved = prefix_prompt(combined_prelude, body, token_block=token_block)
     return {
         "brand_prelude": brand_prelude,
@@ -629,6 +630,27 @@ def cap_text_at_sentence(text: str, max_chars: int) -> str:
     return joined
 
 
+def _cap_with_telemetry(
+    text: str,
+    max_chars: int | float,
+    *,
+    block_name: str,
+    pre_priority: bool,
+    stage: str,
+) -> str:
+    capped = cap_text_at_sentence(text, int(max_chars))
+    record_cap(
+        site_id=f"prompt_assembly.{block_name}",
+        block_name=block_name,
+        original_text=text,
+        capped_text=capped,
+        max_chars=max_chars,
+        pre_priority=pre_priority,
+        stage=stage,
+    )
+    return capped
+
+
 def compress_prompt_body(body: str, material_key: str, *, max_sentences: int | None = None, max_chars: int | None = None) -> str:
     if max_sentences is None:
         max_sentences = _iface("compress_max_sentences") if material_key in INTERFACE_MATERIAL_KEYS else _ni("compress_max_sentences")
@@ -652,8 +674,28 @@ def compress_prompt_body(body: str, material_key: str, *, max_sentences: int | N
         # No sentence fits the current char budget (usually because the
         # first sentence is very long). Keep the first sentence whole
         # rather than returning the entire body.
-        return sentences[0].strip()
-    return " ".join(picked).strip()
+        compressed = sentences[0].strip()
+        record_compression(
+            block_name="prompt_body",
+            original_chars=len(joined_full),
+            compressed_chars=len(compressed),
+            max_chars=max_chars,
+            max_sentences=max_sentences,
+            pre_priority=False,
+            stage="body",
+        )
+        return compressed
+    compressed = " ".join(picked).strip()
+    record_compression(
+        block_name="prompt_body",
+        original_chars=len(joined_full),
+        compressed_chars=len(compressed),
+        max_chars=max_chars,
+        max_sentences=max_sentences,
+        pre_priority=False,
+        stage="body",
+    )
+    return compressed
 
 
 # ── Compact execution prompt helpers ─────────────────────────────────
@@ -691,7 +733,7 @@ def compact_execution_intended_output(context: dict, material_type: str | None) 
         clauses.append(f"using a {strategy_label} composition")
     lead = " ".join(clauses).strip()
     if purpose:
-        return f"Intended output: {lead}. Goal: {cap_text_at_sentence(purpose, 140)}"
+        return f"Intended output: {lead}. Goal: {_cap_with_telemetry(purpose, 140, block_name='intended_output_goal', pre_priority=False, stage='execution_prompt')}"
     return f"Intended output: {lead}."
 
 
@@ -728,7 +770,7 @@ def compact_execution_product_truth_contract(context: dict) -> str:
     if validation.get("applies") or metadata.get("applies"):
         def _short(value: str, limit: int) -> str:
             cleaned = re.sub(r"\s+", " ", str(value or "").strip())
-            return cap_text_at_sentence(cleaned, limit).rstrip(".")
+            return _cap_with_telemetry(cleaned, limit, block_name="product_truth_short_clause", pre_priority=False, stage="execution_prompt").rstrip(".")
 
         hero = _short(
             metadata.get("hero_value")
@@ -756,13 +798,16 @@ def compact_execution_product_truth_contract(context: dict) -> str:
             copy_clause = " copy=" + _short(text_rule, 90) + "."
         elif material_key in {"social", "campaign_poster", "proof_poster", "data_card", "process_card", "content_card", "quote_card"}:
             copy_clause = " copy=exact labels via deterministic overlay, not native image text."
-        return cap_text_at_sentence(
+        return _cap_with_telemetry(
             f"Sage product-truth: show={hero}; proof={artifact_clause}; "
             f"trust={trust_role}; avoid={avoid_clause}; logo={logo_rule}."
             f"{copy_clause}",
             360,
+            block_name="product_truth_contract",
+            pre_priority=False,
+            stage="execution_prompt",
         )
-    return cap_text_at_sentence(text, 260)
+    return _cap_with_telemetry(text, 260, block_name="product_truth_contract", pre_priority=False, stage="execution_prompt")
 
 
 def compact_execution_sage_generation_contract(context: dict) -> str:
@@ -771,7 +816,7 @@ def compact_execution_sage_generation_contract(context: dict) -> str:
         text = render_sage_generation_contract(context.get("sage_generation_contract") or {})
     if not text:
         return ""
-    return cap_text_at_sentence(text, 520)
+    return _cap_with_telemetry(text, 520, block_name="sage_generation_contract", pre_priority=False, stage="execution_prompt")
 
 
 def compact_execution_material_profile(context: dict) -> str:
@@ -814,7 +859,7 @@ def compact_execution_copy_rule(context: dict) -> str:
     copy_anchor = (context.get("copy_anchor_snippet") or "").strip()
     if not copy_anchor:
         return ""
-    return "Copy rule: " + cap_text_at_sentence(copy_anchor, _shared("copy_rule_cap")).rstrip(".") + "."
+    return "Copy rule: " + _cap_with_telemetry(copy_anchor, _shared("copy_rule_cap"), block_name="copy_rule", pre_priority=False, stage="execution_prompt").rstrip(".") + "."
 
 
 def compact_execution_output_spec(context: dict) -> str:
@@ -867,14 +912,14 @@ def compact_execution_selected_inspiration(context: dict) -> str:
     text = str(context.get("selected_inspiration_translation") or "").strip()
     if not text:
         return ""
-    return cap_text_at_sentence(text, _shared("execution_inspiration_cap"))
+    return _cap_with_telemetry(text, _shared("execution_inspiration_cap"), block_name="selected_inspiration_block", pre_priority=False, stage="execution_prompt")
 
 
 def compact_execution_pattern_discovery(context: dict) -> str:
     packet = str((context.get("pattern_discovery") or {}).get("packet") or context.get("pattern_discovery_packet") or "").strip()
     if not packet:
         return ""
-    return cap_text_at_sentence(packet, 320)
+    return _cap_with_telemetry(packet, 320, block_name="pattern_discovery_block", pre_priority=False, stage="execution_prompt")
 
 
 # Short push clauses per overlay axis. Kept compact so the injection
@@ -1460,7 +1505,7 @@ def review_prompt_architecture(
 
     # Cap base prelude for non-interface materials (was uncapped -> 2000+ chars)
     if material_key not in INTERFACE_MATERIAL_KEYS:
-        base_prelude = cap_text_at_sentence(base_prelude, NON_INTERFACE_PRELUDE_CAP)
+        base_prelude = _cap_with_telemetry(base_prelude, NON_INTERFACE_PRELUDE_CAP, block_name="review_base_prelude", pre_priority=True, stage="review_prompt")
 
     compact_parts = [base_prelude.strip()]
     material_snippet = (context.get("material_prompt_snippet") or "").strip()
@@ -1475,16 +1520,16 @@ def review_prompt_architecture(
     if reference_analysis_snippet and len(reference_analysis_snippet) <= ref_analysis_cap:
         compact_parts.append(reference_analysis_snippet)
     elif reference_analysis_snippet:
-        compact_parts.append(cap_text_at_sentence(reference_analysis_snippet, ref_analysis_cap))
+        compact_parts.append(_cap_with_telemetry(reference_analysis_snippet, ref_analysis_cap, block_name="review_reference_analysis_snippet", pre_priority=True, stage="review_prompt"))
     if selected_inspiration_translation:
-        compact_parts.append(cap_text_at_sentence(selected_inspiration_translation, _iface("selected_inspiration_cap") if material_key in INTERFACE_MATERIAL_KEYS else _ni("selected_inspiration_cap")))
+        compact_parts.append(_cap_with_telemetry(selected_inspiration_translation, _iface("selected_inspiration_cap") if material_key in INTERFACE_MATERIAL_KEYS else _ni("selected_inspiration_cap"), block_name="review_selected_inspiration_translation", pre_priority=True, stage="review_prompt"))
     else:
         doctrine = (context.get("inspiration_doctrine") or "").strip()
         doctrine_cap = _iface("doctrine_cap") if material_key in INTERFACE_MATERIAL_KEYS else NON_INTERFACE_DOCTRINE_CAP
         if doctrine and len(doctrine) <= doctrine_cap:
             compact_parts.append(doctrine)
         elif doctrine:
-            compact_parts.append(cap_text_at_sentence(doctrine, doctrine_cap))
+            compact_parts.append(_cap_with_telemetry(doctrine, doctrine_cap, block_name="review_doctrine", pre_priority=True, stage="review_prompt"))
     compact_memory = (context.get("iteration_memory_snippet") or "").strip()
     if compact_memory and len(compact_memory) < _ni("compact_memory_cap"):
         compact_parts.append(compact_memory)
@@ -1498,7 +1543,7 @@ def review_prompt_architecture(
     total_cap = NON_INTERFACE_TOTAL_PRELUDE_CAP if material_key not in INTERFACE_MATERIAL_KEYS else 2000
     prelude_budget = max(total_cap - len(compact_body) - 4, int(total_cap * 0.3))
     if len(compact_prelude) > prelude_budget:
-        compact_prelude = cap_text_at_sentence(compact_prelude, prelude_budget)
+        compact_prelude = _cap_with_telemetry(compact_prelude, prelude_budget, block_name="review_compact_prelude", pre_priority=True, stage="review_prompt")
     refined_prompt = prefix_prompt(compact_prelude, compact_body, token_block=token_block or "")
     execution_prompt_payload = build_execution_prompt(
         raw_prompt,

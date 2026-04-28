@@ -59,6 +59,7 @@ from .plan_validation import (
     normalize_visual_density,
     validate_material_plan_dict,
 )
+from .pipeline_types import AestheticExperiment, VariantSpec
 from .reference_role_packs import (
     build_inspiration_translation_summary,
     build_selected_role_translation,
@@ -234,6 +235,8 @@ def create_material_plan(
     briefing: str | None = None,
     inspiration_picks: list[str] | None = None,
     accept_inspiration_recommendations: bool = False,
+    branch_id: str | None = None,
+    parent_branch_id: str | None = None,
 ) -> tuple[dict, list[str]]:
     requested_material_type = material_type
     material_type, material_type_resolution_note = resolve_planner_material_type(
@@ -571,6 +574,62 @@ def create_material_plan(
     contract_seed = sage_generation_contract_seed(sage_vault_brief)
     if contract_seed and contract_seed not in seed:
         seed = f"{seed} {contract_seed}".strip()
+    variants: list[VariantSpec] = []
+    selected_variant_index = 0
+    selected_capsule_id = str((_resolved_capsule or {}).get("id") or "")
+    archetype_id = str((_resolved_archetype or {}).get("id") or "")
+    for idx, raw_variant in enumerate(_aesthetic_direction_brief.get("variants") or []):
+        if not isinstance(raw_variant, dict):
+            continue
+        payload = {
+            **raw_variant,
+            "variant_id": raw_variant.get("variant_id") or raw_variant.get("capsule_id") or f"variant-{idx + 1}",
+            "archetype": archetype_id,
+            "design_variance": resolved_design_variance,
+        }
+        variant = VariantSpec.from_dict(payload)
+        if selected_capsule_id and variant.capsule == selected_capsule_id:
+            selected_variant_index = len(variants)
+        variants.append(variant)
+    if not variants and _resolved_capsule:
+        variants.append(
+            VariantSpec(
+                variant_id=selected_capsule_id or "selected-capsule",
+                label=str((_resolved_capsule or {}).get("label") or selected_capsule_id or "selected capsule"),
+                archetype=archetype_id,
+                capsule=selected_capsule_id,
+                design_variance=resolved_design_variance,
+                visual_thesis=str(((_resolved_capsule or {}).get("style_description") or {}).get("composition") or ""),
+                payload=dict(_resolved_capsule or {}),
+            )
+        )
+    if not variants:
+        variants.append(
+            VariantSpec(
+                variant_id="default-direction",
+                label="Default direction",
+                archetype=archetype_id,
+                capsule=selected_capsule_id,
+                design_variance=resolved_design_variance,
+                visual_thesis=seed[:160],
+            )
+        )
+    experiment_branch_id = branch_id or AestheticExperiment.stable_branch_id(
+        brand_key=brand_dir.name,
+        material_type=material_type,
+        seed=seed,
+        iteration=1,
+    )
+    experiment = AestheticExperiment(
+        branch_id=experiment_branch_id,
+        parent_branch_id=parent_branch_id or "",
+        archetype=archetype_id,
+        capsule=selected_capsule_id,
+        design_variance=resolved_design_variance,
+        variants=variants,
+        selected_variant_index=selected_variant_index,
+        selection_rationale="; ".join(str(item) for item in ((_capsule_selection or {}).get("reasons") or [])[:3]),
+    )
     _product_truth_plan = {
         **_truth_seed_plan,
         "product_truth_expression": policy.get("product_truth_expression") or "",
@@ -636,6 +695,10 @@ def create_material_plan(
         "aesthetic_reference_roles": dict(((_resolved_capsule or {}).get("reference_roles") or {})),
         "aesthetic_archetype": _resolved_archetype or None,
         "aesthetic_archetype_id": (_resolved_archetype or {}).get("id") or "",
+        "branch_id": experiment.branch_id,
+        "parent_branch_id": experiment.parent_branch_id,
+        "selected_direction_id": experiment.variants[experiment.selected_variant_index].variant_id,
+        "experiment": experiment.to_dict(),
         "prompt_subject": (prompt_subject or "").strip(),
         "prompt_style_descriptors": (prompt_style_descriptors or "").strip(),
         "prompt_lighting": (prompt_lighting or "").strip(),
@@ -753,6 +816,8 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
         prompt_composition=getattr(args, "prompt_composition", None),
         prompt_details=getattr(args, "prompt_details", None),
         briefing=getattr(args, "briefing", None),
+        branch_id=getattr(args, "branch_id", None),
+        parent_branch_id=getattr(args, "parent_branch_id", None),
         accept_inspiration_recommendations=True,
     )
     workflow_id = resolve_workflow_id(plan)

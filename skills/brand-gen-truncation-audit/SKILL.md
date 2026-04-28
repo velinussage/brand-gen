@@ -16,6 +16,8 @@ compatibility:
   tools: [Bash, Read, Grep, Glob]
 ---
 
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. Keep this link instead of copying the full prompt into skill bodies.
+
 # Brand-Gen Truncation Audit
 
 **Risk addressed:** prompt assembly applies caps through 6+ layers in sequence (per-part `cap_text_at_sentence` → joined-prelude cap → `compress_prompt_body` → `evict_to_budget` over `PromptBlock`s → execution-prompt re-cap → ad-hoc `[:N]` slices). Most truncation is **silent** — only `review_prompt_architecture` reports dropped blocks. Hard-coded limits live as magic numbers across 14+ files. The priority-tier `PromptBlock` machinery (`prompt_block.py`) only sees content **after** earlier caps already fired.

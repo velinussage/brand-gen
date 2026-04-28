@@ -1093,7 +1093,9 @@ def build_pipeline_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[st
 
 def build_feedback_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("version", help="Version ID (e.g., v12)")
-    parser.add_argument("--score", "-s", type=int, choices=range(1, 6), help="Score 1-5")
+    score_group = parser.add_mutually_exclusive_group()
+    score_group.add_argument("--score", "-s", type=int, choices=range(1, 6), help="Score 1-5")
+    score_group.add_argument("--reject", action="store_true", help="Record a hard user rejection (stores score=1, decision=reject); requires --notes")
     parser.add_argument("--notes", "-n", help="Feedback notes")
     parser.add_argument("--status", choices=["favorite", "rejected"], help="Mark status")
     parser.add_argument("--lock", nargs="+", help="Lock prompt fragments")

@@ -5,8 +5,12 @@ track: bug
 category: logic-errors
 problem_type: routing-fallback-masks-intent
 module: brand_gen/route_predicates.py
-status: open
+status: resolved
 severity: high
+resolved: 2026-04-28
+resolution_plan: docs/plans/2026-04-28-001-feat-brand-gen-pipeline-improvements-plan.md
+resolution_units: [U4]
+resolution_notes: "Layout dispatch in card_engine.py now requires positive signals (source_url, detail_blocks, share_card_retired flag) via requires_prompt_detail_matrix in route_predicates.py."
 related_files:
   - brand_gen/route_predicates.py
   - data/workflow_router_rules.json

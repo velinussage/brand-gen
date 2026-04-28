@@ -18,6 +18,8 @@ compatibility:
   tools: [Bash, Read, Grep, Glob]
 ---
 
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. Keep this link instead of copying the full prompt into skill bodies.
+
 # Brand-Gen Experiment Modeling
 
 **Risk addressed:** brand-gen computes 2-3 ranked aesthetic variants in `build_aesthetic_direction_brief` (`brand_gen/aesthetic_curation.py:231`) — *and discards them*. Only the `_resolved_capsule` (one variant) flows into the prompt. `branch_id` and `parent_branch_id` exist in `pipeline_types.py:261` but are populated to `workflow_id` everywhere; nothing forks. Three parallel selection systems (`aesthetic_archetypes` rotation, `aesthetic_curation` capsule scoring, `surface_strategy` strategy scoring, plus a `design_variance` 1-10 dial) merge in `plan_builder.py:506-528` with no shared "Variant" type.

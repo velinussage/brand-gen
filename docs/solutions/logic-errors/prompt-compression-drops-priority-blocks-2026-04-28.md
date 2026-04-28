@@ -5,8 +5,11 @@ track: bug
 category: logic-errors
 problem_type: intent-loss-on-compression
 module: brand_gen/prompt_assembly.py
-status: open
+status: in-progress
 severity: high
+resolution_plan: docs/plans/2026-04-28-001-feat-brand-gen-pipeline-improvements-plan.md
+resolution_units: [U3]
+resolution_notes: "U3 instrumented every cap site with telemetry (record_cap, record_compression in brand_gen/prompt_telemetry.py). Drop reorder is the next pass once telemetry confirms which caps fire pre-priority."
 related_files:
   - brand_gen/prompt_assembly.py
   - brand_gen/prompt_block.py

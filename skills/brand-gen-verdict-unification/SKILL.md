@@ -17,6 +17,8 @@ compatibility:
   tools: [Bash, Read, Grep, Glob]
 ---
 
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. Keep this link instead of copying the full prompt into skill bodies.
+
 # Brand-Gen Verdict Unification
 
 **Risk addressed:** brand-gen has at least four parallel quality systems with non-fungible outputs, composed implicitly:

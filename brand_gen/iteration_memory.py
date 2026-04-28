@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 from .runtime_io import load_json_file
+from .verdict import (
+    Verdict,
+    coerce_verdicts,
+    legacy_verdict_from_entry,
+    reconcile_verdicts,
+    verdict_from_user_feedback,
+)
 
 DEFAULT_ITERATION_MEMORY = {
     "version": 1,
@@ -40,7 +47,25 @@ def normalize_iteration_memory(payload: dict | None) -> dict:
     out["recent_archetypes_by_material"] = {
         k: list(v) for k, v in (out.get("recent_archetypes_by_material") or {}).items()
     }
+    out["positive_examples"] = [_normalize_feedback_record(item) for item in out["positive_examples"] if isinstance(item, dict)]
+    out["negative_examples"] = [_normalize_feedback_record(item) for item in out["negative_examples"] if isinstance(item, dict)]
     return out
+
+
+def _normalize_feedback_record(item: dict[str, Any]) -> dict[str, Any]:
+    record = dict(item or {})
+    verdicts = coerce_verdicts(record.get("verdicts") or [])
+    if not verdicts:
+        verdicts = [legacy_verdict_from_entry(str(record.get("version") or ""), record)]
+    reconciliation = reconcile_verdicts(verdicts)
+    record["verdicts"] = reconciliation["verdicts"]
+    record.setdefault("primary_decision", reconciliation["primary_decision"])
+    record.setdefault("primary_gate", reconciliation["primary_gate"])
+    record.setdefault("verdict_conflict", reconciliation["verdict_conflict"])
+    record.setdefault("conflict_summary", reconciliation["conflict_summary"])
+    if "decision" not in record and reconciliation["primary_decision"]:
+        record["decision"] = reconciliation["primary_decision"]
+    return record
 
 
 def pick_rotating_style_anchor(
@@ -172,6 +197,10 @@ def capture_feedback_into_iteration_memory(
     score: int | None,
     status: str | None,
     *,
+    decision: str | None = None,
+    rejection_reason: str | None = None,
+    verdicts: list[Verdict | dict[str, Any]] | None = None,
+    branch_id: str | None = None,
     role_pack_material_key_fn: Callable[[str | None], str | None] | None = None,
 ) -> dict:
     memory = normalize_iteration_memory(memory)
@@ -181,21 +210,61 @@ def capture_feedback_into_iteration_memory(
         role_pack_material_key_fn = role_pack_material_key
     material_type = entry.get("material_type") or ""
     summary = (notes or "").strip() or "Feedback recorded."
+    resolved_decision = str(decision or entry.get("decision") or "").strip()
+    resolved_rejection_reason = str(rejection_reason or entry.get("rejection_reason") or "").strip()
+    incoming_verdicts = coerce_verdicts(verdicts or [])
+    if not incoming_verdicts and (score is not None or status or resolved_decision):
+        incoming_verdicts = [
+            verdict_from_user_feedback(
+                version_id=version,
+                score=score,
+                decision=resolved_decision,
+                status=status,
+                rationale=resolved_rejection_reason or summary,
+                payload={"status": status or "", "notes": notes or ""},
+            )
+        ]
+    # Preserve earlier gate verdicts for this same version so critic and VLM
+    # paths can converge into one memory entry even though they run separately.
+    prior_verdicts: list[Verdict] = []
+    for bucket in ("positive_examples", "negative_examples"):
+        for item in memory.get(bucket, []) or []:
+            if isinstance(item, dict) and item.get("version") == version:
+                prior_verdicts.extend(coerce_verdicts(item.get("verdicts") or []))
+    merged_by_gate: dict[str, Verdict] = {}
+    for verdict in prior_verdicts + incoming_verdicts:
+        merged_by_gate[verdict.gate] = verdict
+    reconciliation = reconcile_verdicts(list(merged_by_gate.values()))
+    primary_decision = reconciliation["primary_decision"] or resolved_decision
+    primary_score = reconciliation["primary_score"] if reconciliation["primary_score"] is not None else score
     record = {
         "version": version,
         "material_type": material_type,
         "summary": summary,
-        "score": score,
+        "score": primary_score if primary_score is not None else score,
         "status": status or "",
+        "decision": primary_decision or "",
+        "primary_decision": primary_decision or "",
+        "primary_gate": reconciliation["primary_gate"],
+        "verdicts": reconciliation["verdicts"],
+        "verdict_conflict": bool(reconciliation["verdict_conflict"]),
+        "conflict_summary": reconciliation["conflict_summary"],
+        "branch_id": branch_id or entry.get("branch_id") or "",
     }
+    if resolved_rejection_reason:
+        record["rejection_reason"] = resolved_rejection_reason
     target_bucket = None
-    if status == "favorite" or (score is not None and score >= 4):
+    if primary_decision == "approve" or status == "favorite" or (primary_score is not None and primary_score >= 4):
         target_bucket = "positive_examples"
-    elif status == "rejected" or (score is not None and score <= 2):
+    elif primary_decision in {"reject", "iterate"} or status == "rejected" or (primary_score is not None and primary_score <= 2):
         target_bucket = "negative_examples"
     if target_bucket:
+        # Remove stale copies from both buckets before appending the reconciled
+        # entry.  This prevents a version from being both positive and negative
+        # after separate gates report conflicting results.
+        for bucket in ("positive_examples", "negative_examples"):
+            memory[bucket] = [item for item in (memory.get(bucket) or []) if not (isinstance(item, dict) and item.get("version") == version)]
         existing = memory.get(target_bucket, [])
-        existing = [item for item in existing if item.get("version") != version]
         existing.append(record)
         memory[target_bucket] = existing[-20:]
     if notes and notes.strip():
@@ -246,9 +315,19 @@ def build_iteration_memory_snippet(
         for item in copy_notes[-2:]:
             lines.append(f"- {item}")
     if negative:
-        recent_negative = [item for item in reversed(negative) if not key or role_pack_material_key_fn(item.get("material_type")) == key]
+        new_schema_count = sum(1 for item in negative if isinstance(item, dict) and item.get("verdicts"))
+        recent_negative = [
+            item
+            for item in reversed(negative)
+            if (not key or role_pack_material_key_fn(item.get("material_type")) == key)
+            and (new_schema_count < 3 or item.get("primary_decision") != "approve")
+        ]
         if recent_negative:
             lines.append("Recent misses to avoid:")
             for item in recent_negative[:2]:
-                lines.append(f"- {item.get('summary')}")
+                prefix = ""
+                if item.get("primary_gate"):
+                    prefix = f"[{item.get('primary_gate')}:{item.get('primary_decision')}] "
+                conflict = f" ({item.get('conflict_summary')})" if item.get("verdict_conflict") and item.get("conflict_summary") else ""
+                lines.append(f"- {prefix}{item.get('summary')}{conflict}")
     return "\n".join(lines).strip()

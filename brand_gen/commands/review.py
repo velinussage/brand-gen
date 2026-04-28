@@ -113,6 +113,8 @@ def _augment_packet_with_dspy_scorer(
     rubric["top_failure_reasons"] = prediction.top_failure_reasons
     rubric["recommended_next_change"] = prediction.recommended_next_change
     rubric["why_user_might_dislike_if_polished"] = prediction.why_user_might_dislike_if_polished
+    if getattr(prediction, "verdict", None):
+        rubric["verdict"] = prediction.verdict
     # Scorer-computed min-biased overall for the calibration layer.
     if prediction.disqualifier_triggered:
         rubric["overall_score"] = 1
@@ -379,8 +381,23 @@ def cmd_feedback(args):
         print(f"ERROR: {vid} not in manifest. Run 'bootstrap' first?", file=sys.stderr)
         sys.exit(1)
     entry = manifest["versions"][vid]
-    if args.score is not None:
+    if getattr(args, "reject", False):
+        if getattr(args, "score", None) is not None:
+            print("ERROR: --reject cannot be combined with --score", file=sys.stderr)
+            sys.exit(2)
+        if not str(getattr(args, "notes", "") or "").strip():
+            print("ERROR: --reject requires --notes explaining the rejection", file=sys.stderr)
+            sys.exit(2)
+        args.score = 1
+        if not getattr(args, "status", None):
+            args.status = "rejected"
+        entry["score"] = 1
+        entry["decision"] = "reject"
+        entry["rejection_reason"] = str(args.notes or "").strip()
+    elif args.score is not None:
         entry["score"] = args.score
+        if "decision" not in entry and args.score <= 2:
+            entry["decision"] = "iterate"
     if args.notes:
         entry["notes"] = (entry["notes"] + "\n" if entry.get("notes") else "") + args.notes
     if args.status:
@@ -395,7 +412,17 @@ def cmd_feedback(args):
                 manifest.setdefault("locked_fragments", []).append(frag)
     save_manifest(manifest)
     memory = load_iteration_memory(brand_dir)
-    memory = capture_feedback_into_iteration_memory(memory, vid, entry, args.notes, args.score, args.status)
+    memory = capture_feedback_into_iteration_memory(
+        memory,
+        vid,
+        entry,
+        args.notes,
+        args.score,
+        args.status,
+        decision=entry.get("decision") or ("reject" if getattr(args, "reject", False) else None),
+        rejection_reason=entry.get("rejection_reason") or "",
+        branch_id=entry.get("branch_id") or "",
+    )
     save_iteration_memory(brand_dir, memory)
     append_run_event(
         brand_dir,
@@ -408,7 +435,13 @@ def cmd_feedback(args):
         output_version=vid,
         status=entry.get("status") or "",
         notes=args.notes or "",
-        data={"score": entry.get("score"), "status": entry.get("status") or "", "locked_fragments": list(args.lock or [])},
+        data={
+            "score": entry.get("score"),
+            "status": entry.get("status") or "",
+            "decision": entry.get("decision") or "",
+            "rejection_reason": entry.get("rejection_reason") or "",
+            "locked_fragments": list(args.lock or []),
+        },
     )
     _, _, profile, identity = load_brand_memory(brand_dir, None, None)
     bb = load_blackboard(brand_dir, profile, identity)
@@ -428,7 +461,7 @@ def cmd_feedback(args):
         decision=f"Recorded feedback for {vid}: score {entry.get('score') if entry.get('score') is not None else 'n/a'} / status {entry.get('status') or 'none'}.",
         confidence=0.82,
         severity="P1" if entry.get("status") == "rejected" else ("P3" if entry.get("status") == "favorite" else None),
-        data={"score": entry.get("score"), "status": entry.get("status") or "", "notes": args.notes or ""},
+        data={"score": entry.get("score"), "status": entry.get("status") or "", "decision": entry.get("decision") or "", "notes": args.notes or ""},
         workflow_id=entry.get("workflow_id") or "",
     )
     save_blackboard(brand_dir, bb)

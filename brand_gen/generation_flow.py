@@ -46,6 +46,8 @@ from .agent_review import write_agent_visual_review_packet
 from .aesthetic_curation import select_aesthetic_capsule
 from .pipeline_qa import write_pipeline_qa_report
 from .run_ledger import append_run_event
+from .prompt_telemetry import clear_prompt_telemetry, drain_prompt_telemetry
+from .verdict import verdict_from_critic, verdict_from_vlm
 from .vlm_critique import (
     refine_prompt_from_vlm_critique as _refine_prompt_from_vlm_critique,
     run_vlm_critique as _run_vlm_critique,
@@ -447,6 +449,7 @@ def assemble_generation_scratchpad(
                 "warnings": list(_selection.get("warnings") or []),
             }
 
+    clear_prompt_telemetry()
     prompt_context = build_effective_prompt(
         profile_data,
         identity_data,
@@ -780,6 +783,7 @@ def assemble_generation_scratchpad(
         token_block=prompt_context.get("token_block", ""),
         generation_mode=generation_mode,
     )
+    prompt_telemetry = drain_prompt_telemetry()
     reference_tag_context = build_reference_tag_context(
         model,
         generation_mode,
@@ -976,7 +980,21 @@ def assemble_generation_scratchpad(
             "blocking": blocking_issues,
             "warnings": dedupe_keep_order(warnings + list(prompt_review.get("recommendations", []))),
         },
+        "prompt_compression_telemetry": prompt_telemetry,
     }
+    append_run_event(
+        brand_dir,
+        workflow_id,
+        stage="prompt_assembly",
+        event_type="prompt_compression_telemetry",
+        material_type=material_type,
+        mode=workflow_mode,
+        status="ok",
+        branch_id=_branch_id,
+        parent_branch_id=_parent_branch_id,
+        selected_direction_id=_selected_direction_id,
+        data={"entries": prompt_telemetry, "entry_count": len(prompt_telemetry)},
+    )
     return payload
 
 
@@ -1089,7 +1107,22 @@ def auto_capture_generation_feedback(
     p3 = critic_summary.get("p3") or []
     if not p1 and not p2 and not p3:
         return
+    verdict = verdict_from_critic(vid, critic_summary)
     try:
+        if verdict is not None:
+            append_run_event(
+                brand_dir,
+                manifest_entry.get("workflow_id") or "",
+                stage="review",
+                event_type="verdict_emitted",
+                attempt_id=vid,
+                material_type=manifest_entry.get("material_type") or "",
+                mode=manifest_entry.get("mode") or "",
+                output_version=vid,
+                status=verdict.decision,
+                branch_id=manifest_entry.get("branch_id") or "",
+                data={"verdict": verdict.to_dict()},
+            )
         memory = load_iteration_memory(brand_dir)
         if p1 or p2:
             issues = p1 + p2
@@ -1100,6 +1133,8 @@ def auto_capture_generation_feedback(
                 notes=f"Auto-critic: {summary}",
                 score=score,
                 status="rejected" if p1 else None,
+                verdicts=[verdict] if verdict is not None else None,
+                branch_id=manifest_entry.get("branch_id") or "",
             )
         if p3:
             material_type = manifest_entry.get("material_type") or ""
@@ -1127,6 +1162,21 @@ def auto_capture_vlm_feedback(
     if not vlm_critique.get("vlm_available"):
         return
     try:
+        verdict = verdict_from_vlm(vid, vlm_critique)
+        if verdict is not None:
+            append_run_event(
+                brand_dir,
+                manifest_entry.get("workflow_id") or "",
+                stage="review",
+                event_type="verdict_emitted",
+                attempt_id=vid,
+                material_type=manifest_entry.get("material_type") or "",
+                mode=manifest_entry.get("mode") or "",
+                output_version=vid,
+                status=verdict.decision,
+                branch_id=manifest_entry.get("branch_id") or "",
+                data={"verdict": verdict.to_dict()},
+            )
         memory = load_iteration_memory(brand_dir)
         vlm_p1 = vlm_critique.get("p1") or []
         vlm_p2 = vlm_critique.get("p2") or []
@@ -1151,6 +1201,8 @@ def auto_capture_vlm_feedback(
                 notes=f"VLM critique: {summary}{_quality_tag}",
                 score=score,
                 status="rejected" if vlm_p1 else None,
+                verdicts=[verdict] if verdict is not None else None,
+                branch_id=manifest_entry.get("branch_id") or "",
             )
         elif approved:
             memory = capture_feedback_into_iteration_memory(
@@ -1158,6 +1210,8 @@ def auto_capture_vlm_feedback(
                 notes=f"VLM approved: passed visual review{_quality_tag}",
                 score=4,
                 status=None,
+                verdicts=[verdict] if verdict is not None else None,
+                branch_id=manifest_entry.get("branch_id") or "",
             )
         save_iteration_memory(brand_dir, memory)
     except Exception as exc:

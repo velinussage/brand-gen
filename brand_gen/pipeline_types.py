@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import time
 import uuid
+from hashlib import sha256
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
@@ -69,6 +70,93 @@ class RolePack:
 
 
 @dataclass
+class VariantSpec:
+    variant_id: str
+    label: str = ""
+    archetype: str = ""
+    capsule: str = ""
+    design_variance: int = 5
+    visual_thesis: str = ""
+    selection_score: float = 0.0
+    selection_reasons: list[str] = field(default_factory=list)
+    difference_axes: list[str] = field(default_factory=list)
+    payload: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if not self.variant_id:
+            raise ValueError("variant_id is required")
+        if not (1 <= int(self.design_variance) <= 10):
+            raise ValueError("design_variance must be 1-10")
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> "VariantSpec":
+        payload = dict(raw or {})
+        variant_id = str(payload.get("variant_id") or payload.get("id") or payload.get("capsule_id") or payload.get("label") or "").strip()
+        raw_payload = payload.get("payload")
+        return cls(
+            variant_id=variant_id,
+            label=str(payload.get("label") or variant_id),
+            archetype=str(payload.get("archetype") or payload.get("archetype_id") or ""),
+            capsule=str(payload.get("capsule") or payload.get("capsule_id") or ""),
+            design_variance=int(payload.get("design_variance") or 5),
+            visual_thesis=str(payload.get("visual_thesis") or ""),
+            selection_score=float(payload.get("selection_score") or 0.0),
+            selection_reasons=list(payload.get("selection_reasons") or []),
+            difference_axes=list(payload.get("difference_axes") or []),
+            payload=dict(raw_payload or {}) if isinstance(raw_payload, dict) else payload,
+        )
+
+
+@dataclass
+class AestheticExperiment:
+    branch_id: str
+    archetype: str
+    capsule: str
+    design_variance: int
+    variants: list[VariantSpec]
+    parent_branch_id: str = ""
+    selected_variant_index: int = 0
+    selection_rationale: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.branch_id:
+            raise ValueError("branch_id is required")
+        if not (1 <= int(self.design_variance) <= 10):
+            raise ValueError("design_variance must be 1-10")
+        variants = [item if isinstance(item, VariantSpec) else VariantSpec.from_dict(item) for item in (self.variants or [])]
+        if not variants:
+            raise ValueError("variants must not be empty")
+        if not (0 <= int(self.selected_variant_index) < len(variants)):
+            raise ValueError("selected_variant_index out of range")
+        object.__setattr__(self, "variants", variants)
+
+    @staticmethod
+    def stable_branch_id(*, brand_key: str, material_type: str, seed: str, iteration: int | str = 1) -> str:
+        raw = "|".join([str(brand_key or ""), str(material_type or ""), str(iteration or ""), str(seed or "")])
+        return "br_" + sha256(raw.encode("utf-8")).hexdigest()[:12]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> "AestheticExperiment":
+        variants = [VariantSpec.from_dict(item) if isinstance(item, dict) else item for item in (raw.get("variants") or [])]
+        return cls(
+            branch_id=str(raw.get("branch_id") or ""),
+            parent_branch_id=str(raw.get("parent_branch_id") or ""),
+            archetype=str(raw.get("archetype") or ""),
+            capsule=str(raw.get("capsule") or ""),
+            design_variance=int(raw.get("design_variance") or 5),
+            variants=variants,  # type: ignore[arg-type]
+            selected_variant_index=int(raw.get("selected_variant_index") or 0),
+            selection_rationale=str(raw.get("selection_rationale") or ""),
+        )
+
+
+@dataclass
 class MaterialPlan:
     material_type: str
     mode: str = "hybrid"
@@ -121,6 +209,10 @@ class MaterialPlan:
     aesthetic_direction_brief: dict[str, Any] = field(default_factory=dict)
     aesthetic_style_strength: float | int | None = None
     aesthetic_reference_roles: dict[str, Any] = field(default_factory=dict)
+    branch_id: str = ""
+    parent_branch_id: str = ""
+    selected_direction_id: str = ""
+    experiment: AestheticExperiment | None = None
 
     def validate(self) -> list[str]:
         errors: list[str] = []
@@ -386,6 +478,8 @@ def plan_draft_from_dict(d: dict[str, Any], workflow_id: str) -> PlanDraft:
     plan_fields = _filter_fields(plan_data, set(MaterialPlan.__dataclass_fields__.keys()))
     if role_pack is not None:
         plan_fields["role_pack"] = role_pack
+    if isinstance(plan_fields.get("experiment"), dict):
+        plan_fields["experiment"] = AestheticExperiment.from_dict(plan_fields["experiment"])
     return PlanDraft(
         meta=WorkflowMeta(workflow_id=workflow_id, stage="plan_draft"),
         plan=MaterialPlan(**plan_fields),

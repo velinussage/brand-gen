@@ -17,6 +17,8 @@ compatibility:
   tools: [Bash, Read, Grep, Glob]
 ---
 
+For Sage brand work in Pi, use the paste-ready prompt at `docs/prompts/pi-sage-brand-gen-full-pipeline.md`. Keep this link instead of copying the full prompt into skill bodies.
+
 # Brand-Gen Phase Contract Audit
 
 **Risk addressed:** the in-process contract between pipeline phases is `argparse.Namespace`. There are **426 `getattr(args, ...)` call sites across 16 modules**. `PipelineRequest.build_scratchpad_namespace` (`pipeline_request.py:332`) hand-builds a Namespace with ~30 fields just to pass typed data between in-process stages. `getattr(args, "field", None)` swallows typos, so renames silently zero out values. New fields require parallel updates in `PIPELINE_MCP_PROPERTIES`, `PipelineRequest`, `from_mapping`, `build_scratchpad_namespace`, the CLI builder, and per-phase `getattr` calls. Tests pass `argparse.Namespace()` so phantom fields slip through.

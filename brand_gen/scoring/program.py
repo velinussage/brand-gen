@@ -47,6 +47,7 @@ from .rubric_registry import (
     material_rubric_key,
 )
 from .signatures import AxisScore, DescribeImage, Synthesize
+from ..verdict import verdict_from_rubric_payload
 
 SCORER_VERSION = "v1-handwritten"
 
@@ -175,6 +176,22 @@ class BrandScorer(dspy.Module):
             material_type=material_type,
         )
 
+        prediction_payload = {
+            "axis_scores": axis_scores,
+            "axis_rationales": axis_rationales,
+            "axis_evidence": axis_evidence,
+            "disqualifier_triggered": dq_triggered,
+            "disqualifier_rule_id": dq_rule_id,
+            "decision": synth.decision,
+            "top_failure_reasons": synth.top_failure_reasons,
+            "recommended_next_change": synth.recommended_next_change,
+            "why_user_might_dislike_if_polished": synth.why_user_might_dislike_if_polished,
+            "rubric_version": RUBRIC_VERSION,
+            "scorer_version": SCORER_VERSION,
+            "material_rubric_key": material_rubric_key(material_type),
+        }
+        verdict = verdict_from_rubric_payload("", prediction_payload)
+
         return dspy.Prediction(
             description=desc,
             axis_scores=axis_scores,
@@ -189,6 +206,7 @@ class BrandScorer(dspy.Module):
             rubric_version=RUBRIC_VERSION,
             scorer_version=SCORER_VERSION,
             material_rubric_key=material_rubric_key(material_type),
+            verdict=verdict.to_dict(),
         )
 
     def _score_axis(

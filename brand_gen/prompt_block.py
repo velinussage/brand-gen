@@ -113,9 +113,17 @@ def evict_to_budget(
     for original_idx, block in candidates:
         if total <= budget_chars:
             break
+        total_before = total
         total -= len(block.text) + separator_chars
         dropped_indices.add(original_idx)
         dropped.append(block)
+        try:
+            from .prompt_telemetry import record_eviction
+
+            record_eviction(block=block, budget_chars=budget_chars, total_before=total_before)
+        except Exception:
+            # Telemetry must never affect prompt assembly.
+            pass
 
     kept = [block for idx, block in enumerate(active) if idx not in dropped_indices]
     return kept, dropped

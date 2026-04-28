@@ -510,7 +510,7 @@ class LayoutSpecTests(unittest.TestCase):
         self.assertEqual(spec.accent_style, "left-strip")
 
     def test_default_announcement_prompt_entity_is_document(self):
-        spec = default_layout_spec("announcement-card", entity_type="prompt")
+        spec = default_layout_spec("announcement-card", entity_type="prompt", has_source_url=True)
         self.assertEqual(spec.columns, 2)
         self.assertEqual(spec.canvas_preset, "document")
         self.assertEqual(spec.proof_style, "document")

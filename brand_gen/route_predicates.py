@@ -47,6 +47,32 @@ _SCORE_TRANSLATE_INSPIRATION_COMBO = float(_scores.get("translate_inspiration_co
 _SCORE_GENERATIVE_EXPLORE_BASELINE = float(_scores.get("generative_explore_baseline", 0.2))
 
 
+def requires_prompt_detail_matrix(
+    material_type: str | None,
+    entity_type: str | None,
+    has_source_url: bool,
+    has_detail_blocks: bool,
+    *,
+    share_card_retired: bool = False,
+) -> bool:
+    """Return True only when prompt/skill/library detail-matrix layout has
+    positive evidence.
+
+    `entity_type=prompt` alone is not enough: no-source social/editorial cards
+    previously collapsed into the same document matrix family.  A real source,
+    explicit detail blocks, or a dedicated prompt-detail material is required.
+    """
+    if share_card_retired:
+        return False
+    entity = str(entity_type or "").strip().lower()
+    if entity not in {"prompt", "skill", "library"}:
+        return False
+    material = str(material_type or "").strip().lower()
+    if has_source_url or has_detail_blocks:
+        return True
+    return material in {"prompt-detail-card", "skill-detail-card", "library-detail-card"}
+
+
 def score_set_orchestrator(brief: RoutingBrief) -> float:
     return _SCORE_SET_ORCHESTRATOR_MATCH if brief.set_scope else 0.0
 

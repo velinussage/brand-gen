@@ -31,6 +31,7 @@ from .card_text import (
     _truncate_multiline_copy,
 )
 from .runtime import load_brand_memory, validate_brand_workspace_dir
+from .custom_scratchpad import html_share_card_block_reason
 from .runtime_refs import resolve_brand_asset_paths
 from .surface_strategy import (
     load_composition_profile,
@@ -465,6 +466,9 @@ def _select_composition_profile(
     entity_type: str,
     selected_strategy: str,
     design_variance: int,
+    has_source_url: bool = False,
+    has_detail_blocks: bool = False,
+    share_card_retired: bool = False,
 ) -> dict[str, Any]:
     strategy = load_surface_strategy_definition(selected_strategy)
     modes = list(strategy.get("composition_modes") or [])
@@ -482,6 +486,13 @@ def _select_composition_profile(
         index = 3
     index = min(index, len(modes) - 1)
     mode = str(modes[index] or modes[0])
+    prompt_detail_matrix = (
+        not share_card_retired
+        and entity_type in {"prompt", "skill", "library"}
+        and (has_source_url or has_detail_blocks or material_type in {"prompt-detail-card", "skill-detail-card", "library-detail-card"})
+    )
+    if mode == "detail_matrix" and not prompt_detail_matrix:
+        mode = next((candidate for candidate in modes if candidate not in {"detail_matrix", "prompt_sheet", "reference_sheet"}), "excerpt_card")
     profile = dict(load_composition_profile(mode) or load_composition_profile("artifact_sheet"))
     profile["mode"] = str(profile.get("key") or mode)
     profile["asset_slots"] = list(strategy.get("asset_slots") or profile.get("asset_slots") or [])
@@ -574,18 +585,8 @@ def build_web_app_share_card_payload(payload: dict) -> ShareCardPayload:
         or plan.get("surface_strategy_reason")
         or ""
     ).strip()
-    composition_profile = _select_composition_profile(
-        material_type=material_type,
-        entity_type=entity_type,
-        selected_strategy=selected_strategy,
-        design_variance=int(payload.get("design_variance") or DEFAULT_DESIGN_VARIANCE),
-    )
-    preferred_mode = "" if strategy_overridden else str(template.get("preferred_composition_mode") or "").strip()
-    if preferred_mode:
-        preferred_profile = dict(load_composition_profile(preferred_mode) or {})
-        if preferred_profile:
-            preferred_profile["mode"] = str(preferred_profile.get("key") or preferred_mode)
-            composition_profile = preferred_profile
+    # Detail blocks are parsed below; composition is selected after that so the
+    # no-source prompt fallback can discriminate real detail matrices.
     headline = str(
         payload.get("headline")
         or structured_card.get("headline")
@@ -722,6 +723,27 @@ def build_web_app_share_card_payload(payload: dict) -> ShareCardPayload:
     detail_blocks = payload.get("detail_blocks") or structured_card.get("detail_blocks") or []
     if not isinstance(detail_blocks, list):
         detail_blocks = []
+    share_card_retired = bool(html_share_card_block_reason(brand_dir, material_type))
+    composition_profile = _select_composition_profile(
+        material_type=material_type,
+        entity_type=entity_type,
+        selected_strategy=selected_strategy,
+        design_variance=int(payload.get("design_variance") or DEFAULT_DESIGN_VARIANCE),
+        has_source_url=bool(source_url),
+        has_detail_blocks=bool(detail_blocks),
+        share_card_retired=share_card_retired,
+    )
+    preferred_mode = "" if strategy_overridden else str(template.get("preferred_composition_mode") or "").strip()
+    prompt_detail_matrix_allowed = (
+        not share_card_retired
+        and entity_type in {"prompt", "skill", "library"}
+        and (bool(source_url) or bool(detail_blocks) or material_type in {"prompt-detail-card", "skill-detail-card", "library-detail-card"})
+    )
+    if preferred_mode and (preferred_mode != "detail_matrix" or prompt_detail_matrix_allowed):
+        preferred_profile = dict(load_composition_profile(preferred_mode) or {})
+        if preferred_profile:
+            preferred_profile["mode"] = str(preferred_profile.get("key") or preferred_mode)
+            composition_profile = preferred_profile
     proof_crop_path = str(payload.get("proof_crop_path") or "").strip()
     support_crop_path = proof_crop_path
 
@@ -735,9 +757,17 @@ def build_web_app_share_card_payload(payload: dict) -> ShareCardPayload:
             design_variance,
             entity_type=entity_type,
             selected_strategy=selected_strategy,
+            has_source_url=bool(source_url),
+            has_detail_blocks=bool(detail_blocks),
+            share_card_retired=share_card_retired,
         )
     )
-    if material_type == "announcement-card" and entity_type in {"prompt", "skill", "library", "profile", "community", "dao"}:
+    prompt_detail_matrix = (
+        not share_card_retired
+        and entity_type in {"prompt", "skill", "library"}
+        and (bool(source_url) or bool(detail_blocks) or material_type in {"prompt-detail-card", "skill-detail-card", "library-detail-card"})
+    )
+    if material_type == "announcement-card" and prompt_detail_matrix:
         layout.columns = 2
         layout.alignment = "left"
         if not str(layout.canvas_preset or "").strip():

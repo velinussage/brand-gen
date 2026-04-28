@@ -5,8 +5,11 @@ track: knowledge
 category: architecture-patterns
 problem_type: unreconciled-verdict-systems
 module: "brand_gen/scoring, brand_gen/blackboard.py, VLM critique flow"
-status: open
+status: resolved
 severity: high
+resolved: 2026-04-28
+resolution_plan: docs/plans/2026-04-28-001-feat-brand-gen-pipeline-improvements-plan.md
+resolution_units: [U5, U6]
 related_files:
   - brand_gen/scoring/program.py
   - brand_gen/scoring/rubric_registry.py

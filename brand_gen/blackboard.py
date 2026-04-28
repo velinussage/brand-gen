@@ -200,9 +200,12 @@ def _feedback_version_key(item: dict) -> str:
 
 def _is_positive_feedback(item: dict) -> bool:
     status = str(item.get("status") or "").strip().lower()
+    decision = str(item.get("primary_decision") or item.get("decision") or "").strip().lower()
     score = item.get("score")
     critique = item.get("critique") or {}
     approved = critique.get("approved")
+    if decision == "approve":
+        return True
     if status == "favorite":
         return True
     if isinstance(score, (int, float)) and score >= 4:
@@ -214,9 +217,12 @@ def _is_positive_feedback(item: dict) -> bool:
 
 def _is_negative_feedback(item: dict) -> bool:
     status = str(item.get("status") or "").strip().lower()
+    decision = str(item.get("primary_decision") or item.get("decision") or "").strip().lower()
     score = item.get("score")
     critique = item.get("critique") or {}
     approved = critique.get("approved")
+    if decision == "reject":
+        return True
     if status == "rejected":
         return True
     if isinstance(score, (int, float)) and score <= 2:
@@ -455,6 +461,9 @@ def update_blackboard_learning_summary(
         "source": source,
         "score": entry.get("score") if score is None else score,
         "status": status or entry.get("status") or "",
+        "decision": entry.get("decision") or entry.get("primary_decision") or "",
+        "primary_decision": entry.get("primary_decision") or entry.get("decision") or "",
+        "verdicts": list(entry.get("verdicts") or []),
         "notes": _short_signal(notes or entry.get("notes") or ""),
         "mode": entry.get("mode") or entry.get("generation_mode") or "",
         "model": entry.get("model") or "",

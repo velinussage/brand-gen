@@ -276,6 +276,9 @@ def default_layout_spec(
     *,
     entity_type: str = "",
     selected_strategy: str = "",
+    has_source_url: bool = False,
+    has_detail_blocks: bool = False,
+    share_card_retired: bool = False,
 ) -> LayoutSpec:
     if material_type == "proof-poster":
         return LayoutSpec(
@@ -298,7 +301,12 @@ def default_layout_spec(
         return LayoutSpec(columns=2, alignment="left", proof_position="right", accent_style="none", headline_size="lg", padding="normal", canvas_preset="square")
     if material_type in {"content-card", "editorial-card", "info-card", "process-card", "linkedin-card", "og-card"}:
         return LayoutSpec(columns=1, alignment="left", proof_position="below", accent_style="left-strip", headline_size="lg", padding="generous", canvas_preset="portrait")
-    if material_type == "announcement-card" and entity_type in {"prompt", "skill", "library"}:
+    prompt_detail_matrix = (
+        not share_card_retired
+        and entity_type in {"prompt", "skill", "library"}
+        and (has_source_url or has_detail_blocks or material_type in {"prompt-detail-card", "skill-detail-card", "library-detail-card"})
+    )
+    if material_type == "announcement-card" and prompt_detail_matrix:
         return LayoutSpec(
             columns=2,
             alignment="left",
