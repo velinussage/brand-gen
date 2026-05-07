@@ -1534,6 +1534,118 @@
         ],
         "when_low_score": "reduce environment density, push warm Mediterranean palette anchors, and re-anchor on layered plane silhouettes"
       }
+    },
+    {
+      "id": "sage-doric-route-architecture",
+      "label": "Sage doric route-architecture (logo-DNA capsule)",
+      "safe_handle": "fluted stone route-channels carved into warm Mediterranean architecture, doric column language, cream-on-terracotta",
+      "internal_handles": [
+        "doric column",
+        "fluted shaft",
+        "ancient greek architecture",
+        "classical pediment",
+        "stone-carved channels",
+        "abacus and echinus",
+        "warm sandstone alleyway",
+        "cream-on-terracotta"
+      ],
+      "material_types": [
+        "launch-film-still",
+        "concept-illustration",
+        "brand-scene",
+        "illustrated-brand-world",
+        "editorial-metaphor-illustration"
+      ],
+      "use_when": [
+        "any Sage route-space frame where routes, paths, or threads are the subject",
+        "frames that must encode the Sage logo's architectural DNA without showing the logo itself",
+        "decoration / provenance / value-pulse beats where evidence must read as carved or stamped, not as light"
+      ],
+      "avoid_when": [
+        "frames depicting the desk threshold or live operator hands without route-space",
+        "social cutdown reset cards or pure typographic lockups",
+        "abstract paper-stack topographic plates with no route legibility"
+      ],
+      "style_strength_default": 0.82,
+      "style_description": {
+        "medium": "flat gouache and hand-painted brush over chiseled stone; routes are physical architectural features, not graphics",
+        "palette": "cream sandstone, terracotta wash, sage moss, warm earth shadow, brass only as small physical pin (never as light)",
+        "line": "hand-inked architectural silhouettes, axial symmetry, parallel fluted grooves, carved stone edge",
+        "lighting": "high-key warm Mediterranean daylight from above; no glow, no neon, no laser, no luminance source, no lens flare, no rim light",
+        "composition": "axial and symmetrical wherever possible; routes are fluted channels carved in stone running parallel like the three flutes of a doric column shaft; routes terminate at architectural capitals (abacus + echinus), at pediments, at thresholds, at lintels — never at glowing endpoints",
+        "density": "medium; readable architectural masses with route-legibility prioritized over ornament",
+        "texture": "chiseled cream sandstone, painted ochre wash inside grooves, terracotta-tile wash on walls, hand-painted brush warmth, gouache grain",
+        "motifs": [
+          "doric column shaft with three parallel flutes (the route metaphor itself)",
+          "fluted channels in a courtyard floor as parallel routes",
+          "ochre-painted route-grooves carved between cream stone ridges",
+          "small clay markers and brass pins set into stone (objects, not lights)",
+          "stamped tiles, bookplate seals, ribbon bars laid into walls and doorframes",
+          "arched corridors and pedimented thresholds as route terminations",
+          "small human-scale figures inside architectural courtyards"
+        ]
+      },
+      "positive_prompt_terms": [
+        "fluted stone channels",
+        "doric column language",
+        "axial symmetry",
+        "ochre-painted route-groove",
+        "cream sandstone with terracotta wash",
+        "pedimented threshold",
+        "abacus and echinus capital",
+        "carved-not-lit",
+        "brass pin as object",
+        "hand-painted gouache over stone",
+        "warm Mediterranean daylight",
+        "no luminance",
+        "no glow",
+        "no neon"
+      ],
+      "negative_prompt_terms": [
+        "neon",
+        "laser line",
+        "glowing route",
+        "circuit board",
+        "Tron",
+        "cyberpunk",
+        "lit waypoint",
+        "luminance source",
+        "rim light",
+        "lens flare",
+        "digital glow",
+        "pulse of light",
+        "shimmer",
+        "metallic glow",
+        "casino gold",
+        "gameboard",
+        "dashboard chrome",
+        "SaaS UI",
+        "skill card",
+        "robot",
+        "anthropomorphic agent",
+        "ionic capital",
+        "corinthian acanthus",
+        "fantasy curlicue"
+      ],
+      "style_axes": [
+        "carved_vs_lit",
+        "axial_classical_composition",
+        "route_legibility_in_stone"
+      ],
+      "reference_roles": {
+        "style": "doric route-architecture in painted Mediterranean stone — routes are fluted channels, terminations are capitals, evidence is carved or stamped",
+        "composition": "axial symmetry; routes are parallel fluted grooves running toward architectural capitals or pediments",
+        "brand": "Sage logo DNA appears spatially (doric column language, three parallel flutes, cream-on-terracotta) without the logo ever being drawn",
+        "negative": "no luminance grammar, no neon, no Tron, no circuit board, no robot, no ionic / corinthian flourish, no fantasy"
+      },
+      "iteration_policy": {
+        "exploration_role": "logo-DNA architectural branch",
+        "strength_range": [
+          0.65,
+          0.9
+        ],
+        "when_low_score": "re-anchor on doric flutes as the route metaphor; replace any luminance language with carved-stone or painted-pigment language; restore axial symmetry"
+      }
     }
   ]
 }
