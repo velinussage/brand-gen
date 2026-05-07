@@ -958,7 +958,7 @@
         "texture": "clean digital/print surface, no heavy grain",
         "motifs": [
           "path lines",
-          "simple people/tools",
+          "abstract tools and capability artifacts",
           "signage chips",
           "product cards",
           "helpful arrows"
@@ -973,6 +973,9 @@
       ],
       "negative_prompt_terms": [
         "generic mascot characters",
+        "robots or humanoid agents as the default hero unless requested",
+        "semi-realistic 3D/isometric workshop scenes as the default framing",
+        "central hub where characters push artifacts inward as the default composition",
         "overly cute SaaS people",
         "busy isometric city",
         "tiny labels",
@@ -988,7 +991,7 @@
         "style": "clean line-and-flat illustration",
         "composition": "one helpful path or action",
         "brand": "brand palette and product truth prevent generic SaaS people",
-        "negative": "no mascot overload or pastel haze"
+        "negative": "no mascot overload, do not default to robots/humanoid agents or central hub artifact-pushing scenes, no pastel haze"
       },
       "iteration_policy": {
         "exploration_role": "friendly clarity branch",
@@ -1426,6 +1429,110 @@
           0.5
         ],
         "when_low_score": "reduce retro effects, preserve command readability, and modernize spacing"
+      }
+    },
+    {
+      "id": "flat-painterly-storybook-background",
+      "label": "Flat painterly storybook background (Eyvind Earle / Wolfwalkers register)",
+      "safe_handle": "flat painterly storybook background, layered gouache landscape, hand-inked silhouettes",
+      "internal_handles": [
+        "eyvind earle",
+        "wolfwalkers",
+        "painterly background",
+        "flat gouache landscape",
+        "layered plane illustration",
+        "mary blair concept",
+        "cartoon saloon day",
+        "james gilleard"
+      ],
+      "material_types": [
+        "launch-film-still",
+        "concept-illustration",
+        "brand-scene",
+        "system-explainer-illustration",
+        "editorial-metaphor-illustration",
+        "illustrated-brand-world"
+      ],
+      "use_when": [
+        "the brief asks for a flat painterly cinematic still in the Eyvind Earle / Wolfwalkers / Cartoon Saloon register",
+        "brand wants warm Mediterranean daylight with controlled stylization, no 3D render",
+        "hero film still meant to read as a layered gouache landscape, not a SaaS infographic"
+      ],
+      "avoid_when": [
+        "product proof must stay literal",
+        "brand needs photorealism or live-action film grain",
+        "an austere institutional product diagram is required"
+      ],
+      "style_strength_default": 0.78,
+      "style_description": {
+        "medium": "flat gouache, hand-painted brush texture, layered plane illustration, controlled stylization",
+        "palette": "warm Mediterranean daylight \u2014 sage moss, terracotta, cream, sandstone, brass, warm dark earth shadow; no neon, no gradients",
+        "line": "hand-inked silhouettes, simplified leaf and cliff shapes, decorative repetition, no airbrush",
+        "lighting": "ribbon-light high-key daylight, no specular highlight, no rim glow, no lens flare, no digital glow",
+        "composition": "layered foreground/midground/background planes, generous negative space, single cinematic focal moment",
+        "density": "medium-low; a few large readable shape masses instead of busy detail",
+        "texture": "hand-painted brush warmth, gouache grain, no 3D render, no airbrush, no photorealism",
+        "motifs": [
+          "layered hills",
+          "decorative foliage masses",
+          "ribbon-lit clearings",
+          "small human-scale figures inside larger calm landscape",
+          "stylized day sky"
+        ]
+      },
+      "positive_prompt_terms": [
+        "flat gouache",
+        "layered plane illustration",
+        "hand-painted brush texture",
+        "ribbon-light",
+        "controlled stylization",
+        "generous negative space",
+        "warm Mediterranean daylight palette",
+        "no gradients",
+        "no airbrush",
+        "no 3D render"
+      ],
+      "negative_prompt_terms": [
+        "3d render",
+        "claymorphism",
+        "lens flare",
+        "digital glow",
+        "mediterranean miniature 3d",
+        "photorealism",
+        "octane render",
+        "neon",
+        "cyberpunk",
+        "glossy",
+        "soft volumetric lighting",
+        "Pixar",
+        "CGI",
+        "dashboard",
+        "SaaS UI",
+        "skill card",
+        "library manifest",
+        "stat tile",
+        "renders as marketing infographic",
+        "app-store explainer",
+        "dashboard chrome instead of a cinematic film still"
+      ],
+      "style_axes": [
+        "wonder_vs_institutional",
+        "flat_painterly_materiality",
+        "cinematic_landscape_legibility"
+      ],
+      "reference_roles": {
+        "style": "flat painterly storybook landscape (Eyvind Earle / Wolfwalkers register)",
+        "composition": "layered planes with one cinematic focal moment in warm Mediterranean daylight",
+        "brand": "brand mood appears as restrained motif inside the painted landscape, not as UI chrome",
+        "negative": "no 3D render, no SaaS UI cards, no lens flare, no photorealism, no Mediterranean miniature 3D"
+      },
+      "iteration_policy": {
+        "exploration_role": "painterly cinematic branch",
+        "strength_range": [
+          0.55,
+          0.85
+        ],
+        "when_low_score": "reduce environment density, push warm Mediterranean palette anchors, and re-anchor on layered plane silhouettes"
       }
     }
   ]

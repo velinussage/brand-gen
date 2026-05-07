@@ -309,6 +309,12 @@
       "default_model": "gpt-image-2",
       "default_aspect_ratio": "4:5"
     },
+    "launch-film-still": {
+      "generation_mode": "image",
+      "default_model": "flux-pro",
+      "default_aspect_ratio": "16:9",
+      "brand_asset_attach": "off"
+    },
     "illustrated-brand-world": {
       "generation_mode": "image",
       "default_model": "gpt-image-2",

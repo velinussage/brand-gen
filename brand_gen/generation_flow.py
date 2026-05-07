@@ -408,7 +408,16 @@ def assemble_generation_scratchpad(
             )
     # Auto-inject brand assets (logo/icon/wordmark) as reference images so the
     # model can see the actual brand mark, but keep them after proof refs.
-    brand_asset_paths = resolve_brand_asset_paths(profile_data, identity_data, brand_dir=brand_dir)
+    # Per-material opt-out: when material_policy declares
+    # "brand_asset_attach": "off", skip the attach. Required for narrative /
+    # painterly / film-still materials where flux-1.1-pro's image_prompt is
+    # IP-Adapter content-forcing, not palette conditioning, so a logo
+    # reference would dominate the output (see web research note 11).
+    brand_asset_attach = MATERIAL_CONFIG.get(material_type, {}).get("brand_asset_attach", "auto")
+    if brand_asset_attach == "off":
+        brand_asset_paths: list = []
+    else:
+        brand_asset_paths = resolve_brand_asset_paths(profile_data, identity_data, brand_dir=brand_dir)
     if brand_asset_paths:
         reference_paths = dedupe_paths(list(reference_paths) + brand_asset_paths)
 
