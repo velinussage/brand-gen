@@ -366,6 +366,7 @@ def cmd_list_brands(args):
 
 def cmd_append_forbidden_pattern(args):
     from ..custom_scratchpad import append_forbidden_pattern, custom_scratchpad_json_path, load_custom_scratchpad_json
+    from ..mutations_ledger import append_mutation_event, content_hash
     from ..run_ledger import append_run_event
 
     brand_dir = get_brand_dir()
@@ -382,6 +383,9 @@ def cmd_append_forbidden_pattern(args):
         for item in existing
         if isinstance(item, dict)
     }
+
+    json_path = custom_scratchpad_json_path(brand_dir)
+    before_hash = content_hash(json_path)
 
     if not dry_run and not duplicate:
         append_forbidden_pattern(
@@ -411,6 +415,18 @@ def cmd_append_forbidden_pattern(args):
             status=status,
             notes=reason,
             data={"pattern": pattern, "duplicate": duplicate},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb="append-forbidden-pattern",
+            target_path=json_path,
+            action=status,
+            before_hash=before_hash,
+            after_hash=content_hash(json_path),
+            diff_summary=f"forbidden pattern: {pattern[:80]}",
+            reason=reason,
+            source_version=source_version,
+            data={"pattern": pattern, "duplicate": duplicate, "total_forbidden_patterns": total_forbidden_patterns},
         )
 
     result = {
@@ -512,6 +528,7 @@ def cmd_promote_learning(args):
 
 def cmd_append_custom_scratchpad_note(args):
     from ..custom_scratchpad import append_scratchpad_note, custom_scratchpad_md_path
+    from ..mutations_ledger import append_mutation_event, content_hash
     from ..run_ledger import append_run_event
 
     brand_dir = get_brand_dir()
@@ -532,6 +549,7 @@ def cmd_append_custom_scratchpad_note(args):
             "chars_added": chars_added,
         }
     else:
+        before_hash = content_hash(path)
         chars_added = append_scratchpad_note(brand_dir, section=section, bullet=text, via_cli=True)
         status = "appended" if chars_added else "duplicate"
         append_run_event(
@@ -541,6 +559,16 @@ def cmd_append_custom_scratchpad_note(args):
             event_type="scratchpad_note_appended",
             status=status,
             notes=text,
+            data={"section": section, "chars_added": chars_added},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb="append-custom-scratchpad-note",
+            target_path=path,
+            action=status,
+            before_hash=before_hash,
+            after_hash=content_hash(path),
+            diff_summary=f"{section}: {text[:80]}",
             data={"section": section, "chars_added": chars_added},
         )
         result = {
@@ -578,6 +606,131 @@ def cmd_promote_aesthetic_learning(args):
         print(json.dumps(result, indent=2))
         return
     print(f"{result.get('status')}: {result.get('entry', {}).get('capsule_id')}")
+
+
+def cmd_add_aesthetic_capsule(args):
+    from ..aesthetic_curation import _CAPSULES_PATH, get_aesthetic_capsule, upsert_aesthetic_capsule
+    from ..mutations_ledger import append_mutation_event, content_hash
+    from ..run_ledger import append_run_event
+
+    brand_dir = get_brand_dir()
+    capsule_id = str(getattr(args, "id", "") or "").strip()
+    if not capsule_id:
+        raise SystemExit("--id is required")
+
+    def _split(items):
+        return [str(item).strip() for item in (items or []) if str(item).strip()]
+
+    label = str(getattr(args, "label", "") or "").strip()
+    safe_handle = str(getattr(args, "safe_handle", "") or "").strip()
+    internal_handles = _split(getattr(args, "internal_handle", None))
+    material_types = _split(getattr(args, "material_type", None))
+    use_when = _split(getattr(args, "use_when", None))
+    avoid_when = _split(getattr(args, "avoid_when", None))
+    positive_terms = _split(getattr(args, "positive_term", None))
+    negative_terms = _split(getattr(args, "negative_term", None))
+    motifs = _split(getattr(args, "motif", None))
+    style_axes = _split(getattr(args, "style_axis", None))
+    style_strength = getattr(args, "style_strength_default", None)
+    reason = str(getattr(args, "reason", "") or "").strip()
+    source_version = str(getattr(args, "source_version", "") or "").strip()
+    dry_run = bool(getattr(args, "dry_run", False))
+
+    style_keys = ("medium", "palette", "line", "lighting", "composition", "density", "texture")
+    style_description = {key: str(getattr(args, key, "") or "").strip() for key in style_keys}
+    style_description = {k: v for k, v in style_description.items() if v}
+    if motifs:
+        style_description["motifs"] = motifs
+
+    role_keys = ("style_role", "composition_role", "brand_role", "negative_role")
+    role_map = {"style_role": "style", "composition_role": "composition", "brand_role": "brand", "negative_role": "negative"}
+    reference_roles: dict[str, str] = {}
+    for arg_key in role_keys:
+        value = str(getattr(args, arg_key, "") or "").strip()
+        if value:
+            reference_roles[role_map[arg_key]] = value
+
+    capsule: dict = {"id": capsule_id}
+    if label:
+        capsule["label"] = label
+    if safe_handle:
+        capsule["safe_handle"] = safe_handle
+    if internal_handles:
+        capsule["internal_handles"] = internal_handles
+    if material_types:
+        capsule["material_types"] = material_types
+    if use_when:
+        capsule["use_when"] = use_when
+    if avoid_when:
+        capsule["avoid_when"] = avoid_when
+    if style_strength is not None and str(style_strength).strip() != "":
+        try:
+            capsule["style_strength_default"] = float(style_strength)
+        except (TypeError, ValueError):
+            pass
+    if style_description:
+        capsule["style_description"] = style_description
+    if positive_terms:
+        capsule["positive_prompt_terms"] = positive_terms
+    if negative_terms:
+        capsule["negative_prompt_terms"] = negative_terms
+    if style_axes:
+        capsule["style_axes"] = style_axes
+    if reference_roles:
+        capsule["reference_roles"] = reference_roles
+
+    existing = get_aesthetic_capsule(capsule_id)
+    if existing:
+        merged = dict(existing)
+        merged.update(capsule)
+        capsule = merged
+
+    if dry_run:
+        result = {
+            "status": "would_upsert",
+            "id": capsule_id,
+            "exists": bool(existing),
+            "capsule": capsule,
+            "reason": reason,
+            "source_version": source_version,
+        }
+    else:
+        before_hash = content_hash(_CAPSULES_PATH)
+        upsert = upsert_aesthetic_capsule(capsule)
+        after_hash = content_hash(_CAPSULES_PATH)
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="aesthetic_capsule_upserted",
+            source_version=source_version,
+            status=upsert["action"],
+            notes=reason,
+            data={"capsule_id": capsule_id, "action": upsert["action"]},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb="add-aesthetic-capsule",
+            target_path=upsert["path"],
+            action=upsert["action"],
+            before_hash=before_hash,
+            after_hash=after_hash,
+            diff_summary=f"capsule {capsule_id} {upsert['action']}",
+            reason=reason,
+            source_version=source_version,
+            data={"capsule_id": capsule_id},
+        )
+        result = {
+            "status": upsert["action"],
+            "id": capsule_id,
+            "path": upsert["path"],
+            "reason": reason,
+            "source_version": source_version,
+        }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{result.get('status')}: {capsule_id}")
 
 
 def cmd_set_motion_grammar(args):
