@@ -782,6 +782,36 @@ def build_promote_learning_cli(parser: argparse.ArgumentParser, *, inspire_urls:
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def build_add_aesthetic_capsule_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--id", required=True, help="Capsule id (machine-readable, e.g. 'sage-doric-route-architecture')")
+    parser.add_argument("--label", default="", help="Human-readable label")
+    parser.add_argument("--safe-handle", default="", help="Compressed style handle phrase the prompt will use")
+    parser.add_argument("--internal-handle", action="append", default=[], help="Repeatable: alternate handle/synonym")
+    parser.add_argument("--material-type", action="append", default=[], help="Repeatable: material type the capsule applies to")
+    parser.add_argument("--use-when", action="append", default=[], help="Repeatable: 'use this capsule when' criterion")
+    parser.add_argument("--avoid-when", action="append", default=[], help="Repeatable: 'avoid this capsule when' criterion")
+    parser.add_argument("--style-strength-default", default="", help="Default style strength 0.0-1.0")
+    parser.add_argument("--medium", default="", help="style_description.medium")
+    parser.add_argument("--palette", default="", help="style_description.palette")
+    parser.add_argument("--line", default="", help="style_description.line")
+    parser.add_argument("--lighting", default="", help="style_description.lighting")
+    parser.add_argument("--composition", default="", help="style_description.composition")
+    parser.add_argument("--density", default="", help="style_description.density")
+    parser.add_argument("--texture", default="", help="style_description.texture")
+    parser.add_argument("--motif", action="append", default=[], help="Repeatable: motifs entry")
+    parser.add_argument("--positive-term", action="append", default=[], help="Repeatable: positive_prompt_terms entry")
+    parser.add_argument("--negative-term", action="append", default=[], help="Repeatable: negative_prompt_terms entry")
+    parser.add_argument("--style-axis", action="append", default=[], help="Repeatable: style_axes entry")
+    parser.add_argument("--style-role", default="", help="reference_roles.style")
+    parser.add_argument("--composition-role", default="", help="reference_roles.composition")
+    parser.add_argument("--brand-role", default="", help="reference_roles.brand")
+    parser.add_argument("--negative-role", default="", help="reference_roles.negative")
+    parser.add_argument("--reason", default="", help="Why this capsule is being added/updated (audit trail)")
+    parser.add_argument("--source-version", default="", help="Version id where this capsule was found necessary")
+    parser.add_argument("--dry-run", action="store_true", help="Show the resulting capsule without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
 def build_append_custom_scratchpad_note_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--section", required=True, choices=["global", "motion", "typography", "composition"], help="Scratchpad section to append under")
     parser.add_argument("--text", required=True, help="Bullet text to append")
@@ -1271,6 +1301,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-iteration-memory': build_show_iteration_memory_cli,
     'update-iteration-memory': build_update_iteration_memory_cli,
     'append-forbidden-pattern': build_append_forbidden_pattern_cli,
+    'add-aesthetic-capsule': build_add_aesthetic_capsule_cli,
     'promote-learning': build_promote_learning_cli,
     'append-custom-scratchpad-note': build_append_custom_scratchpad_note_cli,
     'set-motion-grammar': build_set_motion_grammar_cli,

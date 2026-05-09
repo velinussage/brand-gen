@@ -117,6 +117,7 @@ from .commands.review import (
     cmd_validate_set,
 )
 from .commands.state import (
+    cmd_add_aesthetic_capsule,
     cmd_append_custom_scratchpad_note,
     cmd_append_forbidden_pattern,
     cmd_bootstrap,
@@ -227,6 +228,7 @@ FEATURE_TAGS_BY_COMMAND: dict[str, tuple[str, ...]] = {
     "inspiration-configure": ("inspiration",),
     "inspiration-clear": ("inspiration",),
     "append-forbidden-pattern": ("mutation", "scratchpad"),
+    "add-aesthetic-capsule": ("mutation", "aesthetic-capsules"),
     "promote-learning": ("mutation", "learnings"),
     "append-custom-scratchpad-note": ("mutation", "scratchpad"),
     "set-motion-grammar": ("mutation", "scratchpad"),
@@ -339,6 +341,7 @@ COMMAND_SPECS = [
     command_spec('show-iteration-memory', cmd_show_iteration_memory, 'Show the evolving scratchpad of negative examples, messaging/copy notes, and wins.'),
     command_spec('update-iteration-memory', cmd_update_iteration_memory, 'Record positive/negative examples or explicit brand/messaging/copy/material notes.'),
     command_spec('append-forbidden-pattern', cmd_append_forbidden_pattern, 'Append a forbidden pattern to the custom scratchpad hard-ban list.'),
+    command_spec('add-aesthetic-capsule', cmd_add_aesthetic_capsule, 'Add or update an aesthetic capsule in data/aesthetic_capsules.json with audit-logged provenance.'),
     command_spec('append-custom-scratchpad-note', cmd_append_custom_scratchpad_note, 'Append a bullet note under a custom scratchpad markdown section.'),
     command_spec('set-motion-grammar', cmd_set_motion_grammar, 'Set the structured motion grammar and sync it to the custom scratchpad.'),
     command_spec('promote-learning', cmd_promote_learning, 'Promote a typed learning entry into the active brand learnings memory.'),

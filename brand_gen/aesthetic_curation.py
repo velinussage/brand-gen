@@ -89,6 +89,30 @@ def list_aesthetic_capsules(material_type: str | None = None) -> list[dict[str, 
     return [c for c in capsules if material_key in {normalize_material_key(m) for m in (c.get("material_types") or [])}]
 
 
+def upsert_aesthetic_capsule(capsule: dict[str, Any]) -> dict[str, Any]:
+    """Add or update an aesthetic capsule in the on-disk capsules library.
+
+    Returns {"action": "inserted"|"updated", "id": <id>, "path": <path>}.
+    Raises ValueError if the capsule lacks an id.
+    """
+    capsule_id = str((capsule or {}).get("id") or "").strip()
+    if not capsule_id:
+        raise ValueError("capsule must have a non-empty 'id' field")
+    data = _load_data()
+    capsules = list(data.get("capsules") or [])
+    action = "inserted"
+    for idx, existing in enumerate(capsules):
+        if isinstance(existing, dict) and str(existing.get("id") or "").strip() == capsule_id:
+            capsules[idx] = capsule
+            action = "updated"
+            break
+    else:
+        capsules.append(capsule)
+    data["capsules"] = capsules
+    _CAPSULES_PATH.write_text(json.dumps(data, indent=2) + "\n")
+    return {"action": action, "id": capsule_id, "path": str(_CAPSULES_PATH)}
+
+
 def aesthetic_preferences_path(brand_dir: Path) -> Path:
     return Path(brand_dir).expanduser().resolve() / _PREFS_FILENAME
 

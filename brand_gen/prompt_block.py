@@ -26,9 +26,9 @@ SECTION_PRIORITY: dict[str, int] = {
     # versions treated them as expendable "examples", so prompt compression
     # often dropped the real reference/inspiration guidance while retaining
     # redundant policy prose.
+    "aesthetic_capsule_block": 6,
     "role_pack_block": 8,
     "selected_inspiration_block": 9,
-    "aesthetic_capsule_block": 10,
     "aesthetic_archetype_block": 11,
     "material_profile_block": 12,
     "explicit_copy_rule": 10,
@@ -72,6 +72,7 @@ SECTION_CONSTRAINT: dict[str, str] = {
     "critical_bans": "hard",
     "explicit_copy_rule": "hard",
     "output_spec": "hard",
+    "aesthetic_capsule_block": "hard",
 }
 
 
