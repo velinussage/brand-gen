@@ -4,24 +4,67 @@ This module is deliberately narrow. It does not try to police all brand-gen
 copy; it catches the recurring Sage failure mode where a prompt or generated
 plan turns the internal governance process into the whole visual story, invents
 fake product taxonomy, or lets the logo substitute for the value proposition.
+
+PR-6: Brand-coupled lexicons (allowed/banned product terms, capability tokens,
+governance-process tokens, governance-education tokens) are now loaded from
+<brand>/contract.json::product_terms and <brand>/contract.json::lexicon at
+module import. Hard-coded Python tuples below remain as fallbacks so existing
+behavior is preserved when the contract file is absent.
 """
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Any
 
 from .runtime_models import role_pack_material_key
+from .runtime_paths import brand_contract_path
 from .runtime_support import dedupe_keep_order
 
 
-SAGE_ALLOWED_PRODUCT_TERMS: tuple[str, ...] = (
+def _safe_resolve_brand_dir_for_lexicons() -> Path | None:
+    try:
+        from .runtime_brand import resolve_active_brand_dir
+        path = resolve_active_brand_dir(strict=False)
+    except Exception:
+        return None
+    return path if path and Path(path).exists() else None
+
+
+def _load_brand_contract_for_lexicons() -> dict[str, Any]:
+    path = brand_contract_path(_safe_resolve_brand_dir_for_lexicons(), brand_name="sage")
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+_BRAND_CONTRACT_FOR_LEXICONS = _load_brand_contract_for_lexicons()
+
+
+def _override_list(section: str, key: str, fallback: tuple[str, ...]) -> tuple[str, ...]:
+    block = _BRAND_CONTRACT_FOR_LEXICONS.get(section)
+    if not isinstance(block, dict):
+        return fallback
+    raw = block.get(key)
+    if not isinstance(raw, list):
+        return fallback
+    items = tuple(str(item) for item in raw if str(item or "").strip())
+    return items or fallback
+
+
+_FALLBACK_ALLOWED_PRODUCT_TERMS: tuple[str, ...] = (
     "skill libraries",
     "prompt libraries",
     "skills",
     "prompts",
     "MCP tools",
     "agents",
+    "runtime defaults",
+    "default capability slots",
     "library manifests",
     "curated capabilities",
     "reusable capabilities",
@@ -33,11 +76,15 @@ SAGE_ALLOWED_PRODUCT_TERMS: tuple[str, ...] = (
     "Reusable Capability",
 )
 
-SAGE_BANNED_PRODUCT_TERMS: tuple[str, ...] = (
+_FALLBACK_BANNED_PRODUCT_TERMS: tuple[str, ...] = (
     "Prompt Pack",
     "System of Provenance",
     "Approved Library Update",
 )
+
+
+SAGE_ALLOWED_PRODUCT_TERMS: tuple[str, ...] = _override_list("product_terms", "allowed", _FALLBACK_ALLOWED_PRODUCT_TERMS)
+SAGE_BANNED_PRODUCT_TERMS: tuple[str, ...] = _override_list("product_terms", "banned", _FALLBACK_BANNED_PRODUCT_TERMS)
 
 SAGE_TEXT_HEAVY_MATERIALS = {
     "data-card",
@@ -57,7 +104,7 @@ SAGE_TEXT_HEAVY_MATERIALS = {
     "quote_card",
 }
 
-_CAPABILITY_TOKENS = (
+_FALLBACK_CAPABILITY_TOKENS = (
     "skill",
     "skills",
     "prompt librar",
@@ -70,13 +117,15 @@ _CAPABILITY_TOKENS = (
     "reusable capabil",
     "workflow",
     "runtime",
+    "default slot",
+    "default state",
     "discover",
     "install",
     "sync",
     "distribution",
 )
 
-_GOVERNANCE_PROCESS_TOKENS = (
+_FALLBACK_GOVERNANCE_PROCESS_TOKENS = (
     "proposal",
     "review",
     "publish",
@@ -91,7 +140,7 @@ _GOVERNANCE_PROCESS_TOKENS = (
     "quorum",
 )
 
-_GOVERNANCE_EDUCATION_TOKENS = (
+_FALLBACK_GOVERNANCE_EDUCATION_TOKENS = (
     "governance education",
     "governance explainer",
     "governance snapshot",
@@ -102,6 +151,11 @@ _GOVERNANCE_EDUCATION_TOKENS = (
     "vote guide",
     "dao explainer",
 )
+
+
+_CAPABILITY_TOKENS = _override_list("lexicon", "capability", _FALLBACK_CAPABILITY_TOKENS)
+_GOVERNANCE_PROCESS_TOKENS = _override_list("lexicon", "governance_process", _FALLBACK_GOVERNANCE_PROCESS_TOKENS)
+_GOVERNANCE_EDUCATION_TOKENS = _override_list("lexicon", "governance_education", _FALLBACK_GOVERNANCE_EDUCATION_TOKENS)
 
 _FAKE_PRODUCT_SCREEN_RE = re.compile(
     r"\b(fake|invented|fictional|imaginary|made[- ]?up)\s+"
@@ -336,7 +390,7 @@ def validate_product_truth_plan(
     if _contains_generic_trust_layer(haystack):
         errors.append(
             "invented_product_taxonomy: generic 'trust layer' framing is too vague here. "
-            "Name the concrete Sage value: agents get trusted reusable capabilities from governed libraries."
+            "Name the concrete Sage value: governed libraries provide reusable capabilities as agent defaults."
         )
 
     fake_product_hit = next(
@@ -356,7 +410,7 @@ def validate_product_truth_plan(
     if _wrong_value_hero(plan):
         errors.append(
             "wrong_value_hero: proposal_process_instead_of_capability_distribution. "
-            "Unless this is explicitly governance education, the hero value must be agents gaining trusted reusable capabilities, not proposal/review/publish mechanics."
+            "Unless this is explicitly governance education, the hero value must be governed libraries providing reusable capability defaults, not proposal/review/publish mechanics."
         )
 
     counts = value_focus_counts(plan)
@@ -383,14 +437,15 @@ def sage_product_truth_prompt_moves(
         return {"push": [], "ban": []}
     return {
         "push": [
-            "Show agents gaining trusted reusable capabilities from Sage-governed skill/prompt libraries.",
-            "Prefer concrete capability artifacts: skill card, MCP tool card, library manifest, curated capability tile, agent runtime receiving/installing capabilities, or reusable workflow card.",
+            "Show Sage-governed skill/prompt libraries turning curated capabilities into reusable defaults.",
+            "Prefer abstract capability artifacts: skill card, MCP tool card, library manifest, curated capability tile, default capability slot, or reusable workflow card. Represent agents as abstract runtime slots or paths, not robots or humanoids.",
         ],
         "ban": [
             "proposal/review/publish flow as the visual hero unless explicitly requested as governance education",
             "invented Sage product taxonomy such as Prompt Pack, System of Provenance, or Approved Library Update",
             "generic network diagram, CLI command strip, fake app screen, or oversized Sage mark as the routing hub",
             "repeated Sage logos; use one small provenance/source seal only",
+            "do not default to semi-realistic robots/humanoid agents or central hub/switchboard compositions unless explicitly requested",
         ],
     }
 
@@ -405,11 +460,12 @@ def render_product_truth_contract(
     plan = plan or {}
     material_key = role_pack_material_key(plan.get("material_type") or "")
     parts = [
-        "Sage product-truth contract: the hero value is agents gaining trusted reusable capabilities from governed skill/prompt libraries.",
-        "Allowed Sage nouns: skill libraries, prompt libraries, skills, prompts, MCP tools, agents, library manifests, curated capabilities, reusable capabilities, and agent workflows.",
-        "Prefer visible capability artifacts: skill card, MCP tool card, library manifest, curated capability tile, agent runtime receiving/installing capabilities, or reusable workflow card.",
+        "Sage product-truth contract: the hero value is governed skill/prompt libraries turning trusted reusable capabilities into agent defaults.",
+        "Allowed Sage nouns: skill libraries, prompt libraries, skills, prompts, MCP tools, agents, library manifests, curated capabilities, reusable capabilities, runtime defaults, and agent workflows.",
+        "Prefer visible capability artifacts: skill card, MCP tool card, library manifest, curated capability tile, default capability slot, or reusable workflow card; represent agents as abstract runtime slots/paths unless a character/agent framing is explicitly requested.",
         "Governance/review/promotion is a reason to trust the library, not the primary thing being demonstrated unless the material explicitly asks for governance education.",
         "Avoid invented taxonomy: no Prompt Pack, no System of Provenance, no Approved Library Update, no generic trust-layer claim, no fake product modules or fake app screens.",
+        "Novel-framing rule: rotate the visual/product framing across runs; do not default to semi-realistic robots/humanoid agents, robot workshop scenes, or central hub/switchboard compositions unless explicitly requested.",
     ]
     if material_key not in {"logo", "lockup", "icon", "icon_family", "badge_family", "sticker_family"}:
         parts.append(
@@ -439,20 +495,23 @@ def build_product_truth_metadata(
     material_key = role_pack_material_key(plan.get("material_type") or "")
     metadata: dict[str, Any] = {
         "applies": True,
-        "hero_value": "agents gaining trusted reusable capabilities from governed skill/prompt libraries",
+        "hero_value": "governed skill/prompt libraries turning trusted reusable capabilities into agent defaults",
         "proof_artifacts": [
             "library manifest",
             "skill card",
             "MCP tool card",
             "curated capability tile",
-            "agent runtime receiving/installing capabilities",
+            "default capability slot",
             "reusable workflow card",
+            "abstract runtime path",
         ],
         "trust_role": (
             "governance/review/promotion is trust substrate, not the visual hero, "
             "unless governance education is explicitly requested"
         ),
         "avoid": [
+            "defaulting to semi-realistic robots/humanoid agents unless requested",
+            "defaulting to central hub/switchboard composition unless requested",
             "Prompt Pack",
             "System of Provenance",
             "Approved Library Update",

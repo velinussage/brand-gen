@@ -621,6 +621,15 @@ _BRAND_CONTRACT_LIST_FIELDS = {
     "brand_anchor_sources",
 }
 
+# Nested-path fields: dotted-path → tuple of (section, key)
+_BRAND_CONTRACT_NESTED_LIST_FIELDS = {
+    "product_terms.allowed": ("product_terms", "allowed"),
+    "product_terms.banned": ("product_terms", "banned"),
+    "lexicon.capability": ("lexicon", "capability"),
+    "lexicon.governance_process": ("lexicon", "governance_process"),
+    "lexicon.governance_education": ("lexicon", "governance_education"),
+}
+
 
 def _brand_contract_path() -> Path:
     from ..runtime_paths import brand_contract_path
@@ -736,6 +745,124 @@ def _mutate_brand_contract_list(args, *, field: str, verb: str, mode: str) -> No
         print(json.dumps(result, indent=2))
         return
     print(f"{status}: {item}")
+
+
+def _mutate_brand_contract_nested_list(args, *, field: str, verb: str, mode: str) -> None:
+    """Append-or-remove on a nested list-shaped key (e.g. lexicon.capability)."""
+    from ..mutations_ledger import append_mutation_event, content_hash
+    from ..run_ledger import append_run_event
+
+    if field not in _BRAND_CONTRACT_NESTED_LIST_FIELDS:
+        raise SystemExit(f"unsupported nested brand-contract field: {field}")
+    section, key = _BRAND_CONTRACT_NESTED_LIST_FIELDS[field]
+
+    item = str(getattr(args, "item", "") or "").strip()
+    if not item:
+        raise SystemExit("--item is required")
+    reason = str(getattr(args, "reason", "") or "").strip()
+    source_version = str(getattr(args, "source_version", "") or "").strip()
+    dry_run = bool(getattr(args, "dry_run", False))
+
+    contract = _load_brand_contract_dict()
+    block = contract.get(section)
+    if not isinstance(block, dict):
+        block = {}
+    current = list(block.get(key) or [])
+    current_lower = {str(x).strip().lower() for x in current}
+    item_lower = item.lower()
+    duplicate = item_lower in current_lower
+
+    if mode == "append":
+        if duplicate:
+            status = "duplicate"
+            new_list = current
+        else:
+            status = "would_append" if dry_run else "appended"
+            new_list = current + [item]
+    elif mode == "remove":
+        if not duplicate:
+            status = "missing"
+            new_list = current
+        else:
+            status = "would_remove" if dry_run else "removed"
+            new_list = [x for x in current if str(x).strip().lower() != item_lower]
+    else:
+        raise SystemExit(f"unsupported mode: {mode}")
+
+    path = _brand_contract_path()
+    before_hash = content_hash(path)
+    if not dry_run and status in {"appended", "removed"}:
+        block[key] = new_list
+        contract[section] = block
+        _save_brand_contract_dict(contract)
+
+    brand_dir = get_brand_dir()
+    if not dry_run and status in {"appended", "removed"}:
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type=f"{section}_{key}_{mode}d",
+            source_version=source_version,
+            status=status,
+            notes=reason,
+            data={"field": field, "item": item, "verb": verb},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb=verb,
+            target_path=path,
+            action=status,
+            before_hash=before_hash,
+            after_hash=content_hash(path),
+            diff_summary=f"{mode} {field}: {item[:80]}",
+            reason=reason,
+            source_version=source_version,
+            data={"field": field, "item": item, "total_after": len(new_list)},
+        )
+
+    result = {
+        "status": status,
+        "field": field,
+        "item": item,
+        "mode": mode,
+        "reason": reason,
+        "source_version": source_version,
+        "path": str(path),
+        "total_after": len(new_list),
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{status}: {item}")
+
+
+def cmd_product_term_add(args):
+    kind = str(getattr(args, "kind", "") or "").strip().lower()
+    if kind not in {"allowed", "banned"}:
+        raise SystemExit("--kind must be 'allowed' or 'banned'")
+    _mutate_brand_contract_nested_list(args, field=f"product_terms.{kind}", verb=f"product-term-add-{kind}", mode="append")
+
+
+def cmd_product_term_remove(args):
+    kind = str(getattr(args, "kind", "") or "").strip().lower()
+    if kind not in {"allowed", "banned"}:
+        raise SystemExit("--kind must be 'allowed' or 'banned'")
+    _mutate_brand_contract_nested_list(args, field=f"product_terms.{kind}", verb=f"product-term-remove-{kind}", mode="remove")
+
+
+def cmd_lexicon_token_add(args):
+    kind = str(getattr(args, "kind", "") or "").strip().lower()
+    if kind not in {"capability", "governance_process", "governance_education"}:
+        raise SystemExit("--kind must be one of capability|governance_process|governance_education")
+    _mutate_brand_contract_nested_list(args, field=f"lexicon.{kind}", verb=f"lexicon-token-add-{kind}", mode="append")
+
+
+def cmd_lexicon_token_remove(args):
+    kind = str(getattr(args, "kind", "") or "").strip().lower()
+    if kind not in {"capability", "governance_process", "governance_education"}:
+        raise SystemExit("--kind must be one of capability|governance_process|governance_education")
+    _mutate_brand_contract_nested_list(args, field=f"lexicon.{kind}", verb=f"lexicon-token-remove-{kind}", mode="remove")
 
 
 def cmd_sage_approved_phrase_add(args):

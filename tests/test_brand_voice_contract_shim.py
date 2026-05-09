@@ -66,7 +66,10 @@ def test_sage_constants_are_populated():
 _PAYLOAD_ALLOWLIST = {
     "brand_voice_contract.py",  # canonical brand-voice payload
     "sage_generation_contract.py",  # compatibility shim re-exports the names
-    "product_truth.py",  # PR-6 will lift these; allowlisted for now
+    "product_truth.py",  # PR-6 lifted lexicons to contract.json; remaining
+    # SAGE_ALLOWED/BANNED_PRODUCT_TERMS and SAGE_TEXT_HEAVY_MATERIALS are now
+    # populated from <brand>/contract.json with Python fallbacks. The names
+    # themselves still appear at module scope, so allowlist is preserved.
     "runtime_refs.py",  # contains diagram label strings, not brand-payload literals
 }
 

@@ -890,6 +890,31 @@ def build_framing_direction_remove_cli(parser, *, inspire_urls):
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def _build_kinded_brand_contract_mutator(parser, *, kind_choices, item_help):
+    parser.add_argument("--kind", required=True, choices=kind_choices)
+    parser.add_argument("--item", required=True, help=item_help)
+    parser.add_argument("--reason", default="", help="Why this mutation is being applied")
+    parser.add_argument("--source-version", default="", help="Version id where this need was observed")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_product_term_add_cli(parser, *, inspire_urls):
+    _build_kinded_brand_contract_mutator(parser, kind_choices=["allowed", "banned"], item_help="Product-truth term to add to allowed or banned list")
+
+
+def build_product_term_remove_cli(parser, *, inspire_urls):
+    _build_kinded_brand_contract_mutator(parser, kind_choices=["allowed", "banned"], item_help="Product-truth term to remove from allowed or banned list")
+
+
+def build_lexicon_token_add_cli(parser, *, inspire_urls):
+    _build_kinded_brand_contract_mutator(parser, kind_choices=["capability", "governance_process", "governance_education"], item_help="Lexicon token to add")
+
+
+def build_lexicon_token_remove_cli(parser, *, inspire_urls):
+    _build_kinded_brand_contract_mutator(parser, kind_choices=["capability", "governance_process", "governance_education"], item_help="Lexicon token to remove")
+
+
 def build_set_motion_grammar_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--director", required=True, help="Director token or motion grammar anchor")
     parser.add_argument("--favored", action="append", help="Favored motion move; repeat as needed")
@@ -1384,6 +1409,10 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'sage-brand-anchor-source-remove': build_sage_brand_anchor_source_remove_cli,
     'framing-direction-add': build_framing_direction_add_cli,
     'framing-direction-remove': build_framing_direction_remove_cli,
+    'product-term-add': build_product_term_add_cli,
+    'product-term-remove': build_product_term_remove_cli,
+    'lexicon-token-add': build_lexicon_token_add_cli,
+    'lexicon-token-remove': build_lexicon_token_remove_cli,
     'promote-learning': build_promote_learning_cli,
     'append-custom-scratchpad-note': build_append_custom_scratchpad_note_cli,
     'set-motion-grammar': build_set_motion_grammar_cli,
