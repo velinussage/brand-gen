@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brand-gen.local/schemas/brand_contract.schema.json",
+  "title": "brand-gen brand contract",
+  "description": "Schema for per-brand contract.json (and the legacy data/<brand>_brand_contract.json) — the structured, schema-locked half of the brand state hybrid. Prose direction (framing directives, adoption scenes, style anchors) lives in voice/*.md and is NOT validated by this schema.",
+  "type": "object",
+  "required": ["schema_version"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "description": "Brand-contract schema version. Bump when the structure changes incompatibly.",
+      "minimum": 1
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this brand contract."
+    },
+    "approved_phrases": {
+      "type": "array",
+      "description": "Sanctioned brand phrasing. Mutated only via the bgen sage-approved-phrase verb (PR-1).",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "illustration_concepts": {
+      "type": "array",
+      "description": "Approved illustration concepts. Mutated via bgen sage-illustration-concept verb.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "negative_constraints": {
+      "type": "array",
+      "description": "Hard-banned framings. Mutated via bgen sage-negative-constraint verb.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "default_adoption_scene": {
+      "type": "string",
+      "description": "Pointer to a markdown file under voice/ that holds the default adoption-scene prose. Or, transitionally, the prose itself."
+    },
+    "default_style_anchor": {
+      "type": "string",
+      "description": "Pointer to a markdown file under voice/ that holds the default style-anchor prose. Or, transitionally, the prose itself."
+    },
+    "brand_anchor_sources": {
+      "type": "array",
+      "description": "Allowed sources for brand-anchor signals (palette, mark motifs, etc.).",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "framing_directions": {
+      "type": "array",
+      "description": "Structured index of framing directions. Prose fields (directive, adoption_scene, style_anchor) live in voice/framing/<id>.md when split (PR-2); transitionally allowed inline.",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "description": "Stable kebab-case identifier."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable label."
+          },
+          "keywords": {
+            "oneOf": [
+              { "type": "string", "description": "Legacy: space-separated keyword string. Will be normalized to array by mutation verb." },
+              { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+            ]
+          },
+          "source_cues": { "type": "string" },
+          "source_priority": {
+            "oneOf": [
+              { "type": "integer", "minimum": 0 },
+              { "type": "string", "pattern": "^[0-9]+$" }
+            ]
+          },
+          "directive": {
+            "type": "string",
+            "description": "Prose: the one-sentence directive. Will move to voice/framing/<id>.md::directive section in PR-2."
+          },
+          "adoption_scene": {
+            "type": "string",
+            "description": "Prose: the scene description. Will move to voice/framing/<id>.md::adoption-scene section in PR-2."
+          },
+          "style_anchor": {
+            "type": "string",
+            "description": "Prose: the style-anchor sentence. Will move to voice/framing/<id>.md::style-anchor section in PR-2."
+          }
+        }
+      }
+    },
+    "stale_replacements": {
+      "type": "array",
+      "description": "Stale-prose replacement pairs (regex sweep table). Mutated via bgen sage-stale-replacement verb (PR-1).",
+      "items": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "lexicon": {
+      "type": "object",
+      "description": "Brand-coupled lexical filters lifted from product_truth.py in PR-6.",
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "governance_process": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "governance_education": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "product_terms": {
+      "type": "object",
+      "description": "Allowed/banned product-truth terms lifted from product_truth.py in PR-6.",
+      "additionalProperties": false,
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "banned": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}
