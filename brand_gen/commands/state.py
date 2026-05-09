@@ -1123,6 +1123,68 @@ def cmd_framing_direction_remove(args):
     print(f"{action}: {framing_id}")
 
 
+def cmd_render_iteration_memory(args):
+    """Idempotently re-render <brand>/iteration-memory.md from iteration-memory.json.
+
+    Use after hand-editing the JSON (or after a typed-verb mutation that
+    bypassed the markdown rewrite) to bring the markdown back into sync.
+    Resolves PR-10 dual-write divergence: JSON is canonical; markdown is
+    a derived view.
+    """
+    from ..iteration_memory import (
+        iteration_memory_paths,
+        load_iteration_memory,
+        normalize_iteration_memory,
+        render_iteration_memory_markdown,
+        save_iteration_memory,
+    )
+    from ..mutations_ledger import append_mutation_event, content_hash
+
+    brand_dir = get_brand_dir()
+    json_path, md_path = iteration_memory_paths(brand_dir)
+    if not json_path.exists():
+        raise SystemExit(f"iteration-memory.json not found at {json_path}; nothing to render.")
+
+    payload = normalize_iteration_memory(load_iteration_memory(brand_dir))
+    expected_md = render_iteration_memory_markdown(payload)
+    md_before_hash = content_hash(md_path)
+    current_md = md_path.read_text(encoding="utf-8") if md_path.exists() else ""
+
+    dry_run = bool(getattr(args, "dry_run", False))
+    drift = current_md != expected_md
+    if dry_run:
+        action = "would_render" if drift else "noop_in_sync"
+    else:
+        if drift:
+            md_path.write_text(expected_md)
+            action = "rendered"
+        else:
+            action = "noop_in_sync"
+
+    if not dry_run and action == "rendered":
+        append_mutation_event(
+            brand_dir,
+            verb="render-iteration-memory",
+            target_path=md_path,
+            action=action,
+            before_hash=md_before_hash,
+            after_hash=content_hash(md_path),
+            diff_summary="iteration-memory.md re-rendered from JSON",
+            data={"chars_before": len(current_md), "chars_after": len(expected_md)},
+        )
+
+    result = {
+        "status": action,
+        "json_path": str(json_path),
+        "md_path": str(md_path),
+        "drift": drift,
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{action}: {md_path}")
+
+
 def cmd_contract_status(args):
     """Surface read-only-after files, brand-contract status, and recent mutations.
 

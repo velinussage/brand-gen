@@ -73,6 +73,26 @@ Field convergence (2024-2026): markdown for prose direction (Claude Skills, AGEN
 
 ETH Zurich 2025 found LLM-generated guidance docs *reduced* task success ~3% and increased inference cost >20%. So prose direction wants a human edit gate; agents read but don't freely rewrite. Constraint mutations get a typed reducer and an audit log.
 
+## Dual-write contract (markdown + JSON pairs)
+
+Several brand workspace files exist as paired `.json` (canonical) + `.md`
+(rendered) files:
+
+| Pair | Canonical | Rendered | Re-render verb |
+|---|---|---|---|
+| `iteration-memory.{json,md}` | `.json` | `.md` | `bgen render-iteration-memory` |
+| `brand-identity.{json,md}` | `.json` | `.md` | `bgen build-identity` (regenerates from profile) |
+
+Rule: **JSON is canonical. Markdown is a derived view.** Never edit the
+markdown directly — those edits will be overwritten on the next save.
+After mutating the JSON via a typed verb (`update-palette`,
+`update-iteration-memory`, etc.), the markdown is rewritten in the same
+call. If you suspect drift (markdown out of sync with JSON), run the
+re-render verb above.
+
+A round-trip test (`tests/test_iteration_memory_roundtrip.py`) asserts
+this property in CI.
+
 ## When the rules conflict with what you need
 
 If a typed verb is missing for a structured-state edit you need, the right move is to **add the verb** (mirror `add-aesthetic-capsule` in `brand_gen/commands/state.py` + `cli_builders.py` + `command_registry.py`), not hand-edit the JSON. Hand-edits leave no `mutations.jsonl` record and break the audit invariant.

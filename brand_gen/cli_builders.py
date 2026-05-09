@@ -825,6 +825,11 @@ def build_contract_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: 
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def build_render_iteration_memory_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--dry-run", action="store_true", help="Detect drift without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
 def _build_brand_contract_list_mutator(parser: argparse.ArgumentParser, *, item_help: str) -> None:
     parser.add_argument("--item", required=True, help=item_help)
     parser.add_argument("--reason", default="", help="Why this mutation is being applied (audit trail)")
@@ -1399,6 +1404,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'append-forbidden-pattern': build_append_forbidden_pattern_cli,
     'add-aesthetic-capsule': build_add_aesthetic_capsule_cli,
     'contract-status': build_contract_status_cli,
+    'render-iteration-memory': build_render_iteration_memory_cli,
     'sage-approved-phrase-add': build_sage_approved_phrase_add_cli,
     'sage-approved-phrase-remove': build_sage_approved_phrase_remove_cli,
     'sage-negative-constraint-add': build_sage_negative_constraint_add_cli,
