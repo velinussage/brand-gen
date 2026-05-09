@@ -865,6 +865,31 @@ def build_sage_brand_anchor_source_remove_cli(parser, *, inspire_urls):
     _build_brand_contract_list_mutator(parser, item_help="Brand anchor source text to remove")
 
 
+def build_framing_direction_add_cli(parser, *, inspire_urls):
+    parser.add_argument("--id", required=True, help="Stable kebab-case framing-direction id")
+    parser.add_argument("--label", default="", help="Human-readable label")
+    parser.add_argument("--keyword", action="append", default=[], help="Repeatable: keyword for routing")
+    parser.add_argument("--source-cues", default="", help="Source-cues sentence")
+    parser.add_argument("--source-priority", default="", help="Numeric or string priority hint")
+    parser.add_argument("--directive", default="", help="Prose directive (one sentence)")
+    parser.add_argument("--adoption-scene", default="", help="Prose adoption-scene")
+    parser.add_argument("--style-anchor", default="", help="Prose style-anchor")
+    parser.add_argument("--body-file", default="", help="Path to a markdown file containing directive/adoption_scene/style_anchor sections (overrides individual --directive/--adoption-scene/--style-anchor)")
+    parser.add_argument("--reason", default="", help="Why this direction is being added/updated")
+    parser.add_argument("--source-version", default="", help="Version id where this direction was found necessary")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_framing_direction_remove_cli(parser, *, inspire_urls):
+    parser.add_argument("--id", required=True, help="Framing-direction id to remove")
+    parser.add_argument("--keep-voice", action="store_true", help="Leave voice/framing/<id>.md on disk; only remove the JSON entry")
+    parser.add_argument("--reason", default="", help="Why this direction is being removed")
+    parser.add_argument("--source-version", default="", help="Version id where this need was observed")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
 def build_set_motion_grammar_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--director", required=True, help="Director token or motion grammar anchor")
     parser.add_argument("--favored", action="append", help="Favored motion move; repeat as needed")
@@ -1357,6 +1382,8 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'sage-illustration-concept-remove': build_sage_illustration_concept_remove_cli,
     'sage-brand-anchor-source-add': build_sage_brand_anchor_source_add_cli,
     'sage-brand-anchor-source-remove': build_sage_brand_anchor_source_remove_cli,
+    'framing-direction-add': build_framing_direction_add_cli,
+    'framing-direction-remove': build_framing_direction_remove_cli,
     'promote-learning': build_promote_learning_cli,
     'append-custom-scratchpad-note': build_append_custom_scratchpad_note_cli,
     'set-motion-grammar': build_set_motion_grammar_cli,

@@ -86,7 +86,7 @@ SAGE_APPROVED_PHRASES: tuple[str, ...] = _override_tuple("approved_phrases", _FA
 SAGE_ILLUSTRATION_CONCEPTS: tuple[str, ...] = _override_tuple("illustration_concepts", _FALLBACK_ILLUSTRATION_CONCEPTS)
 SAGE_NEGATIVE_CONSTRAINTS: tuple[str, ...] = _override_tuple("negative_constraints", _FALLBACK_NEGATIVE_CONSTRAINTS)
 
-SAGE_FRAMING_DIRECTIONS: tuple[dict[str, str], ...] = (
+_FALLBACK_FRAMING_DIRECTIONS: tuple[dict[str, str], ...] = (
     {
         "id": "chosen-not-collected-sieve",
         "label": "chosen-not-collected editorial sieve",
@@ -241,6 +241,45 @@ _FALLBACK_BRAND_ANCHOR_SOURCES: tuple[str, ...] = (
 )
 
 SAGE_BRAND_ANCHOR_SOURCES: tuple[str, ...] = _override_tuple("brand_anchor_sources", _FALLBACK_BRAND_ANCHOR_SOURCES)
+
+
+def _safe_resolve_brand_dir() -> Path | None:
+    """Module-load-safe brand-dir resolver.
+
+    Module import must not raise even when no brand is selected (e.g. on
+    first run, in tests). Returns None when nothing is resolvable; the
+    framing-direction loader treats None as "no markdown prose available"
+    and falls back to JSON-inline prose.
+    """
+    try:
+        from .runtime_brand import resolve_active_brand_dir
+        path = resolve_active_brand_dir(strict=False)
+    except Exception:
+        return None
+    return path if path and Path(path).exists() else None
+
+
+def _resolve_framing_directions() -> tuple[dict[str, Any], ...]:
+    """Resolve framing directions from JSON-structured + per-id markdown prose.
+
+    Order of precedence per field:
+      1. Markdown prose at <brand>/voice/framing/<id>.md (if present)
+      2. JSON-inline prose in sage_brand_contract.json::framing_directions[]
+      3. Hard-coded Python fallback in this module
+    """
+    from .framing_directions import load_framing_directions
+
+    raw = _BRAND_CONTRACT.get("framing_directions")
+    if isinstance(raw, list) and raw:
+        structured = [dict(item) for item in raw if isinstance(item, dict)]
+    else:
+        structured = [dict(item) for item in _FALLBACK_FRAMING_DIRECTIONS]
+
+    brand_dir = _safe_resolve_brand_dir()
+    return load_framing_directions(structured, brand_dir)
+
+
+SAGE_FRAMING_DIRECTIONS: tuple[dict[str, Any], ...] = _resolve_framing_directions()
 
 SAGE_DEFAULT_ADOPTION_SCENE = (
     "a library manifest opens a default capability slot in an abstract thin harness; "

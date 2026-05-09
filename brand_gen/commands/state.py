@@ -766,6 +766,232 @@ def cmd_sage_brand_anchor_source_remove(args):
     _mutate_brand_contract_list(args, field="brand_anchor_sources", verb="sage-brand-anchor-source-remove", mode="remove")
 
 
+def cmd_framing_direction_add(args):
+    """Upsert a framing direction. Structured fields go to JSON; prose to <brand>/voice/framing/<id>.md."""
+    from ..framing_directions import write_framing_markdown
+    from ..mutations_ledger import append_mutation_event, content_hash
+    from ..run_ledger import append_run_event
+
+    framing_id = str(getattr(args, "id", "") or "").strip()
+    if not framing_id:
+        raise SystemExit("--id is required")
+    label = str(getattr(args, "label", "") or "").strip()
+    keywords = [str(item).strip() for item in (getattr(args, "keyword", None) or []) if str(item).strip()]
+    source_cues = str(getattr(args, "source_cues", "") or "").strip()
+    source_priority = str(getattr(args, "source_priority", "") or "").strip()
+    directive = str(getattr(args, "directive", "") or "").strip()
+    adoption_scene = str(getattr(args, "adoption_scene", "") or "").strip()
+    style_anchor = str(getattr(args, "style_anchor", "") or "").strip()
+    body_file = str(getattr(args, "body_file", "") or "").strip()
+    if body_file:
+        body_path = Path(body_file).expanduser()
+        if not body_path.exists():
+            raise SystemExit(f"--body-file not found: {body_path}")
+        from ..framing_directions import parse_framing_markdown
+        parsed = parse_framing_markdown(body_path.read_text(encoding="utf-8"))
+        directive = directive or parsed.get("directive", "")
+        adoption_scene = adoption_scene or parsed.get("adoption_scene", "")
+        style_anchor = style_anchor or parsed.get("style_anchor", "")
+        if not label and parsed.get("label"):
+            label = parsed["label"]
+    reason = str(getattr(args, "reason", "") or "").strip()
+    source_version = str(getattr(args, "source_version", "") or "").strip()
+    dry_run = bool(getattr(args, "dry_run", False))
+
+    contract = _load_brand_contract_dict()
+    directions = list(contract.get("framing_directions") or [])
+    found_idx = next(
+        (i for i, d in enumerate(directions) if isinstance(d, dict) and str(d.get("id") or "").strip() == framing_id),
+        -1,
+    )
+    structured: dict[str, Any] = {"id": framing_id}
+    if label:
+        structured["label"] = label
+    if keywords:
+        structured["keywords"] = keywords
+    if source_cues:
+        structured["source_cues"] = source_cues
+    if source_priority:
+        structured["source_priority"] = source_priority
+
+    action = "updated" if found_idx >= 0 else "inserted"
+    if dry_run:
+        action = "would_update" if found_idx >= 0 else "would_insert"
+
+    contract_path = _brand_contract_path()
+    contract_before_hash = content_hash(contract_path)
+
+    if not dry_run:
+        if found_idx >= 0:
+            merged = dict(directions[found_idx])
+            merged.update(structured)
+            directions[found_idx] = merged
+        else:
+            directions.append(structured)
+        contract["framing_directions"] = directions
+        _save_brand_contract_dict(contract)
+
+    md_path: Path | None = None
+    md_before_hash = ""
+    md_after_hash = ""
+    if directive or adoption_scene or style_anchor:
+        brand_dir = get_brand_dir()
+        from ..framing_directions import voice_framing_dir
+        md_path = voice_framing_dir(brand_dir) / f"{framing_id}.md"
+        md_before_hash = content_hash(md_path)
+        if not dry_run:
+            write_framing_markdown(
+                brand_dir,
+                framing_id=framing_id,
+                label=label or (directions[found_idx].get("label") if found_idx >= 0 else ""),
+                directive=directive,
+                adoption_scene=adoption_scene,
+                style_anchor=style_anchor,
+            )
+            md_after_hash = content_hash(md_path)
+
+    if not dry_run:
+        brand_dir = get_brand_dir()
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type=f"framing_direction_{action}",
+            source_version=source_version,
+            status=action,
+            notes=reason,
+            data={"id": framing_id, "label": label},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb="framing-direction-add",
+            target_path=contract_path,
+            action=action,
+            before_hash=contract_before_hash,
+            after_hash=content_hash(contract_path),
+            diff_summary=f"framing direction {framing_id} {action}",
+            reason=reason,
+            source_version=source_version,
+            data={"id": framing_id, "label": label, "has_prose": bool(directive or adoption_scene or style_anchor)},
+        )
+        if md_path is not None:
+            append_mutation_event(
+                brand_dir,
+                verb="framing-direction-add",
+                target_path=md_path,
+                action=action,
+                before_hash=md_before_hash,
+                after_hash=md_after_hash,
+                diff_summary=f"voice/framing/{framing_id}.md {action}",
+                reason=reason,
+                source_version=source_version,
+                data={"id": framing_id},
+            )
+
+    result = {
+        "status": action,
+        "id": framing_id,
+        "contract_path": str(contract_path),
+        "voice_path": str(md_path) if md_path else "",
+        "reason": reason,
+        "source_version": source_version,
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{action}: {framing_id}")
+
+
+def cmd_framing_direction_remove(args):
+    from ..framing_directions import voice_framing_dir
+    from ..mutations_ledger import append_mutation_event, content_hash
+    from ..run_ledger import append_run_event
+
+    framing_id = str(getattr(args, "id", "") or "").strip()
+    if not framing_id:
+        raise SystemExit("--id is required")
+    reason = str(getattr(args, "reason", "") or "").strip()
+    source_version = str(getattr(args, "source_version", "") or "").strip()
+    keep_voice = bool(getattr(args, "keep_voice", False))
+    dry_run = bool(getattr(args, "dry_run", False))
+
+    contract = _load_brand_contract_dict()
+    directions = list(contract.get("framing_directions") or [])
+    found_idx = next(
+        (i for i, d in enumerate(directions) if isinstance(d, dict) and str(d.get("id") or "").strip() == framing_id),
+        -1,
+    )
+    contract_path = _brand_contract_path()
+    contract_before_hash = content_hash(contract_path)
+    brand_dir = get_brand_dir()
+    md_path = voice_framing_dir(brand_dir) / f"{framing_id}.md"
+    md_before_hash = content_hash(md_path)
+
+    if found_idx < 0 and not md_path.exists():
+        action = "missing"
+    else:
+        action = "would_remove" if dry_run else "removed"
+
+    if not dry_run and action == "removed":
+        if found_idx >= 0:
+            del directions[found_idx]
+            contract["framing_directions"] = directions
+            _save_brand_contract_dict(contract)
+        if md_path.exists() and not keep_voice:
+            md_path.unlink()
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type="framing_direction_removed",
+            source_version=source_version,
+            status=action,
+            notes=reason,
+            data={"id": framing_id, "kept_voice": keep_voice},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb="framing-direction-remove",
+            target_path=contract_path,
+            action=action,
+            before_hash=contract_before_hash,
+            after_hash=content_hash(contract_path),
+            diff_summary=f"framing direction {framing_id} removed",
+            reason=reason,
+            source_version=source_version,
+            data={"id": framing_id, "kept_voice": keep_voice},
+        )
+        if md_path.exists() != bool(keep_voice):  # only log if we touched it
+            pass
+        elif not keep_voice and md_before_hash:
+            append_mutation_event(
+                brand_dir,
+                verb="framing-direction-remove",
+                target_path=md_path,
+                action=action,
+                before_hash=md_before_hash,
+                after_hash="",
+                diff_summary=f"voice/framing/{framing_id}.md deleted",
+                reason=reason,
+                source_version=source_version,
+                data={"id": framing_id},
+            )
+
+    result = {
+        "status": action,
+        "id": framing_id,
+        "kept_voice": keep_voice,
+        "contract_path": str(contract_path),
+        "voice_path": str(md_path),
+        "reason": reason,
+        "source_version": source_version,
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{action}: {framing_id}")
+
+
 def cmd_contract_status(args):
     """Surface read-only-after files, brand-contract status, and recent mutations.
 
