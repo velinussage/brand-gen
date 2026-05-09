@@ -17,24 +17,31 @@ from .context_surfaces import build_source_knowledge_payload
 from .product_truth import is_sage_capability_context
 from .runtime_io import load_json_file
 from .runtime_models import role_pack_material_key
-from .runtime_paths import SCRIPT_DIR
+from .runtime_paths import SCRIPT_DIR, brand_contract_path
 from .runtime_support import dedupe_keep_order
 
 
-_BRAND_CONTRACT_PATH = SCRIPT_DIR.parent / "data" / "sage_brand_contract.json"
+def _safe_resolve_brand_dir_for_contract() -> Path | None:
+    try:
+        from .runtime_brand import resolve_active_brand_dir
+        path = resolve_active_brand_dir(strict=False)
+    except Exception:
+        return None
+    return path if path and Path(path).exists() else None
 
 
 def _load_brand_contract_overrides() -> dict[str, Any]:
-    """Load the JSON sidecar that overrides the hard-coded fallbacks below.
+    """Load the brand contract sidecar (per-brand or legacy data/) overriding hard-coded fallbacks.
 
-    Returns an empty dict if the file is missing or unreadable. The hard-coded
-    tuples below stay in place as the last-resort fallback so prompt assembly
-    keeps working even if the JSON is deleted or malformed.
+    Returns an empty dict if neither file exists or it's unreadable. The
+    hard-coded tuples below stay in place as the last-resort fallback so
+    prompt assembly keeps working even if both files are deleted or malformed.
     """
-    if not _BRAND_CONTRACT_PATH.exists():
+    path = brand_contract_path(_safe_resolve_brand_dir_for_contract(), brand_name="sage")
+    if not path.exists():
         return {}
     try:
-        return json.loads(_BRAND_CONTRACT_PATH.read_text())
+        return json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
         return {}
 

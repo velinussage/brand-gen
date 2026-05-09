@@ -623,8 +623,12 @@ _BRAND_CONTRACT_LIST_FIELDS = {
 
 
 def _brand_contract_path() -> Path:
-    from ..runtime_paths import SCRIPT_DIR
-    return SCRIPT_DIR.parent / "data" / "sage_brand_contract.json"
+    from ..runtime_paths import brand_contract_path
+    try:
+        brand_dir = get_brand_dir()
+    except Exception:
+        brand_dir = None
+    return brand_contract_path(brand_dir, brand_name="sage")
 
 
 def _load_brand_contract_dict() -> dict:
@@ -1003,21 +1007,15 @@ def cmd_contract_status(args):
     from ..brand_contract_schema import brand_contract_schema_path, validate_brand_contract
     from ..frontmatter import find_read_only_files
     from ..mutations_ledger import load_mutation_events, mutations_ledger_path
-    from ..runtime_paths import SCRIPT_DIR
+    from ..runtime_paths import brand_contract_path
 
     brand_dir = get_brand_dir()
     limit = int(getattr(args, "limit_mutations", 10) or 10)
     fmt = getattr(args, "format", "json")
 
-    # Brand-contract location resolution: per-brand contract.json (PR-4) or
-    # legacy data/<brand>_brand_contract.json (PR-1) or no contract yet.
-    per_brand_contract = brand_dir / "contract.json"
-    legacy_contract = SCRIPT_DIR.parent / "data" / "sage_brand_contract.json"
-    contract_path: Path | None = None
-    if per_brand_contract.exists():
-        contract_path = per_brand_contract
-    elif legacy_contract.exists():
-        contract_path = legacy_contract
+    # PR-4 resolver: prefer <brand>/contract.json, fall back to data/<brand>_brand_contract.json
+    resolved = brand_contract_path(brand_dir, brand_name="sage")
+    contract_path: Path | None = resolved if resolved.exists() else None
 
     contract_status = "missing"
     contract_message = ""

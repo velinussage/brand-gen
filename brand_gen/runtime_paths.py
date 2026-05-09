@@ -32,6 +32,29 @@ ALIGNMENT_QUESTIONS_PATH = REPO_ROOT / "data" / "alignment_questions.json"
 PIPELINE_CONFIG_PATH = REPO_ROOT / "data" / "pipeline_config.json"
 
 
+def brand_contract_path(brand_dir: Path | None, *, brand_name: str = "sage") -> Path:
+    """Resolve the brand contract path with per-brand → legacy fallback.
+
+    Per the architect's PR-4: prefer ``<brand>/contract.json`` (per-brand
+    workspace, gitignored, audit-via-mutations.jsonl) and fall back to
+    ``data/<brand>_brand_contract.json`` (legacy, version-controlled) when
+    the per-brand file doesn't exist.
+
+    Returns the path that EXISTS, or the per-brand path (where new writes
+    should go) when neither exists.
+    """
+    name = (brand_name or "sage").strip().lower() or "sage"
+    legacy = REPO_ROOT / "data" / f"{name}_brand_contract.json"
+    if brand_dir is None:
+        return legacy
+    per_brand = Path(brand_dir).expanduser().resolve() / "contract.json"
+    if per_brand.exists():
+        return per_brand
+    if legacy.exists():
+        return legacy
+    return per_brand
+
+
 @dataclass(frozen=True)
 class RuntimeContext:
     repo_root: Path = REPO_ROOT
