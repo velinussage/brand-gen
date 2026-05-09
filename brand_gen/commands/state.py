@@ -614,6 +614,158 @@ def cmd_promote_aesthetic_learning(args):
     print(f"{result.get('status')}: {result.get('entry', {}).get('capsule_id')}")
 
 
+_BRAND_CONTRACT_LIST_FIELDS = {
+    "approved_phrases",
+    "illustration_concepts",
+    "negative_constraints",
+    "brand_anchor_sources",
+}
+
+
+def _brand_contract_path() -> Path:
+    from ..runtime_paths import SCRIPT_DIR
+    return SCRIPT_DIR.parent / "data" / "sage_brand_contract.json"
+
+
+def _load_brand_contract_dict() -> dict:
+    path = _brand_contract_path()
+    if not path.exists():
+        return {"schema_version": 1}
+    return json.loads(path.read_text())
+
+
+def _save_brand_contract_dict(data: dict) -> Path:
+    from ..brand_contract_schema import validate_brand_contract
+    ok, msg = validate_brand_contract(data)
+    if not ok:
+        raise SystemExit(f"refusing to write invalid brand contract: {msg}")
+    path = _brand_contract_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2) + "\n")
+    return path
+
+
+def _mutate_brand_contract_list(args, *, field: str, verb: str, mode: str) -> None:
+    """Append-or-remove on a list-shaped key in sage_brand_contract.json.
+
+    mode is 'append' or 'remove'. Writes a state_mutation event with full
+    provenance (before/after hashes, reason, source_version).
+    """
+    from ..mutations_ledger import append_mutation_event, content_hash
+    from ..run_ledger import append_run_event
+
+    if field not in _BRAND_CONTRACT_LIST_FIELDS:
+        raise SystemExit(f"unsupported brand-contract list field: {field}")
+
+    item = str(getattr(args, "item", "") or "").strip()
+    if not item:
+        raise SystemExit("--item is required")
+    reason = str(getattr(args, "reason", "") or "").strip()
+    source_version = str(getattr(args, "source_version", "") or "").strip()
+    dry_run = bool(getattr(args, "dry_run", False))
+
+    contract = _load_brand_contract_dict()
+    current = list(contract.get(field) or [])
+    current_lower = {str(x).strip().lower() for x in current}
+    item_lower = item.lower()
+    duplicate = item_lower in current_lower
+
+    if mode == "append":
+        if duplicate:
+            status = "duplicate"
+            new_list = current
+        else:
+            status = "would_append" if dry_run else "appended"
+            new_list = current + [item]
+    elif mode == "remove":
+        if not duplicate:
+            status = "missing"
+            new_list = current
+        else:
+            status = "would_remove" if dry_run else "removed"
+            new_list = [x for x in current if str(x).strip().lower() != item_lower]
+    else:
+        raise SystemExit(f"unsupported mode: {mode}")
+
+    path = _brand_contract_path()
+    before_hash = content_hash(path)
+    if not dry_run and status in {"appended", "removed"}:
+        contract[field] = new_list
+        _save_brand_contract_dict(contract)
+
+    brand_dir = get_brand_dir()
+    if not dry_run and status in {"appended", "removed"}:
+        append_run_event(
+            brand_dir,
+            uuid.uuid4().hex[:12],
+            stage="mutation",
+            event_type=f"{field}_{mode}d",
+            source_version=source_version,
+            status=status,
+            notes=reason,
+            data={"field": field, "item": item, "verb": verb},
+        )
+        append_mutation_event(
+            brand_dir,
+            verb=verb,
+            target_path=path,
+            action=status,
+            before_hash=before_hash,
+            after_hash=content_hash(path),
+            diff_summary=f"{mode} {field}: {item[:80]}",
+            reason=reason,
+            source_version=source_version,
+            data={"field": field, "item": item, "total_after": len(new_list)},
+        )
+
+    result = {
+        "status": status,
+        "field": field,
+        "item": item,
+        "mode": mode,
+        "reason": reason,
+        "source_version": source_version,
+        "path": str(path),
+        "total_after": len(new_list),
+    }
+    if getattr(args, "format", "json") == "json":
+        print(json.dumps(result, indent=2))
+        return
+    print(f"{status}: {item}")
+
+
+def cmd_sage_approved_phrase_add(args):
+    _mutate_brand_contract_list(args, field="approved_phrases", verb="sage-approved-phrase-add", mode="append")
+
+
+def cmd_sage_approved_phrase_remove(args):
+    _mutate_brand_contract_list(args, field="approved_phrases", verb="sage-approved-phrase-remove", mode="remove")
+
+
+def cmd_sage_negative_constraint_add(args):
+    _mutate_brand_contract_list(args, field="negative_constraints", verb="sage-negative-constraint-add", mode="append")
+
+
+def cmd_sage_negative_constraint_remove(args):
+    _mutate_brand_contract_list(args, field="negative_constraints", verb="sage-negative-constraint-remove", mode="remove")
+
+
+def cmd_sage_illustration_concept_add(args):
+    _mutate_brand_contract_list(args, field="illustration_concepts", verb="sage-illustration-concept-add", mode="append")
+
+
+def cmd_sage_illustration_concept_remove(args):
+    _mutate_brand_contract_list(args, field="illustration_concepts", verb="sage-illustration-concept-remove", mode="remove")
+
+
+def cmd_sage_brand_anchor_source_add(args):
+    _mutate_brand_contract_list(args, field="brand_anchor_sources", verb="sage-brand-anchor-source-add", mode="append")
+
+
+def cmd_sage_brand_anchor_source_remove(args):
+    _mutate_brand_contract_list(args, field="brand_anchor_sources", verb="sage-brand-anchor-source-remove", mode="remove")
+
+
 def cmd_contract_status(args):
     """Surface read-only-after files, brand-contract status, and recent mutations.
 

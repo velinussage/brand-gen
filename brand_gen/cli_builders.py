@@ -825,6 +825,46 @@ def build_contract_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: 
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def _build_brand_contract_list_mutator(parser: argparse.ArgumentParser, *, item_help: str) -> None:
+    parser.add_argument("--item", required=True, help=item_help)
+    parser.add_argument("--reason", default="", help="Why this mutation is being applied (audit trail)")
+    parser.add_argument("--source-version", default="", help="Version id where this need was observed")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_sage_approved_phrase_add_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Approved phrase text to add")
+
+
+def build_sage_approved_phrase_remove_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Approved phrase text to remove")
+
+
+def build_sage_negative_constraint_add_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Negative constraint text to add")
+
+
+def build_sage_negative_constraint_remove_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Negative constraint text to remove")
+
+
+def build_sage_illustration_concept_add_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Illustration concept text to add")
+
+
+def build_sage_illustration_concept_remove_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Illustration concept text to remove")
+
+
+def build_sage_brand_anchor_source_add_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Brand anchor source text to add")
+
+
+def build_sage_brand_anchor_source_remove_cli(parser, *, inspire_urls):
+    _build_brand_contract_list_mutator(parser, item_help="Brand anchor source text to remove")
+
+
 def build_set_motion_grammar_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
     parser.add_argument("--director", required=True, help="Director token or motion grammar anchor")
     parser.add_argument("--favored", action="append", help="Favored motion move; repeat as needed")
@@ -1309,6 +1349,14 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'append-forbidden-pattern': build_append_forbidden_pattern_cli,
     'add-aesthetic-capsule': build_add_aesthetic_capsule_cli,
     'contract-status': build_contract_status_cli,
+    'sage-approved-phrase-add': build_sage_approved_phrase_add_cli,
+    'sage-approved-phrase-remove': build_sage_approved_phrase_remove_cli,
+    'sage-negative-constraint-add': build_sage_negative_constraint_add_cli,
+    'sage-negative-constraint-remove': build_sage_negative_constraint_remove_cli,
+    'sage-illustration-concept-add': build_sage_illustration_concept_add_cli,
+    'sage-illustration-concept-remove': build_sage_illustration_concept_remove_cli,
+    'sage-brand-anchor-source-add': build_sage_brand_anchor_source_add_cli,
+    'sage-brand-anchor-source-remove': build_sage_brand_anchor_source_remove_cli,
     'promote-learning': build_promote_learning_cli,
     'append-custom-scratchpad-note': build_append_custom_scratchpad_note_cli,
     'set-motion-grammar': build_set_motion_grammar_cli,

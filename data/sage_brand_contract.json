@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "description": "Sage-specific brand contract: approved phrases, illustration concepts, negative constraints, framing directions, and default adoption scene/style anchor. Loaded at import by brand_gen/sage_generation_contract.py and mutated through typed bgen verbs (update-sage-approved-phrases, add-sage-framing-direction, remove-sage-framing-direction, update-sage-negative-constraints, set-sage-default-adoption, set-sage-default-style-anchor, update-sage-illustration-concepts, update-sage-brand-anchor-sources).",
+  "approved_phrases": [
+    "skill layer for AI agents",
+    "Steer the Default",
+    "curated skills improve agent performance by +16.2pp",
+    "fat skills / thin harness",
+    "someone has to govern the standard library",
+    "agents find and use better workflows with less repeated setup"
+  ],
+  "illustration_concepts": [
+    "standard library / canon",
+    "abstract runtime default state",
+    "skill layer above thin harnesses",
+    "curated capability selected from library, then used",
+    "library shelf / capability slots / finished artifact",
+    "routed lattice / path motif derived from the mark",
+    "transit grid / route map"
+  ],
+  "negative_constraints": [
+    "no thread/loom/wardrobe/textile/closet metaphor",
+    "do not default to semi-realistic 3D/isometric robot or humanoid agent scenes unless explicitly requested",
+    "do not default to robots or people editing/pushing artifacts into a central hub unless explicitly requested",
+    "do not default to a central switchboard/control-room composition unless explicitly requested",
+    "no trust layer as hero",
+    "no governance process hero",
+    "no generic marketplace/platform framing",
+    "no raw prompt dump / random capability card deck / glowing light-bulb idea icon",
+    "no repeated logos"
+  ],
+  "default_adoption_scene": "a library manifest opens a default capability slot in an abstract thin harness; a finished work artifact appears downstream without showing robots or humanoid agents",
+  "default_style_anchor": "flat editorial system illustration: standard-library shelf, routed lattice/path motifs, warm palette, print restraint, no semi-realistic robot workshop",
+  "brand_anchor_sources": [
+    "palette",
+    "routed/lattice/path motifs",
+    "source/library/manifest object",
+    "abstract capability-default state",
+    "deterministic typography or approved phrase"
+  ],
+  "framing_directions": [
+    {
+      "id": "chosen-not-collected-sieve",
+      "label": "chosen-not-collected editorial sieve",
+      "keywords": "chosen not collected selection curation judgment good bad worse mismatch focused sets",
+      "source_cues": "Chosen, not collected; gap is selection; bad skills make agents worse; focused sets outperform comprehensive dumps",
+      "adoption_scene": "an editorial selection sieve rejects noisy/generated skills and lets one curated capability become a runtime default",
+      "style_anchor": "flat editorial sieve/gate composition with rejected noise outside the frame, one chosen capability artifact, restrained proof typography",
+      "directive": "Frame Sage as selection rather than storage: a visible editorial sieve chooses one good capability and filters out harmful skill noise."
+    },
+    {
+      "id": "fat-skills-thin-harness-layer",
+      "label": "fat-skills / thin-harness missing layer",
+      "keywords": "fat skills thin harness missing layer hermes tan architecture whose skills should agent use",
+      "source_cues": "Tan named thin harness/fat skills; Hermes named per-agent loop; Sage names the missing layer above both",
+      "adoption_scene": "a thin runtime harness sits below a maintained layer of fat skills; one governed skill drops into the harness as the default",
+      "style_anchor": "layered architectural section drawing: thin base harness, thick curated skill layer above, one active default slot, no character workshop",
+      "directive": "Frame Sage as the missing layer above thin harnesses: maintained fat skills become trusted defaults for runtimes."
+    },
+    {
+      "id": "tokenized-taste-canon",
+      "label": "tokenized taste canon",
+      "keywords": "tokenized taste canon editorial function attributed funded tipped economic value value capture",
+      "source_cues": "Sage scales tokenized taste; people who know what's good can be attributed, funded, tipped, and governed into the canon",
+      "adoption_scene": "curator taste signals become attributed economic value: one judgment is funded, promoted into canon, and visibly rewarded",
+      "style_anchor": "premium editorial/economic-value composition with taste signals, attribution marks, value flow, and one promoted capability; not an installation pipeline",
+      "directive": "Frame Sage as tokenized taste becoming economic value: human editorial judgment gets attributed, rewarded, and turned into shared canon.",
+      "source_priority": "220"
+    },
+    {
+      "id": "curator-compensation-flywheel",
+      "label": "curator compensation flywheel",
+      "keywords": "curator compensation compensated labor tips bounties paid libraries creator value capture rewards economic incentives",
+      "source_cues": "Curation is compensated labor; creators capture value through tips, bounties, paid libraries, governed canon, and reflections",
+      "adoption_scene": "a curator's judgment moves through attribution, tip/bounty reward, paid-library inclusion, and visible value capture",
+      "style_anchor": "editorial economic flywheel / value ledger composition: curator signal, reward markers, paid library, canon seal; no runtime process diagram",
+      "directive": "Frame Sage as the economics of curation: good judgment becomes compensated labor and repeatable value capture.",
+      "source_priority": "260"
+    },
+    {
+      "id": "market-knowledge-ledger",
+      "label": "market knowledge ledger",
+      "keywords": "market knowledge repeated use visible authorship purchases bounty wins forks trusted curators evidence graph",
+      "source_cues": "Skill effectiveness is emergent market knowledge: repeated use, visible authorship, tips, purchases, bounty wins, forks, governed inclusion, trusted curators",
+      "adoption_scene": "signals of use, authorship, purchases, tips, forks, and governed inclusion accumulate into a market-knowledge ledger around a capability",
+      "style_anchor": "premium editorial ledger/evidence-map composition with sparse value signals and provenance marks; no fake dashboard, no process pipeline",
+      "directive": "Frame Sage as market knowledge: value emerges from repeated use, visible authorship, purchases, forks, tips, and trusted curation.",
+      "source_priority": "240"
+    },
+    {
+      "id": "ownership-steering-rights",
+      "label": "ownership as steering rights",
+      "keywords": "ownership steering rights economic committee",
+      "source_cues": "Ownership as steering rights \u2014 economic framing, not committee framing",
+      "adoption_scene": "ownership tokens act as steering rights over which capabilities become defaults, with value flowing to the curators who steer well",
+      "style_anchor": "editorial ownership/steering-rights composition: directional rights, value allocation, canon boundary; no proposal/vote theatre",
+      "directive": "Frame Sage as ownership/steering rights: economic control over default capabilities, not a governance-process scene.",
+      "source_priority": "230"
+    },
+    {
+      "id": "execution-dag-compounds",
+      "label": "execution DAG compounds",
+      "keywords": "dag dependency molecule compound orchestrator graph retrieval semantic seeding execution metadata atoms compounds",
+      "source_cues": "Graph retrieval combines semantic seeding, dependency resolution, execution DAG metadata, and molecule/compound orchestrators",
+      "adoption_scene": "small capability atoms resolve into a compound execution DAG, and the compound becomes the reusable default workflow",
+      "style_anchor": "clear DAG/compound diagram with few nodes, dependency paths, one highlighted reusable workflow, no generic network cloud",
+      "directive": "Frame Sage as execution compounds: atoms stay legible, but governed DAGs make the reusable workflow dependable."
+    },
+    {
+      "id": "rlm-memory-loop",
+      "label": "RLM memory loop",
+      "keywords": "rlm reinforcement learning memory prompt response captures suggestion weights local retrieval usage evidence",
+      "source_cues": "RLM captures prompt-response pairs and improves future skill suggestions; confidence is local retrieval evidence, not protocol ranking",
+      "adoption_scene": "local usage traces form a memory loop that suggests a better capability default next time without pretending to be a global ranking",
+      "style_anchor": "quiet memory-loop diagram: captured traces, local suggestion weights, chosen capability, bounded evidence labels",
+      "directive": "Frame Sage as memory improving future defaults: local traces inform suggestions while governance/provenance remains separate."
+    },
+    {
+      "id": "standard-library-canon",
+      "label": "standard-library canon",
+      "keywords": "standard library canon shelf shelves library maintained shared infrastructure",
+      "source_cues": "Someone has to govern the standard library; communities govern skill libraries once work becomes shared infrastructure",
+      "adoption_scene": "a maintained canon/standard-library object supplies one governed capability as the runtime default",
+      "style_anchor": "flat editorial canon/library composition with maintained shelves, one promoted artifact, warm palette, print restraint",
+      "directive": "Frame Sage as the governed standard library: maintained canon, not random marketplace inventory."
+    },
+    {
+      "id": "category-constellation-map",
+      "label": "category-creator constellation map",
+      "keywords": "category creator constellation white-space landscape adjacent projects agent-native skill improvement network",
+      "source_cues": "Sage is a category creator above adjacent projects: agent-native skill improvement network with value capture",
+      "adoption_scene": "a constellation of adjacent tools sits below a newly named Sage category layer that routes capability defaults",
+      "style_anchor": "editorial category map/constellation with whitespace, named category boundary, no competitor dashboard or feature race",
+      "directive": "Frame Sage as category creation: a new named layer organizes adjacent tools rather than competing as another feature box."
+    },
+    {
+      "id": "transit-route-map",
+      "label": "transit route map",
+      "keywords": "transit route map subway metro path lattice",
+      "adoption_scene": "capability routes branch from a governed library map into runtime default paths and finished outputs",
+      "style_anchor": "flat transit-map/system-diagram illustration with routed lattice paths, strong negative space, restrained labels",
+      "directive": "Frame Sage as a route map: governed library as the station/source, capability paths as selectable defaults, finished outcomes at endpoints."
+    },
+    {
+      "id": "capability-specimen-sheet",
+      "label": "capability specimen sheet",
+      "keywords": "specimen sheet catalog index cards tiles archive proof sheet",
+      "adoption_scene": "a curated capability specimen is selected from a governed catalog and appears as an abstract runtime default",
+      "style_anchor": "editorial specimen-sheet composition: catalog tiles, one selected capability, deterministic type, no fake UI chrome",
+      "directive": "Frame Sage as a catalog/specimen sheet: many governed capabilities exist, one is selected and becomes the default."
+    },
+    {
+      "id": "proof-poster",
+      "label": "proof poster",
+      "keywords": "proof poster benchmark evidence metric claim",
+      "adoption_scene": "a proof claim and library manifest demonstrate how a capability becomes a default and improves the finished workflow",
+      "style_anchor": "message-first proof poster with one artifact, one metric/proof payload, one small provenance mark",
+      "directive": "Frame Sage as a proof poster: one library artifact plus one concrete evidence payload, not a dashboard."
+    },
+    {
+      "id": "runtime-slot-blueprint",
+      "label": "runtime slot blueprint",
+      "keywords": "slot blueprint harness schematic",
+      "adoption_scene": "an abstract runtime blueprint exposes empty default slots; a governed capability fills one slot and produces a finished artifact",
+      "style_anchor": "blueprint/system schematic with large abstract slots, thin connector paths, no humanoid character hero",
+      "directive": "Frame Sage as a runtime-slot blueprint: abstract slots make the default-setting mechanism visible without staging agents as characters."
+    },
+    {
+      "id": "explicit-switchboard-only",
+      "label": "explicit switchboard only",
+      "keywords": "switchboard exchange control-room control room routing board hub",
+      "source_cues": "conversation fallback only; too general for default Sage framing",
+      "adoption_scene": "an exchange/routing board selects a governed capability as a runtime default; the finished work appears downstream",
+      "style_anchor": "graphic exchange-board composition with distributed routes, not a character workshop or centered logo",
+      "directive": "Use switchboard/routing-board framing only when explicitly requested; it is too general to be the default Sage idea."
+    },
+    {
+      "id": "abstract-agent-workbench",
+      "label": "abstract agent workbench",
+      "keywords": "robot humanoid workshop workbench assistant",
+      "adoption_scene": "a deliberately abstract workbench shows capability artifacts becoming defaults for a runtime, with any agent presence subordinate",
+      "style_anchor": "flat/productive workbench abstraction; if characters appear, keep them symbolic and secondary, not semi-realistic robots",
+      "directive": "Use an agent/workbench framing only if specifically requested; keep any characters abstract and subordinate to the capability artifact."
+    }
+  ]
+}
