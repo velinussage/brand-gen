@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import uuid
+from pathlib import Path
+from typing import Any
 
 from ..runtime import *
 from ..material_planning import *
@@ -528,6 +530,7 @@ def cmd_promote_learning(args):
 
 def cmd_append_custom_scratchpad_note(args):
     from ..custom_scratchpad import append_scratchpad_note, custom_scratchpad_md_path
+    from ..frontmatter import read_only_warning
     from ..mutations_ledger import append_mutation_event, content_hash
     from ..run_ledger import append_run_event
 
@@ -540,6 +543,9 @@ def cmd_append_custom_scratchpad_note(args):
         raise SystemExit("--text is required")
     dry_run = bool(getattr(args, "dry_run", False))
     path = custom_scratchpad_md_path(brand_dir)
+    warning = read_only_warning(path)
+    if warning and not bool(getattr(args, "force", False)):
+        raise SystemExit(f"{warning}\nPass --force to override (mutation will still be recorded in mutations.jsonl).")
     if dry_run:
         chars_added = len(f"- {text}\n")
         result = {
@@ -606,6 +612,82 @@ def cmd_promote_aesthetic_learning(args):
         print(json.dumps(result, indent=2))
         return
     print(f"{result.get('status')}: {result.get('entry', {}).get('capsule_id')}")
+
+
+def cmd_contract_status(args):
+    """Surface read-only-after files, brand-contract status, and recent mutations.
+
+    Acts as the "verbose greeting" hook in the architect's PR-9: agents
+    starting work on a brand can run `bgen contract-status` to see what
+    is locked, what schema validation says, and what the last few state
+    mutations were.
+    """
+    from ..brand_contract_schema import brand_contract_schema_path, validate_brand_contract
+    from ..frontmatter import find_read_only_files
+    from ..mutations_ledger import load_mutation_events, mutations_ledger_path
+    from ..runtime_paths import SCRIPT_DIR
+
+    brand_dir = get_brand_dir()
+    limit = int(getattr(args, "limit_mutations", 10) or 10)
+    fmt = getattr(args, "format", "json")
+
+    # Brand-contract location resolution: per-brand contract.json (PR-4) or
+    # legacy data/<brand>_brand_contract.json (PR-1) or no contract yet.
+    per_brand_contract = brand_dir / "contract.json"
+    legacy_contract = SCRIPT_DIR.parent / "data" / "sage_brand_contract.json"
+    contract_path: Path | None = None
+    if per_brand_contract.exists():
+        contract_path = per_brand_contract
+    elif legacy_contract.exists():
+        contract_path = legacy_contract
+
+    contract_status = "missing"
+    contract_message = ""
+    if contract_path is not None:
+        try:
+            contract = json.loads(contract_path.read_text())
+        except (OSError, json.JSONDecodeError) as err:
+            contract_status = "unreadable"
+            contract_message = str(err)
+        else:
+            ok, msg = validate_brand_contract(contract)
+            contract_status = "valid" if ok else "invalid"
+            contract_message = msg
+
+    payload: dict[str, Any] = {
+        "brand_dir": str(brand_dir),
+        "schema_path": str(brand_contract_schema_path()),
+        "contract_path": str(contract_path) if contract_path else "",
+        "contract_status": contract_status,
+        "contract_message": contract_message,
+        "mutations_ledger": str(mutations_ledger_path(brand_dir)),
+        "read_only_files": find_read_only_files(brand_dir),
+        "recent_mutations": load_mutation_events(brand_dir, limit=limit),
+    }
+
+    if fmt == "json":
+        print(json.dumps(payload, indent=2, default=str))
+        return
+    print(f"brand_dir: {payload['brand_dir']}")
+    print(f"contract:  {payload['contract_path']}  ({payload['contract_status']})")
+    if payload["contract_message"]:
+        print(f"  → {payload['contract_message']}")
+    print(f"schema:    {payload['schema_path']}")
+    print(f"ledger:    {payload['mutations_ledger']}")
+    if payload["read_only_files"]:
+        print("\nread-only-after files:")
+        for entry in payload["read_only_files"]:
+            print(f"  {entry['path']}  (after {entry['read_only_after']})")
+            if entry.get("read_only_reason"):
+                print(f"    reason: {entry['read_only_reason']}")
+    else:
+        print("\nread-only-after files: (none)")
+    if payload["recent_mutations"]:
+        print(f"\nrecent mutations (last {len(payload['recent_mutations'])}):")
+        for ev in payload["recent_mutations"]:
+            print(f"  {ev.get('timestamp', '')}  {ev.get('verb', '')}  {ev.get('action', '')}  {ev.get('diff_summary', '')}")
+    else:
+        print("\nrecent mutations: (none)")
 
 
 def cmd_add_aesthetic_capsule(args):

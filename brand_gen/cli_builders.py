@@ -816,6 +816,12 @@ def build_append_custom_scratchpad_note_cli(parser: argparse.ArgumentParser, *, 
     parser.add_argument("--section", required=True, choices=["global", "motion", "typography", "composition"], help="Scratchpad section to append under")
     parser.add_argument("--text", required=True, help="Bullet text to append")
     parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing")
+    parser.add_argument("--force", action="store_true", help="Override read_only_after frontmatter on the target markdown")
+    parser.add_argument("--format", choices=["text", "json"], default="json")
+
+
+def build_contract_status_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--limit-mutations", type=int, default=10, help="How many recent mutation events to show")
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
@@ -1302,6 +1308,7 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'update-iteration-memory': build_update_iteration_memory_cli,
     'append-forbidden-pattern': build_append_forbidden_pattern_cli,
     'add-aesthetic-capsule': build_add_aesthetic_capsule_cli,
+    'contract-status': build_contract_status_cli,
     'promote-learning': build_promote_learning_cli,
     'append-custom-scratchpad-note': build_append_custom_scratchpad_note_cli,
     'set-motion-grammar': build_set_motion_grammar_cli,
