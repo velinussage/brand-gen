@@ -356,6 +356,8 @@ class PipelineRequest:
         layout_spec: dict[str, Any] | None = None,
         branch_id: str = "",
         parent_branch_id: str = "",
+        model: str | None = None,
+        aspect_ratio: str | None = None,
     ) -> argparse.Namespace:
         return argparse.Namespace(
             prompt=None,
@@ -364,8 +366,8 @@ class PipelineRequest:
             render_backend=("html" if str(render_backend or "").strip().lower() == "html" else "native"),
             generation_mode="auto",
             mode="auto",
-            model=None,
-            aspect_ratio=None,
+            model=_optional_str(model),
+            aspect_ratio=_optional_str(aspect_ratio),
             resolution=None,
             duration=None,
             tag=_optional_str(tag) or _optional_str(plan.get("tag")),

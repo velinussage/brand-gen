@@ -16,6 +16,68 @@ from brand_gen.harness.policy import RunPolicy, ApprovalTrigger
 from brand_gen.harness.events import RunEvent
 from brand_gen.pipeline_types import OrchestrateMaterialResponse
 
+
+# Per-model aspect-ratio allow lists. Used by `normalize_aspect_ratio_for_model`
+# to map the capability's preferred ratio to the closest one the chosen
+# generator model actually accepts. Surfaced by the boon harness smoke test
+# 2026-05-22 where share_card's default "2:1" hit nano-banana-2's 422 reject.
+MODEL_ASPECT_RATIO_ALLOWLIST: dict[str, tuple[str, ...]] = {
+    "google/nano-banana-2": (
+        "match_input_image", "1:1", "1:4", "1:8", "2:3", "3:2", "3:4",
+        "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9",
+    ),
+    "nano-banana-2": (
+        "match_input_image", "1:1", "1:4", "1:8", "2:3", "3:2", "3:4",
+        "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9",
+    ),
+    "black-forest-labs/flux-2-pro": (
+        "match_input_image", "custom", "1:1", "16:9", "3:2", "2:3",
+        "4:5", "5:4", "9:16", "3:4", "4:3",
+    ),
+    "flux-2-pro": (
+        "match_input_image", "custom", "1:1", "16:9", "3:2", "2:3",
+        "4:5", "5:4", "9:16", "3:4", "4:3",
+    ),
+}
+
+
+def _ratio_to_float(ratio: str) -> float | None:
+    """Parse 'W:H' into W/H float; return None on invalid input."""
+    try:
+        w_str, h_str = ratio.split(":")
+        w, h = float(w_str), float(h_str)
+        if h == 0:
+            return None
+        return w / h
+    except (ValueError, AttributeError):
+        return None
+
+
+def normalize_aspect_ratio_for_model(model: str, requested: str) -> str:
+    """Return the model-supported aspect ratio closest to `requested`.
+
+    If the model has no known allow-list, returns `requested` unchanged.
+    If `requested` is already supported, returns it unchanged. Otherwise
+    picks the supported ratio whose float value is numerically closest.
+    """
+    allow = MODEL_ASPECT_RATIO_ALLOWLIST.get(model)
+    if not allow or not requested:
+        return requested
+    if requested in allow:
+        return requested
+    target = _ratio_to_float(requested)
+    if target is None:
+        return allow[0]
+    best: tuple[float, str] | None = None
+    for candidate in allow:
+        candidate_val = _ratio_to_float(candidate)
+        if candidate_val is None:
+            continue
+        delta = abs(candidate_val - target)
+        if best is None or delta < best[0]:
+            best = (delta, candidate)
+    return best[1] if best else allow[0]
+
 async def query_agent(lm: Any, agent_id: str, user_text: str, expected_json: bool = False) -> str | dict[str, Any]:
     """Helper to load system prompts and query agent personas safely inside a thread executor."""
     from brand_gen.harness.critique.panel import load_agent_prompt
@@ -290,6 +352,26 @@ Return ONLY valid JSON.
         dir_args.prompt_seed = dir_item["physical_prompt"]
         if chosen_model and chosen_model != "html:chromium":
             dir_args.model = chosen_model
+            # Normalize capability's preferred aspect_ratio to one the chosen
+            # image model actually accepts. Fixes nano-banana-2 422 reject for
+            # share_card's "2:1" surfaced 2026-05-22 boon smoke test.
+            requested_aspect = getattr(dir_args, "aspect_ratio", None) or (
+                capability.default_aspect_ratio if capability else ""
+            )
+            normalized = normalize_aspect_ratio_for_model(chosen_model, requested_aspect)
+            if normalized and normalized != requested_aspect:
+                dir_args.aspect_ratio = normalized
+                session.log_event(RunEvent(
+                    stage="generate",
+                    event_type="aspect_ratio_normalized",
+                    material_type=material_type,
+                    branch_id=workflow_id,
+                    model=chosen_model,
+                    notes=f"aspect_ratio {requested_aspect} -> {normalized} for {chosen_model}",
+                    data={"requested": requested_aspect, "normalized": normalized},
+                ))
+            elif normalized:
+                dir_args.aspect_ratio = normalized
 
         # Build material plan
         _, plan_dict, missing = build_material_plan_from_args(dir_args, brand_dir)
@@ -355,6 +437,8 @@ Return ONLY valid JSON.
             layout_spec=getattr(plan_args, "layout_spec", None),
             branch_id=workflow_id,
             parent_branch_id=parent_branch_id,
+            model=getattr(dir_args, "model", None),
+            aspect_ratio=getattr(dir_args, "aspect_ratio", None),
         )
 
         scratchpad_payload = assemble_generation_scratchpad(

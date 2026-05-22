@@ -45,6 +45,9 @@ ALLOWED_HTML_MATERIALS = {
     "quote-card",
     "linkedin-card",
     "og-card",
+    # PR-3 material capability: share_card declares html:chromium default
+    # and its capability plugin guarantees deterministic copy handling.
+    "share_card",
 }
 DEFAULT_HTML_MODEL = "html:chromium"
 DEFAULT_DESIGN_VARIANCE = 5

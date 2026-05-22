@@ -126,6 +126,10 @@
       "defaults": {
         "resolution": "1K"
       },
+      "supported_aspect_ratios": [
+        "match_input_image", "1:1", "1:4", "1:8", "2:3", "3:2",
+        "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9"
+      ],
       "field_map": {
         "image": "image_input",
         "aspect_ratio": "aspect_ratio"
@@ -141,6 +145,10 @@
       "defaults": {
         "safety_tolerance": 2
       },
+      "supported_aspect_ratios": [
+        "match_input_image", "custom", "1:1", "16:9", "3:2", "2:3",
+        "4:5", "5:4", "9:16", "3:4", "4:3"
+      ],
       "field_map": {
         "image": "input_images",
         "aspect_ratio": "aspect_ratio"
@@ -156,6 +164,10 @@
       "defaults": {
         "safety_tolerance": 2
       },
+      "supported_aspect_ratios": [
+        "match_input_image", "custom", "1:1", "16:9", "3:2", "2:3",
+        "4:5", "5:4", "9:16", "3:4", "4:3"
+      ],
       "field_map": {
         "image": "input_images",
         "aspect_ratio": "aspect_ratio"
