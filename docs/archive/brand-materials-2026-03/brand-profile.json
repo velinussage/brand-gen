@@ -1,0 +1,33 @@
+{
+  "brand_name": "brand-gen",
+  "homepage_url": "",
+  "project_root": "~/Documents/brand-gen",
+  "description": "A shareable brand-iteration repo for **Sage / Codex / Claude-style agent workflows**.",
+  "keywords": [
+    "clean",
+    "fast",
+    "geometric",
+    "warm",
+    "premium",
+    "elegant",
+    "modern",
+    "professional",
+    "editorial",
+    "minimal",
+    "bold",
+    "creative"
+  ],
+  "color_candidates": [],
+  "css_variables": {},
+  "font_candidates": [],
+  "radius_tokens": [
+    "rounded"
+  ],
+  "logo_candidates": ["brand-materials/logo.svg", "brand-materials/logo.png"],
+  "marketing_files": [],
+  "readme_files": [
+    "README.md"
+  ],
+  "evidence_files": [],
+  "notes_excerpt": ""
+}

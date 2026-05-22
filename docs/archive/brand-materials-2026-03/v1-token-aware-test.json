@@ -1,0 +1,56 @@
+{
+  "brand_name": "Dembrandt",
+  "headline": "Structured brand memory for faster iteration",
+  "subheadline": "Store design language, guardrails, and real product proof so generated materials stay branded instead of generic.",
+  "eyebrow": "",
+  "nav_items": [
+    "Identity",
+    "Tokens",
+    "Prompts"
+  ],
+  "header_cta": "Open app",
+  "primary_cta": "View profile",
+  "secondary_cta": "Read identity",
+  "trust_items": [
+    "Brand truth",
+    "Token-aware defaults",
+    "Deterministic hero"
+  ],
+  "layout": "split-right",
+  "spacing_system": {
+    "page_margin": 42,
+    "header_y": 40,
+    "header_cta_x": 1370,
+    "nav_gap": 28,
+    "cta_gap": 14,
+    "block_gap": 28,
+    "trust_gap": 20,
+    "trust_width": 402
+  },
+  "palette": {
+    "background": "#ffffff",
+    "surface": "#f6f9fc",
+    "text": "#000000",
+    "accent": "#425466",
+    "accent_secondary": "#ffffff",
+    "muted": "#0000ee",
+    "border": "#D9D2C6"
+  },
+  "fonts": {
+    "heading": "sohne-var, \"Helvetica Neue\", Arial, sans-serif",
+    "body": "sohne-var, \"Helvetica Neue\", Arial, sans-serif",
+    "ui": "sohne-var, \"Helvetica Neue\", Arial, sans-serif"
+  },
+  "radii": {
+    "card": 8,
+    "button": 8
+  },
+  "brand_guardrail_prelude": "Preserve the brand truth of Dembrandt before adding any presentation treatment. Dembrandt should feel system, dark, light, minimal, community. It represents Extract design tokens and brand assets from any website. Keep palette direction anchored in #425466, #0a2540, #635bff, #3f4b66, #ffffff, #000000, typography cues anchored in system-ui, -apple-system, sans-serif, sohne-var, \"Helvetica Neue\", Arial, sans-serif, shape language anchored in rounded, rounded-lg, rounded-md, rounded-xl, and component behavior anchored in buttons, inputs. External references may influence framing, campaign treatment, and composition, but they must not replace the brand's aesthetic, tone, or design language.",
+  "width": 1600,
+  "height": 900,
+  "product_shots": [
+    "~/Documents/brand-projects/sage-feature-screens/brand-materials/product-screens/home-feed-viewport.png",
+    "~/Documents/brand-projects/sage-feature-screens/brand-materials/product-screens/library-overview-viewport.png"
+  ],
+  "logo_path": ""
+}

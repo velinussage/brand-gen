@@ -1,0 +1,273 @@
+{
+  "source": {
+    "key": "porto-rocha-upwork",
+    "name": "PORTO ROCHA \u2014 Upwork",
+    "category": "premium-branding",
+    "url": "https://www.portorocha.com/upwork/",
+    "notes": "People-first identity system for the pioneer of remote work; useful for bold graphic systems paired with product-adjacent credibility.",
+    "tags": [
+      "branding",
+      "remote-work",
+      "graphic-system",
+      "identity",
+      "product-adjacent",
+      "bold"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://www.portorocha.com/upwork/",
+    "final_url": "https://www.portorocha.com/upwork/",
+    "title": "Upwork | PORTO ROCHA",
+    "meta_description": "Reflecting the people at the heart of the pioneering remote work platform",
+    "headings": [
+      "About us",
+      "YOYOYO",
+      "Robinhood Market",
+      "Nike Run",
+      "Kunsthalle Basel",
+      "Gemini",
+      "MASP",
+      "Robinhood",
+      "Melissa",
+      "Church"
+    ],
+    "stylesheets": [
+      "https://www.portorocha.com/font/fonts.css",
+      "https://www.portorocha.com/_nuxt/entry.Dgii8Rzj.css",
+      "https://www.portorocha.com/_nuxt/default.BS0dOXGZ.css",
+      "https://www.portorocha.com/_nuxt/PageButton.BXuFxguL.css",
+      "https://www.portorocha.com/_nuxt/PageImage.DIB8YLQn.css",
+      "https://www.portorocha.com/_nuxt/CaseStudyGallery.BA6lsYzw.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics.",
+      "Use one confident scale shift or crop move rather than many competing gestures."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Navigation chrome should stay restrained and low-noise.",
+      "Forms should use low-friction fields with clear hierarchy and minimal decoration."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around About us, YOYOYO, Robinhood Market."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include sf-pro-text, sf-pro-display.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--br",
+        "value": "16px"
+      },
+      {
+        "name": "--br2",
+        "value": "8px"
+      },
+      {
+        "name": "--pd",
+        "value": "16px"
+      },
+      {
+        "name": "--pd2",
+        "value": "8px"
+      },
+      {
+        "name": "--pd3",
+        "value": "4px"
+      },
+      {
+        "name": "--color-black",
+        "value": "#000"
+      },
+      {
+        "name": "--color-white",
+        "value": "#e2e6e3"
+      },
+      {
+        "name": "--color-blue",
+        "value": "#007aff"
+      },
+      {
+        "name": "--color-gray10",
+        "value": "hsla(135,7%,89%,.1)"
+      },
+      {
+        "name": "--color-gray20",
+        "value": "hsla(135,7%,89%,.2)"
+      },
+      {
+        "name": "--color-gray50",
+        "value": "hsla(135,7%,89%,.5)"
+      },
+      {
+        "name": "--color-white-hover",
+        "value": "hsla(135,7%,89%,.5)"
+      },
+      {
+        "name": "--color-gray10-hover",
+        "value": "hsla(135,7%,89%,.2)"
+      },
+      {
+        "name": "--color-gray50-hover",
+        "value": "#e2e6e3"
+      },
+      {
+        "name": "--color-black",
+        "value": "#fff"
+      },
+      {
+        "name": "--color-white",
+        "value": "#000"
+      },
+      {
+        "name": "--color-gray10",
+        "value": "rgba(0,0,0,.04)"
+      },
+      {
+        "name": "--color-gray20",
+        "value": "rgba(0,0,0,.2)"
+      },
+      {
+        "name": "--color-gray50",
+        "value": "rgba(0,0,0,.5)"
+      },
+      {
+        "name": "--color-white-hover",
+        "value": "rgba(0,0,0,.5)"
+      },
+      {
+        "name": "--color-gray10-hover",
+        "value": "rgba(0,0,0,.08)"
+      },
+      {
+        "name": "--color-gray50-hover",
+        "value": "#000"
+      },
+      {
+        "name": "--br",
+        "value": "12px"
+      },
+      {
+        "name": "--start2",
+        "value": "#d9d6d5"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--br: 16px;",
+      "--br2: 8px;",
+      "--pd: 16px;",
+      "--pd2: 8px;",
+      "--pd3: 4px;",
+      "--color-black: #000;",
+      "--color-white: #e2e6e3;",
+      "--color-blue: #007aff;",
+      "--color-gray10: hsla(135,7%,89%,.1);",
+      "--color-gray20: hsla(135,7%,89%,.2);",
+      "--color-gray50: hsla(135,7%,89%,.5);",
+      "--color-white-hover: hsla(135,7%,89%,.5);",
+      "--color-gray10-hover: hsla(135,7%,89%,.2);",
+      "--color-gray50-hover: #e2e6e3;",
+      "--color-black: #fff;",
+      "--color-white: #000;",
+      "--color-gray10: rgba(0,0,0,.04);",
+      "--color-gray20: rgba(0,0,0,.2);",
+      "--color-gray50: rgba(0,0,0,.5);",
+      "--color-white-hover: rgba(0,0,0,.5);",
+      "--color-gray10-hover: rgba(0,0,0,.08);",
+      "--color-gray50-hover: #000;",
+      "--br: 12px;",
+      "--start2: #d9d6d5;"
+    ],
+    "colors": [
+      "#000",
+      "#e2e6e3",
+      "#007aff",
+      "#fff",
+      "#1a1a1a",
+      "#f5f5f5",
+      "#4e4e4e",
+      "#242424",
+      "#d9d6d5",
+      "#efefef",
+      "#ffffff3d",
+      "#0000001f"
+    ],
+    "fonts": [
+      "sf-pro-text",
+      "sf-pro-display",
+      "fk-olympikus",
+      "swiper-icons"
+    ],
+    "radius_values": [
+      10.0,
+      10.0,
+      40.0,
+      40.0,
+      38.0,
+      40.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "rounded",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:45Z",
+  "degraded": false
+}

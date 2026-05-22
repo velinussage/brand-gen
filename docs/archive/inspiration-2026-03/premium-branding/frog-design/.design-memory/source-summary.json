@@ -1,0 +1,258 @@
+{
+  "source": {
+    "key": "frog-design",
+    "name": "Frog Design",
+    "category": "premium-branding",
+    "url": "https://frogdesign.com/work",
+    "notes": "Complex digital platform and SaaS mockups.",
+    "tags": [
+      "platform",
+      "saas",
+      "mockups",
+      "enterprise",
+      "digital"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://frogdesign.com/work",
+    "final_url": "https://www.frog.co/work",
+    "title": "Design and Innovation Case Studies | frog, part of Capgemini Invent",
+    "meta_description": "We apply design thinking to the creation of disruptive innovations, new strategies, complex ecosystems, and new ventures. Browse through our work.",
+    "headings": [
+      "Bring bold ideas to life",
+      "Featured",
+      "Our latest"
+    ],
+    "stylesheets": [
+      "https://www.frog.co/_next/static/css/2f097e44f3309819.css",
+      "https://www.frog.co/_next/static/css/10cda735c084032a.css",
+      "https://www.frog.co/_next/static/css/0ac89befa914dbdd.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics.",
+      "Use one confident scale shift or crop move rather than many competing gestures."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Forms should use low-friction fields with clear hierarchy and minimal decoration.",
+      "Case-study carriers should read as editorial proof, not mosaics."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around Bring bold ideas to life, Featured, Our latest."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Surface treatment leans darker and trust-heavy.",
+      "Accent color should stay disciplined so the system does not become noisy."
+    ],
+    "typography_lines": [
+      "Observed type families include frogSerif, GT America.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--blue",
+        "value": "#007bff"
+      },
+      {
+        "name": "--indigo",
+        "value": "#6610f2"
+      },
+      {
+        "name": "--purple",
+        "value": "#6f42c1"
+      },
+      {
+        "name": "--pink",
+        "value": "#e83e8c"
+      },
+      {
+        "name": "--red",
+        "value": "#dc3545"
+      },
+      {
+        "name": "--orange",
+        "value": "#fd7e14"
+      },
+      {
+        "name": "--yellow",
+        "value": "#ffc107"
+      },
+      {
+        "name": "--green",
+        "value": "#28a745"
+      },
+      {
+        "name": "--teal",
+        "value": "#20c997"
+      },
+      {
+        "name": "--cyan",
+        "value": "#17a2b8"
+      },
+      {
+        "name": "--gray",
+        "value": "#6c757d"
+      },
+      {
+        "name": "--gray-dark",
+        "value": "#343a40"
+      },
+      {
+        "name": "--primary",
+        "value": "#007bff"
+      },
+      {
+        "name": "--secondary",
+        "value": "#6c757d"
+      },
+      {
+        "name": "--success",
+        "value": "#28a745"
+      },
+      {
+        "name": "--info",
+        "value": "#17a2b8"
+      },
+      {
+        "name": "--warning",
+        "value": "#ffc107"
+      },
+      {
+        "name": "--danger",
+        "value": "#dc3545"
+      },
+      {
+        "name": "--light",
+        "value": "#f8f9fa"
+      },
+      {
+        "name": "--dark",
+        "value": "#343a40"
+      },
+      {
+        "name": "--black",
+        "value": "#000000"
+      },
+      {
+        "name": "--white",
+        "value": "#ffffff"
+      },
+      {
+        "name": "--hl-green",
+        "value": "#4ee601"
+      },
+      {
+        "name": "--hl-pink-light",
+        "value": "#e2c5e4"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "expressive"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: expressive;",
+      "--blue: #007bff;",
+      "--indigo: #6610f2;",
+      "--purple: #6f42c1;",
+      "--pink: #e83e8c;",
+      "--red: #dc3545;",
+      "--orange: #fd7e14;",
+      "--yellow: #ffc107;",
+      "--green: #28a745;",
+      "--teal: #20c997;",
+      "--cyan: #17a2b8;",
+      "--gray: #6c757d;",
+      "--gray-dark: #343a40;",
+      "--primary: #007bff;",
+      "--secondary: #6c757d;",
+      "--success: #28a745;",
+      "--info: #17a2b8;",
+      "--warning: #ffc107;",
+      "--danger: #dc3545;",
+      "--light: #f8f9fa;",
+      "--dark: #343a40;",
+      "--black: #000000;",
+      "--white: #ffffff;",
+      "--hl-green: #4ee601;",
+      "--hl-pink-light: #e2c5e4;"
+    ],
+    "colors": [
+      "#007bff",
+      "#6610f2",
+      "#6f42c1",
+      "#e83e8c",
+      "#dc3545",
+      "#fd7e14",
+      "#ffc107",
+      "#28a745",
+      "#20c997",
+      "#17a2b8",
+      "#6c757d",
+      "#343a40"
+    ],
+    "fonts": [
+      "frogSerif",
+      "GT America",
+      "sans-serif",
+      "SFMono-Regular"
+    ],
+    "radius_values": [
+      16.0,
+      16.0,
+      36.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "rounded",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:41Z",
+  "degraded": false
+}

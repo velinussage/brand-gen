@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" fill="none">
+  <rect width="1200" height="1200" fill="#F4EBD9"/>
+  <text x="90" y="76" fill="#2A231A" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">brand-gen</text>
+  <text x="90" y="124" fill="#6F6A63" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="700">Sticker family</text>
+  <text x="90" y="154" fill="#6F6A63" font-family="Inter, system-ui, sans-serif" font-size="18">Deterministic badge and sticker system derived from the stored mark and palette.</text>
+  <circle cx="220" cy="310" r="118" fill="#FFFDF9" stroke="#2A231A" stroke-width="10"/>
+  <polygon points="686.0,300.0 656.4,338.3 650.3,386.3 602.3,392.4 564.0,422.0 525.7,392.4 477.7,386.3 471.6,338.3 442.0,300.0 471.6,261.7 477.7,213.7 525.7,207.6 564.0,178.0 602.3,207.6 650.3,213.7 656.4,261.7" fill="#9CAF99" stroke="#2A231A" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="920" cy="302" r="118" fill="#2A231A" stroke="#B87457" stroke-width="10"/>
+  <rect x="94" y="520" width="250" height="250" rx="36" fill="#B87457" stroke="#2A231A" stroke-width="10"/>
+  <rect x="392" y="520" width="250" height="250" rx="30" fill="#2A231A" stroke="#D9D2C6" stroke-width="8"/><path d="M 416 580 H 562 Q 587 580 587 605 V 710" fill="none" stroke="#9CAF99" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><path d="M 467 544 V 685 Q 467 710 492 710 H 618" fill="none" stroke="#9CAF99" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><path d="M 416 580 H 562 Q 587 580 587 605 V 710" fill="none" stroke="#F4EBD9" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="M 467 544 V 685 Q 467 710 492 710 H 618" fill="none" stroke="#F4EBD9" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="M 416 580 H 562 Q 587 580 587 605 V 710" fill="none" stroke="#B87457" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M 467 544 V 685 Q 467 710 492 710 H 618" fill="none" stroke="#B87457" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="742" y="520" width="260" height="250" rx="36" fill="#FFFDF9" stroke="#B87457" stroke-width="10"/>
+  <rect x="132" y="840" width="320" height="158" rx="79.0" fill="#FFFDF9" stroke="#2A231A" stroke-width="10"/><path d="M 292.0 866 V 972" fill="none" stroke="#B87457" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="668" cy="916" r="118" fill="#FFFDF9" stroke="#2A231A" stroke-width="10"/>
+  <rect x="804" y="820" width="182" height="292" rx="146.0" fill="#FFFDF9" stroke="#2A231A" stroke-width="10"/><path d="M 895.0 846 V 1086" fill="none" stroke="#B87457" stroke-width="12" stroke-linecap="round"/>
+</svg>

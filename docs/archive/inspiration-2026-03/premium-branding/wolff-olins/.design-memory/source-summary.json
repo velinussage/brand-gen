@@ -1,0 +1,261 @@
+{
+  "source": {
+    "key": "wolff-olins",
+    "name": "Wolff Olins",
+    "category": "premium-branding",
+    "url": "https://wolffolins.com/work",
+    "notes": "Bold enterprise branding visuals.",
+    "tags": [
+      "enterprise",
+      "branding",
+      "bold",
+      "identity",
+      "work"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://wolffolins.com/work",
+    "final_url": "https://wolffolins.com/work",
+    "title": "Our Work \u2014 Wolff Olins",
+    "meta_description": "From global icons to trailblazing start-ups, we partner with ambitious leaders at pivotal inflection points.",
+    "headings": [
+      "Blank Street",
+      "Sandals & Beaches Resorts",
+      "Decathlon",
+      "Benefit",
+      "Lloyds",
+      "Patreon",
+      "Ubisoft Anno",
+      "LG Electronics",
+      "New York Botanical Garden",
+      "Mercedes-AMG Petronas F1 Team"
+    ],
+    "stylesheets": [
+      "https://wolffolins.com/_next/static/css/d4f92c84ece2c955.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Use one convincing showcase move per frame instead of equal-weight mosaics.",
+      "Use one confident scale shift or crop move rather than many competing gestures.",
+      "Translate identity through repeatable carriers so the system feels deployable across surfaces."
+    ],
+    "constraints": [
+      "Use the source for mechanics, not literal brand assets."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Showcase carriers should feel curated, low-count, and hierarchically obvious."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Observed section language suggests a structured page rhythm around Blank Street, Sandals & Beaches Resorts, Decathlon."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include Monument-Grotesk, ui-monospace.",
+      "Keep typography hierarchy clear and low-noise."
+    ],
+    "css_variables": [
+      {
+        "name": "--tw-content",
+        "value": "\"\""
+      },
+      {
+        "name": "--site-padding",
+        "value": "1.5rem"
+      },
+      {
+        "name": "--site-padding",
+        "value": "2rem"
+      },
+      {
+        "name": "--site-padding",
+        "value": "3.875rem"
+      },
+      {
+        "name": "--site-max-width",
+        "value": "100rem"
+      },
+      {
+        "name": "--full-bleed-margin",
+        "value": "calc(MAX(var(--site-padding),"
+      },
+      {
+        "name": "--indent-alignment",
+        "value": "1em"
+      },
+      {
+        "name": "--tw-border-opacity",
+        "value": "1"
+      },
+      {
+        "name": "--tw-border-spacing-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-border-spacing-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-translate-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-translate-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-rotate",
+        "value": "0"
+      },
+      {
+        "name": "--tw-skew-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-skew-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-scale-x",
+        "value": "1"
+      },
+      {
+        "name": "--tw-scale-y",
+        "value": "1"
+      },
+      {
+        "name": "--tw-scroll-snap-strictness",
+        "value": "proximity"
+      },
+      {
+        "name": "--tw-ring-offset-width",
+        "value": "0px"
+      },
+      {
+        "name": "--tw-ring-offset-color",
+        "value": "#fff"
+      },
+      {
+        "name": "--tw-ring-color",
+        "value": "rgba(59,130,246,.5)"
+      },
+      {
+        "name": "--tw-ring-offset-shadow",
+        "value": "0 0 #0000"
+      },
+      {
+        "name": "--tw-ring-shadow",
+        "value": "0 0 #0000"
+      },
+      {
+        "name": "--tw-shadow",
+        "value": "0 0 #0000"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "medium"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "system"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: medium;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: system;",
+      "--ref-accent-handling: restrained;",
+      "--tw-content: \"\";",
+      "--site-padding: 1.5rem;",
+      "--site-padding: 2rem;",
+      "--site-padding: 3.875rem;",
+      "--site-max-width: 100rem;",
+      "--full-bleed-margin: calc(MAX(var(--site-padding),;",
+      "--indent-alignment: 1em;",
+      "--tw-border-opacity: 1;",
+      "--tw-border-spacing-x: 0;",
+      "--tw-border-spacing-y: 0;",
+      "--tw-translate-x: 0;",
+      "--tw-translate-y: 0;",
+      "--tw-rotate: 0;",
+      "--tw-skew-x: 0;",
+      "--tw-skew-y: 0;",
+      "--tw-scale-x: 1;",
+      "--tw-scale-y: 1;",
+      "--tw-scroll-snap-strictness: proximity;",
+      "--tw-ring-offset-width: 0px;",
+      "--tw-ring-offset-color: #fff;",
+      "--tw-ring-color: rgba(59,130,246,.5);",
+      "--tw-ring-offset-shadow: 0 0 #0000;",
+      "--tw-ring-shadow: 0 0 #0000;",
+      "--tw-shadow: 0 0 #0000;"
+    ],
+    "colors": [
+      "#bfbfbf",
+      "#8a8a8a",
+      "#000",
+      "#fff",
+      "#616161",
+      "#0000",
+      "#818181",
+      "#0003",
+      "#111",
+      "#00ff47",
+      "#fff84b"
+    ],
+    "fonts": [
+      "Monument-Grotesk",
+      "ui-monospace",
+      "inherit",
+      "Untitled-Serif"
+    ],
+    "radius_values": [
+      9999.0,
+      9999.0,
+      9999.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "medium",
+      "shape_language": "rounded",
+      "hierarchy_mode": "system",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:41Z",
+  "degraded": false
+}

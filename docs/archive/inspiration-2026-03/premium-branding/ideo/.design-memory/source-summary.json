@@ -1,0 +1,268 @@
+{
+  "source": {
+    "key": "ideo",
+    "name": "IDEO",
+    "category": "premium-branding",
+    "url": "https://www.ideo.com/work",
+    "notes": "Human-centered product illustrations and innovation case studies.",
+    "tags": [
+      "human-centered",
+      "product",
+      "illustration",
+      "innovation",
+      "case-study"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://www.ideo.com/work",
+    "final_url": "https://www.ideo.com/work",
+    "title": "Work",
+    "meta_description": "Explore IDEO's human-centered work. See how we design innovative businesses & brands, bringing new experiences to life. Discover our impact.",
+    "headings": [
+      "Planes, supply chains, and automobiles",
+      "Featured work",
+      "Accelerating the future of air travel",
+      "Better sales, less waste",
+      "Building a culture of creativity and innovation",
+      "Designing a more comfortable pap smear",
+      "An in-store experience for the digital era",
+      "Culture as catalyst",
+      "We design for",
+      "Helping parents understand Beyfortus, a life-saving newborn immunization"
+    ],
+    "stylesheets": [
+      "https://cdn.prod.website-files.com/67cb2dd62d5110e2973d39d7/css/ideo-2025.webflow.shared.df2442969.min.css",
+      "https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Buttons and chips stay minimal and secondary to the main proof surface.",
+      "Tabular surfaces should stay calm, aligned, and function-first.",
+      "Case-study carriers should read as editorial proof, not mosaics."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around Planes, supply chains, and automobiles, Featured work, Accelerating the future of air travel."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "Accent color should stay disciplined so the system does not become noisy."
+    ],
+    "typography_lines": [
+      "Observed type families include Fhoscar, sans-serif.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--large",
+        "value": "before"
+      },
+      {
+        "name": "--large",
+        "value": "after"
+      },
+      {
+        "name": "--vertical",
+        "value": "before,.w-widget-twitter-count-shim.w--vertical:after"
+      },
+      {
+        "name": "--vertical",
+        "value": "before"
+      },
+      {
+        "name": "--vertical",
+        "value": "after"
+      },
+      {
+        "name": "--ideo-dark",
+        "value": "#7b92a5"
+      },
+      {
+        "name": "--ideo-alchemy",
+        "value": "#d9ff00"
+      },
+      {
+        "name": "--ideo-darkest",
+        "value": "#151f27"
+      },
+      {
+        "name": "--ideo-bright",
+        "value": "white"
+      },
+      {
+        "name": "--white",
+        "value": "white"
+      },
+      {
+        "name": "--ideo-darker",
+        "value": "#536575"
+      },
+      {
+        "name": "--light-gray",
+        "value": "#efefef"
+      },
+      {
+        "name": "--tim-brown",
+        "value": "#441f10"
+      },
+      {
+        "name": "--optimistic-orange",
+        "value": "#ff7800"
+      },
+      {
+        "name": "--prototype-pink",
+        "value": "#f3d0ed"
+      },
+      {
+        "name": "--dk-gray",
+        "value": "#45465e"
+      },
+      {
+        "name": "--butter-dish",
+        "value": "#f8fa5b"
+      },
+      {
+        "name": "--the-lisa",
+        "value": "#dfd6c7"
+      },
+      {
+        "name": "--ambiguity",
+        "value": "#3b0304"
+      },
+      {
+        "name": "--phone-booth",
+        "value": "#f64114"
+      },
+      {
+        "name": "--curiosity",
+        "value": "#c5f5ff"
+      },
+      {
+        "name": "--deep-synthesis",
+        "value": "#2b320d"
+      },
+      {
+        "name": "--blue-sky",
+        "value": "#009cf3"
+      },
+      {
+        "name": "--post-it",
+        "value": "#fafabb"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "sharp"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: sharp;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--large: before;",
+      "--large: after;",
+      "--vertical: before,.w-widget-twitter-count-shim.w--vertical:after;",
+      "--vertical: before;",
+      "--vertical: after;",
+      "--ideo-dark: #7b92a5;",
+      "--ideo-alchemy: #d9ff00;",
+      "--ideo-darkest: #151f27;",
+      "--ideo-bright: white;",
+      "--white: white;",
+      "--ideo-darker: #536575;",
+      "--light-gray: #efefef;",
+      "--tim-brown: #441f10;",
+      "--optimistic-orange: #ff7800;",
+      "--prototype-pink: #f3d0ed;",
+      "--dk-gray: #45465e;",
+      "--butter-dish: #f8fa5b;",
+      "--the-lisa: #dfd6c7;",
+      "--ambiguity: #3b0304;",
+      "--phone-booth: #f64114;",
+      "--curiosity: #c5f5ff;",
+      "--deep-synthesis: #2b320d;",
+      "--blue-sky: #009cf3;",
+      "--post-it: #fafabb;"
+    ],
+    "colors": [
+      "#7b92a5",
+      "#151f27",
+      "#d9ff00",
+      "#fff",
+      "#0000",
+      "#000",
+      "#ff0",
+      "#333",
+      "#3898ec",
+      "#0000001a",
+      "#aaadb0",
+      "#e2e2e2"
+    ],
+    "fonts": [
+      "Fhoscar",
+      "sans-serif",
+      "monospace",
+      "webflow-icons"
+    ],
+    "radius_values": [
+      10.0,
+      4.0,
+      3.0,
+      3.0,
+      2.0,
+      2.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "sharp",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:42Z",
+  "degraded": false
+}

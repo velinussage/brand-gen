@@ -1,0 +1,99 @@
+{
+  "versions": {
+    "v1": {
+      "prompt": "Deterministic landing hero for Dembrandt: Structured brand memory for faster iteration / Store design language, guardrails, and real product proof so generated materials stay branded instead of generic.",
+      "model": "deterministic-compose",
+      "mode": "deterministic",
+      "material_type": "landing-hero",
+      "generation_mode": "image",
+      "aspect_ratio": "1600:900",
+      "duration": null,
+      "tag": "token-aware-test",
+      "files": [
+        "v1-token-aware-test.svg",
+        "v1-token-aware-test.html",
+        "v1-token-aware-test.json"
+      ],
+      "reference_images": [
+        "references/v1-ref-01.png",
+        "references/v1-ref-02.png"
+      ],
+      "reference_count": 2,
+      "reference_dir": "",
+      "timestamp": "2026-03-10T00:03:40",
+      "score": null,
+      "notes": "",
+      "status": null,
+      "structured_input": {
+        "brand_name": "Dembrandt",
+        "headline": "Structured brand memory for faster iteration",
+        "subheadline": "Store design language, guardrails, and real product proof so generated materials stay branded instead of generic.",
+        "eyebrow": "",
+        "nav_items": [
+          "Identity",
+          "Tokens",
+          "Prompts"
+        ],
+        "header_cta": "Open app",
+        "primary_cta": "View profile",
+        "secondary_cta": "Read identity",
+        "trust_items": [
+          "Brand truth",
+          "Token-aware defaults",
+          "Deterministic hero"
+        ],
+        "layout": "split-right",
+        "width": 1600,
+        "height": 900
+      }
+    },
+    "v2": {
+      "prompt": "Deterministic sticker sheet for brand",
+      "model": "deterministic-compose",
+      "mode": "deterministic",
+      "material_type": "sticker-family",
+      "generation_mode": "image",
+      "aspect_ratio": "1200:1200",
+      "duration": null,
+      "tag": "sticker-sheet",
+      "files": [
+        "v2-sticker-sheet.svg",
+        "v2-sticker-sheet.png",
+        "v2-sticker-sheet.html",
+        "v2-sticker-sheet.json"
+      ],
+      "reference_images": [],
+      "reference_count": 0,
+      "reference_dir": "",
+      "timestamp": "2026-03-11T00:19:58",
+      "score": null,
+      "notes": "",
+      "status": null
+    },
+    "v3": {
+      "prompt": "Deterministic pattern board for brand",
+      "model": "deterministic-compose",
+      "mode": "deterministic",
+      "material_type": "pattern-system",
+      "generation_mode": "image",
+      "aspect_ratio": "1200:1200",
+      "duration": null,
+      "tag": "pattern-board",
+      "files": [
+        "v3-pattern-board.svg",
+        "v3-pattern-board.png",
+        "v3-pattern-board.html",
+        "v3-pattern-board.json"
+      ],
+      "reference_images": [],
+      "reference_count": 0,
+      "reference_dir": "",
+      "timestamp": "2026-03-11T00:19:58",
+      "score": null,
+      "notes": "",
+      "status": null
+    }
+  },
+  "locked_fragments": [],
+  "reference_versions": []
+}

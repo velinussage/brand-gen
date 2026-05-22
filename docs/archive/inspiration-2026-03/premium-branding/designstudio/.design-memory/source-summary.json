@@ -1,0 +1,155 @@
+{
+  "source": {
+    "key": "designstudio",
+    "name": "DesignStudio",
+    "category": "premium-branding",
+    "url": "https://design.studio",
+    "notes": "Immersive brand and digital case studies.",
+    "tags": [
+      "brand",
+      "digital",
+      "immersive",
+      "case-study",
+      "storytelling"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://design.studio",
+    "final_url": "https://www.design.studio/",
+    "title": "DesignStudio is now Further",
+    "meta_description": "DesignStudio is now Further, a creative agency specialising in brand, campaign, experience, digital and production. Visit further.group to see our new work.",
+    "headings": [],
+    "stylesheets": [
+      "https://cdn.prod.website-files.com/688cd49a87834ccea15f6b5c/css/designstudio-v2.webflow.shared.18aadd1af.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Case-study carriers should read as editorial proof, not mosaics."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "Accent color should stay disciplined so the system does not become noisy."
+    ],
+    "typography_lines": [
+      "Observed type families include sans-serif, monospace.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--large",
+        "value": "before"
+      },
+      {
+        "name": "--large",
+        "value": "after"
+      },
+      {
+        "name": "--vertical",
+        "value": "before, .w-widget-twitter-count-shim.w--vertical:after"
+      },
+      {
+        "name": "--vertical",
+        "value": "before"
+      },
+      {
+        "name": "--vertical",
+        "value": "after"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "sharp"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: sharp;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--large: before;",
+      "--large: after;",
+      "--vertical: before, .w-widget-twitter-count-shim.w--vertical:after;",
+      "--vertical: before;",
+      "--vertical: after;"
+    ],
+    "colors": [
+      "#0000",
+      "#000",
+      "#ff0",
+      "#333",
+      "#fff",
+      "#3898ec",
+      "#0000001a",
+      "#aaadb0",
+      "#e2e2e2",
+      "#ddd",
+      "#ffdede",
+      "#ccc"
+    ],
+    "fonts": [
+      "sans-serif",
+      "monospace",
+      "webflow-icons",
+      "webflow-icons !important"
+    ],
+    "radius_values": [
+      3.0,
+      3.0,
+      1.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "sharp",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:42Z",
+  "degraded": false
+}

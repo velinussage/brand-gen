@@ -1,0 +1,19 @@
+{
+  "brand_name": "brand-gen",
+  "palette": {
+    "background": "#F4EBD9",
+    "surface": "#FFFDF9",
+    "text": "#2A231A",
+    "accent": "#B87457",
+    "accent_secondary": "#9CAF99",
+    "muted": "#6F6A63",
+    "border": "#D9D2C6"
+  },
+  "radii": {
+    "card": 26,
+    "button": 26
+  },
+  "logo_path": "",
+  "width": 1200,
+  "height": 1200
+}

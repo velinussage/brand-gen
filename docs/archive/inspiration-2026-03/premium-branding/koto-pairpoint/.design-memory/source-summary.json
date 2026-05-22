@@ -1,0 +1,267 @@
+{
+  "source": {
+    "key": "koto-pairpoint",
+    "name": "Koto \u2014 Pairpoint",
+    "category": "premium-branding",
+    "url": "https://koto.studio/work/pairpoint/",
+    "notes": "Clear identity system with strong compositional structure and branded applications.",
+    "tags": [
+      "brand-system",
+      "composition",
+      "application",
+      "identity",
+      "premium"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://koto.studio/work/pairpoint/",
+    "final_url": "https://koto.com/projects/pairpoint",
+    "title": "Pairpoint | Koto",
+    "meta_description": "Five creative studios. Across three continents. With one mission. To make the best work humanly possible.",
+    "headings": [
+      "Channels",
+      "Explore",
+      "Channels",
+      "Pairpoint",
+      "Pairpoint",
+      "Challenge",
+      "Strategy",
+      "Identity",
+      "Application",
+      "Outcome"
+    ],
+    "stylesheets": [
+      "https://koto.com/_next/static/css/9d962bb855f98f76.css?dpl=dpl_58gBy5nGLrUtbaBXsf1KSmfWUDXD",
+      "https://koto.com/_next/static/css/f543a92ba94fbd04.css?dpl=dpl_58gBy5nGLrUtbaBXsf1KSmfWUDXD"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Build confidence through whitespace, pacing, and calm editorial hierarchy.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier.",
+      "Prefer restraint over visual chatter, crowded proof rows, or ornamental chrome."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Showcase carriers should feel curated, low-count, and hierarchically obvious."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Spacing should stay generous enough that the focal move reads in under five seconds.",
+      "Observed section language suggests a structured page rhythm around Channels, Explore, Channels."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include gtKotoheimMono, gtKotoheimMono Fallback.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--font-gt-kotoheim-mono",
+        "value": "\"gtKotoheimMono\",\"gtKotoheimMono Fallback\""
+      },
+      {
+        "name": "--font-gt-kotoheim",
+        "value": "\"gtKotoheim\",\"gtKotoheim Fallback\""
+      },
+      {
+        "name": "--font-gt-kotoheim-condensed",
+        "value": "\"gtKotoheimCondensed\",\"gtKotoheimCondensed Fallback\""
+      },
+      {
+        "name": "--tw-translate-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-translate-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-translate-z",
+        "value": "0"
+      },
+      {
+        "name": "--tw-scale-x",
+        "value": "1"
+      },
+      {
+        "name": "--tw-scale-y",
+        "value": "1"
+      },
+      {
+        "name": "--tw-scale-z",
+        "value": "1"
+      },
+      {
+        "name": "--tw-rotate-x",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-rotate-y",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-rotate-z",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-skew-x",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-skew-y",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-scroll-snap-strictness",
+        "value": "proximity"
+      },
+      {
+        "name": "--tw-border-style",
+        "value": "solid"
+      },
+      {
+        "name": "--tw-gradient-position",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-gradient-from",
+        "value": "#0000"
+      },
+      {
+        "name": "--tw-gradient-via",
+        "value": "#0000"
+      },
+      {
+        "name": "--tw-gradient-to",
+        "value": "#0000"
+      },
+      {
+        "name": "--tw-gradient-stops",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-gradient-via-stops",
+        "value": "initial"
+      },
+      {
+        "name": "--tw-gradient-from-position",
+        "value": "0%"
+      },
+      {
+        "name": "--tw-gradient-via-position",
+        "value": "50%"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "airy"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "sharp"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: airy;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: sharp;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--font-gt-kotoheim-mono: \"gtKotoheimMono\",\"gtKotoheimMono Fallback\";",
+      "--font-gt-kotoheim: \"gtKotoheim\",\"gtKotoheim Fallback\";",
+      "--font-gt-kotoheim-condensed: \"gtKotoheimCondensed\",\"gtKotoheimCondensed Fallback\";",
+      "--tw-translate-x: 0;",
+      "--tw-translate-y: 0;",
+      "--tw-translate-z: 0;",
+      "--tw-scale-x: 1;",
+      "--tw-scale-y: 1;",
+      "--tw-scale-z: 1;",
+      "--tw-rotate-x: initial;",
+      "--tw-rotate-y: initial;",
+      "--tw-rotate-z: initial;",
+      "--tw-skew-x: initial;",
+      "--tw-skew-y: initial;",
+      "--tw-scroll-snap-strictness: proximity;",
+      "--tw-border-style: solid;",
+      "--tw-gradient-position: initial;",
+      "--tw-gradient-from: #0000;",
+      "--tw-gradient-via: #0000;",
+      "--tw-gradient-to: #0000;",
+      "--tw-gradient-stops: initial;",
+      "--tw-gradient-via-stops: initial;",
+      "--tw-gradient-from-position: 0%;",
+      "--tw-gradient-via-position: 50%;"
+    ],
+    "colors": [
+      "#0000",
+      "#fff",
+      "#060606",
+      "#202020",
+      "#2d2d2d",
+      "#989898",
+      "#ccc",
+      "#595959",
+      "#141414",
+      "#ffe800",
+      "#ffffff0d",
+      "#ffffff1a"
+    ],
+    "fonts": [
+      "gtKotoheimMono",
+      "gtKotoheimMono Fallback",
+      "gtKotoheim",
+      "gtKotoheim Fallback"
+    ],
+    "radius_values": [
+      10.0,
+      4.0,
+      4.0,
+      8.0
+    ],
+    "summary": {
+      "density": "airy",
+      "product_proof": "high",
+      "shape_language": "sharp",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-21T04:02:57Z",
+  "degraded": false
+}

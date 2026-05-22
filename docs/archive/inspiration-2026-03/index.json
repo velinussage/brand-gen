@@ -1,0 +1,690 @@
+{
+  "version": 1,
+  "lastRun": "2026-04-21T04:21:33Z",
+  "sources": {
+    "blissful-studio": {
+      "url": "https://blissful-studio.com/project-gallery",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "ramotion": {
+      "url": "https://www.ramotion.com/work",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "clay": {
+      "url": "https://clay.global/work",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "eleken": {
+      "url": "https://www.eleken.co/cases",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "metalab": {
+      "url": "https://www.metalab.com/work",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "the-branx": {
+      "url": "https://thebranx.com",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "uitop": {
+      "url": "https://uitop.design",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "stanvision": {
+      "url": "https://www.stan.vision",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "parallel": {
+      "url": "https://www.parallelhq.com",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "pony-studio": {
+      "url": "https://www.ponystudio.com",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "focus-lab": {
+      "url": "https://www.focuslab.agency/work",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "brix-agency": {
+      "url": "https://brixagency.com",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "cieden": {
+      "url": "https://cieden.com",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "lazarev": {
+      "url": "https://lazarev.agency",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "big-human": {
+      "url": "https://www.bighuman.com",
+      "category": "saas-product-specialists",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "pentagram": {
+      "url": "https://pentagram.com/work",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/pentagram/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "wolff-olins": {
+      "url": "https://wolffolins.com/work",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/wolff-olins/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "ideo": {
+      "url": "https://www.ideo.com/work",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/ideo/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "frog-design": {
+      "url": "https://frogdesign.com/work",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/frog-design/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "designstudio": {
+      "url": "https://design.studio",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/designstudio/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "koto": {
+      "url": "https://koto.studio",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/koto/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "porto-rocha": {
+      "url": "https://portorocha.com",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/porto-rocha/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "ragged-edge": {
+      "url": "https://raggededge.com",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/ragged-edge/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "mouthwash-studio": {
+      "url": "https://mouthwash.studio",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/mouthwash-studio/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "motto": {
+      "url": "https://wearemotto.com",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/motto/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "superside": {
+      "url": "https://www.superside.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "ustwo": {
+      "url": "https://ustwo.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "blink-ux": {
+      "url": "https://blinkux.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "lumi-studio": {
+      "url": "https://lumi.studio",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "goji-labs": {
+      "url": "https://gojilabs.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "momentum-design-lab": {
+      "url": "https://momentum.design",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "halo-lab": {
+      "url": "https://halolab.dev",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "creative-navy": {
+      "url": "https://creativenavy.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "duck-design": {
+      "url": "https://duck.design",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "qub-studio": {
+      "url": "https://qubstudio.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "arounda": {
+      "url": "https://arounda.agency",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "uxda": {
+      "url": "https://uxda.design",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "manypixels": {
+      "url": "https://manypixels.co",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "butchershop": {
+      "url": "https://butchershop.co",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "red-antler": {
+      "url": "https://redantler.com",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "gretel-work": {
+      "url": "https://gretelny.com/work/",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-21T04:02:57Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/gretel-work/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "buck-rebrand": {
+      "url": "https://buck.co/work/buck-rebrand",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/buck-rebrand/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "mother-design-scribd": {
+      "url": "https://www.motherdesign.com/work/scribd",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "porto-rocha-upwork": {
+      "url": "https://www.portorocha.com/upwork/",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/porto-rocha-upwork/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "pentagram-the-wing": {
+      "url": "https://www.pentagram.com/work/the-wing",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/pentagram-the-wing/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "wolff-olins-uber": {
+      "url": "https://wolffolins.com/work/uber",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/wolff-olins-uber/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "koto-work": {
+      "url": "https://koto.com/work",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/koto-work/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "mother-design-home": {
+      "url": "https://www.motherdesign.com/",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "buck-playgrounds-in-motion": {
+      "url": "https://buck.co/work/playgrounds-in-motion",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "buck-zapier-motion-library": {
+      "url": "https://buck.co/work/zapier-motion-library",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "pentagram-jigsaw": {
+      "url": "https://www.pentagram.com/work/jigsaw",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-21T04:02:57Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/pentagram-jigsaw/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "koto-pairpoint": {
+      "url": "https://koto.studio/work/pairpoint/",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-21T04:02:57Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/koto-pairpoint/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "koto-deezer": {
+      "url": "https://koto.studio/work/deezer/",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-20T19:42:47Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/koto-deezer/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "pentagram-poster-house": {
+      "url": "https://www.pentagram.com/work/poster-house",
+      "category": "premium-branding",
+      "status": "complete",
+      "extractedAt": "2026-04-21T04:02:57Z",
+      "error": null,
+      "designMemoryPath": "~/Documents/brand-gen/inspiration/premium-branding/pentagram-poster-house/.design-memory",
+      "warning": null,
+      "extractor": "builtin-semantic",
+      "mode": "metadata-plus-fetch"
+    },
+    "buck-notion-faces": {
+      "url": "https://buck.co/work/notion-faces",
+      "category": "strong-studios",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-minimalist-posters": {
+      "url": "https://www.canva.com/templates/search/minimalist-poster/",
+      "category": "format-poster",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-typographic-posters": {
+      "url": "https://www.canva.com/templates/search/typographic-poster/",
+      "category": "format-poster",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-event-posters": {
+      "url": "https://www.canva.com/templates/search/event-poster/",
+      "category": "format-poster",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-campaign-posters": {
+      "url": "https://www.canva.com/templates/search/campaign-poster/",
+      "category": "format-poster",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-bold-posters": {
+      "url": "https://www.canva.com/templates/search/bold-poster/",
+      "category": "format-poster",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-modern-posters": {
+      "url": "https://www.canva.com/templates/search/modern-poster/",
+      "category": "format-poster",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-instagram-posts": {
+      "url": "https://www.canva.com/templates/search/instagram-post/",
+      "category": "format-social",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-twitter-posts": {
+      "url": "https://www.canva.com/templates/search/twitter-post/",
+      "category": "format-social",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-linkedin-posts": {
+      "url": "https://www.canva.com/templates/search/linkedin-post/",
+      "category": "format-social",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-quote-cards": {
+      "url": "https://www.canva.com/templates/search/quote-card/",
+      "category": "format-social",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-announcement-cards": {
+      "url": "https://www.canva.com/templates/search/announcement/",
+      "category": "format-social",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-stat-cards": {
+      "url": "https://www.canva.com/templates/search/statistics-infographic/",
+      "category": "format-social",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-web-banners": {
+      "url": "https://www.canva.com/templates/search/web-banner/",
+      "category": "format-banner",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-hero-headers": {
+      "url": "https://www.canva.com/templates/search/website-header/",
+      "category": "format-banner",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-email-headers": {
+      "url": "https://www.canva.com/templates/search/email-header/",
+      "category": "format-banner",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-youtube-banners": {
+      "url": "https://www.canva.com/templates/search/youtube-banner/",
+      "category": "format-banner",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-data-infographics": {
+      "url": "https://www.canva.com/templates/search/data-infographic/",
+      "category": "format-infographic",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-process-infographics": {
+      "url": "https://www.canva.com/templates/search/process-infographic/",
+      "category": "format-infographic",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-comparison-infographics": {
+      "url": "https://www.canva.com/templates/search/comparison-infographic/",
+      "category": "format-infographic",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-timeline-infographics": {
+      "url": "https://www.canva.com/templates/search/timeline-infographic/",
+      "category": "format-infographic",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-pitch-decks": {
+      "url": "https://www.canva.com/templates/search/pitch-deck/",
+      "category": "format-presentation",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-minimal-presentations": {
+      "url": "https://www.canva.com/templates/search/minimalist-presentation/",
+      "category": "format-presentation",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    },
+    "canva-dark-presentations": {
+      "url": "https://www.canva.com/templates/search/dark-presentation/",
+      "category": "format-presentation",
+      "status": "pending",
+      "extractedAt": null,
+      "error": null,
+      "designMemoryPath": null
+    }
+  }
+}

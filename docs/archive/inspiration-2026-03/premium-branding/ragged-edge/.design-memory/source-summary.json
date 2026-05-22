@@ -1,0 +1,265 @@
+{
+  "source": {
+    "key": "ragged-edge",
+    "name": "Ragged Edge",
+    "category": "premium-branding",
+    "url": "https://raggededge.com",
+    "notes": "Disruptive startup visuals and bold identity work.",
+    "tags": [
+      "startup",
+      "branding",
+      "bold",
+      "identity",
+      "visuals"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://raggededge.com",
+    "final_url": "https://raggededge.com",
+    "title": "Ragged Edge. A global branding agency proudly based in London.",
+    "meta_description": "Average is easy. We're not interested in average. Ragged Edge helps the world\u2019s most ambitious brands commit to a different reality.",
+    "headings": [
+      "Never be the same again",
+      "Wise",
+      "Papier",
+      "Palmetto",
+      "Tilt",
+      "Marshmallow",
+      "ZOE",
+      "Globe-Trotter",
+      "Eager",
+      "Omlet"
+    ],
+    "stylesheets": [
+      "https://raggededge.com/cpresources/f63577cc/css/formie-theme.css?v=1750250428",
+      "https://raggededge.com/vite/assets/app-DkMS_uoA.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Use one convincing showcase move per frame instead of equal-weight mosaics.",
+      "Use one confident scale shift or crop move rather than many competing gestures.",
+      "Translate identity through repeatable carriers so the system feels deployable across surfaces."
+    ],
+    "constraints": [
+      "Use the source for mechanics, not literal brand assets."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Showcase carriers should feel curated, low-count, and hierarchically obvious."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Observed section language suggests a structured page rhythm around Never be the same again, Wise, Papier."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Strong dark/light contrast carries the hierarchy.",
+      "Accent color should stay disciplined so the system does not become noisy."
+    ],
+    "typography_lines": [
+      "Observed type families include ABCDiatype-Regular, ABCDiatypeExpanded-Bold.",
+      "Keep typography hierarchy clear and low-noise."
+    ],
+    "css_variables": [
+      {
+        "name": "--fui-font",
+        "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif"
+      },
+      {
+        "name": "--fui-font-size",
+        "value": "16px"
+      },
+      {
+        "name": "--fui-color",
+        "value": "#374151"
+      },
+      {
+        "name": "--fui-primary-color",
+        "value": "#516fea"
+      },
+      {
+        "name": "--fui-primary-color-hover",
+        "value": "#2349e5"
+      },
+      {
+        "name": "--fui-error",
+        "value": "#f56565"
+      },
+      {
+        "name": "--fui-success",
+        "value": "#00ae2a"
+      },
+      {
+        "name": "--fui-gray-100",
+        "value": "#f3f4f6"
+      },
+      {
+        "name": "--fui-gray-200",
+        "value": "#e5e7eb"
+      },
+      {
+        "name": "--fui-gray-300",
+        "value": "#d1d5db"
+      },
+      {
+        "name": "--fui-gray-400",
+        "value": "#9ca3af"
+      },
+      {
+        "name": "--fui-gray-500",
+        "value": "#6b7280"
+      },
+      {
+        "name": "--fui-gray-600",
+        "value": "#4b5563"
+      },
+      {
+        "name": "--fui-gray-700",
+        "value": "#374151"
+      },
+      {
+        "name": "--fui-gray-800",
+        "value": "#1f2937"
+      },
+      {
+        "name": "--fui-gray-900",
+        "value": "#111827"
+      },
+      {
+        "name": "--fui-border",
+        "value": "0 solid #d1d5db"
+      },
+      {
+        "name": "--fui-border-radius",
+        "value": "0.25rem"
+      },
+      {
+        "name": "--fui-border-color",
+        "value": "#d1d5db"
+      },
+      {
+        "name": "--fui-focus-border-color",
+        "value": "#a4cafe"
+      },
+      {
+        "name": "--fui-focus-shadow",
+        "value": "0 0 0 3px rgba(164,202,254,.45)"
+      },
+      {
+        "name": "--fui-field-gutter",
+        "value": "1rem"
+      },
+      {
+        "name": "--fui-field-min-width-2col",
+        "value": "15rem"
+      },
+      {
+        "name": "--fui-field-min-width-3col",
+        "value": "12rem"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "medium"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "system"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "expressive"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: medium;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: system;",
+      "--ref-accent-handling: expressive;",
+      "--fui-font: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;",
+      "--fui-font-size: 16px;",
+      "--fui-color: #374151;",
+      "--fui-primary-color: #516fea;",
+      "--fui-primary-color-hover: #2349e5;",
+      "--fui-error: #f56565;",
+      "--fui-success: #00ae2a;",
+      "--fui-gray-100: #f3f4f6;",
+      "--fui-gray-200: #e5e7eb;",
+      "--fui-gray-300: #d1d5db;",
+      "--fui-gray-400: #9ca3af;",
+      "--fui-gray-500: #6b7280;",
+      "--fui-gray-600: #4b5563;",
+      "--fui-gray-700: #374151;",
+      "--fui-gray-800: #1f2937;",
+      "--fui-gray-900: #111827;",
+      "--fui-border: 0 solid #d1d5db;",
+      "--fui-border-radius: 0.25rem;",
+      "--fui-border-color: #d1d5db;",
+      "--fui-focus-border-color: #a4cafe;",
+      "--fui-focus-shadow: 0 0 0 3px rgba(164,202,254,.45);",
+      "--fui-field-gutter: 1rem;",
+      "--fui-field-min-width-2col: 15rem;",
+      "--fui-field-min-width-3col: 12rem;"
+    ],
+    "colors": [
+      "#374151",
+      "#516fea",
+      "#2349e5",
+      "#f56565",
+      "#00ae2a",
+      "#f3f4f6",
+      "#e5e7eb",
+      "#d1d5db",
+      "#9ca3af",
+      "#6b7280",
+      "#4b5563",
+      "#1f2937"
+    ],
+    "fonts": [
+      "ABCDiatype-Regular",
+      "ABCDiatypeExpanded-Bold",
+      "Grit-Regular",
+      "-apple-system"
+    ],
+    "radius_values": [
+      2.0,
+      9999.0,
+      2.0,
+      3.0,
+      3.0,
+      4.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "medium",
+      "shape_language": "rounded",
+      "hierarchy_mode": "system",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:43Z",
+  "degraded": false
+}

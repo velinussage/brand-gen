@@ -1,0 +1,281 @@
+{
+  "source": {
+    "key": "pentagram-poster-house",
+    "name": "Pentagram \u2014 Poster House",
+    "category": "premium-branding",
+    "url": "https://www.pentagram.com/work/poster-house",
+    "notes": "Poster-led identity system with bold framing, modular composition, and print-ready application logic.",
+    "tags": [
+      "poster",
+      "composition",
+      "application",
+      "identity",
+      "print"
+    ],
+    "borrow_mechanics": [
+      "poster application logic",
+      "print hierarchy",
+      "modular framing"
+    ],
+    "avoid_literal": [
+      "their typography",
+      "their logo system",
+      "their exact poster layouts"
+    ],
+    "best_for": [
+      "application",
+      "poster reasoning"
+    ],
+    "direct_generation_risk": "medium"
+  },
+  "snapshot": {
+    "requested_url": "https://www.pentagram.com/work/poster-house",
+    "final_url": "https://www.pentagram.com/work/poster-house",
+    "title": "Poster House",
+    "meta_description": "The brand identity for the first museum of posters in the U.S. acts as a moveable frame.",
+    "headings": [
+      "Pentagram",
+      "Site navigation",
+      "Social links",
+      "Pentagram",
+      "Site navigation",
+      "Poster House",
+      "Client",
+      "Sector",
+      "Discipline",
+      "Office"
+    ],
+    "stylesheets": [
+      "https://www.pentagram.com/build/main/assets/index-CRNzkBXV.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Borrow mechanics such as poster application logic, print hierarchy, modular framing.",
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Build confidence through whitespace, pacing, and calm editorial hierarchy.",
+      "Use one confident scale shift or crop move rather than many competing gestures."
+    ],
+    "constraints": [
+      "Do not borrow literal elements such as their typography, their logo system, their exact poster layouts.",
+      "Treat this as transferable mechanics only, not direct brand truth or copy.",
+      "Keep supporting surfaces subordinate to the main product carrier.",
+      "Prefer restraint over visual chatter, crowded proof rows, or ornamental chrome."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Navigation chrome should stay restrained and low-noise."
+    ],
+    "layout_cues": [
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Spacing should stay generous enough that the focal move reads in under five seconds.",
+      "Observed section language suggests a structured page rhythm around Pentagram, Site navigation, Social links."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include ui-sans-serif, ui-monospace.",
+      "Type should carry hierarchy through scale contrast and restrained support copy."
+    ],
+    "css_variables": [
+      {
+        "name": "--tw-content",
+        "value": "\"\""
+      },
+      {
+        "name": "--breakpoint",
+        "value": "\"xs\""
+      },
+      {
+        "name": "--container-width",
+        "value": "unset"
+      },
+      {
+        "name": "--inner-gutter",
+        "value": "12px"
+      },
+      {
+        "name": "--outer-gutter",
+        "value": "12px"
+      },
+      {
+        "name": "--grid-columns",
+        "value": "6"
+      },
+      {
+        "name": "--env",
+        "value": "\"production\""
+      },
+      {
+        "name": "--grid-column-bg",
+        "value": "rgba(127, 255, 255, .25)"
+      },
+      {
+        "name": "--breakpoint",
+        "value": "\"sm\""
+      },
+      {
+        "name": "--grid-columns",
+        "value": "12"
+      },
+      {
+        "name": "--breakpoint",
+        "value": "\"md\""
+      },
+      {
+        "name": "--outer-gutter",
+        "value": "16px"
+      },
+      {
+        "name": "--breakpoint",
+        "value": "\"lg\""
+      },
+      {
+        "name": "--outer-gutter",
+        "value": "24px"
+      },
+      {
+        "name": "--breakpoint",
+        "value": "\"xl\""
+      },
+      {
+        "name": "--container-width",
+        "value": "1792px"
+      },
+      {
+        "name": "--inner-gutter",
+        "value": "16px"
+      },
+      {
+        "name": "--outer-gutter",
+        "value": "32px"
+      },
+      {
+        "name": "--breakpoint",
+        "value": "\"xxl\""
+      },
+      {
+        "name": "--container-outer-gutter",
+        "value": "0"
+      },
+      {
+        "name": "--breakout-container-outer-gutter",
+        "value": "0"
+      },
+      {
+        "name": "--breakout-outer-gutter",
+        "value": "max(var(--outer-gutter), calc((100% - var(--container-width, 100%)) / 2))"
+      },
+      {
+        "name": "--breakout-container-outer-gutter",
+        "value": "var(--outer-gutter)"
+      },
+      {
+        "name": "--scrollbar-bg",
+        "value": "#fafafa"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "editorial"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: editorial;",
+      "--ref-accent-handling: restrained;",
+      "--tw-content: \"\";",
+      "--breakpoint: \"xs\";",
+      "--container-width: unset;",
+      "--inner-gutter: 12px;",
+      "--outer-gutter: 12px;",
+      "--grid-columns: 6;",
+      "--env: \"production\";",
+      "--grid-column-bg: rgba(127, 255, 255, .25);",
+      "--breakpoint: \"sm\";",
+      "--grid-columns: 12;",
+      "--breakpoint: \"md\";",
+      "--outer-gutter: 16px;",
+      "--breakpoint: \"lg\";",
+      "--outer-gutter: 24px;",
+      "--breakpoint: \"xl\";",
+      "--container-width: 1792px;",
+      "--inner-gutter: 16px;",
+      "--outer-gutter: 32px;",
+      "--breakpoint: \"xxl\";",
+      "--container-outer-gutter: 0;",
+      "--breakout-container-outer-gutter: 0;",
+      "--breakout-outer-gutter: max(var(--outer-gutter), calc((100% - var(--container-width, 100%)) / 2));",
+      "--breakout-container-outer-gutter: var(--outer-gutter);",
+      "--scrollbar-bg: #fafafa;"
+    ],
+    "colors": [
+      "#9ca3af",
+      "#fff",
+      "#000",
+      "#fafafa",
+      "#c1c1c1",
+      "#e8e8e8",
+      "#0000",
+      "#ffffff",
+      "#000000",
+      "#222222",
+      "#f5f5f5",
+      "#e3e4e5"
+    ],
+    "fonts": [
+      "ui-sans-serif",
+      "ui-monospace",
+      "inherit",
+      "Plain"
+    ],
+    "radius_values": [
+      20.0,
+      8.0,
+      9999.0,
+      20.0,
+      8.0,
+      9999.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "rounded",
+      "hierarchy_mode": "editorial",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-21T04:02:56Z",
+  "degraded": false
+}

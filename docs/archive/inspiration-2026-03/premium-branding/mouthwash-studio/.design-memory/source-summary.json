@@ -1,0 +1,258 @@
+{
+  "source": {
+    "key": "mouthwash-studio",
+    "name": "Mouthwash Studio",
+    "category": "premium-branding",
+    "url": "https://mouthwash.studio",
+    "notes": "Fresh branding mockups and campaigns.",
+    "tags": [
+      "branding",
+      "mockups",
+      "campaign",
+      "fresh",
+      "portfolio"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://mouthwash.studio",
+    "final_url": "https://mouthwash.studio",
+    "title": "MOUTHWASH Studio",
+    "meta_description": "Mouthwash Studio is a design studio centered on new ideas and defining experiences, partnering with our generation\u2019s leading brands and innovators to influence culture.",
+    "headings": [
+      "Selected Work",
+      "Industry",
+      "A Holistic Approach",
+      "Capabilities",
+      "Our Ecosystem",
+      "Get in touch"
+    ],
+    "stylesheets": [
+      "https://mouthwash.studio/webfonts/webfonts.css",
+      "https://mouthwash.studio/_nuxt/css/f9fb646.css",
+      "https://mouthwash.studio/_nuxt/css/2c9a124.css",
+      "https://mouthwash.studio/_nuxt/css/defa288.css",
+      "https://mouthwash.studio/_nuxt/css/59aa8e8.css",
+      "https://mouthwash.studio/_nuxt/css/f2e51bf.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Top framing should establish trust quickly and then get out of the way."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around Selected Work, Industry, A Holistic Approach."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include Suisse BP Intl, Suisse Works.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--vh100",
+        "value": "calc(var(--vh, 1vh)*100)"
+      },
+      {
+        "name": "--controls-size",
+        "value": "3rem"
+      },
+      {
+        "name": "--size-xxlarge",
+        "value": "8.6rem"
+      },
+      {
+        "name": "--size-body-lg",
+        "value": "2rem"
+      },
+      {
+        "name": "--pwx",
+        "value": "2.5rem"
+      },
+      {
+        "name": "--size-small",
+        "value": "1.6rem"
+      },
+      {
+        "name": "--size-body",
+        "value": "1.8rem"
+      },
+      {
+        "name": "--size-medium",
+        "value": "2.2rem"
+      },
+      {
+        "name": "--size-large",
+        "value": "4rem"
+      },
+      {
+        "name": "--size-xlarge",
+        "value": "5rem"
+      },
+      {
+        "name": "--size-xxlarge",
+        "value": "7.2rem"
+      },
+      {
+        "name": "--margin-xxl",
+        "value": "20rem"
+      },
+      {
+        "name": "--size-body",
+        "value": "1.6rem"
+      },
+      {
+        "name": "--size-large",
+        "value": "3rem"
+      },
+      {
+        "name": "--size-xlarge",
+        "value": "3.4rem"
+      },
+      {
+        "name": "--size-xxlarge",
+        "value": "4.4rem"
+      },
+      {
+        "name": "--margin-work-top",
+        "value": "12rem"
+      },
+      {
+        "name": "--margin-xl2",
+        "value": "10rem"
+      },
+      {
+        "name": "--margin-xxl",
+        "value": "15rem"
+      },
+      {
+        "name": "--pwx",
+        "value": "2rem"
+      },
+      {
+        "name": "--color-text",
+        "value": "var(--color-white,#fff)!important"
+      },
+      {
+        "name": "--gallery-padding",
+        "value": "8rem"
+      },
+      {
+        "name": "--gallery-padding",
+        "value": "var(--pwx,6rem)"
+      },
+      {
+        "name": "--controls-size",
+        "value": "2.8rem"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "soft"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: soft;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--vh100: calc(var(--vh, 1vh)*100);",
+      "--controls-size: 3rem;",
+      "--size-xxlarge: 8.6rem;",
+      "--size-body-lg: 2rem;",
+      "--pwx: 2.5rem;",
+      "--size-small: 1.6rem;",
+      "--size-body: 1.8rem;",
+      "--size-medium: 2.2rem;",
+      "--size-large: 4rem;",
+      "--size-xlarge: 5rem;",
+      "--size-xxlarge: 7.2rem;",
+      "--margin-xxl: 20rem;",
+      "--size-body: 1.6rem;",
+      "--size-large: 3rem;",
+      "--size-xlarge: 3.4rem;",
+      "--size-xxlarge: 4.4rem;",
+      "--margin-work-top: 12rem;",
+      "--margin-xl2: 10rem;",
+      "--margin-xxl: 15rem;",
+      "--pwx: 2rem;",
+      "--color-text: var(--color-white,#fff)!important;",
+      "--gallery-padding: 8rem;",
+      "--gallery-padding: var(--pwx,6rem);",
+      "--controls-size: 2.8rem;"
+    ],
+    "colors": [
+      "#fff",
+      "#f7f7f7",
+      "#000",
+      "#f1f1f1",
+      "#424242",
+      "#c0c1ba",
+      "#f0f0f0",
+      "#e3e3e3",
+      "#9b9c96",
+      "#767773"
+    ],
+    "fonts": [
+      "Suisse BP Intl",
+      "Suisse Works"
+    ],
+    "radius_values": [
+      21.0,
+      6.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "soft",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:44Z",
+  "degraded": false
+}

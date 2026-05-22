@@ -1,0 +1,264 @@
+{
+  "source": {
+    "key": "motto",
+    "name": "Motto",
+    "category": "premium-branding",
+    "url": "https://wearemotto.com",
+    "notes": "Story-driven brand illustrations and identity systems.",
+    "tags": [
+      "storytelling",
+      "branding",
+      "illustration",
+      "identity",
+      "system"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://wearemotto.com",
+    "final_url": "https://wearemotto.com",
+    "title": "Motto\u00ae | Branding Agency | Ideas Worth Rallying Around\u00ae",
+    "meta_description": "Motto\u00ae is a global strategic branding agency in NYC, London, Berlin, and Dallas, specializing in rebranding innovative tech companies.",
+    "headings": [
+      "Ideas Worth Rallying Around",
+      "IDEAS THAT SHAPE FUTURE",
+      "Great brands are more than famous names. They\u2019re Ideas Worth Rallying Around\u00ae.",
+      "Selectedwork",
+      "Protege Real-world data for AI",
+      "Attend Modern home services",
+      "Ivo Legal contract AI",
+      "Klaviyo Marketing data platform",
+      "PRESS",
+      "ARTICLES"
+    ],
+    "stylesheets": [
+      "https://wearemotto.com/app/themes/motto/static/css/main.css?version=19"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Forms should use low-friction fields with clear hierarchy and minimal decoration."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around Ideas Worth Rallying Around, IDEAS THAT SHAPE FUTURE, Great brands are more than famous names. They\u2019re Ideas Worth Rallying Around\u00ae.."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Strong dark/light contrast carries the hierarchy.",
+      "Accent color should stay disciplined so the system does not become noisy."
+    ],
+    "typography_lines": [
+      "Observed type families include sans, ui-monospace.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--wp--preset--aspect-ratio--square",
+        "value": "1"
+      },
+      {
+        "name": "--wp--preset--aspect-ratio--4-3",
+        "value": "4/3"
+      },
+      {
+        "name": "--wp--preset--aspect-ratio--3-4",
+        "value": "3/4"
+      },
+      {
+        "name": "--wp--preset--aspect-ratio--3-2",
+        "value": "3/2"
+      },
+      {
+        "name": "--wp--preset--aspect-ratio--2-3",
+        "value": "2/3"
+      },
+      {
+        "name": "--wp--preset--aspect-ratio--16-9",
+        "value": "16/9"
+      },
+      {
+        "name": "--wp--preset--aspect-ratio--9-16",
+        "value": "9/16"
+      },
+      {
+        "name": "--wp--preset--color--black",
+        "value": "#000000"
+      },
+      {
+        "name": "--wp--preset--color--cyan-bluish-gray",
+        "value": "#abb8c3"
+      },
+      {
+        "name": "--wp--preset--color--white",
+        "value": "#ffffff"
+      },
+      {
+        "name": "--wp--preset--color--pale-pink",
+        "value": "#f78da7"
+      },
+      {
+        "name": "--wp--preset--color--vivid-red",
+        "value": "#cf2e2e"
+      },
+      {
+        "name": "--wp--preset--color--luminous-vivid-orange",
+        "value": "#ff6900"
+      },
+      {
+        "name": "--wp--preset--color--luminous-vivid-amber",
+        "value": "#fcb900"
+      },
+      {
+        "name": "--wp--preset--color--light-green-cyan",
+        "value": "#7bdcb5"
+      },
+      {
+        "name": "--wp--preset--color--vivid-green-cyan",
+        "value": "#00d084"
+      },
+      {
+        "name": "--wp--preset--color--pale-cyan-blue",
+        "value": "#8ed1fc"
+      },
+      {
+        "name": "--wp--preset--color--vivid-cyan-blue",
+        "value": "#0693e3"
+      },
+      {
+        "name": "--wp--preset--color--vivid-purple",
+        "value": "#9b51e0"
+      },
+      {
+        "name": "--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple",
+        "value": "linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%)"
+      },
+      {
+        "name": "--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan",
+        "value": "linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)"
+      },
+      {
+        "name": "--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange",
+        "value": "linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%)"
+      },
+      {
+        "name": "--wp--preset--gradient--luminous-vivid-orange-to-vivid-red",
+        "value": "linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%)"
+      },
+      {
+        "name": "--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray",
+        "value": "linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%)"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "dense"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "controlled"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: dense;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: controlled;",
+      "--wp--preset--aspect-ratio--square: 1;",
+      "--wp--preset--aspect-ratio--4-3: 4/3;",
+      "--wp--preset--aspect-ratio--3-4: 3/4;",
+      "--wp--preset--aspect-ratio--3-2: 3/2;",
+      "--wp--preset--aspect-ratio--2-3: 2/3;",
+      "--wp--preset--aspect-ratio--16-9: 16/9;",
+      "--wp--preset--aspect-ratio--9-16: 9/16;",
+      "--wp--preset--color--black: #000000;",
+      "--wp--preset--color--cyan-bluish-gray: #abb8c3;",
+      "--wp--preset--color--white: #ffffff;",
+      "--wp--preset--color--pale-pink: #f78da7;",
+      "--wp--preset--color--vivid-red: #cf2e2e;",
+      "--wp--preset--color--luminous-vivid-orange: #ff6900;",
+      "--wp--preset--color--luminous-vivid-amber: #fcb900;",
+      "--wp--preset--color--light-green-cyan: #7bdcb5;",
+      "--wp--preset--color--vivid-green-cyan: #00d084;",
+      "--wp--preset--color--pale-cyan-blue: #8ed1fc;",
+      "--wp--preset--color--vivid-cyan-blue: #0693e3;",
+      "--wp--preset--color--vivid-purple: #9b51e0;",
+      "--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);",
+      "--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);",
+      "--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);",
+      "--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);",
+      "--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);"
+    ],
+    "colors": [
+      "#000000",
+      "#abb8c3",
+      "#ffffff",
+      "#f78da7",
+      "#cf2e2e",
+      "#ff6900",
+      "#fcb900",
+      "#7bdcb5",
+      "#00d084",
+      "#8ed1fc",
+      "#0693e3",
+      "#9b51e0"
+    ],
+    "fonts": [
+      "sans",
+      "ui-monospace",
+      "inherit",
+      "disp"
+    ],
+    "radius_values": [
+      9999.0,
+      9999.0,
+      999.0,
+      999.0,
+      999.0,
+      999.0
+    ],
+    "summary": {
+      "density": "dense",
+      "product_proof": "high",
+      "shape_language": "rounded",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:44Z",
+  "degraded": false
+}

@@ -1,0 +1,263 @@
+{
+  "source": {
+    "key": "wolff-olins-uber",
+    "name": "Wolff Olins \u2014 Uber",
+    "category": "premium-branding",
+    "url": "https://wolffolins.com/work/uber",
+    "notes": "Large-scale platform brand system and narrative reframing; useful for product ecosystems, design language, and trust-signalling clarity.",
+    "tags": [
+      "platform",
+      "brand-system",
+      "narrative",
+      "design-language",
+      "trust",
+      "ecosystem"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://wolffolins.com/work/uber",
+    "final_url": "https://wolffolins.com/work/uber",
+    "title": "Work \u2014 Uber \u2014 Brand Strategy and more \u2014 Wolff Olins",
+    "meta_description": "From app to mobility company",
+    "headings": [
+      "Uber",
+      "Industry",
+      "What We Did",
+      "From app to mobility company",
+      "The cost of hypergrowth",
+      "Moving the brand in the right direction",
+      "Uber",
+      "From app to mobility company",
+      "The cost of hypergrowth",
+      "Moving the brand in the right direction"
+    ],
+    "stylesheets": [
+      "https://wolffolins.com/_next/static/css/d4f92c84ece2c955.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics.",
+      "Use one confident scale shift or crop move rather than many competing gestures."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Forms should use low-friction fields with clear hierarchy and minimal decoration."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around Uber, Industry, What We Did."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Neutral-led palette with restrained chroma.",
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include Monument-Grotesk, ui-monospace.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--tw-content",
+        "value": "\"\""
+      },
+      {
+        "name": "--site-padding",
+        "value": "1.5rem"
+      },
+      {
+        "name": "--site-padding",
+        "value": "2rem"
+      },
+      {
+        "name": "--site-padding",
+        "value": "3.875rem"
+      },
+      {
+        "name": "--site-max-width",
+        "value": "100rem"
+      },
+      {
+        "name": "--full-bleed-margin",
+        "value": "calc(MAX(var(--site-padding),"
+      },
+      {
+        "name": "--indent-alignment",
+        "value": "1em"
+      },
+      {
+        "name": "--tw-border-opacity",
+        "value": "1"
+      },
+      {
+        "name": "--tw-border-spacing-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-border-spacing-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-translate-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-translate-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-rotate",
+        "value": "0"
+      },
+      {
+        "name": "--tw-skew-x",
+        "value": "0"
+      },
+      {
+        "name": "--tw-skew-y",
+        "value": "0"
+      },
+      {
+        "name": "--tw-scale-x",
+        "value": "1"
+      },
+      {
+        "name": "--tw-scale-y",
+        "value": "1"
+      },
+      {
+        "name": "--tw-scroll-snap-strictness",
+        "value": "proximity"
+      },
+      {
+        "name": "--tw-ring-offset-width",
+        "value": "0px"
+      },
+      {
+        "name": "--tw-ring-offset-color",
+        "value": "#fff"
+      },
+      {
+        "name": "--tw-ring-color",
+        "value": "rgba(59,130,246,.5)"
+      },
+      {
+        "name": "--tw-ring-offset-shadow",
+        "value": "0 0 #0000"
+      },
+      {
+        "name": "--tw-ring-shadow",
+        "value": "0 0 #0000"
+      },
+      {
+        "name": "--tw-shadow",
+        "value": "0 0 #0000"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "rounded"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: rounded;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--tw-content: \"\";",
+      "--site-padding: 1.5rem;",
+      "--site-padding: 2rem;",
+      "--site-padding: 3.875rem;",
+      "--site-max-width: 100rem;",
+      "--full-bleed-margin: calc(MAX(var(--site-padding),;",
+      "--indent-alignment: 1em;",
+      "--tw-border-opacity: 1;",
+      "--tw-border-spacing-x: 0;",
+      "--tw-border-spacing-y: 0;",
+      "--tw-translate-x: 0;",
+      "--tw-translate-y: 0;",
+      "--tw-rotate: 0;",
+      "--tw-skew-x: 0;",
+      "--tw-skew-y: 0;",
+      "--tw-scale-x: 1;",
+      "--tw-scale-y: 1;",
+      "--tw-scroll-snap-strictness: proximity;",
+      "--tw-ring-offset-width: 0px;",
+      "--tw-ring-offset-color: #fff;",
+      "--tw-ring-color: rgba(59,130,246,.5);",
+      "--tw-ring-offset-shadow: 0 0 #0000;",
+      "--tw-ring-shadow: 0 0 #0000;",
+      "--tw-shadow: 0 0 #0000;"
+    ],
+    "colors": [
+      "#bfbfbf",
+      "#8a8a8a",
+      "#000",
+      "#fff",
+      "#616161",
+      "#0000",
+      "#818181",
+      "#0003",
+      "#111",
+      "#00ff47",
+      "#fff84b"
+    ],
+    "fonts": [
+      "Monument-Grotesk",
+      "ui-monospace",
+      "inherit",
+      "Untitled-Serif"
+    ],
+    "radius_values": [
+      9999.0,
+      9999.0,
+      9999.0
+    ],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "rounded",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:45Z",
+  "degraded": false
+}

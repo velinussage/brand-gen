@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 try:
+    from . import pipeline_advisory
     from .pipeline_request import PipelineRequest
     from .pipeline_types import (
         CritiqueChecks,
@@ -70,6 +71,7 @@ try:
     from .vlm_critique import refine_prompt_from_vlm_critique, run_vlm_critique
     from .generation_flow import auto_capture_vlm_feedback
 except ImportError:  # pragma: no cover - top-level compatibility for direct imports
+    import pipeline_advisory  # type: ignore
     from pipeline_request import PipelineRequest  # type: ignore
     from pipeline_types import (  # type: ignore
         CritiqueChecks,
@@ -1129,102 +1131,21 @@ class PipelineRunner:
                 warn(f"Pipeline stage callback failed for {stage}: {exc}")
 
     # ------------------------------------------------------------------
-    # Orchestrator advisory
+    # Orchestrator advisory — implementation lives in `pipeline_advisory.py`.
+    # PR-8 extracted these helpers; methods stay so DummyRunner overrides and
+    # test patches continue to work via this delegation layer.
     # ------------------------------------------------------------------
 
-    _ORCHESTRATOR_PREFLIGHT_STAGES = {
-        "route-request",
-        "route_request",
-        "plan-draft",
-        "plan_draft",
-        "critique-plan",
-        "critique_plan",
-        "inspiration-status",
-        "inspiration_status",
-        "export-design-tokens",
-        "export_design_tokens",
-        "validate-brand-fit",
-        "validate_brand_fit",
-    }
-    _ORCHESTRATOR_PREFLIGHT_WINDOW_SECONDS = 30 * 60  # 30 minutes
+    _ORCHESTRATOR_PREFLIGHT_STAGES = pipeline_advisory.ORCHESTRATOR_PREFLIGHT_STAGES
+    _ORCHESTRATOR_PREFLIGHT_WINDOW_SECONDS = pipeline_advisory.ORCHESTRATOR_PREFLIGHT_WINDOW_SECONDS
 
     def _recent_orchestrator_preflight_seen(self) -> tuple[bool, list[str]]:
-        """Scan the run ledger for preflight stages fired in the last 30 minutes.
-        Returns (seen, stage_names_found) so callers can both decide whether to
-        warn and cite what they did see.
-        """
-        import datetime as _dt
-        try:
-            events = load_all_run_events(self.brand_dir, limit=200)
-        except Exception:
-            return (False, [])
-        now = _dt.datetime.now()
-        cutoff = now - _dt.timedelta(seconds=self._ORCHESTRATOR_PREFLIGHT_WINDOW_SECONDS)
-        seen: list[str] = []
-        for evt in events:
-            stage = str(evt.get("stage") or "").strip().lower()
-            event_type = str(evt.get("event_type") or "").strip().lower()
-            ts_raw = str(evt.get("timestamp") or "").strip()
-            if not ts_raw:
-                continue
-            try:
-                ts = _dt.datetime.strptime(ts_raw, "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                continue
-            if ts < cutoff:
-                continue
-            if stage in self._ORCHESTRATOR_PREFLIGHT_STAGES or event_type in self._ORCHESTRATOR_PREFLIGHT_STAGES:
-                label = stage or event_type
-                if label and label not in seen:
-                    seen.append(label)
-        return (bool(seen), seen)
+        return pipeline_advisory.recent_orchestrator_preflight_seen(self.brand_dir)
 
     def _emit_orchestrator_advisory(self, plan_args: argparse.Namespace) -> None:
-        bypass = bool(getattr(plan_args, "bypass_orchestrator", False))
-        reason = str(getattr(plan_args, "bypass_reason", "") or "").strip()
-        seen, found = self._recent_orchestrator_preflight_seen()
-        if seen:
-            # Orchestrator preflight was active recently; pipeline is clearly
-            # running as part of the chain.
-            return
-        if bypass:
-            # Explicit bypass — record it to the ledger and keep going quietly.
-            try:
-                append_run_event(
-                    self.brand_dir,
-                    self.workflow_id,
-                    stage="pipeline",
-                    event_type="orchestrator_bypass",
-                    status="bypass",
-                    notes=reason or "no reason provided",
-                    override_reason=reason or "",
-                    override_actor="bgen-pipeline-cli",
-                )
-            except Exception:
-                pass
-            return
-        # Not bypassed, no orchestrator preflight seen — warn loudly on stderr.
-        import sys as _sys
-        _sys.stderr.write(
-            "\n"
-            "========================================================================\n"
-            "[brand-gen advisory] `bgen pipeline` invoked without the orchestrator\n"
-            "chain in the last 30 minutes. You are about to skip:\n"
-            "  - brand-philosopher WCAG palette audit (export-design-tokens)\n"
-            "  - inspiration-readiness preflight (inspiration-status)\n"
-            "  - brand-critic plan-level P1 pushback (critique-plan)\n"
-            "  - brand-cinematographer shot validation (for video materials)\n"
-            "This is the path that produced the v121-v124 drift documented in\n"
-            "skills/brand-gen/references/recipes.md.\n"
-            "\n"
-            "Recommended: read .claude/agents/brand-orchestrator.md (or .pi/ variant)\n"
-            "             and use the Agent tool / /run brand-orchestrator chain.\n"
-            "Scripting / CI / intentional bypass:\n"
-            "             bgen pipeline --bypass-orchestrator --bypass-reason \"<one-line>\" ...\n"
-            "========================================================================\n"
-            "\n"
+        pipeline_advisory.emit_orchestrator_advisory(
+            self.brand_dir, self.workflow_id, plan_args
         )
-        _sys.stderr.flush()
 
     # ------------------------------------------------------------------
     # Pre-generation helpers
@@ -1476,28 +1397,5 @@ class PipelineRunner:
         return {"passed": True, "auto_retry": False, "reason": "Structural checks passed"}
 
     def _record_iteration_learning(self, gen_result: GenerationResult, quality: dict) -> None:
-        """Write quality-gate failure info to iteration-memory.json so the next attempt benefits."""
-        try:
-            from .iteration_memory import load_iteration_memory, save_iteration_memory, add_iteration_note
-        except ImportError:
-            from iteration_memory import load_iteration_memory, save_iteration_memory, add_iteration_note  # type: ignore
-
-        memory = load_iteration_memory(self.brand_dir)
-        reason = quality.get("reason", "Quality gate failure")
-        note = f"Pipeline auto-retry after quality failure on {gen_result.version_id}: {reason}"
-        memory = add_iteration_note(memory, note, bucket="brand_notes")
-
-        negative_record = {
-            "version": gen_result.version_id,
-            "material_type": "",
-            "summary": f"Quality gate failure: {reason}",
-            "score": 1,
-            "status": "rejected",
-        }
-        existing = memory.get("negative_examples", [])
-        existing = [item for item in existing if item.get("version") != gen_result.version_id]
-        existing.append(negative_record)
-        memory["negative_examples"] = existing[-20:]
-
-        save_iteration_memory(self.brand_dir, memory)
-        print(f"quality_gate: recorded failure learning for {gen_result.version_id}")
+        """Delegates to `pipeline_advisory.record_iteration_learning` (PR-8 extract)."""
+        pipeline_advisory.record_iteration_learning(self.brand_dir, gen_result, quality)

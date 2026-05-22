@@ -1,0 +1,258 @@
+{
+  "source": {
+    "key": "buck-rebrand",
+    "name": "BUCK \u2014 Rebrand",
+    "category": "premium-branding",
+    "url": "https://buck.co/work/buck-rebrand",
+    "notes": "Systematic identity case study with strong wordmark, glyph, communication, and motion thinking; useful for flexible brand systems.",
+    "tags": [
+      "branding",
+      "identity-system",
+      "motion",
+      "wordmark",
+      "glyphs",
+      "systematic"
+    ],
+    "borrow_mechanics": [],
+    "avoid_literal": [],
+    "best_for": [],
+    "direct_generation_risk": ""
+  },
+  "snapshot": {
+    "requested_url": "https://buck.co/work/buck-rebrand",
+    "final_url": "https://buck.co/work/buck-rebrand",
+    "title": "BUCK Rebrand | BUCK",
+    "meta_description": "\u201cWhen I am working on a problem, I never think about beauty but when I have finished, if the solution is not beautiful, I know it\u2019s wrong.\u201d - R. Buckminster Fuller",
+    "headings": [
+      "BUCK Rebrand",
+      "BUCK",
+      "Executive Creative Director",
+      "Group Creative Director",
+      "Executive Producer",
+      "Creative Director",
+      "Producer",
+      "Production Coordinator",
+      "Art Director",
+      "Director of Creative Technology"
+    ],
+    "stylesheets": [
+      "https://buck.co/_next/static/css/53f4734a8fa9c872adb0.css"
+    ],
+    "warnings": []
+  },
+  "analysis": {
+    "doctrine": [
+      "Lead with crisp product proof and keep decorative atmosphere secondary.",
+      "Use one convincing showcase move per frame instead of equal-weight mosaics."
+    ],
+    "constraints": [
+      "Keep supporting surfaces subordinate to the main product carrier."
+    ],
+    "anti_patterns": [
+      "Avoid collage layouts, equal-weight panels, or too many simultaneous focal points.",
+      "Avoid generic gradients, novelty effects, or decorative chrome that weakens trust.",
+      "Avoid foreign logos, literal copy, or source-specific brand assets in generated work."
+    ],
+    "component_cues": [
+      "Case-study carriers should read as editorial proof, not mosaics."
+    ],
+    "layout_cues": [
+      "Layouts should read as curated proof sequences with strong margins and clear grouping.",
+      "Composition should anchor around one product frame or proof surface before any supporting insets.",
+      "Observed section language suggests a structured page rhythm around BUCK Rebrand, BUCK, Executive Creative Director."
+    ],
+    "motion_cues": [
+      "Motion should stay restrained and support the main reveal instead of becoming the story.",
+      "Use brief transitions and gentle transforms rather than long ambient animation loops."
+    ],
+    "palette_lines": [
+      "Strong dark/light contrast carries the hierarchy.",
+      "One restrained accent should carry emphasis rather than many competing tones."
+    ],
+    "typography_lines": [
+      "Observed type families include system-ui, SFMono-Regular.",
+      "Use a direct headline with quieter secondary copy and labels."
+    ],
+    "css_variables": [
+      {
+        "name": "--chakra-ring-inset",
+        "value": "var(--chakra-empty,/*!*/ /*!*/)"
+      },
+      {
+        "name": "--chakra-ring-offset-width",
+        "value": "0px"
+      },
+      {
+        "name": "--chakra-ring-offset-color",
+        "value": "#fff"
+      },
+      {
+        "name": "--chakra-ring-color",
+        "value": "rgba(66, 153, 225, 0.6)"
+      },
+      {
+        "name": "--chakra-ring-offset-shadow",
+        "value": "0 0 #0000"
+      },
+      {
+        "name": "--chakra-ring-shadow",
+        "value": "0 0 #0000"
+      },
+      {
+        "name": "--chakra-space-x-reverse",
+        "value": "0"
+      },
+      {
+        "name": "--chakra-space-y-reverse",
+        "value": "0"
+      },
+      {
+        "name": "--chakra-colors-transparent",
+        "value": "transparent"
+      },
+      {
+        "name": "--chakra-colors-current",
+        "value": "currentColor"
+      },
+      {
+        "name": "--chakra-colors-black",
+        "value": "#000000"
+      },
+      {
+        "name": "--chakra-colors-white",
+        "value": "#FFFFFF"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-50",
+        "value": "rgba(255, 255, 255, 0.04)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-100",
+        "value": "rgba(255, 255, 255, 0.06)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-200",
+        "value": "rgba(255, 255, 255, 0.08)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-300",
+        "value": "rgba(255, 255, 255, 0.16)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-400",
+        "value": "rgba(255, 255, 255, 0.24)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-500",
+        "value": "rgba(255, 255, 255, 0.36)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-600",
+        "value": "rgba(255, 255, 255, 0.48)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-700",
+        "value": "rgba(255, 255, 255, 0.64)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-800",
+        "value": "rgba(255, 255, 255, 0.80)"
+      },
+      {
+        "name": "--chakra-colors-whiteAlpha-900",
+        "value": "rgba(255, 255, 255, 0.92)"
+      },
+      {
+        "name": "--chakra-colors-blackAlpha-50",
+        "value": "rgba(0, 0, 0, 0.04)"
+      },
+      {
+        "name": "--chakra-colors-blackAlpha-100",
+        "value": "rgba(0, 0, 0, 0.06)"
+      }
+    ],
+    "synthetic_css_variables": [
+      {
+        "name": "--ref-visual-density",
+        "value": "balanced"
+      },
+      {
+        "name": "--ref-product-proof-emphasis",
+        "value": "high"
+      },
+      {
+        "name": "--ref-shape-language",
+        "value": "mixed"
+      },
+      {
+        "name": "--ref-hierarchy-mode",
+        "value": "product"
+      },
+      {
+        "name": "--ref-accent-handling",
+        "value": "restrained"
+      }
+    ],
+    "merged_css_variables": [
+      "--ref-visual-density: balanced;",
+      "--ref-product-proof-emphasis: high;",
+      "--ref-shape-language: mixed;",
+      "--ref-hierarchy-mode: product;",
+      "--ref-accent-handling: restrained;",
+      "--chakra-ring-inset: var(--chakra-empty,/*!*/ /*!*/);",
+      "--chakra-ring-offset-width: 0px;",
+      "--chakra-ring-offset-color: #fff;",
+      "--chakra-ring-color: rgba(66, 153, 225, 0.6);",
+      "--chakra-ring-offset-shadow: 0 0 #0000;",
+      "--chakra-ring-shadow: 0 0 #0000;",
+      "--chakra-space-x-reverse: 0;",
+      "--chakra-space-y-reverse: 0;",
+      "--chakra-colors-transparent: transparent;",
+      "--chakra-colors-current: currentColor;",
+      "--chakra-colors-black: #000000;",
+      "--chakra-colors-white: #FFFFFF;",
+      "--chakra-colors-whiteAlpha-50: rgba(255, 255, 255, 0.04);",
+      "--chakra-colors-whiteAlpha-100: rgba(255, 255, 255, 0.06);",
+      "--chakra-colors-whiteAlpha-200: rgba(255, 255, 255, 0.08);",
+      "--chakra-colors-whiteAlpha-300: rgba(255, 255, 255, 0.16);",
+      "--chakra-colors-whiteAlpha-400: rgba(255, 255, 255, 0.24);",
+      "--chakra-colors-whiteAlpha-500: rgba(255, 255, 255, 0.36);",
+      "--chakra-colors-whiteAlpha-600: rgba(255, 255, 255, 0.48);",
+      "--chakra-colors-whiteAlpha-700: rgba(255, 255, 255, 0.64);",
+      "--chakra-colors-whiteAlpha-800: rgba(255, 255, 255, 0.80);",
+      "--chakra-colors-whiteAlpha-900: rgba(255, 255, 255, 0.92);",
+      "--chakra-colors-blackAlpha-50: rgba(0, 0, 0, 0.04);",
+      "--chakra-colors-blackAlpha-100: rgba(0, 0, 0, 0.06);"
+    ],
+    "colors": [
+      "#fff",
+      "#0000",
+      "#000000",
+      "#ffffff",
+      "#f7fafc",
+      "#edf2f7",
+      "#e2e8f0",
+      "#cbd5e0",
+      "#a0aec0",
+      "#718096",
+      "#4a5568",
+      "#2d3748"
+    ],
+    "fonts": [
+      "system-ui",
+      "SFMono-Regular",
+      "inherit",
+      "Mabry"
+    ],
+    "radius_values": [],
+    "summary": {
+      "density": "balanced",
+      "product_proof": "high",
+      "shape_language": "mixed",
+      "hierarchy_mode": "product",
+      "degraded": false
+    }
+  },
+  "generated_at": "2026-04-20T19:42:46Z",
+  "degraded": false
+}
