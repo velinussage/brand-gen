@@ -904,6 +904,7 @@ def _surface_size(material_type: str, *, layout_spec: LayoutSpec | None = None, 
         return (1600, 1000)
     return {
         "social": (1200, 1200),
+        "x-banner": (1500, 500),
         "x-feed": (1600, 900),
         "carousel-slide": (1600, 900),
         "content-card-square": (1200, 1200),

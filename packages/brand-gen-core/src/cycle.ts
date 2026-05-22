@@ -7,14 +7,14 @@ import type {
   JournalEntry,
   LoggerLike,
   PluginConfig,
-} from "./types.ts";
+} from "./types.js";
 import {
   DISCOVER_TIMEOUT_MS,
   GENERATE_TIMEOUT_MS,
   HEARTBEAT_CYCLE_TIMEOUT_MS,
   ORPHAN_MINUTES,
-} from "./types.ts";
-import { GOAL_CATALOG, MATERIAL_TYPES, type MaterialType } from "./goals.ts";
+} from "./types.js";
+import { GOAL_CATALOG, MATERIAL_TYPES, type MaterialType } from "./goals.js";
 import {
   appendJournal,
   completeJournal,
@@ -28,13 +28,13 @@ import {
   patchLearnings,
   patchJournalEntry,
   rateJournalEntry,
-} from "./memory.ts";
+} from "./memory.js";
 import {
   loadBrandIdentitySummary,
   readJsonFile,
   resolveActiveWorkspace,
-} from "./workspace.ts";
-import { extractJsonFromMcpResult } from "./context.ts";
+} from "./workspace.js";
+import { extractJsonFromMcpResult } from "./context.js";
 
 // ---------------------------------------------------------------------------
 // Utilities

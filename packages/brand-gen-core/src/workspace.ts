@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import type { ActiveWorkspace, BrandGenConfig, PluginConfig } from "./types.ts";
+import type { ActiveWorkspace, BrandGenConfig, PluginConfig } from "./types.js";
 
 export function expandHome(value: string): string {
   if (!value) return value;

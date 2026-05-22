@@ -158,6 +158,12 @@ from .commands.policy import (
     cmd_reject_action,
     cmd_set_policy,
 )
+from .commands.harness import (
+    cmd_run_list,
+    cmd_run_show,
+    cmd_run_replay,
+    cmd_rebuild_run_index,
+)
 
 
 @dataclass(frozen=True)
@@ -321,6 +327,10 @@ COMMAND_SPECS = [
     command_spec('show-workflow-lineage', cmd_show_workflow_lineage, 'Show blackboard lineage and saved artifact paths for a workflow_id.'),
     command_spec('list-runs', cmd_list_runs, 'List projected Run objects from the run ledger. Filter by status or material type.'),
     command_spec('get-run', cmd_get_run, 'Fetch a projected Run object by workflow id (aka run_id).'),
+    command_spec('run-list', cmd_run_list, 'List registered campaign runs in the harness index layer.'),
+    command_spec('run-show', cmd_run_show, 'Show detailed event telemetry and timeline for a campaign run.'),
+    command_spec('run-replay', cmd_run_replay, 'Reconstruct and project campaign state by replaying its event ledger.'),
+    command_spec('rebuild-run-index', cmd_rebuild_run_index, 'Rebuild the runs index file from raw campaign run event files.'),
     command_spec('get-plan', cmd_get_plan, 'Fetch a plan-draft artifact by run-id (most recent) or by explicit path.'),
     command_spec('get-critique', cmd_get_critique, 'Fetch a plan-critique artifact by run-id (most recent) or by explicit path.'),
     command_spec('get-scratchpad', cmd_get_scratchpad, 'Fetch a generation-scratchpad artifact by run-id (most recent) or by explicit path.'),

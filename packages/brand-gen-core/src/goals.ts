@@ -1,4 +1,4 @@
-import type { GoalEntry } from "./types.ts";
+import type { GoalEntry } from "./types.js";
 
 /**
  * Material types supported by brand_pipeline.

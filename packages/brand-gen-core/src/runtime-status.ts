@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import type { PluginConfig, RuntimeStatusMarker } from "./types.ts";
-import { journalPathForWorkspace, learningsPathForWorkspace } from "./memory.ts";
-import { resolveActiveWorkspace } from "./workspace.ts";
+import type { PluginConfig, RuntimeStatusMarker } from "./types.js";
+import { journalPathForWorkspace, learningsPathForWorkspace } from "./memory.js";
+import { resolveActiveWorkspace } from "./workspace.js";
 
 function ensureDir(path: string): void {
   mkdirSync(path, { recursive: true });

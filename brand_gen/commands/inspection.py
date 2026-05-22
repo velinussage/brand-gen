@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from ..inspiration_board import build_inspiration_board_summary, inspiration_board_path, load_inspiration_board
 from ..context_surfaces import (
     build_capabilities_payload,
@@ -913,15 +915,32 @@ def cmd_inspiration_status(args):
             ]
         else:
             sources = []
+        inspiration_index = {}
+        try:
+            index_path = brand_gen_dir / "inspiration" / "index.json"
+            inspiration_index = (json.loads(index_path.read_text()).get("sources") or {}) if index_path.exists() else {}
+        except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+            inspiration_index = {}
         for source in sources:
             key = str(source.get("key") or source.get("source") or "").strip()
             if not key:
                 continue
             category = source.get("category") or ""
-            dm_dir = brand_gen_dir / "inspiration" / category / key / ".design-memory"
-            entry = {"key": key, "category": category, "design_memory_path": str(dm_dir)}
+            indexed = inspiration_index.get(key) or {}
+            indexed_dm = str(indexed.get("designMemoryPath") or "").strip()
+            candidate_dirs = []
+            if indexed_dm:
+                candidate_dirs.append(Path(indexed_dm).expanduser())
+            if category:
+                candidate_dirs.append(brand_gen_dir / "inspiration" / category / key / ".design-memory")
+            else:
+                candidate_dirs.append(brand_gen_dir / "inspiration" / key / ".design-memory")
+                if (brand_gen_dir / "inspiration").exists():
+                    candidate_dirs.extend((brand_gen_dir / "inspiration").glob(f"*/{key}/.design-memory"))
+            dm_dir = next((p for p in candidate_dirs if p.exists()), candidate_dirs[0] if candidate_dirs else (brand_gen_dir / "inspiration" / key / ".design-memory"))
+            entry = {"key": key, "category": category or indexed.get("category") or "", "design_memory_path": str(dm_dir)}
             configured.append(entry)
-            if dm_dir.exists():
+            if dm_dir.exists() or indexed.get("status") == "complete":
                 extracted.append(key)
             else:
                 pending.append(key)

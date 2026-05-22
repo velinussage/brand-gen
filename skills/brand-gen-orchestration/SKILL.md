@@ -76,7 +76,7 @@ Every testing-batch material has a `material_prompt_profile` from `data/material
 
 ### Sage product-truth rule
 
-For Sage capability materials, lead with agents gaining trusted reusable capabilities from governed skill/prompt libraries. Use allowed nouns such as skill libraries, prompt libraries, skills, prompts, MCP tools, agents, library manifests, curated capabilities, reusable capabilities, and agent workflows. Governance/review/promotion is a trust substrate or badge, not the visual hero, unless the ask explicitly requests governance education or a proposal snapshot. Avoid invented taxonomy (`Prompt Pack`, `System of Provenance`, `Approved Library Update`), fake product modules/screens, and logo-as-content substitutes.
+For Sage capability materials, lead with governed skill/prompt libraries turning trusted reusable capabilities into runtime defaults. Use allowed nouns such as skill libraries, prompt libraries, skills, prompts, MCP tools, library manifests, curated capabilities, reusable capabilities, default capability slots, abstract runtimes, and finished workflow artifacts. Governance/review/promotion is a trust substrate or badge, not the visual hero, unless the ask explicitly requests governance education or a proposal snapshot. Avoid invented taxonomy (`Prompt Pack`, `System of Provenance`, `Approved Library Update`), fake product modules/screens, and logo-as-content substitutes. Ideate visible framings from Obsidian/source knowledge and the conversation by default — selection sieve, fat-skills/thin-harness layer, tokenized-taste canon, execution DAG compounds, RLM memory loop, category constellation, etc. Generic switchboard/hub is too broad for a default and should only appear when explicitly requested.
 
 ### Aesthetic capsule rule
 
@@ -283,13 +283,13 @@ Critical steps (do not skip):
    Convert these into explicit preserve / push / ban / mode / reference decisions.
    Do not continue with only a generic paraphrase.
 
-6. **Inspiration-set pass (mandatory for illustration-first work)** — Run `bgen inspiration-status --format json` on every non-motion run, not just hybrid/inspiration. For standalone illustration requests ("just the illustration", "not the full landing page", "right-side artwork", "standalone illustration"), you must inspect and name an inspiration set before planning:
+6. **Inspiration-set pass (mandatory for all non-motion work)** — Run `bgen inspiration-status --format json` on every non-motion run, not just hybrid/inspiration. If configured sources are pending, run `bgen extract-inspiration --source <key>` for each pending source and then `bgen consolidate-inspiration --format json` before planning. You must inspect and name an inspiration set before planning:
    - at least 3 inspiration sources total
    - at least 1 composition / spatial ref
    - at least 1 narrative-system ref
    - at least 1 rendering / finish ref
 
-   If that set is missing or weak, stop and report the gap instead of proceeding with generic planning.
+   If that set is missing or weak, stop and report the gap instead of proceeding with generic planning. Reference mode is not an escape hatch: prior internal versions can support product truth, but external/curated inspiration evidence must be present so the pipeline does not collapse into self-referential drift.
 
 7. **Concept diversity** — Read `creative_context.concept_categories`. Check recent
    generations. Auto-select the least illustrated concept if the caller did not

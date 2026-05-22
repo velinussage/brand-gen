@@ -138,11 +138,10 @@ _ORCHESTRATION_TOOLS: tuple[str, ...] = (
 
 AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
     AgentSpecialization(
-        agent_id="brand-orchestrator",
+        agent_id="orchestrator",
         role=(
-            "Default entry point. Calls brand_orchestrate_material for "
-            "the full 6-phase pipeline; handles stop_reason by dispatching "
-            "to mutation tools or to specialist agents."
+            "Default entry point. Campaigns control plane execution, handling "
+            "stop reasons by routing tasks."
         ),
         canonical_tools=_ORCHESTRATION_TOOLS
         + _INSPECTION_TOOLS
@@ -152,77 +151,25 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
         may_call_orchestrator=False,
     ),
     AgentSpecialization(
-        agent_id="brand-explorer",
+        agent_id="strategist",
         role=(
-            "Read-only workspace snapshot. Returns a single structured "
-            "context payload."
-        ),
-        canonical_tools=_INSPECTION_TOOLS,
-        read_only=True,
-    ),
-    AgentSpecialization(
-        agent_id="brand-router",
-        role=(
-            "Read-only route selection. Reads workspace state + material "
-            "type, returns a typed route decision."
-        ),
-        canonical_tools=_INSPECTION_TOOLS,
-        read_only=True,
-    ),
-    AgentSpecialization(
-        agent_id="brand-planner",
-        role=(
-            "Produces a plan draft targeting the v2 rubric axes. Calls "
-            "plan-run + rubric inspection verbs; may call orchestrator "
-            "for full-pipeline execution."
+            "Cultivates design philosophy, builds campaign briefs, drafts creative "
+            "plan proposals, and manages brand variables."
         ),
         canonical_tools=(
             "brand_plan_run",
             "brand_validate_run",
         )
         + _INSPECTION_TOOLS
-        + _PREP_MUTATIONS,
+        + _PREP_MUTATIONS
+        + _PHILOSOPHER_MUTATIONS,
         may_call_orchestrator=True,
     ),
     AgentSpecialization(
-        agent_id="brand-critic",
+        agent_id="art-director",
         role=(
-            "Quality gate. Runs critique-rubric (v2 DSPy when available), "
-            "applies AI Slop Check, records bans via typed mutation tools."
-        ),
-        canonical_tools=(
-            "brand_validate_run",
-            "brand_review_run",
-        )
-        + _INSPECTION_TOOLS
-        + _CRITIC_MUTATIONS,
-    ),
-    AgentSpecialization(
-        agent_id="brand-generator",
-        role=(
-            "Executes generation from an approved plan. Calls execute-run; "
-            "returns image paths + version id."
-        ),
-        canonical_tools=(
-            "brand_execute_run",
-            "brand_context_snapshot",
-            "brand_show_blackboard",
-            "brand_capabilities",
-        ),
-    ),
-    AgentSpecialization(
-        agent_id="brand-philosopher",
-        role=(
-            "Owns design philosophy + custom scratchpad + motion grammar "
-            "+ brand identity palette/typography/devices."
-        ),
-        canonical_tools=_PHILOSOPHER_MUTATIONS + _PREP_MUTATIONS + _INSPECTION_TOOLS,
-    ),
-    AgentSpecialization(
-        agent_id="brand-cinematographer",
-        role=(
-            "Video-only shot design specialist. Reads motion grammar, "
-            "assembles seedance prompts, validates with 7-rule checklist."
+            "Shot-design specialist. Translates creative intent into cinematography "
+            "shot layouts, motion grammars, and visual directions."
         ),
         canonical_tools=(
             "brand_execute_run",
@@ -234,16 +181,89 @@ AGENT_SPECIALIZATIONS: tuple[AgentSpecialization, ...] = (
         ),
     ),
     AgentSpecialization(
-        agent_id="brand-interviewer",
+        agent_id="prompt-engineer",
         role=(
-            "Brand-creation specialist. Onboards new brands by gap-filling "
-            "identity + scratchpad through structured dialogue."
+            "Translates visual directions, creative intent, and brand aesthetics "
+            "into high-fidelity, descriptive image prompts."
         ),
         canonical_tools=(
-            "brand_update_palette",
-            "brand_update_typography",
-            "brand_update_devices",
-            "brand_append_custom_scratchpad_note",
+            "brand_build_generation_scratchpad",
+            "brand_context_snapshot",
+            "brand_show_blackboard",
+            "brand_capabilities",
+        ),
+    ),
+    AgentSpecialization(
+        agent_id="generator",
+        role=(
+            "Executes generation from approved plans. Chooses models within "
+            "allowed policies."
+        ),
+        canonical_tools=(
+            "brand_execute_run",
+            "brand_context_snapshot",
+            "brand_show_blackboard",
+            "brand_capabilities",
+        ),
+    ),
+    AgentSpecialization(
+        agent_id="product-truth-reviewer",
+        role=(
+            "Critique panelist focused on Sage product truth, value-proposition "
+            "fidelity, and meaning clarity."
+        ),
+        canonical_tools=(
+            "brand_validate_run",
+            "brand_review_run",
+            "brand_context_snapshot",
+            "brand_show_blackboard",
+            "brand_submit_review",
+            "brand_feedback",
+        ),
+    ),
+    AgentSpecialization(
+        agent_id="critic-composition",
+        role=(
+            "Critique panelist focused on layout hierarchy, whitespace balance, "
+            "graphic devices, and visual slop checks."
+        ),
+        canonical_tools=(
+            "brand_validate_run",
+            "brand_review_run",
+            "brand_context_snapshot",
+            "brand_show_blackboard",
+            "brand_submit_review",
+            "brand_feedback",
+        ),
+    ),
+    AgentSpecialization(
+        agent_id="critic-copy",
+        role=(
+            "Critique panelist focused on typography legibility, copy alignment, "
+            "copy slop check, and WCAG contrast audit rules."
+        ),
+        canonical_tools=(
+            "brand_validate_run",
+            "brand_review_run",
+            "brand_context_snapshot",
+            "brand_show_blackboard",
+            "brand_submit_review",
+            "brand_feedback",
+        ),
+    ),
+    AgentSpecialization(
+        agent_id="synthesizer",
+        role=(
+            "Campaign dossier compiler. Synthesizes inputs from the critique panel "
+            "and formats the campaign review packet."
+        ),
+        canonical_tools=(
+            "brand_validate_run",
+            "brand_review_run",
+            "brand_context_snapshot",
+            "brand_show_blackboard",
+            "brand_submit_review",
+            "brand_feedback",
         )
         + _INSPECTION_TOOLS,
     ),

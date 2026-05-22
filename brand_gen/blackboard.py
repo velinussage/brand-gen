@@ -613,6 +613,32 @@ def build_blackboard_feedback_directives(
             "Recent Sage feedback says v189-v191 were only 3/5 because the style repeated too closely; force a style shift before generation."
         )
 
+    if any(
+        token in blob
+        for token in (
+            "semi-realistic",
+            "semi realistic",
+            "robot/agent-workshop",
+            "robot workshop",
+            "robots editing",
+            "central hub",
+            "central area",
+            "switchboard compositions",
+            "agents edit/push artifacts",
+        )
+    ):
+        push.append(
+            "Prioritize a fresh framing over character/workshop scenes: use flat graphic/editorial systems, mark-derived lattice/path motifs, standard-library shelves, maps, proof-poster hierarchy, abstract capability artifacts, or another sourced framing not used recently."
+        )
+        ban.append(
+            "defaulting to semi-realistic robot or humanoid agent workshop scenes, central hub/switchboard compositions, or characters editing/pushing artifacts inward unless explicitly requested"
+        )
+        warnings.append(
+            "Recent Sage feedback rejected semi-realistic robot/central-hub repetition; choose a new framing unless the user asks for that one."
+        )
+        visual_density_cap = 4 if visual_density_cap is None else min(visual_density_cap, 4)
+        complexity_tier_hint = "simple"
+
     if (material_key == "website_hero_illustration" or raw_material_key == "website_hero_illustration") and any(token in blob for token in ("full hero section", "side illustration", "right or left side", "left side", "right side", "sidecar")):
         push.append(
             "Compose as a sidecar hero illustration for the left or right of separate hero text: symbolic product-grounded art, no headline block, no CTA, no full page layout."

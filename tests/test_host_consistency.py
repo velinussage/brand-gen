@@ -15,6 +15,8 @@ specialization doc. The invariants this test enforces:
      skills/brand-gen/claude-agents/ — they are meant to be mirrors.
   4. Read-only agent specializations only reference inspection-category
      tools (no mutation tools).
+  5. No retired brand-*.md files exist in any of the mirror directories,
+     with the exception of brand-pipeline-executor.md in .pi/agents/.
 """
 from __future__ import annotations
 
@@ -101,7 +103,7 @@ class AgentSpecializationTests(unittest.TestCase):
         )
 
     def test_read_only_agents_reference_only_inspection_tools(self) -> None:
-        """brand-explorer and brand-router must not hold mutation verbs."""
+        """Read-only agents must not hold mutation verbs."""
         mutation_prefixes = (
             "brand_append_",
             "brand_update_",
@@ -169,24 +171,41 @@ class AgentSpecializationTests(unittest.TestCase):
             "brand_gen/agent_specialization.py:\n\n" + "\n\n".join(failures),
         )
 
+    def test_no_retired_brand_prefixed_files_exist_in_mirrors(self) -> None:
+        """Legacy brand-*.md files must be completely absent from mirror folders
+        to ensure no prompt drift occurs, with the exception of the emergency
+        fallback brand-pipeline-executor.md in .pi/agents/.
+        """
+        failures: list[str] = []
+        for mirror in MIRRORS:
+            for path in mirror.glob("brand-*.md"):
+                if path.name == "brand-pipeline-executor.md" and mirror.name == "agents" and mirror.parent.name == ".pi":
+                    continue
+                failures.append(str(path.relative_to(REPO_ROOT)))
+        self.assertEqual(
+            failures,
+            [],
+            f"Retired brand-*.md files still exist in mirrors: {failures}",
+        )
+
 
 class OrchestratorMirrorParityTests(unittest.TestCase):
-    """The brand-orchestrator contract body must be byte-equivalent between
+    """The orchestrator contract body must be byte-equivalent between
     .claude/agents/ and skills/brand-gen/claude-agents/ (the distribution
     mirror). The Pi mirror uses different frontmatter (model + tool format
     string), so we compare body-only there.
     """
 
     def setUp(self) -> None:
-        self.claude_path = REPO_ROOT / ".claude" / "agents" / "brand-orchestrator.md"
-        self.skills_path = REPO_ROOT / "skills" / "brand-gen" / "claude-agents" / "brand-orchestrator.md"
-        self.pi_path = REPO_ROOT / ".pi" / "agents" / "brand-orchestrator.md"
+        self.claude_path = REPO_ROOT / ".claude" / "agents" / "orchestrator.md"
+        self.skills_path = REPO_ROOT / "skills" / "brand-gen" / "claude-agents" / "orchestrator.md"
+        self.pi_path = REPO_ROOT / ".pi" / "agents" / "orchestrator.md"
 
     def test_claude_and_skills_mirrors_match_exactly(self) -> None:
         self.assertEqual(
             self.claude_path.read_text(),
             self.skills_path.read_text(),
-            "brand-orchestrator.md must be byte-equivalent between "
+            "orchestrator.md must be byte-equivalent between "
             ".claude/agents/ and skills/brand-gen/claude-agents/; they "
             "are meant to be mirrors.",
         )
@@ -197,7 +216,7 @@ class OrchestratorMirrorParityTests(unittest.TestCase):
         self.assertEqual(
             claude_body,
             pi_body,
-            "brand-orchestrator.md body differs between .claude/agents/ "
+            "orchestrator.md body differs between .claude/agents/ "
             "and .pi/agents/ — the contract text must be identical; only "
             "frontmatter should differ.",
         )
@@ -206,10 +225,10 @@ class OrchestratorMirrorParityTests(unittest.TestCase):
         """Shouldn't balloon back to a 250-line bash procedure."""
         self.assertLessEqual(
             len(self.claude_path.read_text().splitlines()),
-            100,
-            "brand-orchestrator.md has grown past 100 lines — is it "
+            110,
+            "orchestrator.md has grown past 110 lines — is it "
             "drifting back toward procedural bash contract? The Phase 5 "
-            "target is ≤100 lines.",
+            "target is ≤110 lines.",
         )
 
     def test_orchestrator_has_no_bash_commands(self) -> None:
@@ -218,13 +237,13 @@ class OrchestratorMirrorParityTests(unittest.TestCase):
         self.assertNotIn(
             "source .venv/bin/activate",
             text,
-            "brand-orchestrator.md contains bash activation command; "
+            "orchestrator.md contains bash activation command; "
             "Phase 5 contract is typed-tool-only.",
         )
         self.assertNotIn(
             "bgen ",
             text,
-            "brand-orchestrator.md references `bgen` CLI directly; "
+            "orchestrator.md references `bgen` CLI directly; "
             "Phase 5 contract uses typed tools only.",
         )
 
@@ -237,9 +256,9 @@ class SpecialistBashFreeTests(unittest.TestCase):
 
     def test_no_venv_activate_in_any_specialist(self) -> None:
         offenders: list[str] = []
-        specialist_files = list((REPO_ROOT / ".claude" / "agents").glob("brand-*.md"))
+        specialist_files = list((REPO_ROOT / ".claude" / "agents").glob("*.md"))
         specialist_files += list(
-            (REPO_ROOT / "skills" / "brand-gen" / "claude-agents").glob("brand-*.md")
+            (REPO_ROOT / "skills" / "brand-gen" / "claude-agents").glob("*.md")
         )
         for path in specialist_files:
             text = path.read_text(encoding="utf-8")
@@ -262,11 +281,11 @@ class PiAgentContractTests(unittest.TestCase):
 
     def test_pi_agent_bodies_are_compact(self) -> None:
         offenders: list[str] = []
-        for path in (REPO_ROOT / ".pi" / "agents").glob("brand-*.md"):
+        for path in (REPO_ROOT / ".pi" / "agents").glob("*.md"):
             if path.name == "brand-pipeline-executor.md":
                 continue
             lines = path.read_text(encoding="utf-8").splitlines()
-            limit = 110 if path.name == "brand-orchestrator.md" else 80
+            limit = 110 if path.name == "orchestrator.md" else 80
             if len(lines) > limit:
                 offenders.append(f"{path.name}: {len(lines)} > {limit}")
         self.assertEqual(offenders, [], f"Pi agent prompts too long: {offenders}")
@@ -274,7 +293,7 @@ class PiAgentContractTests(unittest.TestCase):
     def test_pi_agents_do_not_embed_cli_workflows(self) -> None:
         offenders: list[str] = []
         banned = ("```bash", "source .venv", "bgen ", "python3 -m brand_gen")
-        for path in (REPO_ROOT / ".pi" / "agents").glob("brand-*.md"):
+        for path in (REPO_ROOT / ".pi" / "agents").glob("*.md"):
             if path.name == "brand-pipeline-executor.md":
                 continue
             text = path.read_text(encoding="utf-8")

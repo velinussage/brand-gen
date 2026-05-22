@@ -42,6 +42,9 @@ class DummyRunner(PipelineRunner):
             method = 'user_override'
         return StageResult(RouteDecision(meta=WorkflowMeta(self.workflow_id, 'route'), route_key=route_key, method=method))
 
+    def _inspiration_evidence_block(self, plan_args):
+        return ''
+
     def _run_plan_draft(self, plan_args):
         return StageResult(
             PlanDraft(
@@ -122,6 +125,39 @@ class PipelineRunnerTests(unittest.TestCase):
         result = runner.run(argparse.Namespace())
         self.assertEqual(result.stopped_at, 'plan_draft')
         self.assertIn('nope', result.stop_reason)
+
+    def test_pipeline_blocks_non_motion_without_inspiration_evidence(self):
+        runner = DummyRunner()
+        runner._inspiration_evidence_block = lambda _args: 'Inspiration evidence block: pending sources'  # type: ignore
+        result = runner.run(argparse.Namespace(material_type='social'))
+        self.assertEqual(result.stopped_at, 'prepare')
+        self.assertIn('Inspiration evidence block', result.stop_reason)
+        self.assertIsNone(result.plan_draft)
+
+    def test_pipeline_allows_explicit_inspiration_bypass(self):
+        runner = DummyRunner()
+        runner.allow_blocking = True
+        runner._inspiration_evidence_block = lambda _args: 'Inspiration evidence block: pending sources'  # type: ignore
+        result = runner.run(argparse.Namespace(material_type='social'))
+        self.assertEqual(result.stopped_at, 'complete')
+
+    def test_record_plan_rotation_choice_persists_archetype_window(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            brand_dir = Path(tmpdir) / 'sage'
+            brand_dir.mkdir()
+            runner = PipelineRunner(brand_dir, {}, {})
+
+            runner._record_plan_rotation_choice({
+                'material_type': 'editorial-metaphor-illustration',
+                'aesthetic_archetype_id': 'penguin-classics-paperback',
+                'sage_framing_direction': {'id': 'transit-route-map'},
+            })
+
+            payload = json.loads((brand_dir / 'iteration-memory.json').read_text())
+            recent = payload['recent_archetypes_by_material']['concept-illustration']
+            self.assertIn('penguin-classics-paperback', recent)
+            framing_recent = payload['recent_sage_framings_by_material']['editorial-metaphor-illustration']
+            self.assertIn('transit-route-map', framing_recent)
 
     def test_ensure_inspiration_uses_seeded_brand_for_testing_sessions(self):
         with tempfile.TemporaryDirectory() as tmpdir:

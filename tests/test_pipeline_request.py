@@ -1,6 +1,8 @@
 import argparse
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from brand_gen import brand_iterate_mcp
 from brand_gen.cli_builders import build_pipeline_cli
@@ -11,6 +13,7 @@ from brand_gen.generation_flow import (
     filter_reference_paths_for_base_image_edit,
 )
 from brand_gen.pipeline_request import PipelineRequest
+from brand_gen.plan_builder import build_plan_critique_payload
 from brand_gen.runtime_models import MATERIAL_CONFIG, MATERIAL_PROMPT_SNIPPET_ALIASES
 
 
@@ -122,6 +125,46 @@ class PipelineRequestTests(unittest.TestCase):
         self.assertEqual(override["roles"][0]["role"], "product_truth")
         self.assertIn("product_truth", override["required_roles"])
         self.assertEqual(override["priority"][0], "product_truth")
+
+    def test_plan_critique_uses_cli_base_image_for_validation(self):
+        plan = {
+            "material_type": "product-banner",
+            "purpose": "launch banner",
+            "target_surface": "X header",
+            "product_truth_expression": "USDC boons become creator points",
+            "abstraction_level": "medium",
+            "brand_anchor_policy": {"rule": "Keep the output clearly branded."},
+            "system_mechanic": "receipt to points ledger",
+            "preserve": ["USDC truth"],
+            "push": ["simple launch narrative"],
+            "ban": ["token claims"],
+            "prompt_seed": "Boon product banner.",
+            "role_pack": {},
+        }
+        args = argparse.Namespace(
+            plan="/tmp/plan.json",
+            material_type="product-banner",
+            base_image="/tmp/base.png",
+            render_backend="native",
+            generation_mode="auto",
+            mode="auto",
+        )
+        with tempfile.TemporaryDirectory() as tmpdir, patch(
+            "brand_gen.generation_flow.assemble_generation_scratchpad",
+            return_value={"checks": {"blocking": [], "warnings": []}, "prompt_review": {}},
+        ):
+            critique = build_plan_critique_payload(
+                args,
+                brand_dir=Path(tmpdir),
+                wrapper={},
+                plan=plan,
+                critique_mode="strict",
+                entrypoint="pipeline",
+            )
+        self.assertEqual(critique["plan"]["base_image"], "/tmp/base.png")
+        self.assertFalse(
+            any("Interface material is missing base_image" in item for item in critique["plan_validation"]["errors"])
+        )
 
 
 if __name__ == "__main__":

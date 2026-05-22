@@ -52,11 +52,13 @@ Markdown files under `.brand-gen/brands/<brand>/` not marked `read_only_after`:
 - `iteration-memory.md` — running notes
 - `brand-identity.md` — descriptive prose (NOT structured tokens; use `update-palette` etc. for those)
 - `voice/*.md` — framing directions, default scenes, style anchors (created by PR-2)
+- `agents/*.agent.md` — host-neutral agent specifications. Prose specifications may be edited; host overlays and tool allowlists are compiled into mirrors via `scripts/sync_agents.py`.
 
 Markdown files at the repo root that document the system (`README.md`, `AGENTS.md` itself, prompt-pack `*.md`) are normal source; edit through PRs.
 
 ## Files agents must NOT freely Edit
 
+- `.claude/agents/*.md`, `.pi/agents/*.md`, `skills/brand-gen/claude-agents/*.md` — auto-generated mirrors. Never edit these directly; make changes in `agents/*.agent.md` and run `scripts/sync_agents.py`.
 - `brand_gen/*.py` — no new brand-payload literals (see Never-edit rule #1)
 - `data/aesthetic_capsules.json` — go through `add-aesthetic-capsule`
 - `data/sage_brand_contract.json` (and any future `data/<brand>_brand_contract.json`) — go through the typed verb (see PR-1)

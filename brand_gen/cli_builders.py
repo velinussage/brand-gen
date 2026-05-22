@@ -177,6 +177,27 @@ def build_get_run_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str
     parser.add_argument("--format", choices=["text", "json"], default="json")
 
 
+def build_run_list_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--status", help="Filter by campaign run status")
+    parser.add_argument("--material-type", help="Filter by material type")
+    parser.add_argument("--limit", type=int, default=20, help="Max runs to return (default 20)")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_run_show_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--run-id", required=True, help="Campaign run ID or workflow ID to show")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_run_replay_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--run-id", required=True, help="Campaign run ID or workflow ID to replay")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
+def build_rebuild_run_index_cli(parser: argparse.ArgumentParser, *, inspire_urls: dict[str, str]) -> None:
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+
+
 def _add_run_or_path_args(parser: argparse.ArgumentParser, *, path_help: str) -> None:
     parser.add_argument("--run-id", help="Workflow id (aka run_id); fetches the most recent matching artifact")
     parser.add_argument("--path", help=path_help)
@@ -1344,6 +1365,10 @@ CLI_BUILDERS: dict[str, CliBuilder] = {
     'show-workflow-lineage': build_show_workflow_lineage_cli,
     'list-runs': build_list_runs_cli,
     'get-run': build_get_run_cli,
+    'run-list': build_run_list_cli,
+    'run-show': build_run_show_cli,
+    'run-replay': build_run_replay_cli,
+    'rebuild-run-index': build_rebuild_run_index_cli,
     'get-plan': build_get_plan_cli,
     'get-critique': build_get_critique_cli,
     'get-scratchpad': build_get_scratchpad_cli,

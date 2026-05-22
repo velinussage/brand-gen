@@ -44,6 +44,14 @@
       "default_model": "recraft-v4",
       "default_aspect_ratio": "1:1"
     },
+    "x-banner": {
+      "generation_mode": "image",
+      "default_model": "nano-banana-2",
+      "default_aspect_ratio": "match_input_image",
+      "default_resolution": "1K",
+      "output_width": 1500,
+      "output_height": 500
+    },
     "state-card": {
       "generation_mode": "image",
       "default_model": "flux-2-pro",
@@ -373,7 +381,8 @@
       "illustrated_brand_world",
       "proof_poster",
       "site_pattern_tile",
-      "pattern_board"
+      "pattern_board",
+      "x_banner"
     ],
     "copy_bearing": [
       "announcement-card",
@@ -407,6 +416,7 @@
       "social",
       "state-card",
       "terminal-hero",
+      "x-banner",
       "x-card",
       "x-feed",
       "x-feed-portrait",
@@ -426,6 +436,7 @@
     "website-hero-illustration": "website_hero_illustration",
     "styleframe": "styleframe",
     "storyboard": "styleframe",
+    "x-banner": "social",
     "x-card": "social",
     "x-feed": "social",
     "x-feed-square": "social",
@@ -478,6 +489,14 @@
     "pattern-board": "pattern_system"
   },
   "social_specs": {
+    "x-banner": {
+      "label": "X profile header / banner",
+      "width": 1500,
+      "height": 500,
+      "aspect_ratio": "3:1",
+      "notes": "Literal X/Twitter profile header. Keep bottom-left avatar overlay zone quiet, avoid top/bottom crop edges, and place important brand content center-right.",
+      "source": "X/Twitter header guidance: 1500x500 recommended profile header dimensions"
+    },
     "x-card": {
       "label": "X Summary Large Image card",
       "width": 1200,
@@ -795,6 +814,15 @@
       "product_truth_expression": "either a real proof moment or a clearly branded product claim",
       "abstraction_level": "low",
       "logo_mode": "required",
+      "clearly_branded_without_logo_min": 3
+    },
+    "x_banner": {
+      "role": "X profile header brand field",
+      "target_surface": "X/Twitter profile header, 1500x500 px with bottom-left avatar overlay",
+      "purpose": "establish instant brand recognition in a wide social profile crop without product-dashboard chrome",
+      "product_truth_expression": "one clearly branded product claim or restrained brand motif that remains visible center-right",
+      "abstraction_level": "medium",
+      "logo_mode": "preferred",
       "clearly_branded_without_logo_min": 3
     },
     "state-card": {

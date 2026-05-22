@@ -3,15 +3,16 @@
   "version": "0.1.0",
   "description": "Pi extension for brand-gen with heartbeat, widget, commands, and MCP bridge",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "./dist/index.js",
   "pi": {
     "extensions": [
-      "./src/index.ts"
+      "./dist/index.js"
     ]
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test ./test/*.test.ts"
+    "test": "node --import tsx --test ./test/*.test.ts",
+    "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@brand-gen/core": "file:../brand-gen-core",
@@ -24,5 +25,6 @@
     "tsx": "^4.21.0",
     "typescript": "^5.6.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "types": "./dist/index.d.ts"
 }

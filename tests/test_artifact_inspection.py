@@ -153,12 +153,12 @@ class PhaseBCanonicalTests(unittest.TestCase):
         ):
             self.assertIn(f'name: "{verb}"', text)
 
-    def test_explorer_allowlist_includes_artifact_verbs(self) -> None:
+    def test_strategist_allowlist_includes_artifact_verbs(self) -> None:
         from brand_gen.agent_specialization import AGENT_BY_ID
 
-        explorer = AGENT_BY_ID["brand-explorer"]
-        self.assertIn("brand_get_plan", explorer.canonical_tools)
-        self.assertIn("brand_compare_versions", explorer.canonical_tools)
+        strategist = AGENT_BY_ID["strategist"]
+        self.assertIn("brand_get_plan", strategist.canonical_tools)
+        self.assertIn("brand_compare_versions", strategist.canonical_tools)
 
     def test_bridges_wired(self) -> None:
         from brand_gen.mcp_bridge_registry import BRIDGE_BY_TOOL

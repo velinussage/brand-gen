@@ -13,4 +13,4 @@ export {
   patchLearnings,
   rateJournalEntry,
   saveLearnings,
-} from "../../brand-gen-core/src/index.ts";
+} from "@brand-gen/core";

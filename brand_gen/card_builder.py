@@ -153,7 +153,7 @@ def _infer_sage_skill_source_url(payload: dict, *, material_type: str, entity_ty
     if entity_type != "skill" or material_type != "proof-poster":
         return ""
     key = _best_local_skill_key(_candidate_skill_slugs_from_payload(payload))
-    return f"https://app.sageprotocol.io/skills/{key}" if key else ""
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -177,6 +177,8 @@ def _cta_for_entity(entity_type: str) -> str:
 def _proof_weight_for(material_type: str) -> str:
     if material_type == "social":
         return "Proof should occupy roughly 28–35% of the composition and stay fully readable."
+    if material_type == "x-banner":
+        return "Any proof motif should stay sparse and center-right; keep the bottom-left avatar zone quiet."
     if material_type == "x-feed":
         return "Proof should occupy a clear right-side module with readable text and no overlapping decorative render."
     return "Proof should be medium-sized and legible; do not reduce it to a tiny chip or bury it near the edge."
@@ -204,7 +206,7 @@ def _default_proof_excerpt(entity_type: str) -> str:
         "community": "Open communities collaborating through shared prompt libraries and governance.",
         "dao": "Decentralized organizations governing shared prompt infrastructure.",
         "update": "Protocol updates and feature announcements from the current team.",
-        "artifact": "Reusable capabilities packaged for agent runtimes through Sage libraries and manifests.",
+        "artifact": "A concrete product proof, source artifact, or brand claim from the active brand context.",
     }.get(entity_type, "Trusted capabilities distributed through the current CLI and MCP tools.")
 
 
@@ -250,6 +252,8 @@ def _material_default_strategy(material_type: str, payload: dict, plan: dict | N
     blob = _payload_plan_blob(payload, plan)
     if material == "proof-poster":
         return "operator_proof_board"
+    if material == "x-banner":
+        return "editorial_poster"
     if material in {"social", "x-feed"}:
         if any(token in blob for token in ("capability", "skill", "mcp", "behavior", "workflow", "manifest")):
             return "capability_card"
@@ -260,32 +264,28 @@ def _material_default_strategy(material_type: str, payload: dict, plan: dict | N
 
 
 def _artifact_title_from_context(payload: dict, plan: dict | None = None) -> str:
-    blob = _payload_plan_blob(payload, plan)
-    if "manifest" in blob:
-        return "Sage Manifest"
-    if "behavior" in blob:
-        return "Behavior"
-    if "mcp" in blob or "tool" in blob:
-        return "MCP Tool"
-    if "skill" in blob:
-        return "Skill"
-    if "prompt" in blob:
-        return "Prompt"
-    if "library" in blob:
-        return "Library"
-    return "Capability Proof"
+    for value in (
+        payload.get("proof_title"),
+        payload.get("headline"),
+        (plan or {}).get("product_truth_expression"),
+        (plan or {}).get("purpose"),
+    ):
+        text = str(value or "").strip()
+        if text and not _looks_like_instruction_headline(text):
+            return text[:64]
+    return "Product proof"
 
 
 def _artifact_excerpt_from_context(payload: dict, plan: dict | None = None) -> str:
-    blob = _payload_plan_blob(payload, plan)
-    if "manifest" in blob:
-        return "A Sage manifest packages prompts, skills, MCP tools, and behaviors as portable capability artifacts for agents."
-    if all(token in blob for token in ("prompt", "skill")) or "capability family" in blob or "capability-family" in blob:
-        return "Prompts, skills, MCP tools, and behaviors become reusable capabilities agents can discover and run."
-    if "library" in blob:
-        return "A Sage library turns curated prompts and skills into governed capabilities agents can reuse."
-    if "skill" in blob:
-        return "A Sage skill captures repeatable workflow judgment so agents can reuse it across sessions."
+    for value in (
+        payload.get("proof_excerpt"),
+        (plan or {}).get("prompt_seed"),
+        (plan or {}).get("product_truth_expression"),
+        (plan or {}).get("purpose"),
+    ):
+        text = str(value or "").strip()
+        if text and not _looks_like_instruction_headline(text):
+            return text[:220]
     return _default_proof_excerpt("artifact")
 
 
@@ -523,7 +523,7 @@ def build_web_app_share_card_payload(payload: dict) -> ShareCardPayload:
         or ({"title": "", "description": "", "h1": "", "h2": "", "lines": []})
     )
 
-    source_domain = urlparse(source_url).netloc or "app.sageprotocol.io"
+    source_domain = urlparse(source_url).netloc or ""
 
     profile_path = payload.get("profile_path") or None
     identity_path = payload.get("identity_path") or None
@@ -694,8 +694,8 @@ def build_web_app_share_card_payload(payload: dict) -> ShareCardPayload:
             "prompt": "Curated prompt coverage for UI systems, interaction, and implementation detail.",
             "skill": "Reusable skill coverage for real agent workflows and implementation detail.",
             "library": "Governed library context surfaced for scanning and feed-speed recognition.",
-            "artifact": "Prompts · Skills · MCP tools · Behaviors",
-        }.get(entity_type, "Trusted distribution through the current CLI and MCP tools")
+            "artifact": "Brand proof · Product truth · Source artifact",
+        }.get(entity_type, "Brand proof from the active product context")
     if material_type == "proof-poster":
         extracted_title = _extract_subject_from_instruction(
             headline,

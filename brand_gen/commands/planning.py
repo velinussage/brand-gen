@@ -803,6 +803,7 @@ def cmd_plan_draft(args):
         output_path.write_text(json.dumps(draft, indent=2) + "\n")
     profile_path, identity_path, profile, identity = load_brand_memory(brand_dir, getattr(args, "profile", None), getattr(args, "identity", None))
     persist_plan_draft_to_blackboard(brand_dir, profile, identity, draft, output_path=output_path, workflow_id=workflow_id)
+    _record_plan_archetype_rotation(brand_dir, plan)
     if args.format == "json":
         print(json.dumps({**draft, "output": str(output_path)}, indent=2))
         return
@@ -817,6 +818,37 @@ def cmd_plan_draft(args):
     print(f"Missing required roles: {', '.join(missing_required) or 'none'}")
     print("\nNext step:")
     print(draft["next_step"])
+
+def _record_plan_archetype_rotation(brand_dir: Path, plan: dict) -> None:
+    material_type = str(plan.get("material_type") or "").strip()
+    archetype_id = str(plan.get("aesthetic_archetype_id") or "").strip()
+    framing_id = str(((plan.get("sage_framing_direction") or {}).get("id") if isinstance(plan.get("sage_framing_direction"), dict) else "") or "").strip()
+    if not material_type or (not archetype_id and not framing_id):
+        return
+    try:
+        from ..aesthetic_archetypes import list_archetypes, record_archetype_choice
+        from ..iteration_memory import load_iteration_memory, record_sage_framing_choice, save_iteration_memory
+        from ..sage_generation_contract import SAGE_FRAMING_DIRECTIONS
+
+        memory = load_iteration_memory(brand_dir)
+        if archetype_id:
+            memory = record_archetype_choice(
+                memory,
+                material_type=material_type,
+                archetype_id=archetype_id,
+                archetype_set_size=len(list_archetypes(material_type)) or None,
+            )
+        if framing_id:
+            memory = record_sage_framing_choice(
+                memory,
+                material_type=material_type,
+                framing_id=framing_id,
+                framing_set_size=len(SAGE_FRAMING_DIRECTIONS),
+            )
+        save_iteration_memory(brand_dir, memory)
+    except Exception as exc:
+        warn(f"failed to record aesthetic archetype rotation: {exc}")
+
 
 def cmd_ideate_material(args):
     brand_dir = get_brand_dir()

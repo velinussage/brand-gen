@@ -157,17 +157,17 @@ class PhaseDCanonicalTests(unittest.TestCase):
     def test_policy_mutations_are_orchestrator_only(self) -> None:
         from brand_gen.agent_specialization import AGENT_BY_ID
 
-        orchestrator = AGENT_BY_ID["brand-orchestrator"]
-        explorer = AGENT_BY_ID["brand-explorer"]
+        orchestrator = AGENT_BY_ID["orchestrator"]
+        strategist = AGENT_BY_ID["strategist"]
         for verb in ("brand_set_policy", "brand_approve_action", "brand_reject_action"):
             self.assertIn(verb, orchestrator.canonical_tools)
-            self.assertNotIn(verb, explorer.canonical_tools)
+            self.assertNotIn(verb, strategist.canonical_tools)
 
     def test_get_policy_granted_broadly(self) -> None:
         from brand_gen.agent_specialization import AGENT_BY_ID
 
-        explorer = AGENT_BY_ID["brand-explorer"]
-        self.assertIn("brand_get_policy", explorer.canonical_tools)
+        strategist = AGENT_BY_ID["strategist"]
+        self.assertIn("brand_get_policy", strategist.canonical_tools)
 
 
 if __name__ == "__main__":

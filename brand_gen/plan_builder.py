@@ -30,7 +30,6 @@ from .brand_policy import (
     normalize_material_brand_policy,
     summarize_identity,
 )
-from .capability_focus import build_capability_focus_context
 from .critique_policy import build_critique_policy
 from .custom_scratchpad import html_share_card_block_reason
 from .inspiration_board import persist_inspiration_source_selection, persist_plan_inspiration_board
@@ -41,16 +40,7 @@ from .material_prompt_profiles import get_material_prompt_profile
 from .product_truth import (
     build_product_truth_metadata,
     render_product_truth_contract,
-    is_sage_capability_context,
-    sage_product_truth_prompt_moves,
     validate_product_truth_plan,
-)
-from .sage_generation_contract import (
-    apply_sage_brand_anchor_policy,
-    build_sage_vault_brief,
-    repair_stale_sage_plan_contract,
-    resolve_sage_capability_material_type,
-    sage_generation_contract_seed,
 )
 from .plan_validation import (
     detect_deterministic_text_surface_request,
@@ -233,6 +223,7 @@ def create_material_plan(
     prompt_details: str | None = None,
     set_membership: dict | None = None,
     briefing: str | None = None,
+    base_image: str | None = None,
     inspiration_picks: list[str] | None = None,
     accept_inspiration_recommendations: bool = False,
     branch_id: str | None = None,
@@ -247,26 +238,6 @@ def create_material_plan(
         briefing=briefing or "",
         product_truth_expression=product_truth_expression or "",
     )
-    sage_material_type, sage_material_note = resolve_sage_capability_material_type(
-        material_type,
-        brand_dir=brand_dir,
-        identity=identity,
-        purpose=purpose or "",
-        target_surface=target_surface or "",
-        prompt_seed=prompt_seed or "",
-        briefing=briefing or "",
-        product_truth_expression=product_truth_expression or "",
-        render_backend=render_backend,
-        source_url=source_url,
-        entity_type=entity_type,
-    )
-    if sage_material_type != material_type:
-        material_type = sage_material_type
-        material_type_resolution_note = " ".join(
-            part.strip()
-            for part in [material_type_resolution_note, sage_material_note]
-            if part and part.strip()
-        )
 
     candidates = suggest_reference_role_pack(brand_dir, material_type)
     configured_required_roles = list(candidates.get("required_roles") or [])
@@ -393,77 +364,15 @@ def create_material_plan(
         policy["product_truth_expression"] = product_truth_expression
     if abstraction_level:
         policy["abstraction_level"] = abstraction_level
-    capability_focus = build_capability_focus_context(
-        brand_dir=brand_dir,
-        identity=identity,
-        material_type=material_type,
-        product_truth_expression=policy.get("product_truth_expression") or product_truth_expression or "",
-        artifact_scope="illustration_only" if illustration_only else "full_surface",
-    )
-    if capability_focus.get("directive"):
-        push = dedupe_keep_order(list(push or []) + [capability_focus["directive"]])
-    if capability_focus.get("avoid_repeating_linear_story"):
-        ban = dedupe_keep_order(list(ban or []) + ["single repeated linear process diagram as the whole story"])
-    _truth_seed_plan = {
-        "brand_dir": str(brand_dir),
-        "material_type": material_type,
-        "purpose": policy.get("purpose") or "",
-        "target_surface": policy.get("target_surface") or "",
-        "product_truth_expression": policy.get("product_truth_expression") or "",
-        "prompt_seed": prompt_seed or briefing or "",
+    # Brand-gen must not inject globally hard-coded product knowledge for any
+    # one brand. Product truth now comes only from the active brand identity,
+    # explicit user brief, selected references, and per-brand policy/memory.
+    capability_focus = {
+        "candidates": [],
+        "selected": [],
+        "directive": "",
+        "avoid_repeating_linear_story": False,
     }
-    _truth_moves = sage_product_truth_prompt_moves(_truth_seed_plan, identity=identity)
-    if _truth_moves.get("push"):
-        push = dedupe_keep_order(list(push or []) + list(_truth_moves["push"]))
-    if _truth_moves.get("ban"):
-        ban = dedupe_keep_order(list(ban or []) + list(_truth_moves["ban"]))
-
-    profile_for_vault = load_json_file(brand_dir / "brand-profile.json")
-    if not isinstance(profile_for_vault, dict):
-        profile_for_vault = {}
-    sage_vault_brief = build_sage_vault_brief(
-        brand_dir=brand_dir,
-        profile=profile_for_vault,
-        identity=identity,
-        material_type=material_type,
-        purpose=policy.get("purpose") or "",
-        target_surface=policy.get("target_surface") or "",
-        product_truth_expression=policy.get("product_truth_expression") or product_truth_expression or "",
-        prompt_seed=prompt_seed or "",
-        briefing=briefing or "",
-    )
-    if sage_vault_brief.get("applies"):
-        policy = apply_sage_brand_anchor_policy(policy, sage_vault_brief)
-        contract_expression = " — ".join(
-            item
-            for item in [
-                str(sage_vault_brief.get("source_truth_phrase") or "").strip(),
-                str(sage_vault_brief.get("adoption_scene") or "").strip(),
-            ]
-            if item
-        )
-        current_truth = str(policy.get("product_truth_expression") or "").strip()
-        if not product_truth_expression or current_truth.lower().startswith(
-            (
-                "one explicit brand metaphor",
-                "one specific product or protocol mechanic",
-                "the brand's work should still feel implied",
-                "one actual workflow",
-                "a concrete brand theme",
-            )
-        ):
-            policy["product_truth_expression"] = contract_expression or current_truth
-        elif contract_expression and sage_vault_brief.get("source_truth_phrase") not in current_truth:
-            policy["product_truth_expression"] = f"{current_truth}; {contract_expression}"
-        push = dedupe_keep_order(
-            list(push or [])
-            + [
-                f"Use vault-sourced Sage phrase: {sage_vault_brief.get('source_truth_phrase')}.",
-                f"Make the adoption/use scene concrete: {sage_vault_brief.get('adoption_scene')}.",
-            ]
-        )
-        ban = dedupe_keep_order(list(ban or []) + list(sage_vault_brief.get("hard_bans") or []))
-
     resolved_render_backend = "html" if str(render_backend or "").strip().lower() == "html" else "native"
     resolved_entity_type = str(entity_type or "").strip().lower()
     resolved_source_url = str(source_url or "").strip()
@@ -571,9 +480,6 @@ def create_material_plan(
         seed = f"{seed} {capability_focus['directive']}".strip()
     if not prompt_seed and memory_seed_prompt:
         seed = f"{seed} {memory_seed_prompt}".strip()
-    contract_seed = sage_generation_contract_seed(sage_vault_brief)
-    if contract_seed and contract_seed not in seed:
-        seed = f"{seed} {contract_seed}".strip()
     variants: list[VariantSpec] = []
     selected_variant_index = 0
     selected_capsule_id = str((_resolved_capsule or {}).get("id") or "")
@@ -631,7 +537,10 @@ def create_material_plan(
         selection_rationale="; ".join(str(item) for item in ((_capsule_selection or {}).get("reasons") or [])[:3]),
     )
     _product_truth_plan = {
-        **_truth_seed_plan,
+        "brand_dir": str(brand_dir),
+        "material_type": material_type,
+        "purpose": policy.get("purpose") or "",
+        "target_surface": policy.get("target_surface") or "",
         "product_truth_expression": policy.get("product_truth_expression") or "",
         "prompt_seed": seed,
         "preserve": preserve or [],
@@ -679,8 +588,6 @@ def create_material_plan(
         "product_truth_contract": product_truth_contract,
         "product_truth_metadata": product_truth_metadata,
         "product_truth_validation": product_truth_validation,
-        "sage_vault_brief": sage_vault_brief if sage_vault_brief.get("applies") else {},
-        "sage_generation_contract": sage_vault_brief if sage_vault_brief.get("applies") else {},
         "aesthetic_commitment": resolved_aesthetic_commitment or "",
         "aesthetic_capsule": _resolved_capsule or None,
         "aesthetic_capsule_id": (_resolved_capsule or {}).get("id") or "",
@@ -706,6 +613,7 @@ def create_material_plan(
         "prompt_composition": (prompt_composition or "").strip(),
         "prompt_details": (prompt_details or "").strip(),
         "briefing": briefing or "",
+        "base_image": str(base_image or "").strip(),
         "brand_anchor_policy": policy,
         "system_mechanic": resolved_mechanic,
         "system_mechanic_source": mechanic_source,
@@ -769,12 +677,6 @@ def create_material_plan(
     }
     if set_membership:
         plan["set_membership"] = set_membership
-    if is_sage_capability_context(identity=identity, plan=plan):
-        plan, repair_warnings = repair_stale_sage_plan_contract(plan)
-        if repair_warnings:
-            plan["learned_setup_warnings"] = dedupe_keep_order(
-                list(plan.get("learned_setup_warnings") or []) + repair_warnings
-            )
     return plan, missing_required
 
 
@@ -816,6 +718,7 @@ def build_material_plan_from_args(args, brand_dir: Path) -> tuple[Path, dict, li
         prompt_composition=getattr(args, "prompt_composition", None),
         prompt_details=getattr(args, "prompt_details", None),
         briefing=getattr(args, "briefing", None),
+        base_image=getattr(args, "base_image", None),
         branch_id=getattr(args, "branch_id", None),
         parent_branch_id=getattr(args, "parent_branch_id", None),
         accept_inspiration_recommendations=True,
@@ -967,12 +870,16 @@ def build_plan_critique_payload(
     entrypoint: str = "critique-plan",
     allow_blocking: bool = False,
 ) -> dict:
-    report = validate_material_plan_dict(plan)
+    effective_plan = dict(plan)
+    cli_base_image = str(getattr(args, "base_image", None) or "").strip()
+    if cli_base_image and not str(effective_plan.get("base_image") or "").strip():
+        effective_plan["base_image"] = cli_base_image
+    report = validate_material_plan_dict(effective_plan)
     preview_args = argparse.Namespace(
         prompt=getattr(args, "prompt", None),
         plan=str(Path(args.plan).expanduser().resolve()) if getattr(args, "plan", None) else "",
         material_type=getattr(args, "material_type", None),
-        render_backend=plan.get("render_backend") or getattr(args, "render_backend", "native"),
+        render_backend=effective_plan.get("render_backend") or getattr(args, "render_backend", "native"),
         generation_mode=getattr(args, "generation_mode", "auto"),
         mode=getattr(args, "mode", "auto"),
         model=getattr(args, "model", None),
@@ -980,8 +887,8 @@ def build_plan_critique_payload(
         resolution=getattr(args, "resolution", None),
         duration=getattr(args, "duration", None),
         tag=getattr(args, "tag", None),
-        source_url=plan.get("source_url") or getattr(args, "source_url", None),
-        entity_type=plan.get("entity_type") or getattr(args, "entity_type", None),
+        source_url=effective_plan.get("source_url") or getattr(args, "source_url", None),
+        entity_type=effective_plan.get("entity_type") or getattr(args, "entity_type", None),
         image=getattr(args, "image", None),
         reference_dir=getattr(args, "reference_dir", None),
         motion_reference=getattr(args, "motion_reference", None),
@@ -1000,11 +907,11 @@ def build_plan_critique_payload(
     )
     from .generation_flow import assemble_generation_scratchpad
 
-    scratchpad_preview = assemble_generation_scratchpad(preview_args, brand_dir=brand_dir, plan_wrapper=wrapper, plan=plan)
+    scratchpad_preview = assemble_generation_scratchpad(preview_args, brand_dir=brand_dir, plan_wrapper=wrapper, plan=effective_plan)
     preview_checks = scratchpad_preview.get("checks") or {}
     blocking = dedupe_keep_order(list(report.get("errors") or []) + list(preview_checks.get("blocking") or []))
     learned_setup_warnings = dedupe_keep_order(
-        [str(item).strip() for item in (plan.get("learned_setup_warnings") or []) if str(item).strip()]
+        [str(item).strip() for item in (effective_plan.get("learned_setup_warnings") or []) if str(item).strip()]
     )
     checks = {
         "blocking": blocking,
@@ -1036,11 +943,11 @@ def build_plan_critique_payload(
             "next_owner": "visual_composer",
         },
         "plan_path": str(Path(args.plan).expanduser().resolve()),
-        "plan": plan,
+        "plan": effective_plan,
         "plan_validation": report,
         "prompt_review": scratchpad_preview.get("prompt_review") or {},
         "checks": checks,
-        "learning_context": plan.get("learning_context") or {},
+        "learning_context": effective_plan.get("learning_context") or {},
         "critique_policy": critique_policy,
         "next_step": next_step,
     }

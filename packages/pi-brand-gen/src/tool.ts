@@ -17,7 +17,7 @@ import {
   type HeartbeatState,
   type HostToolDefinition,
   type PluginConfig,
-} from "../../brand-gen-core/src/index.ts";
+} from "@brand-gen/core";
 
 type ToolDefinition = {
   name: string;

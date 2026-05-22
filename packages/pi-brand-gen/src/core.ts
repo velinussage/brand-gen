@@ -6,4 +6,4 @@ export {
   resolveActiveWorkspace,
   runHeartbeatCycle,
   writeRuntimeStatusMarker,
-} from "../../brand-gen-core/src/index.ts";
+} from "@brand-gen/core";

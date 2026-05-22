@@ -379,7 +379,7 @@ def ensure_sage_motion_start_frame_reference(
     # the start frame is about capability adoption, not a logo reveal.
     draw.rounded_rectangle((52, 52, width - 52, height - 52), radius=52, fill=palette["paper"], outline=palette["charcoal"], width=4)
     _draw_label(draw, (94, 94), "Steer the Default", fill=palette["charcoal"], size=54, bold=True)
-    _draw_label(draw, (98, 158), "skill layer for AI agents · fresh motion start frame", fill=palette["muted"], size=26)
+    _draw_label(draw, (98, 158), "skill layer for AI agents · abstract capability-default frame", fill=palette["muted"], size=26)
     draw.rounded_rectangle((1320, 96, 1438, 148), radius=22, fill=palette["rust"], outline=palette["rust"], width=2)
     _draw_label(draw, (1354, 106), "Sage", fill=palette["paper"], size=24, bold=True)
 
@@ -387,11 +387,11 @@ def ensure_sage_motion_start_frame_reference(
     manifest_box = (112, 250, 502, 680)
     draw.rounded_rectangle(manifest_box, radius=36, fill="#fbefd7", outline=palette["line"], width=3)
     _draw_label(draw, (150, 286), "source library", fill=palette["charcoal"], size=30, bold=True)
-    _draw_label(draw, (150, 326), "manifest selects one default", fill=palette["muted"], size=22)
+    _draw_label(draw, (150, 326), "manifest names reusable defaults", fill=palette["muted"], size=22)
     rows = [
         ("Prompt", "curated"),
         ("Skill", "reusable"),
-        ("Behavior", "selected"),
+        ("Behavior", "default"),
         ("MCP tool", "available"),
     ]
     y = 378
@@ -404,44 +404,42 @@ def ensure_sage_motion_start_frame_reference(
         _draw_label(draw, (346, y + 15), state, fill=palette["muted"], size=18)
         y += 72
 
-    # Center: switchboard / control-room routing grid.  Draw several routes so
-    # the selected capability does not collapse into a single glowing bulb.
+    # Middle: distributed lattice/default slots, not a central hub or robot scene.
     board = (566, 250, 966, 680)
     draw.rounded_rectangle(board, radius=40, fill="#f7ead4", outline=palette["charcoal"], width=3)
-    _draw_label(draw, (606, 286), "capability switchboard", fill=palette["charcoal"], size=28, bold=True)
-    route_ys = [380, 450, 520, 590]
-    for idx, ry in enumerate(route_ys):
-        color = palette["rust"] if idx == 2 else palette["line"]
-        width_line = 8 if idx == 2 else 4
-        draw.line((612, ry, 920, ry), fill=color, width=width_line)
-        for x in (656, 748, 840):
-            radius = 14 if idx == 2 else 10
-            draw.ellipse((x - radius, ry - radius, x + radius, ry + radius), fill=color, outline=palette["charcoal"] if idx == 2 else color, width=2)
-    draw.rounded_rectangle((690, 612, 842, 650), radius=18, fill=palette["rust"], outline=palette["rust"], width=2)
-    _draw_label(draw, (718, 620), "default", fill=palette["paper"], size=20, bold=True)
+    _draw_label(draw, (606, 286), "default capability slots", fill=palette["charcoal"], size=28, bold=True)
+    slot_centers = [(650, 390), (764, 348), (878, 392), (680, 520), (828, 552)]
+    for idx, (x, y) in enumerate(slot_centers):
+        selected = idx == 3
+        fill = palette["rust"] if selected else "#fff8ea"
+        outline = palette["charcoal"] if selected else palette["line"]
+        draw.rounded_rectangle((x - 52, y - 34, x + 52, y + 34), radius=16, fill=fill, outline=outline, width=3)
+        draw.rectangle((x - 22, y - 12, x + 22, y + 12), fill=palette["paper"] if selected else palette["sage"])
+    for a, b in [(0, 1), (1, 2), (0, 3), (3, 4), (2, 4)]:
+        ax, ay = slot_centers[a]
+        bx, by = slot_centers[b]
+        draw.line((ax, ay, bx, by), fill=palette["rust"] if 3 in (a, b) else palette["line"], width=5 if 3 in (a, b) else 3)
+    draw.rounded_rectangle((700, 618, 850, 654), radius=18, fill=palette["rust"], outline=palette["rust"], width=2)
+    _draw_label(draw, (728, 626), "default", fill=palette["paper"], size=20, bold=True)
 
-    # Selected route to agent runtime.
-    draw.line((966, 520, 1076, 520), fill=palette["rust"], width=8)
-    draw.polygon([(1076, 520), (1044, 500), (1044, 540)], fill=palette["rust"])
-
-    # Right: thin harness / agent completing work.
+    # Right: abstract runtime path and finished artifact, no humanoid/robot agent.
     runtime = (1088, 250, 1424, 680)
     draw.rounded_rectangle(runtime, radius=38, fill=palette["dark"], outline=palette["charcoal"], width=3)
-    _draw_label(draw, (1128, 288), "thin agent harness", fill=palette["paper"], size=28, bold=True)
+    _draw_label(draw, (1128, 288), "thin harness slots", fill=palette["paper"], size=28, bold=True)
     draw.rounded_rectangle((1128, 356, 1384, 466), radius=24, fill="#2b2d2f", outline="#4c4740", width=2)
-    _draw_label(draw, (1152, 382), "Behavior installed", fill=palette["paper"], size=24, bold=True)
-    _draw_label(draw, (1152, 420), "agent can now finish work", fill="#e6d8c6", size=20)
+    _draw_label(draw, (1152, 382), "Behavior default", fill=palette["paper"], size=24, bold=True)
+    _draw_label(draw, (1152, 420), "abstract runtime state", fill="#e6d8c6", size=20)
     draw.rounded_rectangle((1128, 510, 1384, 614), radius=24, fill="#f3e3cc", outline=palette["sage"], width=3)
     draw.ellipse((1158, 538, 1206, 586), fill=palette["green"], outline=palette["charcoal"], width=2)
     _draw_label(draw, (1170, 543), "✓", fill=palette["paper"], size=30, bold=True)
-    _draw_label(draw, (1224, 538), "visible output", fill=palette["charcoal"], size=24, bold=True)
-    _draw_label(draw, (1224, 572), "completed task", fill=palette["muted"], size=20)
+    _draw_label(draw, (1224, 538), "finished artifact", fill=palette["charcoal"], size=24, bold=True)
+    _draw_label(draw, (1224, 572), "visible outcome", fill=palette["muted"], size=20)
 
     # Footer provenance for reviewers/generators.
     _draw_label(
         draw,
         (96, 742),
-        "Reference contract: library → selected capability → agent use. No old screenshots, no centered logo, no light-bulb idea icon.",
+        "Reference contract: library → default capability slot → finished artifact. No robots, no central hub, no centered logo.",
         fill=palette["muted"],
         size=22,
     )

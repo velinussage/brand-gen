@@ -18,7 +18,7 @@ import {
   toToolResult,
   type BridgeLike,
   type PluginConfig,
-} from "./index.ts";
+} from "./index.js";
 
 export type HostToolDefinition = {
   name: string;

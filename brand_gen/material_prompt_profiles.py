@@ -17,6 +17,10 @@ from .scoring.rubric_registry import material_rubric_key
 _PROFILES_PATH = SCRIPT_DIR.parent / "data" / "material_prompt_profiles.json"
 
 _MATERIAL_ALIASES = {
+    "x_banner": "x-banner",
+    "x_header": "x-banner",
+    "twitter_header": "x-banner",
+    "twitter_banner": "x-banner",
     "x_card": "x-card",
     "x_feed": "x-feed",
     "x_feed_square": "x-feed-square",
@@ -92,6 +96,15 @@ def get_material_prompt_profile(material_type: str | None) -> dict[str, Any] | N
     key = normalize_material_profile_key(material_type)
     if not key:
         return None
+
+    try:
+        from brand_gen.materials import fetch_material_capability
+        capability = fetch_material_capability(key)
+        if capability is not None:
+            return capability.prompt_profile
+    except Exception:
+        pass
+
     profile = (load_material_prompt_profiles().get("profiles") or {}).get(key)
     return dict(profile) if isinstance(profile, dict) else None
 

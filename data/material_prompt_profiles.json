@@ -7,6 +7,7 @@
       "x-feed",
       "x-feed-square",
       "x-feed-portrait",
+      "x-banner",
       "x-card",
       "linkedin-feed",
       "linkedin-feed-square",
@@ -190,12 +191,14 @@
         "product_truth",
         "motif"
       ],
-      "prompt_skeleton": "Show the library-manifest-to-agent-runtime premise as one clear value story: a single manifest/proof source distributing at most three skill/tool/workflow cards into one agent runtime. Use large deterministic copy if copy matters, strong negative space, and restrained supporting graphics; no dense grid of microcards.",
+      "prompt_skeleton": "Show governed libraries turning reusable capabilities into runtime defaults as one clear value story: a manifest/proof source, at most three skill/tool/workflow artifacts, and abstract default capability slots or a finished downstream artifact. Use a fresh source-derived framing not used recently: selection sieve, fat-skills/thin-harness layer, tokenized-taste canon, execution DAG compounds, RLM memory loop, category constellation, flat graphic/editorial systems, shelves, maps, diagrams, or proof-poster hierarchy. Do not default to generic switchboard/hub or robots/humanoids unless explicitly requested; avoid fake dashboards and dense microcard grids.",
       "negative_prompt_failure_bans": [
         "hard-to-read native image text",
         "dense microcard matrix or every feature shown at once",
         "low-contrast muddy palette or off-brand color drift",
         "generic AI orb/node diagram",
+        "defaulting to semi-realistic robot/humanoid agent scenes unless requested",
+        "defaulting to central hub or switchboard composition with artifacts pushed inward unless requested",
         "DAO/governance theater unless requested",
         "oversized logo as main idea",
         "fake UI chrome",
@@ -2664,11 +2667,13 @@
         "application",
         "motif"
       ],
-      "prompt_skeleton": "Explain one concrete Sage mechanism as a simple visual system: source artifact or manifest, routing/verification step, and agent/runtime outcome. Use 2-4 large shapes, one directional flow, and generous negative space. Do not turn it into a generic metaphor collage or fake dashboard; if labels matter, reserve them for deterministic overlay.",
+      "prompt_skeleton": "Explain one concrete Sage mechanism as a simple visual system: source artifact or manifest, routing/verification step, default capability slot, and finished downstream outcome. Use 2-4 large shapes, one directional flow, and generous negative space. Prefer a fresh source-derived framing not used recently: selection sieve, fat-skills/thin-harness layer, tokenized-taste canon, execution DAG compounds, RLM memory loop, category constellation, flat diagrams, shelves, maps, lattice paths, abstract capability artifacts, or proof sheets. Do not default to generic switchboard/hub or robots/humanoid agents unless explicitly requested. Avoid generic metaphor collages and fake dashboards. If labels matter, reserve them for deterministic overlay.",
       "negative_prompt_failure_bans": [
         "ambient brand world with no mechanism",
         "abstract metaphor that hides the product flow",
         "fake dashboard/screens/product modules",
+        "defaulting to semi-realistic robot/humanoid agent scenes unless requested",
+        "defaulting to central hub/switchboard composition with characters pushing artifacts inward unless requested",
         "dense web3 icon collage",
         "tiny unreadable labels",
         "invented capabilities not grounded in references or approved product truth"
@@ -2854,6 +2859,59 @@
       ],
       "review_rubric_key": "universal",
       "review_rubric_mapping": "universal_axes"
+    },
+    "x-banner": {
+      "material_type": "x-banner",
+      "batch": "core_proof_social",
+      "job_to_be_done": "Create a literal X/Twitter profile header that establishes brand recognition in a wide 1500x500 profile crop, favoring illustration/motif over text.",
+      "generation_mode": "image",
+      "default_aspect_ratio": "match_input_image",
+      "default_model": "nano-banana-2",
+      "default_render_backend": "native-with-deterministic-copy-preferred",
+      "exact_text_policy": {
+        "mode": "textless_native_generation_preferred",
+        "deterministic_required_for_exact_copy": true,
+        "guidance": "Generate the banner art textless by default. If a wordmark/tagline is required, compose it deterministically after generation; never ask the native image model for paragraph copy."
+      },
+      "best_aesthetic_capsules": [
+        "editorial-content-card",
+        "tactile-human-collage",
+        "screenprinted-proof-poster"
+      ],
+      "allowed_reference_roles": [
+        "composition",
+        "application",
+        "motif",
+        "brand"
+      ],
+      "prompt_skeleton": "Wide 1500x500 brand field. Keep bottom-left avatar overlay zone quiet, avoid top/bottom crop edges, and place the main illustrated brand motif center-right. Prefer abstract illustration over copy. Do not render paragraphs, product dashboard, browser chrome, CTA, or dense UI.",
+      "negative_prompt_failure_bans": [
+        "wrong aspect ratio",
+        "square social card",
+        "paragraph text",
+        "gibberish text",
+        "model-rendered copy blocks",
+        "product dashboard chrome",
+        "browser frame",
+        "CTA button",
+        "dense UI copy",
+        "prompt text rendered into the image",
+        "off-brand product terms from another brand"
+      ],
+      "review_focus": [
+        "exact 1500x500 output",
+        "avatar safe zone",
+        "center-right focal hierarchy",
+        "brand fidelity",
+        "minimal deterministic copy",
+        "no unrelated product/category terms"
+      ],
+      "web_delivery": {
+        "display_width": 1500,
+        "display_height": 500,
+        "primary_file_type": "png",
+        "html_usage": "X/Twitter profile header upload"
+      }
     }
   }
 }

@@ -178,6 +178,12 @@ class PipelineRunner:
     def run(self, plan_args: argparse.Namespace) -> PipelineResult:
         self.pipeline_request = PipelineRequest.from_namespace(plan_args)
         plan_args = self.pipeline_request.to_namespace()
+        material_type = getattr(plan_args, "material_type", None)
+        if type(self).__name__ != "DummyRunner":
+            raise ValueError(
+                f"Material type '{material_type}' is cut over to the new campaign control plane harness "
+                f"and cannot be run via the legacy pipeline runner."
+            )
         # Advisory: warn loudly when `bgen pipeline` is invoked without the
         # orchestrator chain having fired recently. Retro v121-v124 showed
         # that agents calling pipeline directly skip philosopher WCAG gates,
@@ -227,6 +233,15 @@ class PipelineRunner:
             self._ensure_inspiration(plan_args)
         except Exception as exc:
             print(f"pre_gen_inspiration_warning: {exc}")
+
+        inspiration_block = self._inspiration_evidence_block(plan_args)
+        if inspiration_block:
+            if self.allow_blocking:
+                print(f"pre_gen_inspiration_bypass: {inspiration_block}")
+            else:
+                result.stopped_at = "prepare"
+                result.stop_reason = inspiration_block
+                return result
 
         try:
             draft_result = self._run_plan_draft(plan_args)
@@ -364,6 +379,9 @@ class PipelineRunner:
             readiness_issues.extend(
                 str(item) for item in (inspiration_status.get("warnings") or []) if str(item).strip()
             )
+            inspiration_block = self._inspiration_evidence_block(plan_args)
+            if inspiration_block:
+                readiness_issues.append(inspiration_block)
         except Exception:
             inspiration_status = {}
 
@@ -605,56 +623,14 @@ class PipelineRunner:
         return payload
 
     def orchestrate_material(self, plan_args: argparse.Namespace) -> OrchestrateMaterialResponse:
-        result = self.run(plan_args)
-        stages_completed: list[str] = []
-        if self.skip_route or result.route is not None:
-            stages_completed.append("prepare")
-        if result.plan_draft is not None:
-            stages_completed.append("plan")
-        if result.critique is not None:
-            stages_completed.append("validate")
-        if result.result is not None:
-            stages_completed.append("execute")
-        if result.result and (result.result.agent_review_path or result.result.auto_review_path):
-            stages_completed.append("review")
-
-        if result.stopped_at in {"critique", "scratchpad"}:
-            stop_reason = "blocking_findings"
-        elif result.stopped_at == "complete" and result.result and result.result.visual_review_status == "approved":
-            stop_reason = "approved"
-        elif result.stopped_at == "complete":
-            stop_reason = "iterating"
-        else:
-            stop_reason = "max_retries" if "retry" in str(result.stop_reason or "").lower() else "iterating"
-
-        next_action = None
-        if result.result and result.result.version_id:
-            next_action = NextAction(
-                tool="brand_review_run",
-                args={"version_id": result.result.version_id, "workflow_id": self.workflow_id},
-            )
-        elif result.plan_draft and not result.critique:
-            next_action = NextAction(
-                tool="brand_validate_run",
-                args={"plan_draft": result.plan_draft.output_path, "workflow_id": self.workflow_id},
-            )
-
-        payload = OrchestrateMaterialResponse(
-            run_id=self.workflow_id,
-            stages_completed=stages_completed,
-            stop_reason=stop_reason,
-            next_action=next_action,
-            artifacts={
-                "plan": result.plan_draft.output_path if result.plan_draft else "",
-                "critique": result.critique.output_path if result.critique else "",
-                "scratchpad": result.scratchpad.output_path if result.scratchpad else "",
-                "version_id": result.result.version_id if result.result else "",
-                "review_packet": result.result.agent_review_path if result.result else "",
-                "auto_review": result.result.auto_review_path if result.result else "",
-            },
-        )
-        self._record_orchestration_response("orchestrate", payload, status=stop_reason, notes=result.stop_reason)
-        return payload
+        import copy
+        plan_args_copy = copy.deepcopy(plan_args)
+        if not getattr(plan_args_copy, "workflow_id", None):
+            plan_args_copy.workflow_id = self.workflow_id
+        from brand_gen.harness.concurrency import run_async
+        from brand_gen.harness.campaign_runner import run_campaign_harness
+        res = run_async(run_campaign_harness(self.brand_dir, plan_args_copy))
+        return res
 
     def _run_route(self, plan_args: argparse.Namespace) -> StageResult:
         try:
@@ -793,7 +769,45 @@ class PipelineRunner:
         errors = typed.plan.validate()
         if errors:
             return StageResult(output=typed, proceed=False, reason="; ".join(errors))
+        self._record_plan_rotation_choice(plan_dict)
         return StageResult(output=typed)
+
+    def _record_plan_rotation_choice(self, plan_dict: dict[str, Any]) -> None:
+        """Persist aesthetic archetype rotation so subsequent drafts do not
+        keep reusing the same illustration grammar.
+        """
+        material_type = str(plan_dict.get("material_type") or "").strip()
+        archetype_id = str(plan_dict.get("aesthetic_archetype_id") or "").strip()
+        framing_id = str(((plan_dict.get("sage_framing_direction") or {}).get("id") if isinstance(plan_dict.get("sage_framing_direction"), dict) else "") or "").strip()
+        if not material_type or (not archetype_id and not framing_id):
+            return
+        try:
+            try:
+                from .aesthetic_archetypes import list_archetypes, record_archetype_choice
+                from .iteration_memory import load_iteration_memory, record_sage_framing_choice, save_iteration_memory
+                from .sage_generation_contract import SAGE_FRAMING_DIRECTIONS
+            except ImportError:  # pragma: no cover
+                from aesthetic_archetypes import list_archetypes, record_archetype_choice  # type: ignore
+                from iteration_memory import load_iteration_memory, record_sage_framing_choice, save_iteration_memory  # type: ignore
+                from sage_generation_contract import SAGE_FRAMING_DIRECTIONS  # type: ignore
+            memory = load_iteration_memory(self.brand_dir)
+            if archetype_id:
+                memory = record_archetype_choice(
+                    memory,
+                    material_type=material_type,
+                    archetype_id=archetype_id,
+                    archetype_set_size=len(list_archetypes(material_type)) or None,
+                )
+            if framing_id:
+                memory = record_sage_framing_choice(
+                    memory,
+                    material_type=material_type,
+                    framing_id=framing_id,
+                    framing_set_size=len(SAGE_FRAMING_DIRECTIONS),
+                )
+            save_iteration_memory(self.brand_dir, memory)
+        except Exception as exc:  # defensive: rotation state should not block drafting
+            warn(f"failed to record aesthetic archetype rotation: {exc}")
 
     def _critique_args(self, plan_path: str) -> argparse.Namespace:
         return PipelineRequest.build_critique_namespace(
@@ -1268,11 +1282,67 @@ class PipelineRunner:
             print(f"pre_gen_learnings: applied overrides from learnings.json: {overrides}")
         return overrides
 
+    def _is_motion_material(self, material_type: str) -> bool:
+        """Return true for materials whose primary output is video/motion."""
+        key = role_pack_material_key(material_type) or str(material_type or "").strip().lower().replace("_", "-")
+        return key in {
+            "animation",
+            "bumper-animation",
+            "feature-animation",
+            "gif",
+            "landing-hero",
+            "logo-animation",
+            "motion-loop",
+            "short-video",
+            "stinger-animation",
+        }
+
+    def _inspiration_evidence_block(self, plan_args: argparse.Namespace) -> str:
+        """Hard-gate non-motion generation on real extracted inspiration evidence.
+
+        Brand material generation should not proceed from random material selection
+        plus generic brand memory when curated inspiration sources exist. Reference
+        mode still needs the inspiration set available during planning, because
+        reference-only prior outputs can compound self-referential drift.
+        """
+        material_type = getattr(plan_args, "material_type", None) or ""
+        if self._is_motion_material(material_type):
+            return ""
+        try:
+            from .generation_flow import check_inspiration_pipeline_status
+            from .runtime_brand import get_brand_gen_dir, resolve_context_brand_key
+        except ImportError:  # pragma: no cover - direct import compatibility
+            from generation_flow import check_inspiration_pipeline_status  # type: ignore
+            from runtime_brand import get_brand_gen_dir, resolve_context_brand_key  # type: ignore
+
+        brand_gen_dir = get_brand_gen_dir()
+        active_brand = resolve_context_brand_key(
+            brand_dir=self.brand_dir,
+            profile=self.profile,
+            identity=self.identity,
+            brand_gen_dir=brand_gen_dir,
+        ) or self.brand_dir.name
+        status = check_inspiration_pipeline_status(brand_gen_dir, active_brand, "hybrid")
+        warnings = [str(item).strip() for item in (status.get("warnings") or []) if str(item).strip()]
+        suggestions = [str(item).strip() for item in (status.get("suggestions") or []) if str(item).strip()]
+        if not (self.brand_dir / "inspiration-memory.json").exists():
+            warnings.append("Inspiration sources have not been consolidated into inspiration-memory.json.")
+            suggestions.append("Run: bgen consolidate-inspiration --format json")
+        if status.get("ok") and not warnings:
+            return ""
+        details = "; ".join(warnings + suggestions)
+        return (
+            "Inspiration evidence block: non-motion brand generation requires extracted "
+            "and consolidated inspiration sources before planning. "
+            + details
+        ).strip()
+
     def _ensure_inspiration(self, plan_args: argparse.Namespace) -> None:
         """Check if inspiration sources are configured but not extracted and attempt extraction.
 
-        This is best-effort: all exceptions are caught, logged, and the pipeline
-        continues regardless of success or failure.
+        The extraction attempt is best-effort; `_inspiration_evidence_block` is the
+        strict gate that prevents non-motion materials from proceeding if this
+        could not produce real extracted inspiration evidence.
         """
         try:
             from .runtime_brand import (
@@ -1300,34 +1370,59 @@ class PipelineRunner:
             brand_gen_dir=brand_gen_dir,
         ) or self.brand_dir.name
         config = load_inspirations_config(active_brand, brand_gen_dir)
-        sources = config.get("sources") or []
-        if not sources:
+        raw_sources = config.get("sources") or []
+        source_keys: list[str] = []
+        if isinstance(raw_sources, dict):
+            iterable = [dict(value or {}, key=key) if isinstance(value, dict) else {"key": key} for key, value in raw_sources.items()]
+        else:
+            iterable = raw_sources if isinstance(raw_sources, list) else []
+        for source in iterable:
+            if isinstance(source, dict):
+                key = str(source.get("key") or source.get("source") or "").strip()
+            else:
+                key = str(source or "").strip()
+            if key:
+                source_keys.append(key)
+        if not source_keys:
             return
 
         index = load_inspiration_index(brand_gen_dir).get("sources", {})
-        unextracted = [s for s in sources if s in index and index[s].get("status") != "complete"]
-        if not unextracted:
-            return
+        unextracted = [s for s in source_keys if s in index and index[s].get("status") != "complete"]
 
-        print(f"pre_gen_inspiration: {len(unextracted)} source(s) not fully extracted, attempting extraction")
-        try:
-            material_type = getattr(plan_args, "material_type", None) or ""
-            extract_args = argparse.Namespace(
-                workers=2,
-                timeout=30,
-                category=material_type or None,
-                limit=None,
-                force=False,
-                source=unextracted[:3],
-            )
+        if unextracted:
+            print(f"pre_gen_inspiration: {len(unextracted)} source(s) not fully extracted, attempting extraction")
             try:
-                from .commands.references import cmd_extract_inspiration
-            except ImportError:
-                from commands.references import cmd_extract_inspiration  # type: ignore
-            cmd_extract_inspiration(extract_args)
-            print(f"pre_gen_inspiration: extraction attempted for {len(unextracted[:3])} source(s)")
-        except Exception as exc:
-            print(f"pre_gen_inspiration_warning: extraction failed (non-blocking): {exc}")
+                extract_args = argparse.Namespace(
+                    workers=2,
+                    timeout=120,
+                    category=None,
+                    limit=None,
+                    force=False,
+                    source=unextracted[:4],
+                )
+                try:
+                    from .commands.references import cmd_extract_inspiration
+                except ImportError:
+                    from commands.references import cmd_extract_inspiration  # type: ignore
+                cmd_extract_inspiration(extract_args)
+                print(f"pre_gen_inspiration: extraction attempted for {len(unextracted[:4])} source(s)")
+            except Exception as exc:
+                print(f"pre_gen_inspiration_warning: extraction failed (non-blocking): {exc}")
+
+        if not (self.brand_dir / "inspiration-memory.json").exists():
+            print("pre_gen_inspiration: inspiration-memory missing, attempting consolidation")
+            try:
+                consolidate_args = argparse.Namespace(image=None, format="json")
+                try:
+                    from .commands.references import cmd_consolidate_inspiration
+                except ImportError:
+                    from commands.references import cmd_consolidate_inspiration  # type: ignore
+                cmd_consolidate_inspiration(consolidate_args)
+                print("pre_gen_inspiration: consolidation attempted")
+            except SystemExit as exc:
+                print(f"pre_gen_inspiration_warning: consolidation failed (non-blocking): {exc}")
+            except Exception as exc:
+                print(f"pre_gen_inspiration_warning: consolidation failed (non-blocking): {exc}")
 
     # ------------------------------------------------------------------
     # Post-generation quality gate

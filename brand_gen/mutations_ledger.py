@@ -85,6 +85,22 @@ def append_mutation_event(
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(record, default=str) + "\n")
+
+    # PR-6: synchronous BRAND.md regen on every typed mutation (Q14).
+    # JSON state stays canonical; BRAND.md is a rendered dossier.
+    # Deferred import avoids any circular dependency at module load.
+    try:
+        from brand_gen.contract import render_brand_md
+
+        render_brand_md(brand_dir)
+    except Exception as exc:
+        # Render bugs should be loud — emit a sibling marker so tests can detect.
+        marker = Path(brand_dir) / ".brand-md-render-error"
+        try:
+            marker.write_text(f"{record['verb']}: {exc}\n", encoding="utf-8")
+        except OSError:
+            pass
+
     return path
 
 

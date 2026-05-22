@@ -24,6 +24,7 @@ DEFAULT_ITERATION_MEMORY = {
     "last_style_anchor_by_material": {},
     "recent_style_anchors_by_material": {},
     "recent_archetypes_by_material": {},
+    "recent_sage_framings_by_material": {},
 }
 
 def iteration_memory_paths(brand_dir: Path) -> tuple[Path, Path]:
@@ -46,6 +47,9 @@ def normalize_iteration_memory(payload: dict | None) -> dict:
     }
     out["recent_archetypes_by_material"] = {
         k: list(v) for k, v in (out.get("recent_archetypes_by_material") or {}).items()
+    }
+    out["recent_sage_framings_by_material"] = {
+        k: list(v) for k, v in (out.get("recent_sage_framings_by_material") or {}).items()
     }
     out["positive_examples"] = [_normalize_feedback_record(item) for item in out["positive_examples"] if isinstance(item, dict)]
     out["negative_examples"] = [_normalize_feedback_record(item) for item in out["negative_examples"] if isinstance(item, dict)]
@@ -127,6 +131,28 @@ def record_style_anchor_choice(
     history.append(anchor_version)
     window = max((anchor_set_size or len(history)) - 1, 1)
     memory["recent_style_anchors_by_material"][material_type] = history[-window:]
+    return memory
+
+
+def record_sage_framing_choice(
+    memory: dict,
+    *,
+    material_type: str,
+    framing_id: str,
+    framing_set_size: int | None = None,
+) -> dict:
+    """Persist Sage product-framing choices so planning rotates the visible
+    metaphor/structure instead of fossilizing on one default.
+    """
+    memory = normalize_iteration_memory(memory)
+    material_key = str(material_type or "").strip().lower().replace("_", "-")
+    framing_id = str(framing_id or "").strip()
+    if not material_key or not framing_id:
+        return memory
+    history = [h for h in list(memory["recent_sage_framings_by_material"].get(material_key) or []) if h != framing_id]
+    history.append(framing_id)
+    window = max((framing_set_size or len(history)) - 1, 1)
+    memory["recent_sage_framings_by_material"][material_key] = history[-window:]
     return memory
 
 

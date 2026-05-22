@@ -56,6 +56,8 @@ def append_run_event(
     override_actor: str | None = None,
     data: dict[str, Any] | None = None,
     timestamp: str | None = None,
+    run_id: str | None = None,
+    campaign_id: str | None = None,
 ) -> Path:
     data = dict(data or {})
     resolved_branch_id = branch_id if branch_id is not None else data.get("branch_id")
@@ -65,6 +67,8 @@ def append_run_event(
         "schema_type": "run_event",
         "schema_version": 1,
         "timestamp": timestamp or time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "run_id": str(run_id or ""),
+        "campaign_id": str(campaign_id or ""),
         "workflow_id": str(workflow_id or ""),
         "stage": str(stage or ""),
         "event_type": str(event_type or stage or ""),

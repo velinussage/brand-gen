@@ -195,9 +195,9 @@ class CanonicalRegistrationTests(unittest.TestCase):
     def test_inspection_allowlist_includes_run_verbs(self) -> None:
         from brand_gen.agent_specialization import AGENT_BY_ID
 
-        explorer = AGENT_BY_ID["brand-explorer"]
-        self.assertIn("brand_list_runs", explorer.canonical_tools)
-        self.assertIn("brand_get_run", explorer.canonical_tools)
+        strategist = AGENT_BY_ID["strategist"]
+        self.assertIn("brand_list_runs", strategist.canonical_tools)
+        self.assertIn("brand_get_run", strategist.canonical_tools)
 
     def test_bridges_registered(self) -> None:
         from brand_gen.mcp_bridge_registry import BRIDGE_BY_TOOL

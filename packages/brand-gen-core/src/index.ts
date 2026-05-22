@@ -1,8 +1,8 @@
 // @brand-gen/core — shared data layer for brand-gen plugins
 
 // MCP bridge
-export { McpBridge, type McpToolDef } from "./mcp-bridge.ts";
-export { resolveMcpInvocation, type McpInvocation } from "./mcp-invocation.ts";
+export { McpBridge, type McpToolDef } from "./mcp-bridge.js";
+export { resolveMcpInvocation, type McpInvocation } from "./mcp-invocation.js";
 
 // Types & constants
 export type {
@@ -23,14 +23,14 @@ export type {
   PluginConfig,
   RuntimeStatusMarker,
   WorkspaceKind,
-} from "./types.ts";
+} from "./types.js";
 export {
   DEFAULT_HEARTBEAT_INTERVAL_MINUTES,
   DISCOVER_TIMEOUT_MS,
   GENERATE_TIMEOUT_MS,
   HEARTBEAT_CYCLE_TIMEOUT_MS,
   ORPHAN_MINUTES,
-} from "./types.ts";
+} from "./types.js";
 
 // Goal catalog
 export {
@@ -40,7 +40,7 @@ export {
   getGoalById,
   getGoalsByAudience,
   getGoalsByStage,
-} from "./goals.ts";
+} from "./goals.js";
 
 // Memory (SQLite journal + learnings JSON)
 export {
@@ -60,7 +60,7 @@ export {
   patchJournalEntry,
   rateJournalEntry,
   saveLearnings,
-} from "./memory.ts";
+} from "./memory.js";
 
 // Workspace resolution
 export {
@@ -72,7 +72,7 @@ export {
   parsePluginConfig,
   readJsonFile,
   resolveActiveWorkspace,
-} from "./workspace.ts";
+} from "./workspace.js";
 
 // Runtime status
 export {
@@ -81,7 +81,7 @@ export {
   runtimeStatusDir,
   runtimeStatusPath,
   writeRuntimeStatusMarker,
-} from "./runtime-status.ts";
+} from "./runtime-status.js";
 
 // Context building
 export {
@@ -91,7 +91,7 @@ export {
   isHeartbeatPrompt,
   summarizeContext,
   toToolResult,
-} from "./context.ts";
+} from "./context.js";
 
 // Cycle & heartbeat
 export {
@@ -110,7 +110,7 @@ export {
   stopHeartbeat,
   triggerHeartbeat,
   withTimeout,
-} from "./cycle.ts";
+} from "./cycle.js";
 
 // Canonical host-tool registry (Phase 3: replaces brand_search/brand_execute multiplexers)
 export {
@@ -122,4 +122,4 @@ export {
   type CanonicalTool,
   type HostToolDefinition,
   type ToolCategory,
-} from "./tool-registry.ts";
+} from "./tool-registry.js";

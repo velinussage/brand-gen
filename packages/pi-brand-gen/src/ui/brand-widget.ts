@@ -3,7 +3,7 @@ import {
   type BridgeLike,
   type HeartbeatState,
   type PluginConfig,
-} from "../../../brand-gen-core/src/index.ts";
+} from "@brand-gen/core";
 
 export class BrandGenWidget {
   private visible = false;

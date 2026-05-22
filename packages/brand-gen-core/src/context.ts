@@ -1,6 +1,6 @@
-import type { BrandContext, BridgeLike, PluginConfig } from "./types.ts";
-import { defaultLearnings, getRecentEntries, loadLearnings } from "./memory.ts";
-import { resolveActiveWorkspace, readJsonFile } from "./workspace.ts";
+import type { BrandContext, BridgeLike, PluginConfig } from "./types.js";
+import { defaultLearnings, getRecentEntries, loadLearnings } from "./memory.js";
+import { resolveActiveWorkspace, readJsonFile } from "./workspace.js";
 
 export function extractJsonFromMcpResult(result: unknown): unknown {
   const anyResult = result as any;

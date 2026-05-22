@@ -21,21 +21,21 @@ class PhaseCCanonicalTests(unittest.TestCase):
     def test_list_brands_and_pending_reviews_in_inspection_pool(self) -> None:
         from brand_gen.agent_specialization import AGENT_BY_ID
 
-        explorer = AGENT_BY_ID["brand-explorer"]
-        self.assertIn("brand_list_brands", explorer.canonical_tools)
-        self.assertIn("brand_get_pending_reviews", explorer.canonical_tools)
+        strategist = AGENT_BY_ID["strategist"]
+        self.assertIn("brand_list_brands", strategist.canonical_tools)
+        self.assertIn("brand_get_pending_reviews", strategist.canonical_tools)
 
     def test_switch_brand_is_orchestrator_only(self) -> None:
         """brand_switch_brand writes .brand-gen/config.json — must NOT be
-        granted to read-only agents."""
+        granted to non-orchestrator agents."""
         from brand_gen.agent_specialization import AGENT_BY_ID
 
-        orchestrator = AGENT_BY_ID["brand-orchestrator"]
-        explorer = AGENT_BY_ID["brand-explorer"]
-        router = AGENT_BY_ID["brand-router"]
+        orchestrator = AGENT_BY_ID["orchestrator"]
+        strategist = AGENT_BY_ID["strategist"]
+        synthesizer = AGENT_BY_ID["synthesizer"]
         self.assertIn("brand_switch_brand", orchestrator.canonical_tools)
-        self.assertNotIn("brand_switch_brand", explorer.canonical_tools)
-        self.assertNotIn("brand_switch_brand", router.canonical_tools)
+        self.assertNotIn("brand_switch_brand", strategist.canonical_tools)
+        self.assertNotIn("brand_switch_brand", synthesizer.canonical_tools)
 
     def test_bridges_wired(self) -> None:
         from brand_gen.mcp_bridge_registry import BRIDGE_BY_TOOL

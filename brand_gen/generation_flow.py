@@ -29,8 +29,6 @@ from .plan_validation import (
     detect_exact_text_request,
     plan_declares_deterministic_text_strategy,
 )
-from .product_truth import is_sage_capability_context
-from .sage_generation_contract import repair_stale_sage_plan_contract
 from .reference_analysis import (
     build_reference_analysis_inputs as _build_reference_analysis_inputs,
     build_reference_analysis_snippet as _build_reference_analysis_snippet,
@@ -188,48 +186,19 @@ def ensure_base_image_reference_role(
 
 def build_auto_product_truth_reference_role(path: Path) -> dict:
     resolved = Path(path).expanduser().resolve()
-    is_motion_start = "motion-start" in str(resolved).lower() or resolved.name.lower().startswith("sage-motion-start")
     return {
         "role": "product_truth",
-        "role_help": (
-            "Use this freshly generated Sage motion start frame as current product-truth structure: "
-            "library/manifest selects a capability, installs it into a thin agent harness, and the agent completes work. "
-            "Do not copy it as an old screenshot, do not use the logo as the opener, and do not turn the selected route into a light-bulb icon."
-            if is_motion_start
-            else "Use this deterministic Sage capability proof as product-truth structure; do not let logo-only assets define the composition."
-        ),
-        "source_key": "auto_sage_motion_start_frame" if is_motion_start else "auto_sage_capability_proof",
-        "source_name": "Fresh Sage motion start-frame reference" if is_motion_start else "Auto Sage capability proof reference",
-        "notes": (
-            "fresh current motion start frame: library/manifest -> selected capability -> thin agent harness -> completed work"
-            if is_motion_start
-            else "deterministic library-manifest / skill / MCP-tool proof reference"
-        ),
+        "role_help": "Use this reference only as active product/brand truth for the current brief; do not invent unrelated UI, copy, or product taxonomy.",
+        "source_key": "auto_product_truth_reference",
+        "source_name": "Auto product-truth reference",
+        "notes": "auto-attached active product/brand proof reference",
         "path": str(resolved),
         "asset_kind": "image",
         "used_role_asset": True,
         "reference_quality": "product-proof",
-        "borrow_mechanics": (
-            [
-                "fresh Sage capability-adoption structure",
-                "library/manifest -> selected capability -> thin agent harness -> completed output",
-            ]
-            if is_motion_start
-            else [
-                "Sage capability proof structure",
-                "library manifest / skill / MCP-tool artifacts as product truth",
-            ]
-        ),
-        "avoid_literal": (
-            ["old screenshot UI/nav", "centered logo or light-bulb idea icon"]
-            if is_motion_start
-            else ["old screenshot UI/nav", "logo-only framing"]
-        ),
-        "reference_quality_reasons": (
-            ["freshly generated for this motion run", "prevents stale screenshot or logo-only opening frame"]
-            if is_motion_start
-            else ["auto-attached so reference mode is not logo-only"]
-        ),
+        "borrow_mechanics": ["active product/brand proof structure", "composition and hierarchy grounded in the supplied reference"],
+        "avoid_literal": ["unrelated UI/nav", "logo-only framing", "invented product copy"],
+        "reference_quality_reasons": ["auto-attached so reference mode is grounded in current brand/product truth"],
     }
 
 
@@ -263,10 +232,8 @@ _PRODUCT_TRUTH_REFERENCE_MATERIAL_KEYS = {
     "process_card",
     "content_card",
     "editorial_card",
-    # Motion/video materials need a product/workflow start frame just as much
-    # as stills do.  Without this, Sage capability animations frequently became
-    # "reference-backed" only by the logo asset, so video models used the mark
-    # as the opening frame even when the brief said not to.
+    # Motion/video materials may need a product/workflow start frame just as
+    # much as stills do.
     "feature_animation",
 }
 
@@ -283,25 +250,13 @@ def should_attach_product_truth_reference(
     material_key = role_pack_material_key(material_type) or str(material_type or "").strip().lower().replace("-", "_")
     if material_key not in _PRODUCT_TRUTH_REFERENCE_MATERIAL_KEYS:
         return False
-    return is_sage_capability_context(identity=identity, plan=plan)
+    return False
 
 
 def _resolve_render_backend(args, plan: dict, material_type: str) -> tuple[str, str]:
     requested = str(getattr(args, "render_backend", None) or plan.get("render_backend") or "").strip().lower()
     if requested == "html":
         return "html", ""
-    if (
-        is_sage_capability_context(identity=None, plan=plan)
-        and material_type != "proof-poster"
-        and (
-            detect_exact_text_request(plan)
-            or detect_deterministic_text_surface_request(plan, material_type=material_type)
-        )
-    ):
-        return (
-            "native",
-            "Sage capability/explanatory material kept on native illustration backend; exact labels/copy should be handled by a separate deterministic overlay or by proof-poster, not by generic HTML share-card routing.",
-        )
     if material_type in ALLOWED_HTML_MATERIALS and detect_deterministic_text_surface_request(plan, material_type=material_type):
         return (
             "html",
@@ -375,12 +330,8 @@ def assemble_generation_scratchpad(
         brand_gen_dir=brand_gen_dir,
     )
     stale_contract_repair_warnings: list[str] = []
-    if is_sage_capability_context(identity=identity_data, plan=plan):
-        plan, stale_contract_repair_warnings = repair_stale_sage_plan_contract(plan)
-        raw_prompt = args.prompt or plan.get("prompt_seed") or raw_prompt
     # Auto-inject product-truth proof references before mode resolution and
-    # reference analysis. Brand marks alone should not make Sage capability
-    # materials count as reference-backed.
+    # reference analysis when a generic per-brand policy asks for it.
     auto_product_truth_reference_paths: list[Path] = []
     auto_product_truth_reference_role_added = False
     if should_attach_product_truth_reference(
@@ -554,14 +505,9 @@ def assemble_generation_scratchpad(
     if base_image_role_added:
         warnings.append("Base image auto-registered as a `product_truth` reference so reference analysis and QA can see the carrier proof.")
     if auto_product_truth_reference_paths:
-        if any("motion-start" in str(path).lower() or Path(path).name.lower().startswith("sage-motion-start") for path in auto_product_truth_reference_paths):
-            warnings.append(
-                "Generated a fresh Sage motion start-frame reference; stale saved screenshots and logo-only assets are not used as the video opener."
-            )
-        else:
-            warnings.append(
-                "Auto-attached product-truth reference so Sage capability work is not reference-backed by logo-only assets."
-            )
+        warnings.append(
+            "Auto-attached product-truth reference so the run is grounded in active brand/product proof."
+        )
     if auto_product_truth_reference_role_added:
         warnings.append("Auto-registered product-truth reference role for the capability proof asset.")
     if workflow_mode == "reference" and not reference_paths and not mode_requested_explicitly:
@@ -780,6 +726,8 @@ def assemble_generation_scratchpad(
     aspect_ratio = resolve_default_aspect_ratio(material_type, getattr(args, "aspect_ratio", None), model_config or {})
     execution_resolution = getattr(args, "resolution", None) or material_defaults.get("default_resolution")
     execution_duration = getattr(args, "duration", None) or material_defaults.get("default_duration")
+    execution_width = material_defaults.get("output_width")
+    execution_height = material_defaults.get("output_height")
     prompt_context["output_aspect_ratio"] = aspect_ratio or ""
     prompt_context["output_resolution"] = str(execution_resolution or "")
     prompt_review = review_prompt_architecture(
@@ -973,6 +921,8 @@ def assemble_generation_scratchpad(
             "aspect_ratio": aspect_ratio,
             "resolution": execution_resolution,
             "duration": execution_duration,
+            "width": execution_width,
+            "height": execution_height,
             "preset": getattr(args, "preset", None),
             "negative_prompt": getattr(args, "negative_prompt", None),
             "style": getattr(args, "style", None),
@@ -1349,6 +1299,17 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         cmd += ["--aspect-ratio", str(execution["aspect_ratio"])]
     if execution.get("resolution"):
         cmd += ["--resolution", str(execution["resolution"])]
+    width_height_supported = bool(
+        (model_config.get("field_map") or {}).get("width")
+        or (model_config.get("field_map") or {}).get("height")
+        or "width" in (model_config.get("defaults") or {})
+        or "height" in (model_config.get("defaults") or {})
+        or model in {"flux-pro", "flux-schnell", "sdxl", "flux-2-flex", "flux-2-pro"}
+    )
+    if execution.get("width") and width_height_supported:
+        cmd += ["--width", str(execution["width"])]
+    if execution.get("height") and width_height_supported:
+        cmd += ["--height", str(execution["height"])]
     if execution.get("preset"):
         cmd += ["--preset", str(execution["preset"])]
     if execution.get("style"):
@@ -1441,6 +1402,21 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         )
         raise SystemExit(result.returncode)
 
+    postprocess_notes: list[str] = []
+    if generation_mode == "image" and execution.get("width") and execution.get("height"):
+        try:
+            from PIL import Image, ImageOps
+            target_size = (int(execution["width"]), int(execution["height"]))
+            with Image.open(out_file) as image:
+                original_size = image.size
+                if original_size != target_size:
+                    fitted = ImageOps.fit(image.convert("RGB"), target_size, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+                    fitted.save(out_file)
+                    postprocess_notes.append(f"postprocessed_exact_dimensions:{original_size[0]}x{original_size[1]}->{target_size[0]}x{target_size[1]}")
+        except Exception as exc:
+            postprocess_notes.append(f"postprocess_exact_dimensions_failed:{exc}")
+            print(f"WARNING: could not enforce exact output dimensions for {out_file}: {exc}", file=sys.stderr)
+
     files = [out_file.name]
     staged_sources = [Path(path) for path in ((payload.get("reference_context") or {}).get("all_context_refs") or [])]
     motion_reference = execution.get("motion_reference") or ""
@@ -1530,6 +1506,7 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         "reference_analysis_confidence": payload.get("reference_analysis_confidence") or "",
         "selected_reference_ids": selected_reference_ids,
         "selected_inspiration_ids": list(payload.get("selected_inspiration_ids") or []),
+        "postprocess_notes": postprocess_notes,
     })
     append_run_event(
         brand_dir,
@@ -1552,7 +1529,7 @@ def execute_generation_scratchpad(payload: dict, workflow_id: str | None = None)
         parent_branch_id=payload.get("parent_branch_id") or "",
         branch_status=payload.get("branch_status") or "active",
         selected_direction_id=payload.get("selected_direction_id") or ((payload.get("inspiration_board") or {}).get("direction_id") or ""),
-        data={"files": list(files), "scratchpad_path": payload.get("_scratchpad_path") or ""},
+        data={"files": list(files), "scratchpad_path": payload.get("_scratchpad_path") or "", "postprocess_notes": postprocess_notes},
     )
     image_artifact_names = [
         name

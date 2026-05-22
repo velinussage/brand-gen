@@ -14,15 +14,15 @@ import {
   triggerHeartbeat,
   writeRuntimeStatusMarker,
   type PluginConfig,
-} from "../../brand-gen-core/src/index.ts";
-import { resolvePiRuntimePaths } from "./runtime-paths.ts";
+} from "@brand-gen/core";
+import { resolvePiRuntimePaths } from "./runtime-paths.js";
 import {
   createBrandExecuteTool,
   createBrandSearchTool,
   createBrandStatusTool,
   createCanonicalBrandTools,
-} from "./tool.ts";
-import { BrandGenWidget } from "./ui/brand-widget.ts";
+} from "./tool.js";
+import { BrandGenWidget } from "./ui/brand-widget.js";
 
 function compatRegisterTool(pi: any, tool: any) {
   if (typeof pi?.registerTool === "function") return pi.registerTool(tool);

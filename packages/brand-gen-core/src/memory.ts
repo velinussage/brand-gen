@@ -10,7 +10,7 @@ import {
 import type { PathLike } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { basename, dirname, join } from "node:path";
-import type { BrandLearnings, JournalEntry, JournalStatus, PipelineResultLike } from "./types.ts";
+import type { BrandLearnings, JournalEntry, JournalStatus, PipelineResultLike } from "./types.js";
 
 function nowIso(): string {
   return new Date().toISOString();

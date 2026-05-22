@@ -1,15 +1,10 @@
-"""Product-truth and value-focus contracts for Sage capability materials.
+"""Generic product-truth helpers.
 
-This module is deliberately narrow. It does not try to police all brand-gen
-copy; it catches the recurring Sage failure mode where a prompt or generated
-plan turns the internal governance process into the whole visual story, invents
-fake product taxonomy, or lets the logo substitute for the value proposition.
-
-PR-6: Brand-coupled lexicons (allowed/banned product terms, capability tokens,
-governance-process tokens, governance-education tokens) are now loaded from
-<brand>/contract.json::product_terms and <brand>/contract.json::lexicon at
-module import. Hard-coded Python tuples below remain as fallbacks so existing
-behavior is preserved when the contract file is absent.
+Brand-gen must not carry hard-coded product knowledge for one specific brand.
+Historically this module contained Sage-specific lexicons and prompt injections;
+those are now inert compatibility shims so old imports keep working without
+adding Sage terms, source-knowledge contracts, or product-specific copy to other
+brands.
 """
 from __future__ import annotations
 
@@ -286,27 +281,14 @@ def is_sage_capability_context(
     plan: dict[str, Any] | None = None,
     text: str = "",
 ) -> bool:
-    """Return True when the material appears to be about Sage's product story."""
-    identity = identity or {}
-    plan = plan or {}
-    brand_name = str(((identity.get("brand") or {}).get("name") or "")).strip().lower()
-    brand_dir_name = Path(str(plan.get("brand_dir") or "")).name.lower()
-    haystack = " ".join(
-        [
-            brand_name,
-            brand_dir_name,
-            plan_product_truth_haystack(plan),
-            _as_text(identity.get("messaging") or {}),
-            _as_text((identity.get("brand") or {}).get("summary") or ""),
-            text,
-        ]
-    ).lower()
-    if brand_name == "sage" or brand_dir_name == "sage" or "sage" in haystack:
-        return True
-    return bool(
-        ("library manifest" in haystack or "mcp" in haystack or "skill librar" in haystack)
-        and ("agent" in haystack or "capabil" in haystack)
-    )
+    """Deprecated compatibility shim.
+
+    Brand-gen no longer detects or injects product-specific Sage behavior.
+    Product truth must come from the active brand profile/identity, explicit
+    user brief, references, or per-brand contract files — never hard-coded
+    global brand knowledge.
+    """
+    return False
 
 
 def governance_education_requested(plan: dict[str, Any] | None) -> bool:
@@ -368,7 +350,17 @@ def validate_product_truth_plan(
     *,
     identity: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Validate Sage product-value fidelity without over-constraining other brands."""
+    """Deprecated compatibility shim; no global product-specific validation."""
+    plan = plan or {}
+    return {"applies": False, "errors": [], "warnings": [], "counts": value_focus_counts(plan)}
+
+
+def _validate_product_truth_plan_legacy_sage(
+    plan: dict[str, Any] | None,
+    *,
+    identity: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Legacy Sage-specific validator retained only for historical reference."""
     plan = plan or {}
     if not is_sage_capability_context(identity=identity, plan=plan):
         return {"applies": False, "errors": [], "warnings": [], "counts": value_focus_counts(plan)}
@@ -432,25 +424,20 @@ def sage_product_truth_prompt_moves(
     *,
     identity: dict[str, Any] | None = None,
 ) -> dict[str, list[str]]:
-    """Return compact push/ban moves for plan creation."""
-    if not is_sage_capability_context(identity=identity, plan=plan or {}):
-        return {"push": [], "ban": []}
-    return {
-        "push": [
-            "Show Sage-governed skill/prompt libraries turning curated capabilities into reusable defaults.",
-            "Prefer abstract capability artifacts: skill card, MCP tool card, library manifest, curated capability tile, default capability slot, or reusable workflow card. Represent agents as abstract runtime slots or paths, not robots or humanoids.",
-        ],
-        "ban": [
-            "proposal/review/publish flow as the visual hero unless explicitly requested as governance education",
-            "invented Sage product taxonomy such as Prompt Pack, System of Provenance, or Approved Library Update",
-            "generic network diagram, CLI command strip, fake app screen, or oversized Sage mark as the routing hub",
-            "repeated Sage logos; use one small provenance/source seal only",
-            "do not default to semi-realistic robots/humanoid agents or central hub/switchboard compositions unless explicitly requested",
-        ],
-    }
+    """Deprecated compatibility shim; no global brand-specific prompt moves."""
+    return {"push": [], "ban": []}
 
 
 def render_product_truth_contract(
+    plan: dict[str, Any] | None,
+    *,
+    identity: dict[str, Any] | None = None,
+) -> str:
+    """Deprecated compatibility shim; no global brand-specific prompt block."""
+    return ""
+
+
+def _render_product_truth_contract_legacy_sage(
     plan: dict[str, Any] | None,
     *,
     identity: dict[str, Any] | None = None,
@@ -483,12 +470,16 @@ def build_product_truth_metadata(
     *,
     identity: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Return compact structured product-truth metadata for prompt assembly.
+    """Return generic structured product-truth metadata for prompt assembly."""
+    plan = plan or {}
+    return {"applies": False, "value_focus_counts": value_focus_counts(plan)}
 
-    The full human-readable contract is useful for audits, but it is too bulky
-    to keep spending image-model prompt budget on every run.  This metadata is
-    the source of truth for compact execution prompts and plan payloads.
-    """
+
+def _build_product_truth_metadata_legacy_sage(
+    plan: dict[str, Any] | None,
+    *,
+    identity: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     if not is_sage_capability_context(identity=identity, plan=plan or {}):
         return {"applies": False}
     plan = plan or {}

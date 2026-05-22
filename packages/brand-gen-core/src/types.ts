@@ -1,4 +1,4 @@
-import type { McpBridge } from "./mcp-bridge.ts";
+import type { McpBridge } from "./mcp-bridge.js";
 
 // ---------------------------------------------------------------------------
 // Config

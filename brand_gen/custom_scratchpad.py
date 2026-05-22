@@ -173,9 +173,24 @@ def build_custom_scratchpad_snippet(brand_dir: Path, material_type: str | None) 
         parts.append("Custom scratchpad:")
         parts.append(md)
     if forbidden:
-        parts.append("Forbidden patterns (hard bans):")
+        brand_key = str(brand_dir.name or "").strip().lower()
+        sage_context = brand_key == "sage" or "sage" in md.lower()
+        conditional_terms = ("robot", "humanoid", "agent-workshop", "central hub", "switchboard")
+        hard_patterns: list[str] = []
+        default_suppressions: list[str] = []
         for pattern in forbidden[:8]:
-            parts.append(f"- {pattern}")
+            if sage_context and any(term in pattern.lower() for term in conditional_terms):
+                default_suppressions.append(pattern)
+            else:
+                hard_patterns.append(pattern)
+        if hard_patterns:
+            parts.append("Forbidden patterns (hard bans):")
+            for pattern in hard_patterns:
+                parts.append(f"- {pattern}")
+        if default_suppressions:
+            parts.append("Default suppressions (allowed only when the user specifically asks for this framing):")
+            for pattern in default_suppressions:
+                parts.append(f"- {pattern}")
     return "\n".join(parts).strip()
 
 
