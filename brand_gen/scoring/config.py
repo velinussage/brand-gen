@@ -88,10 +88,14 @@ def configure_judge_lm(model: str | None = None) -> dspy.LM:
     # no-op but LiteLLM forwards it harmlessly.
     extra_headers = {"anthropic-beta": "prompt-caching-2024-07-31"}
 
+    # max_tokens=2000 truncated strategist + art-director responses when the
+    # harness started passing brand context blocks (prior versions, inspiration
+    # board, brief docs). Raise to 6000 so harness personas emit coherent JSON
+    # and don't fall back to "Default Editorial Layout" stubs.
     judge = dspy.LM(
         model,
         temperature=0,
-        max_tokens=2000,
+        max_tokens=6000,
         extra_headers=extra_headers,
     )
     # Disable DSPy's local response cache — Anthropic's prompt cache
@@ -183,6 +187,27 @@ def image_source_from_path(image_path: str | Path) -> dict[str, Any]:
 
 
 def _guess_media_type(path: Path) -> str:
+    """Detect MIME type from magic bytes, falling back to extension.
+
+    Sniffing first because some providers (e.g., recraft-v4) save PNG bytes
+    with a `.webp` extension; Anthropic rejects the mismatch and the critic
+    panel fails wholesale (boon harness smoke test 2026-05-22).
+    """
+    try:
+        head = path.read_bytes()[:16]
+    except OSError:
+        head = b""
+
+    if head.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if head.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+        return "image/webp"
+    if head.startswith((b"GIF87a", b"GIF89a")):
+        return "image/gif"
+
+    # Magic-byte detection failed; fall back to extension hint.
     suffix = path.suffix.lower()
     if suffix in (".jpg", ".jpeg"):
         return "image/jpeg"

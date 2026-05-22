@@ -107,6 +107,127 @@ async def query_agent(lm: Any, agent_id: str, user_text: str, expected_json: boo
             return {"error": f"LM execution failed: {exc}"}
         return f"LM execution failed: {exc}"
 
+def _collect_brand_context(brand_dir: Path, material_type: str, limit: int = 8) -> dict[str, Any]:
+    """Gather rich brand context for the strategist + art-director prompts.
+
+    Without this, the harness's only inputs are profile/identity/scratchpad JSON
+    — agents produce abstract directions disconnected from the brand's actual
+    visual history (2026-05-22 boon smoke-test finding). Pull:
+      - prior versioned generations (v###-*.png/.jpg)
+      - explicit reference images in `assets/` and brand-root png/jpg
+      - top inspiration-board.json objects (label, source_url, design_memory)
+      - brand-context markdown files (briefs, prompts, design notes)
+    """
+    import json as _json
+
+    brand_dir = Path(brand_dir)
+    ctx: dict[str, Any] = {
+        "prior_versions": [],
+        "reference_images": [],
+        "inspiration_objects": [],
+        "context_markdown": [],
+    }
+
+    # Prior versioned generations (most recent first; cap at 5)
+    versioned = sorted(brand_dir.glob("v[0-9]*-*.*"), reverse=True)
+    for path in versioned[:5]:
+        if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+            ctx["prior_versions"].append({
+                "path": str(path),
+                "name": path.name,
+            })
+
+    # Reference / asset images (kept separately from generated outputs)
+    assets_dir = brand_dir / "assets"
+    if assets_dir.exists():
+        for path in sorted(assets_dir.iterdir()):
+            if path.is_file() and path.suffix.lower() in {".png", ".jpg", ".jpeg", ".svg"}:
+                ctx["reference_images"].append({
+                    "path": str(path),
+                    "name": path.name,
+                    "role": "brand_asset",
+                })
+    # Loose brand-context PNGs at brand root (e.g. boon-x-header-*.png)
+    for path in sorted(brand_dir.glob("*.png")):
+        if not path.name.startswith("v"):
+            ctx["reference_images"].append({
+                "path": str(path),
+                "name": path.name,
+                "role": "prior_brand_artifact",
+            })
+
+    # Top-N inspiration-board objects with the most workflow links (most-used)
+    board_path = brand_dir / "inspiration-board.json"
+    if board_path.exists():
+        try:
+            board = _json.loads(board_path.read_text(encoding="utf-8"))
+            objects = board.get("objects") or []
+            objects = sorted(
+                objects,
+                key=lambda o: len(o.get("workflow_ids") or []),
+                reverse=True,
+            )
+            for obj in objects[:limit]:
+                data = obj.get("data") or {}
+                summary = {
+                    "label": obj.get("label") or data.get("source_name") or "",
+                    "source_url": data.get("source_url") or "",
+                    "design_memory_path": data.get("design_memory_path") or "",
+                }
+                if any(summary.values()):
+                    ctx["inspiration_objects"].append(summary)
+        except (_json.JSONDecodeError, OSError):
+            pass
+
+    # Brand-context markdown files at brand root (briefs, design notes)
+    for path in sorted(brand_dir.glob("*.md")):
+        name_lower = path.name.lower()
+        if any(tag in name_lower for tag in ("brief", "context", "prompt", "design")):
+            try:
+                text = path.read_text(encoding="utf-8")
+                if 200 <= len(text) <= 8000:  # skip empties + giant logs
+                    ctx["context_markdown"].append({
+                        "name": path.name,
+                        "content": text.strip(),
+                    })
+            except OSError:
+                continue
+            if len(ctx["context_markdown"]) >= 3:
+                break
+
+    return ctx
+
+
+def _format_brand_context_block(ctx: dict[str, Any]) -> str:
+    """Format the collected context as a human/LLM-readable Markdown block."""
+    lines: list[str] = ["## Brand visual context"]
+
+    if ctx["prior_versions"]:
+        lines.append("\n### Prior generated work (most recent first)")
+        for item in ctx["prior_versions"]:
+            lines.append(f"- `{item['name']}` (path: {item['path']})")
+
+    if ctx["reference_images"]:
+        lines.append("\n### Reference images on disk")
+        for item in ctx["reference_images"]:
+            lines.append(f"- **{item['role']}**: `{item['name']}` ({item['path']})")
+
+    if ctx["inspiration_objects"]:
+        lines.append("\n### Brand inspiration board (top entries by usage)")
+        for obj in ctx["inspiration_objects"]:
+            url = f" — {obj['source_url']}" if obj["source_url"] else ""
+            lines.append(f"- **{obj['label']}**{url}")
+
+    if ctx["context_markdown"]:
+        lines.append("\n### Brand context documents")
+        for doc in ctx["context_markdown"]:
+            lines.append(f"\n#### `{doc['name']}`\n{doc['content']}")
+
+    if len(lines) == 1:
+        return ""  # no usable context
+    return "\n".join(lines)
+
+
 async def run_campaign_harness(brand_dir: Path, plan_args: argparse.Namespace) -> OrchestrateMaterialResponse:
     """Async campaign execution harness bypassing the legacy pipeline.
     
@@ -205,13 +326,31 @@ async def run_campaign_harness(brand_dir: Path, plan_args: argparse.Namespace) -
         "custom_scratchpad_md": load_custom_scratchpad_markdown(brand_dir),
     }
 
+    # Pull rich brand context (prior versions, inspiration board, brief docs)
+    # so agents stop hallucinating disconnected directions.
+    brand_visual_context = _collect_brand_context(brand_dir, material_type)
+    brand_context_block = _format_brand_context_block(brand_visual_context)
+
+    session.log_event(RunEvent(
+        stage="orchestration",
+        event_type="brand_context_collected",
+        material_type=material_type,
+        branch_id=workflow_id,
+        notes=(
+            f"prior_versions={len(brand_visual_context['prior_versions'])} "
+            f"reference_images={len(brand_visual_context['reference_images'])} "
+            f"inspiration_objects={len(brand_visual_context['inspiration_objects'])} "
+            f"context_markdown={len(brand_visual_context['context_markdown'])}"
+        ),
+    ))
+
     # 3. Configure judge LM
     lm = configure_judge_lm()
 
     # Step 1: Strategist writes the creative Thesis / Brief
     goal = getattr(plan_args, "goal", "") or ""
     request = getattr(plan_args, "request", "") or ""
-    
+
     strategist_user_text = f"""
 We are starting a campaign for '{material_type}'.
 
@@ -221,7 +360,15 @@ Request: {request}
 Brand Identity and Scratchpad Context:
 {json.dumps(identity_context, indent=2)}
 
+{brand_context_block}
+
 Please author a detailed Creative Thesis / Brief for this campaign.
+Ground the thesis in the **Brand visual context** above — reference specific
+prior work, inspiration sources, or context docs by name when arguing for a
+direction. If the context lists prior brand artifacts or brief documents, your
+thesis must respect their visual conclusions (palette, materials, restraint,
+forbidden moves) rather than inventing a new style language.
+
 Target the v2 rubric axes (such as story_fidelity, meaning_clarity, restraint, brand_specificity).
 Establish the visual strategy and causal logic.
 Format your response as a high-quality Markdown document.
@@ -234,13 +381,30 @@ Format your response as a high-quality Markdown document.
 We are designing visual directions for a '{material_type}' campaign based on the following Creative Thesis:
 {creative_brief}
 
+{brand_context_block}
+
 Please draft 2-3 distinct visual directions or cinematic shot layouts.
+
+Constraints derived from the brand visual context above:
+- Cite the inspiration sources or prior artifacts you are extending. Generic
+  retro/terminal/abstract framing is forbidden unless the brand context
+  explicitly endorses it.
+- Each direction's `visual_description` MUST name at least one concrete brand
+  truth (palette token, motif, "hero object", or material concept from the
+  brand brief) — not abstract style words alone.
+- If the context shows prior generated work with established palette + mood,
+  treat that as the baseline; new directions either deepen it or explicitly
+  pivot with cited reason.
+
 You must return a JSON object with a single "directions" list.
 Each direction must contain:
 - "direction_id": unique identifier (e.g. "direction_1", "direction_2")
 - "name": descriptive title
-- "visual_description": detailed visual/cinematographic description including lighting, environment, shot angle
-- "composition_rules": list of 2-3 specific rules or constraints for the composition
+- "visual_description": detailed visual/cinematographic description including
+   palette tokens, hero object, lighting, environment
+- "composition_rules": list of 2-3 specific rules or constraints
+- "brand_anchors": list of inspiration sources or prior artifacts this
+   direction draws from (use names from the visual context)
 
 Return ONLY valid JSON.
 """
