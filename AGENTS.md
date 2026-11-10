@@ -9,7 +9,7 @@ Brand state lives in two shapes, mutated through two channels:
 | Shape | Where | Mutated by | Audit |
 |---|---|---|---|
 | **Prose direction** — paragraph-shaped voice, framings, art direction, adoption scenes | `.brand-gen/brands/<brand>/voice/*.md`, `.brand-gen/brands/<brand>/custom-scratchpad.md`, `.brand-gen/brands/<brand>/iteration-memory.md`, `.brand-gen/brands/<brand>/brand-identity.md` | Agent `Edit` / `Write` directly; human-curated; review-on-merge gate | git history |
-| **Structured constraints** — atomic items in lists, schema-locked configs | `data/aesthetic_capsules.json`, `data/sage_brand_contract.json`, `.brand-gen/brands/<brand>/custom-scratchpad.json`, `.brand-gen/brands/<brand>/aesthetic-preferences.json`, `.brand-gen/brands/<brand>/iteration-memory.json` | Typed `bgen` mutation verbs ONLY | `<brand>/mutations.jsonl` ledger |
+| **Structured constraints** — atomic items in lists, schema-locked configs | `data/aesthetic_capsules.json`, `.brand-gen/brands/<brand>/contract.json`, `.brand-gen/brands/<brand>/custom-scratchpad.json`, `.brand-gen/brands/<brand>/aesthetic-preferences.json`, `.brand-gen/brands/<brand>/iteration-memory.json` | Typed `bgen` mutation verbs ONLY | `<brand>/mutations.jsonl` ledger |
 
 Generation events stay in `.brand-gen/brands/<brand>/runs/<workflow_id>.jsonl` (per-workflow). State mutations go to `.brand-gen/brands/<brand>/mutations.jsonl` (per-brand, append-only).
 
@@ -61,7 +61,7 @@ Markdown files at the repo root that document the system (`README.md`, `AGENTS.m
 - `.claude/agents/*.md`, `.pi/agents/*.md`, `skills/brand-gen/claude-agents/*.md` — auto-generated mirrors. Never edit these directly; make changes in `agents/*.agent.md` and run `scripts/sync_agents.py`.
 - `brand_gen/*.py` — no new brand-payload literals (see Never-edit rule #1)
 - `data/aesthetic_capsules.json` — go through `add-aesthetic-capsule`
-- `data/sage_brand_contract.json` (and any future `data/<brand>_brand_contract.json`) — go through the typed verb (see PR-1)
+- `.brand-gen/brands/<brand>/contract.json` (legacy fallback: `data/<brand>_brand_contract.json`) — go through the typed verb (see PR-1)
 - `.brand-gen/brands/<brand>/custom-scratchpad.json` — go through `append-forbidden-pattern` / `set-motion-grammar`
 - `.brand-gen/brands/<brand>/brand-identity.json` — go through `update-palette` / `update-typography` / `update-devices`
 - `.brand-gen/brands/<brand>/aesthetic-preferences.json` — go through `promote-aesthetic-learning`
